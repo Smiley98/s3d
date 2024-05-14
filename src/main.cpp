@@ -46,6 +46,30 @@ GLuint CreateTexture(const char* path)
     return texture;
 }
 
+GLuint CreateMemes(int width, int height)
+{
+    uint32_t* data = new uint32_t[width * height];
+    uint32_t coffee = 0xFFC0FFEE;
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
+            data[i * width + j] = coffee;
+        }
+    }
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    delete[] data;
+    return texture;
+}
+
 int main(const char* path)
 {
     glfwInit();
@@ -74,7 +98,7 @@ int main(const char* path)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-    GLuint texVan = CreateTexture("assets/textures/van.png");
+    GLuint texture = CreateMemes(512, 512);
 
     GLuint vsDefault = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
     GLuint vsGouraud = CreateShader(GL_VERTEX_SHADER, "assets/shaders/gouraud.vert");
@@ -116,7 +140,7 @@ int main(const char* path)
         glDepthMask(GL_FALSE);
         glUseProgram(shader);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texVan);
+        glBindTexture(GL_TEXTURE_2D, texture);
         glUniform1i(glGetUniformLocation(shader, "u_tex"), 0);
         glBindVertexArray(vaoFsq);
         glDrawArrays(GL_TRIANGLES, 0, 3);
