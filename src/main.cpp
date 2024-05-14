@@ -39,6 +39,26 @@ struct Colorf
     float a = 1.0f;
 };
 
+Color Convert(Colorf colorf)
+{
+    Color color;
+    color.r = colorf.r * 255.0f;
+    color.g = colorf.g * 255.0f;
+    color.b = colorf.b * 255.0f;
+    color.a = colorf.a * 255.0f;
+    return color;
+}
+
+Colorf Convert(Color color)
+{
+    Colorf colorf;
+    colorf.r = color.r / 255.0f;
+    colorf.g = color.g / 255.0f;
+    colorf.b = color.b / 255.0f;
+    colorf.a = color.a / 255.0f;
+    return colorf;
+}
+
 struct Texture
 {
     int width = 0;
@@ -120,43 +140,22 @@ int main(const char* path)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-    Color red;
-    red.r = 0xFF;
+    Colorf red, green, blue;
+    red.r = green.g = blue.b = 1.0f;
+    Colorf colors[] = { red, green, blue };
 
-    Color green;
-    green.g = 0xFF;
-
-    Color blue;
-    blue.b = 0xFF;
-
-    Color colors[] = { red, green, blue };
-
-    //Texture texVan = CreateTextureFromImage("assets/textures/van.png");
-    Texture texture = CreateTexture(4, 4, 4);
-    Color* data = new Color[texture.width * texture.height];
-
+    Texture texture = CreateTexture(8, 8, 4);
     std::vector<Color> pixels;
     pixels.resize(texture.width * texture.height);
 
-    // Lesson ideas:
-    // Get students to render a face?
-    // Get students to go from uint32_t to Color struct?
-    // Get students to switch from dynamic array to vector?
-    // Get students to count in binary (play ten in class)?
     for (int i = 0; i < texture.width; i++)
     {
         for (int j = 0; j < texture.height; j++)
         {
-            //data[i * texture.width + j] = colors[j % 3];
-            pixels[i * texture.width + j] = colors[j % 3];
+            pixels[i * texture.width + j] = Convert(colors[(j + i) % 3]);
         }
     }
-    //UpdateTexture(texture, data);
-    delete[] data;
-
-    memset(pixels.data(), 0, texture.width * texture.height * sizeof(Color));
-    pixels[0] = red;
-    pixels[2] = red;
+    // Make [0, 0] top-left
     stbi__vertical_flip(pixels.data(), texture.width, texture.height, sizeof(Color));
     UpdateTexture(texture, pixels.data());
 
