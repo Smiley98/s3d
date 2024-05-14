@@ -5,15 +5,14 @@
 #include <iostream>
 #include <vector>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
 #include "Mesh.h"
 #include "Shader.h"
+#include "Color.h"
+#include "Texture.h"
 
 void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
 void OnResize(GLFWwindow* window, int width, int height);
@@ -22,95 +21,6 @@ void OnGui();
 
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
-
-struct Color
-{
-    uint8_t r = 0;
-    uint8_t g = 0;
-    uint8_t b = 0;
-    uint8_t a = 255;
-};
-
-struct Colorf
-{
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
-    float a = 1.0f;
-};
-
-Color Convert(Colorf colorf)
-{
-    Color color;
-    color.r = colorf.r * 255.0f;
-    color.g = colorf.g * 255.0f;
-    color.b = colorf.b * 255.0f;
-    color.a = colorf.a * 255.0f;
-    return color;
-}
-
-Colorf Convert(Color color)
-{
-    Colorf colorf;
-    colorf.r = color.r / 255.0f;
-    colorf.g = color.g / 255.0f;
-    colorf.b = color.b / 255.0f;
-    colorf.a = color.a / 255.0f;
-    return colorf;
-}
-
-struct Texture
-{
-    int width = 0;
-    int height = 0;
-    GLuint id = GL_NONE;
-    GLenum format = GL_INVALID_ENUM;
-};
-
-Texture CreateTexture(int width, int height, int channels)
-{
-    GLuint id;
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    //GL_LINEAR blends neighbouring pixels which screws manual pixel data xD
-
-    assert(channels == 3 || channels == 4);
-    GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
-
-    Texture texture;
-    texture.id = id;
-    texture.width = width;
-    texture.height = height;
-    texture.format = format;
-    return texture;
-}
-
-void UpdateTexture(Texture texture, void* data)
-{
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture.id);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.width, texture.height, texture.format, GL_UNSIGNED_BYTE, data);
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
-}
-
-Texture CreateTextureFromImage(const char* path)
-{
-    int width, height, channels;
-    stbi_uc* data = stbi_load(path, &width, &height, &channels, 0);
-    assert(data != nullptr);
-
-    Texture texture = CreateTexture(width, height, channels);
-    UpdateTexture(texture, data);
-
-    stbi_image_free(data);
-    return texture;
-}
 
 int main(const char* path)
 {
@@ -140,42 +50,26 @@ int main(const char* path)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-    Colorf red, green, blue;
-    red.r = green.g = blue.b = 1.0f;
-    Colorf colors[] = { red, green, blue };
-
-    Texture texture = CreateTexture(8, 8, 4);
-    std::vector<Color> pixels;
-    pixels.resize(texture.width * texture.height);
-
-    for (int i = 0; i < texture.width; i++)
+    Image image;
+    LoadImage(image, 16, 4);
+    for (int i = 0; i < image.height; i++)
     {
-        for (int j = 0; j < texture.height; j++)
+        for (int j = 0; j < image.width; j++)
         {
-            pixels[i * texture.width + j] = Convert(colors[(j + i) % 3]);
+            Color colors[] = { RED, GREEN, BLUE };
+            image.pixels[i * image.width + j] = colors[(j + i) % 3];
         }
     }
-    // Make [0, 0] top-left
-    stbi__vertical_flip(pixels.data(), texture.width, texture.height, sizeof(Color));
-    UpdateTexture(texture, pixels.data());
+    //Fill(image, MAGENTA);
+    Flip(image);
+    GLuint texture = LoadTexture(image);
+    //GLuint texture = LoadTexture("assets/textures/van.png");
+    // Don't allow image-loading from file to ensure format is always RGBA.
+    // Use stb directly if I want to load an image from file (to prevent ambiguity).
 
-    GLuint vsDefault = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
-    GLuint vsGouraud = CreateShader(GL_VERTEX_SHADER, "assets/shaders/gouraud.vert");
     GLuint vsFsq = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
-
-    GLuint fsColor = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
-    GLuint fsGouraud = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/gouraud.frag");
-    GLuint fsPhong = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.frag");
-    GLuint fsPhongMaps = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/phong_maps.frag");
-    GLuint fsFractal = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal.frag");
     GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
-
-    GLuint shaderColor = CreateProgram(vsDefault, fsColor);
-    GLuint shaderPhong = CreateProgram(vsDefault, fsPhong);
-    GLuint shaderPhongMaps = CreateProgram(vsDefault, fsPhongMaps);
-    GLuint shaderGouraud = CreateProgram(vsGouraud, fsGouraud);
     GLuint shaderFsq = CreateProgram(vsFsq, fsTexture);
-    GLuint shaderFractal = CreateProgram(vsFsq, fsFractal);
 
     GLuint vaoFsq;
     glGenVertexArrays(1, &vaoFsq);
@@ -195,15 +89,17 @@ int main(const char* path)
         glClearColor(0.25f, 0.75f, 0.9f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
          
-        GLuint shader = shaderFsq;
-        glDepthMask(GL_FALSE);
-        glUseProgram(shader);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.id);
-        glUniform1i(glGetUniformLocation(shader, "u_tex"), 0);
-        glBindVertexArray(vaoFsq);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDepthMask(GL_TRUE);
+            BindTexture(texture);
+            glDepthMask(GL_FALSE);
+            glUseProgram(shaderFsq);
+            glUniform1i(glGetUniformLocation(shaderFsq, "u_tex"), 0);
+            glBindVertexArray(vaoFsq);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+
+            glBindVertexArray(GL_NONE);
+            glUseProgram(GL_NONE);
+            glDepthMask(GL_TRUE);
+            UnbindTexture(texture);
         
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -215,6 +111,9 @@ int main(const char* path)
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    UnloadImage(image);
+    UnloadTexture(texture);
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

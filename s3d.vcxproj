@@ -90,6 +90,7 @@
     <ClCompile Include="src\Materials.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h" />
@@ -108,6 +109,7 @@
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Orientation.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\Texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

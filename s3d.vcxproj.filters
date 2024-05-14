@@ -25,6 +25,9 @@
     <Filter Include="Shading">
       <UniqueIdentifier>{6744e09d-8c35-46d5-b5e2-fe1f109bff1f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Texture">
+      <UniqueIdentifier>{9bacd3bd-7c5b-412d-8e6a-dc943f586ffe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c">
@@ -62,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="src\Materials.cpp">
       <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +118,9 @@
     </ClInclude>
     <ClInclude Include="src\Lights.h">
       <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Texture.h">
+      <Filter>Texture</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
