@@ -138,6 +138,11 @@ int main(const char* path)
     std::vector<Color> pixels;
     pixels.resize(texture.width * texture.height);
 
+    // Lesson ideas:
+    // Get students to render a face?
+    // Get students to go from uint32_t to Color struct?
+    // Get students to switch from dynamic array to vector?
+    // Get students to count in binary (play ten in class)?
     for (int i = 0; i < texture.width; i++)
     {
         for (int j = 0; j < texture.height; j++)
@@ -148,6 +153,11 @@ int main(const char* path)
     }
     //UpdateTexture(texture, data);
     delete[] data;
+
+    memset(pixels.data(), 0, texture.width * texture.height * sizeof(Color));
+    pixels[0] = red;
+    pixels[2] = red;
+    stbi__vertical_flip(pixels.data(), texture.width, texture.height, sizeof(Color));
     UpdateTexture(texture, pixels.data());
 
     GLuint vsDefault = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
