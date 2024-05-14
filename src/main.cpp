@@ -1,7 +1,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <Math.h>
+
 #include <iostream>
+#include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -20,6 +22,22 @@ void OnGui();
 
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
+
+struct Color
+{
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    uint8_t a = 255;
+};
+
+struct Colorf
+{
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
+    float a = 1.0f;
+};
 
 struct Texture
 {
@@ -102,18 +120,35 @@ int main(const char* path)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
+    Color red;
+    red.r = 0xFF;
+
+    Color green;
+    green.g = 0xFF;
+
+    Color blue;
+    blue.b = 0xFF;
+
+    Color colors[] = { red, green, blue };
+
     //Texture texVan = CreateTextureFromImage("assets/textures/van.png");
     Texture texture = CreateTexture(4, 4, 4);
-    uint32_t colours[] = { 0xFF0000FF, 0xFF00FF00, 0xFFFF0000 };
-    uint32_t* data = new uint32_t[texture.width * texture.height];
+    Color* data = new Color[texture.width * texture.height];
+
+    std::vector<Color> pixels;
+    pixels.resize(texture.width * texture.height);
+
     for (int i = 0; i < texture.width; i++)
     {
         for (int j = 0; j < texture.height; j++)
         {
-            data[i * texture.width + j] = colours[j % 3];
+            //data[i * texture.width + j] = colors[j % 3];
+            pixels[i * texture.width + j] = colors[j % 3];
         }
     }
-    UpdateTexture(texture, data);
+    //UpdateTexture(texture, data);
+    delete[] data;
+    UpdateTexture(texture, pixels.data());
 
     GLuint vsDefault = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
     GLuint vsGouraud = CreateShader(GL_VERTEX_SHADER, "assets/shaders/gouraud.vert");
