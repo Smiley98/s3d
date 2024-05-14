@@ -21,52 +21,56 @@ void OnGui();
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
-GLuint CreateTexture(const char* path)
+struct Texture
 {
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    int width = 0;
+    int height = 0;
+    GLuint id = GL_NONE;
+    GLenum format = GL_INVALID_ENUM;
+};
+
+Texture CreateTexture(int width, int height, int channels)
+{
+    GLuint id;
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    int width, height, channels;
-    unsigned char* data = stbi_load(path, &width, &height, &channels, 0);
-    if (data)
-    {
-        assert(channels == 3 || channels == 4);
-        GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-    }
-    else
-    {
-        assert(false, "Texture load failed");
-    }
-    stbi_image_free(data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //GL_LINEAR blends neighbouring pixels which screws manual pixel data xD
+
+    assert(channels == 3 || channels == 4);
+    GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+
+    Texture texture;
+    texture.id = id;
+    texture.width = width;
+    texture.height = height;
+    texture.format = format;
     return texture;
 }
 
-GLuint CreateMemes(int width, int height)
+void UpdateTexture(Texture texture, void* data)
 {
-    uint32_t* data = new uint32_t[width * height];
-    uint32_t coffee = 0xFFC0FFEE;
-    for (int i = 0; i < width; i++)
-    {
-        for (int j = 0; j < height; j++)
-        {
-            data[i * width + j] = coffee;
-        }
-    }
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture.id);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.width, texture.height, texture.format, GL_UNSIGNED_BYTE, data);
+    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+}
 
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    delete[] data;
+Texture CreateTextureFromImage(const char* path)
+{
+    int width, height, channels;
+    stbi_uc* data = stbi_load(path, &width, &height, &channels, 0);
+    assert(data != nullptr);
+
+    Texture texture = CreateTexture(width, height, channels);
+    UpdateTexture(texture, data);
+
+    stbi_image_free(data);
     return texture;
 }
 
@@ -98,7 +102,18 @@ int main(const char* path)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-    GLuint texture = CreateMemes(512, 512);
+    //Texture texVan = CreateTextureFromImage("assets/textures/van.png");
+    Texture texture = CreateTexture(4, 4, 4);
+    uint32_t colours[] = { 0xFF0000FF, 0xFF00FF00, 0xFFFF0000 };
+    uint32_t* data = new uint32_t[texture.width * texture.height];
+    for (int i = 0; i < texture.width; i++)
+    {
+        for (int j = 0; j < texture.height; j++)
+        {
+            data[i * texture.width + j] = colours[j % 3];
+        }
+    }
+    UpdateTexture(texture, data);
 
     GLuint vsDefault = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
     GLuint vsGouraud = CreateShader(GL_VERTEX_SHADER, "assets/shaders/gouraud.vert");
@@ -140,7 +155,7 @@ int main(const char* path)
         glDepthMask(GL_FALSE);
         glUseProgram(shader);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glBindTexture(GL_TEXTURE_2D, texture.id);
         glUniform1i(glGetUniformLocation(shader, "u_tex"), 0);
         glBindVertexArray(vaoFsq);
         glDrawArrays(GL_TRIANGLES, 0, 3);
