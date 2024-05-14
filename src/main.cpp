@@ -85,13 +85,13 @@ int main(const char* path)
     GLuint fsPhong = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.frag");
     GLuint fsPhongMaps = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/phong_maps.frag");
     GLuint fsFractal = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal.frag");
-    //GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
+    GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
 
     GLuint shaderColor = CreateProgram(vsDefault, fsColor);
     GLuint shaderPhong = CreateProgram(vsDefault, fsPhong);
     GLuint shaderPhongMaps = CreateProgram(vsDefault, fsPhongMaps);
     GLuint shaderGouraud = CreateProgram(vsGouraud, fsGouraud);
-    //GLuint shaderFsq = CreateProgram(vsFsq, fsTexture);
+    GLuint shaderFsq = CreateProgram(vsFsq, fsTexture);
     GLuint shaderFractal = CreateProgram(vsFsq, fsFractal);
 
     GLuint vaoFsq;
@@ -112,10 +112,12 @@ int main(const char* path)
         glClearColor(0.25f, 0.75f, 0.9f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
          
+        GLuint shader = shaderFsq;
         glDepthMask(GL_FALSE);
-        glUseProgram(shaderFractal);
-        glUniform1f(glGetUniformLocation(shaderFractal, "u_time"), tt);
-        glUniform2f(glGetUniformLocation(shaderFractal, "u_resolution"), SCR_WIDTH, SCR_HEIGHT);
+        glUseProgram(shader);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texVan);
+        glUniform1i(glGetUniformLocation(shader, "u_tex"), 0);
         glBindVertexArray(vaoFsq);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glDepthMask(GL_TRUE);
