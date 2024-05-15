@@ -1,6 +1,6 @@
 #pragma once
-void InitWindow();
-void QuitWindow();
+void CreateWindow();
+void DestroyWindow();
 
 bool IsKeyDown(int key);
 bool IsKeyUp(int key);
@@ -13,9 +13,6 @@ void Close();
 
 void Swap();	// Update frameuffer
 void Poll();	// Update input
-
-void MarkUpdate();
-void MarkDraw();
 
 /* Printable keys */
 #define KEY_SPACE              32

@@ -24,10 +24,11 @@ public:
 	virtual void OnDrawGui() {}
 	virtual void OnDrawImGui() {}
 
-	static Type Current();
-	static void Destroy();
-	static void Create(Type scene);
 	static void Change(Type scene);
+	static Type Current();
+
+	static void Create(Type scene);
+	static void Destroy();
 
 	static void Update(float dt);
 	static void Draw();

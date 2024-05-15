@@ -1,5 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 
-GLuint CreateShader(GLint type, const char* path);
-GLuint CreateProgram(GLuint vs, GLuint fs);
+extern GLuint gShaderFSQ;
+
+void CreateShaders();
+void DestroyShaders();

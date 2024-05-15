@@ -16,9 +16,9 @@ void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods)
 GLFWwindow* fWindow = nullptr;
 bool fKeyboard[KEY_COUNT];
 
-void InitWindow()
+void CreateWindow()
 {
-    memset(fKeyboard, 0, KEY_COUNT);
+    memset(fKeyboard, 0, sizeof(fKeyboard));
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -47,7 +47,7 @@ void InitWindow()
     ImGui_ImplOpenGL3_Init();
 }
 
-void QuitWindow()
+void DestroyWindow()
 {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

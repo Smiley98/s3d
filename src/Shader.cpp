@@ -3,8 +3,11 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 #include <cassert>
 
+
+std::vector<GLuint> fShaders;
 GLuint CreateShader(GLint type, const char* path)
 {
     GLuint shader = 0;
@@ -57,25 +60,50 @@ GLuint CreateShader(GLint type, const char* path)
     {
         std::cout << "Shader (" << path << ") not found: " << e.what() << std::endl;
     }
+
+    fShaders.push_back(shader);
     return shader;
 }
 
+std::vector<GLuint> fPrograms;
 GLuint CreateProgram(GLuint vs, GLuint fs)
 {
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vs);
-    glAttachShader(shaderProgram, fs);
-    glLinkProgram(shaderProgram);
+    GLuint program = glCreateProgram();
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+    glLinkProgram(program);
 
     // Check for linking errors
     int success;
     char infoLog[512];
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (!success) {
-        shaderProgram = GL_NONE;
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        program = GL_NONE;
+        glGetProgramInfoLog(program, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
     }
 
-    return shaderProgram;
+    fPrograms.push_back(program);
+    return program;
+}
+
+GLuint gShaderFSQ;
+void CreateShaders()
+{
+    GLuint vsFsq = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
+    GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
+    
+    gShaderFSQ = CreateProgram(vsFsq, fsTexture);
+}
+
+void DestroyShaders()
+{
+    for (size_t i = 0; i < fPrograms.size(); i++)
+        glDeleteProgram(fPrograms[i]);
+
+    for (size_t i = 0; i < fShaders.size(); i++)
+        glDeleteShader(fShaders[i]);
+
+    fPrograms.clear();
+    fShaders.clear();
 }
