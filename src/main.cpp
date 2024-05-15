@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <Math.h>
+#include "Math.h"
 
 #include <iostream>
 #include <vector>
@@ -11,7 +11,6 @@
 
 #include "Mesh.h"
 #include "Shader.h"
-#include "Color.h"
 #include "Texture.h"
 
 void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
@@ -51,13 +50,20 @@ int main(const char* path)
     ImGui_ImplOpenGL3_Init();
 
     Image image;
-    LoadImage(image, 16, 4);
+    LoadImage(image, 64, 64);
     for (int i = 0; i < image.height; i++)
     {
         for (int j = 0; j < image.width; j++)
         {
-            Color colors[] = { RED, GREEN, BLUE };
-            image.pixels[i * image.width + j] = colors[(j + i) % 3];
+            Color2 uv = { j / (float)image.width, i / (float)image.height };
+            uv.r = uv.r * 2.0f - 1.0f;
+            uv.g = uv.g * 2.0f - 1.0f;
+
+            Color color = Convert(uv);
+            color.a = 255;
+
+            //Color colors[] = { RED, GREEN, BLUE };
+            image.pixels[i * image.width + j] = color;
         }
     }
     //Fill(image, MAGENTA);

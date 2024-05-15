@@ -28,6 +28,9 @@
     <Filter Include="Texture">
       <UniqueIdentifier>{9bacd3bd-7c5b-412d-8e6a-dc943f586ffe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{13b03527-9a02-4d34-ae4c-c01c1d0b83ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c">
@@ -69,6 +72,15 @@
     <ClCompile Include="src\Texture.cpp">
       <Filter>Texture</Filter>
     </ClCompile>
+    <ClCompile Include="src\MainScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TestScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h">
@@ -98,9 +110,6 @@
     <ClInclude Include="inc\imgui\imgui_impl_opengl3_loader.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="src\Color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Lines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -121,6 +130,18 @@
     </ClInclude>
     <ClInclude Include="src\Texture.h">
       <Filter>Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TestScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

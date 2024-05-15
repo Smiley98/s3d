@@ -1,6 +1,6 @@
 #pragma once
-#include <corecrt_math.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 
 //----------------------------------------------------------------------------------
 // Defines and Macros
@@ -36,43 +36,89 @@
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-#if !defined(RL_VECTOR2_TYPE)
-// Vector2 type
+
 typedef struct Vector2 {
-    float x;
-    float y;
+    union
+    {
+        struct
+        {
+            float x;
+            float y;
+        };
+
+        struct
+        {
+            float r;
+            float g;
+        };
+    };
 } Vector2;
-#define RL_VECTOR2_TYPE
-#endif
 
-#if !defined(RL_VECTOR3_TYPE)
-// Vector3 type
 typedef struct Vector3 {
-    float x;
-    float y;
-    float z;
+    union
+    {
+        struct
+        {
+            float x;
+            float y;
+            float z;
+        };
+
+        struct
+        {
+            float r;
+            float g;
+            float b;
+        };
+    };
 } Vector3;
-#define RL_VECTOR3_TYPE
-#endif
 
-#if !defined(RL_VECTOR4_TYPE)
-// Vector4 type
 typedef struct Vector4 {
-    float x;
-    float y;
-    float z;
-    float w;
+    union
+    {
+        struct
+        {
+            float x;
+            float y;
+            float z;
+            float w;
+        };
+
+        struct
+        {
+            float r;
+            float g;
+            float b;
+            float a;
+        };
+    };
 } Vector4;
-#define RL_VECTOR4_TYPE
-#endif
 
-#if !defined(RL_QUATERNION_TYPE)
-// Quaternion type
 typedef Vector4 Quaternion;
-#define RL_QUATERNION_TYPE
-#endif
+typedef Vector2 Color2;
+typedef Vector3 Color3;
+typedef Vector4 Color4;
 
-#if !defined(RL_MATRIX_TYPE)
+typedef struct Color
+{
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    uint8_t a = 0;
+} Color;
+
+constexpr Color RED = { 0xFF, 0x00, 0x00, 0xFF };
+constexpr Color GREEN = { 0x00, 0xFF, 0x00, 0xFF };
+constexpr Color BLUE = { 0x00, 0x00, 0xFF, 0xFF };
+
+constexpr Color CYAN = { 0x00, 0xFF, 0xFF, 0xFF };
+constexpr Color MAGENTA = { 0xFF, 0x00, 0xFF, 0xFF };
+constexpr Color YELLOW = { 0xFF, 0xFF, 0x00, 0xFF };
+
+constexpr Color WHITE = { 0xFF, 0xFF, 0xFF, 0xFF };
+constexpr Color GRAY = { 0x80, 0x80, 0x80, 0xFF };
+constexpr Color BLACK = { 0x00, 0x00, 0x00, 0xFF };
+
 // Matrix type (OpenGL style 4x4 - right handed, column major)
 typedef struct Matrix {
     float m0, m4, m8, m12;      // Matrix first row (4 components)
@@ -80,8 +126,6 @@ typedef struct Matrix {
     float m2, m6, m10, m14;     // Matrix third row (4 components)
     float m3, m7, m11, m15;     // Matrix fourth row (4 components)
 } Matrix;
-#define RL_MATRIX_TYPE
-#endif
 
 // NOTE: Helper types to be used instead of array return types for *ToFloat functions
 typedef struct float3 {
@@ -151,6 +195,40 @@ RMAPI int Equals(float x, float y)
 
     return result;
 }
+
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Color conversions
+//----------------------------------------------------------------------------------
+RMAPI Color Convert(Color2 c)
+{
+    Color color;
+    color.r = Clamp(c.r, 0.0f, 1.0f) * 255.0f;
+    color.g = Clamp(c.g, 0.0f, 1.0f) * 255.0f;
+    return color;
+}
+
+RMAPI Color Convert(Color3 c)
+{
+    Color color;
+    color.r = Clamp(c.r, 0.0f, 1.0f) * 255.0f;
+    color.g = Clamp(c.g, 0.0f, 1.0f) * 255.0f;
+    color.b = Clamp(c.b, 0.0f, 1.0f) * 255.0f;
+    return color;
+}
+
+RMAPI Color Convert(Color4 c)
+{
+    Color color;
+    color.r = Clamp(c.r, 0.0f, 1.0f) * 255.0f;
+    color.g = Clamp(c.g, 0.0f, 1.0f) * 255.0f;
+    color.b = Clamp(c.b, 0.0f, 1.0f) * 255.0f;
+    color.a = Clamp(c.a, 0.0f, 1.0f) * 255.0f;
+    return color;
+}
+
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Vector2 math
+//----------------------------------------------------------------------------------
 
 // Vector with components value 0.0f
 RMAPI Vector2 Vector2Zero(void)

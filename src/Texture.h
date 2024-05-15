@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 #include <cassert>
 #include <vector>
-#include "Color.h"
+#include "Math.h"
 
 // Must pass pixel by reference otherwise vector copy-constructor is called.
 using Pixels = std::vector<Color>;
