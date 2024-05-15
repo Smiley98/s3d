@@ -1,5 +1,5 @@
 #pragma once
-#include <Math.h>
+#include "Math.h"
 
 constexpr float SPECULAR_POWER = 256.0f;
 

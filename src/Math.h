@@ -52,6 +52,35 @@ typedef struct Vector2 {
             float g;
         };
     };
+
+    Vector2 operator+=(Vector2 v)
+    {
+        x += v.x;
+        y += v.y;
+        return *this;
+    }
+
+    Vector2 operator-=(Vector2 v)
+    {
+        x -= v.x;
+        y -= v.y;
+        return *this;
+    }
+
+    Vector2 operator*=(float f)
+    {
+        x *= f;
+        y *= f;
+        return *this;
+    }
+
+    Vector2 operator/=(float f)
+    {
+        x /= f;
+        y /= f;
+        return *this;
+    }
+
 } Vector2;
 
 typedef struct Vector3 {
@@ -71,6 +100,38 @@ typedef struct Vector3 {
             float b;
         };
     };
+
+    Vector3 operator+=(Vector3 v)
+    {
+        x += v.x;
+        y += v.y;
+        z += v.z;
+        return *this;
+    }
+
+    Vector3 operator-=(Vector3 v)
+    {
+        x -= v.x;
+        y -= v.y;
+        z -= v.z;
+        return *this;
+    }
+
+    Vector3 operator*=(float f)
+    {
+        x *= f;
+        y *= f;
+        z *= f;
+        return *this;
+    }
+
+    Vector3 operator/=(float f)
+    {
+        x /= f;
+        y /= f;
+        z /= f;
+        return *this;
+    }
 } Vector3;
 
 typedef struct Vector4 {
@@ -92,6 +153,42 @@ typedef struct Vector4 {
             float a;
         };
     };
+
+    Vector4 operator+=(Vector4 v)
+    {
+        x += v.x;
+        y += v.y;
+        z += v.z;
+        w += v.w;
+        return *this;
+    }
+
+    Vector4 operator-=(Vector4 v)
+    {
+        x -= v.x;
+        y -= v.y;
+        z -= v.z;
+        w -= v.w;
+        return *this;
+    }
+
+    Vector4 operator*=(float f)
+    {
+        x *= f;
+        y *= f;
+        z *= f;
+        w *= f;
+        return *this;
+    }
+
+    Vector4 operator/=(float f)
+    {
+        x /= f;
+        y /= f;
+        z /= f;
+        w /= f;
+        return *this;
+    }
 } Vector4;
 
 typedef Vector4 Quaternion;

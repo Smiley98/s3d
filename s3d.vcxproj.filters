@@ -31,6 +31,9 @@
     <Filter Include="Scene">
       <UniqueIdentifier>{13b03527-9a02-4d34-ae4c-c01c1d0b83ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{6b7b7356-31ca-40ce-85ed-83debd241aa1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c">
@@ -80,6 +83,12 @@
     </ClCompile>
     <ClCompile Include="src\TestScene.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\App.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Window.cpp">
+      <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +151,15 @@
     </ClInclude>
     <ClInclude Include="src\Math.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\App.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Config.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Window.h">
+      <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

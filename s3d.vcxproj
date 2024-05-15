@@ -85,6 +85,7 @@
     <ClCompile Include="inc\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="inc\imgui\imgui_tables.cpp" />
     <ClCompile Include="inc\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainScene.cpp" />
@@ -94,6 +95,7 @@
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\TestScene.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h" />
@@ -105,6 +107,8 @@
     <ClInclude Include="inc\imgui\imstb_rectpack.h" />
     <ClInclude Include="inc\imgui\imstb_textedit.h" />
     <ClInclude Include="inc\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\App.h" />
+    <ClInclude Include="src\Config.h" />
     <ClInclude Include="src\Lights.h" />
     <ClInclude Include="src\Lines.h" />
     <ClInclude Include="src\MainScene.h" />
@@ -116,6 +120,7 @@
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\TestScene.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
