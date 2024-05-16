@@ -12,6 +12,7 @@ public:
 	void OnDraw() final;
 
 private:
+	Image mImage;
 	GLuint mTexture;
 	GLuint mVaoFsq;
 };

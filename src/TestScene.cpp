@@ -4,14 +4,23 @@
 void TestScene::OnLoad()
 {
 	glGenVertexArrays(1, &mVaoFsq);
+	LoadImage(mImage, 64, 64);
+	mTexture = LoadTexture(mImage);
+}
 
-	Image image;
-	LoadImage(image, 64, 64);
-	for (int i = 0; i < image.height; i++)
+void TestScene::OnUnload()
+{
+	UnloadTexture(mTexture);
+	UnloadImage(mImage);
+}
+
+void TestScene::OnUpdate(float dt)
+{
+	for (int i = 0; i < mImage.height; i++)
 	{
-		for (int j = 0; j < image.width; j++)
+		for (int j = 0; j < mImage.width; j++)
 		{
-			Color2 uv = { j / (float)image.width, i / (float)image.height };
+			Color2 uv = { j / (float)mImage.width, i / (float)mImage.height };
 			uv.r = uv.r * 2.0f - 1.0f;
 			uv.g = uv.g * 2.0f - 1.0f;
 
@@ -19,21 +28,11 @@ void TestScene::OnLoad()
 			color.a = 255;
 
 			//Color colors[] = { RED, GREEN, BLUE };
-			image.pixels[i * image.width + j] = color;
+			mImage.pixels[i * mImage.width + j] = color;
 		}
 	}
-	Flip(image);
-	mTexture = LoadTexture(image);
-	UnloadImage(image);
-}
-
-void TestScene::OnUnload()
-{
-	UnloadTexture(mTexture);
-}
-
-void TestScene::OnUpdate(float dt)
-{
+	Flip(mImage);
+	UpdateTexture(mTexture, mImage);
 }
 
 void TestScene::OnDraw()
