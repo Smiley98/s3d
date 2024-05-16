@@ -50,10 +50,12 @@ void TestScene::OnUpdate(float dt)
 			uv = uv * 2.0f - 1.0f;
 			uv.x *= SCREEN_ASPECT;
 
-			uv.x = Fract(uv.x * 2.0f);
-			uv.y = Fract(uv.y * 2.0f);
+			float d = Length(uv);
+			d = sinf(d * 8.0f + tt) / 8.0f;
+			d = fabsf(d);
+			d = powf(0.01f / d, 1.0f);
 
-			Color color = Length(uv) > 1.0 ? WHITE : BLACK;
+			Color color = Convert(bg * d);
 			mImage.pixels[i * mImage.width + j] = color;
 		}
 	}
