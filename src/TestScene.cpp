@@ -37,9 +37,6 @@ void TestScene::OnUnload()
 void TestScene::OnUpdate(float dt)
 {
 	float tt = TotalTime();
-	float ncos = cosf(tt) * 0.5f + 0.5f;
-	Color3 bg = Palette(ncos);
-
 	for (int i = 0; i < mImage.height; i++)
 	{
 		for (int j = 0; j < mImage.width; j++)
@@ -50,12 +47,24 @@ void TestScene::OnUpdate(float dt)
 			uv = uv * 2.0f - 1.0f;
 			uv.x *= SCREEN_ASPECT;
 
-			float d = Length(uv);
-			d = sinf(d * 8.0f + tt) / 8.0f;
-			d = fabsf(d);
-			d = powf(0.01f / d, 1.0f);
+			Vector2 uv0 = uv;
+			Color3 finalColor = Vector3Zero();
 
-			Color color = Convert(bg * d);
+			for (float k = 0.0f; k < 4.0f; k++)
+			{
+				uv.x = Fract(uv.x * 1.5f) - 0.5f;
+				uv.y = Fract(uv.y * 1.5f) - 0.5f;
+
+				Color3 col = Palette(Length(uv0) + k * 0.4f + tt * 0.4f);
+				float d = Length(uv);
+				d = sinf(d * 8.0f + tt) / 8.0f;
+				d = fabsf(d);
+				d = powf(0.01f / d, 1.0f);
+
+				finalColor += col * d;
+			}
+
+			Color color = Convert(finalColor);
 			mImage.pixels[i * mImage.width + j] = color;
 		}
 	}
