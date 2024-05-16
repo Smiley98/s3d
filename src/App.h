@@ -3,5 +3,5 @@ void Init();
 void Loop();
 void Quit();
 
-float FrameTime();
-float TotalTime();
+double FrameTime();
+double TotalTime();

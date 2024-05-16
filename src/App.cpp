@@ -2,13 +2,19 @@
 #include "Window.h"
 #include "Scene.h"
 #include "Shader.h"
+#include <array>
+#include <iostream>
 
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
-void Update();
+constexpr bool LOG_FPS = true;
+constexpr double FRAME_TIME = 1.0f / 60.0f;
+double fFrameDelta = FRAME_TIME;
+
+void Update(float dt);
 void Draw();
 void DrawImGui();
 
@@ -21,12 +27,18 @@ void Init()
 
 void Loop()
 {
-	// TODO -- time
-	double prev = glfwGetTime();
-	double curr = prev;
+	double logCurrent = 0.0;
+	double logTotal = 1.0;
+
+	double frameStart;
+	double frameEnd;
+	double fps = FRAME_TIME;
+	size_t frameCount = 0;
+	std::array<double, 16> frameSamples;
 	while (!ShouldClose())
 	{
-		Update();
+		frameStart = glfwGetTime();
+		Update(fFrameDelta);
 		Draw();
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -36,9 +48,44 @@ void Loop()
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+		// Swap back-buffer
 		Swap();
-		Poll();
 
+		// Limit frame rate
+		frameEnd = glfwGetTime();
+		fFrameDelta = frameEnd - frameStart;
+		while (fFrameDelta < FRAME_TIME)
+		{
+			frameEnd = glfwGetTime();
+			fFrameDelta = frameEnd - frameStart;
+		}
+
+		// Determine frame-rate (average across 16 frames)
+		frameSamples[frameCount] = fFrameDelta;
+		frameCount++;
+		if (frameCount >= frameSamples.size())
+		{
+			frameCount = 0;
+			fps = 0.0;
+			for (size_t i = 0; i < frameSamples.size(); i++)
+			{
+				fps += frameSamples[i];
+				frameSamples[i] = 0.0;
+			}
+			fps /= (double)frameSamples.size();
+			fps = ceil(1.0 / fps);
+		}
+
+		// Log fps
+		logCurrent += fFrameDelta;
+		if (LOG_FPS && logCurrent >= logTotal)
+		{
+			logCurrent = 0.0;
+			printf("Fps:  %f\n", fps);
+		}
+
+		// Poll events
+		Poll();
 		if (IsKeyDown(KEY_ESCAPE))
 			Close();
 	}
@@ -51,19 +98,19 @@ void Quit()
 	DestroyWindow();
 }
 
-float FrameTime()
+double FrameTime()
 {
-	return 0.0f;
+	return fFrameDelta;
 }
 
-float TotalTime()
+double TotalTime()
 {
-	return 0.0f;
+	return glfwGetTime();
 }
 
-void Update()
+void Update(float dt)
 {
-	Scene::Update(0.0f);
+	Scene::Update(dt);
 }
 
 void Draw()
