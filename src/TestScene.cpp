@@ -4,7 +4,7 @@
 void TestScene::OnLoad()
 {
 	glGenVertexArrays(1, &mVaoFsq);
-	LoadImage(mImage, 64, 64);
+	LoadImage(mImage, 256, 256);
 	mTexture = LoadTexture(mImage);
 }
 
@@ -20,14 +20,14 @@ void TestScene::OnUpdate(float dt)
 	{
 		for (int j = 0; j < mImage.width; j++)
 		{
-			Color2 uv = { j / (float)mImage.width, i / (float)mImage.height };
-			uv.r = uv.r * 2.0f - 1.0f;
-			uv.g = uv.g * 2.0f - 1.0f;
+			Vector2 fragCoord{ j, i };
+			Vector2 resolution{ mImage.width, mImage.height };
+			Vector2 uv = fragCoord / resolution;
+			uv = uv * 2.0f - 1.0f;
+			uv.x *= SCREEN_ASPECT;
 
-			Color color = Convert(uv);
-			color.a = 255;
-
-			//Color colors[] = { RED, GREEN, BLUE };
+			float distance = Length(uv);
+			Color color = distance > 1.0f ? WHITE : BLACK;
 			mImage.pixels[i * mImage.width + j] = color;
 		}
 	}
