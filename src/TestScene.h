@@ -46,18 +46,18 @@ void TestScene::OnUnload()
 
 void TestScene::OnUpdate(float dt)
 {
-	for (int i = 0; i < mImage.height; i++)
+	for (int y = 0; y < mImage.height; y++)
 	{
-		for (int j = 0; j < mImage.width; j++)
+		for (int x = 0; x < mImage.width; x++)
 		{
-			Vector2 fragCoord{ j, i };
+			Vector2 fragCoord{ x, y };
 			Vector2 resolution{ mImage.width, mImage.height };
 			Vector2 uv = fragCoord / resolution;
 			uv = uv * 2.0f - 1.0f;
 			uv.x *= SCREEN_ASPECT;
 
 			Color color = Length(uv) > 1.0f ? WHITE : BLACK;
-			mImage.pixels[i * mImage.width + j] = color;
+			SetPixel(mImage, x, y, color);
 		}
 	}
 	UpdateTexture(mTexture, mImage);

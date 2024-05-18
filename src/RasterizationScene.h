@@ -10,8 +10,4 @@ public:
 
 	void OnUpdate(float dt) final;
 	void OnDraw() final;
-
-private:
-	Image mImage;
-	GLuint mTexture;
 };
