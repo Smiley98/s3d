@@ -56,3 +56,39 @@ inline void Fill(Image& image, Color color)
 {
     std::fill(image.pixels.begin(), image.pixels.end(), color);
 }
+
+/////////////////////////////////////////////////////////////////////
+// ******************** Rasterization Functions ********************
+/////////////////////////////////////////////////////////////////////
+
+inline void DrawLine(Image& image, int x0, int y0, int x1, int y1, Color color)
+{
+	// Make x the smaller of x vs y for more accuracy when interpolating
+	bool steep = false;
+	if (fabsf(x0 - x1) < fabsf(y0 - y1))
+	{
+		steep = true;
+		std::swap(x0, y0);
+		std::swap(x1, y1);
+	}
+
+	// Make the line always points left-to-right
+	if (x0 > x1)
+	{
+		std::swap(x0, x1);
+		std::swap(y0, y1);
+	}
+
+	for (int x = x0; x <= x1; x++)
+	{
+		// Calculate interpolation value
+		float t = (x - x0) / (float)(x1 - x0);
+
+		// Express y in terms of x by lerping!
+		int y = y0 * (1.0f - t) + y1 * t;
+
+		int px = steep ? y : x;
+		int py = steep ? x : y;
+		SetPixel(image, px, py, color);
+	}
+}
