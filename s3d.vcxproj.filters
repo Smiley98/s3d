@@ -34,6 +34,9 @@
     <Filter Include="Application">
       <UniqueIdentifier>{6b7b7356-31ca-40ce-85ed-83debd241aa1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Image">
+      <UniqueIdentifier>{25b4432d-e11a-411a-a957-2e528818b3dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c">
@@ -92,6 +95,9 @@
     </ClCompile>
     <ClCompile Include="src\RasterizationScene.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Image.cpp">
+      <Filter>Image</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +172,9 @@
     </ClInclude>
     <ClInclude Include="src\RasterizationScene.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Image.h">
+      <Filter>Image</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
