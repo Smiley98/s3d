@@ -2,13 +2,27 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include <cstdio>
-
-Image fImage;
-GLuint fTexture;
+#include <algorithm>
 
 // Loses precision on horizontal lines, so just loop manually in that case!
-void Line(int x0, int y0, int x1, int y1, Color color)
+void RasterizationScene::Line(int x0, int y0, int x1, int y1, Color color)
 {
+	// Make x the smaller of x vs y for more accuracy when interpolating
+	bool steep = false;
+	if (fabsf(x0 - x1) < fabsf(y0 - y1))
+	{
+		steep = true;
+		std::swap(x0, y0);
+		std::swap(x1, y1);
+	}
+
+	// Make the line always points left-to-right
+	if (x0 > x1)
+	{
+		std::swap(x0, x1);
+		std::swap(y0, y1);
+	}
+
 	for (int x = x0; x <= x1; x++)
 	{
 		// Calculate interpolation value
@@ -17,60 +31,52 @@ void Line(int x0, int y0, int x1, int y1, Color color)
 		// Express y in terms of x by lerping!
 		int y = y0 * (1.0f - t) + y1 * t;
 
-		SetPixel(fImage, x, y, color);
+		int px = steep ? y : x;
+		int py = steep ? x : y;
+		SetPixel(mImage, px, py, color);
 	}
 }
 
 void RasterizationScene::OnLoad()
 {
-	LoadImage(fImage, 512, 512);
-	fTexture = LoadTexture(fImage);
+	LoadImage(mImage, 512, 512);
+	mTexture = LoadTexture(mImage);
 }
 
 void RasterizationScene::OnUnload()
 {
-	UnloadTexture(fTexture);
-	UnloadImage(fImage);
+	UnloadTexture(mTexture);
+	UnloadImage(mImage);
 }
 
 void RasterizationScene::OnUpdate(float dt)
 {
-	// If we DONT flip the image, it behaves as if [0, 0] is the origin,
-	// which is what we want! Flip if we want [0, 0] in the top-left.
-	// Proof -- look at the following UV demo:
-	for (int y = 0; y < fImage.height; y++)
-	{
-		//for (int x = 0; x < fImage.width; x++)
-		//{
-		//	Vector2 fragCoord{ x, y };
-		//	Vector2 resolution{ fImage.width, fImage.height };
-		//	Vector2 uv = fragCoord / resolution;
-		//	//uv = uv * 2.0f - 1.0f;
-		//	//uv = uv * 0.5f + 0.5f;
-		//	uv.x *= SCREEN_ASPECT;
-		//	Color color = Convert(Color4{ uv.x, uv.y, 0.0f, 1.0f });
-		//	SetPixel(fImage, x, y, color);
-		//}
-		
-		//Line(0, y, fImage.width - 1, y, RED); <-- precision errors xD xD xD
-		if (y % 2 == 0)
-			SetRow(fImage, y, RED);
-	}
+	//for (int y = 0; y < mImage.height; y++)
+	//{
+	//	for (int x = 0; x < mImage.width; x++)
+	//	{
+	//		Vector2 fragCoord{ x, y };
+	//		Vector2 resolution{ mImage.width, mImage.height };
+	//		Vector2 uv = fragCoord / resolution;
+	//		//uv = uv * 2.0f - 1.0f;
+	//		//uv = uv * 0.5f + 0.5f;
+	//		uv.x *= SCREEN_ASPECT;
+	//		Color color = Convert(Color4{ uv.x, uv.y, 0.0f, 1.0f });
+	//		SetPixel(mImage, x, y, color);
+	//	}
+	//}
 
-	// Need to swap x & y to handle vertical line divide-by-zero	
-	for (int x = 0; x < fImage.width; x++)
+	for (int x = 0; x < mImage.width; x++)
 	{
-		//Line(x, 0, x, fImage.height - 1, RED); <-- divide by zero xD xD xD
-		if (x % 2 == 1)
-			SetCol(fImage, x, GREEN);
+		Line(x, 0, x, mImage.height - 1, RED);
 	}
 }
 
 void RasterizationScene::OnDraw()
 {
-	UpdateTexture(fTexture, fImage);
+	UpdateTexture(mTexture, mImage);
 
-	BindTexture(fTexture);
+	BindTexture(mTexture);
 	glDepthMask(GL_FALSE);
 	glUseProgram(gShaderFSQ);
 	glUniform1i(glGetUniformLocation(gShaderFSQ, "u_tex"), 0);
@@ -80,5 +86,5 @@ void RasterizationScene::OnDraw()
 	glBindVertexArray(GL_NONE);
 	glUseProgram(GL_NONE);
 	glDepthMask(GL_TRUE);
-	UnbindTexture(fTexture);
+	UnbindTexture(mTexture);
 }
