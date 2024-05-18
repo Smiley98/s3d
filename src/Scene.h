@@ -10,6 +10,7 @@ public:
 	{
 		MAIN,
 		TEST,
+		RASTER,
 		COUNT
 	};
 

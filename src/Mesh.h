@@ -14,3 +14,10 @@ struct Mesh
 
 void CreateMesh(Mesh& mesh, const char* path);
 void DestroyMesh(Mesh& mesh);
+
+// Create more shapes with par_shapes!
+void CreateMeshes();
+void DestroyMeshes();
+
+void BindFsq();
+void DrawFsq();

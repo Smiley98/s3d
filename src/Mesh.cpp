@@ -118,3 +118,25 @@ void DestroyMesh(Mesh& mesh)
 	mesh.vao = mesh.positions = mesh.normals = mesh.uvs = GL_NONE;
 	// Reset handles to 0 signifying they're invalid.
 }
+
+GLuint fVaoFsq = GL_NONE;
+
+void CreateMeshes()
+{
+	glGenVertexArrays(1, &fVaoFsq);
+}
+
+void DestroyMeshes()
+{
+	glDeleteVertexArrays(1, &fVaoFsq);
+}
+
+void BindFsq()
+{
+	glBindVertexArray(fVaoFsq);
+}
+
+void DrawFsq()
+{
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+}

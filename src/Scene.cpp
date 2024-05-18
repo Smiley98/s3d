@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "MainScene.h"
 #include "TestScene.h"
+#include "RasterizationScene.h"
 
 Scene* Scene::sScenes[Scene::COUNT]{};
 Scene* Scene::sScene = nullptr;
@@ -10,6 +11,7 @@ void Scene::Create(Scene::Type scene)
 {
 	sScenes[TEST] = new TestScene;
 	sScenes[MAIN] = new MainScene;
+	sScenes[RASTER] = new RasterizationScene;
 
 	for (size_t i = 0; i < COUNT; i++)
 		sScenes[i]->OnCreate();

@@ -1,5 +1,6 @@
 #include "TestScene.h"
 #include "Shader.h"
+#include "Mesh.h"
 #include "App.h"
 
 float Fract(float f)
@@ -23,8 +24,7 @@ Color3 Palette(float t) {
 
 void TestScene::OnLoad()
 {
-	glGenVertexArrays(1, &mVaoFsq);
-	LoadImage(mImage, 256, 256);
+	LoadImage(mImage, 512, 512);
 	mTexture = LoadTexture(mImage);
 }
 
@@ -68,17 +68,18 @@ void TestScene::OnUpdate(float dt)
 			mImage.pixels[i * mImage.width + j] = color;
 		}
 	}
-	UpdateTexture(mTexture, mImage);
 }
 
 void TestScene::OnDraw()
 {
+	UpdateTexture(mTexture, mImage);
+
 	BindTexture(mTexture);
 	glDepthMask(GL_FALSE);
 	glUseProgram(gShaderFSQ);
 	glUniform1i(glGetUniformLocation(gShaderFSQ, "u_tex"), 0);
-	glBindVertexArray(mVaoFsq);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	BindFsq();
+	DrawFsq();
 
 	glBindVertexArray(GL_NONE);
 	glUseProgram(GL_NONE);

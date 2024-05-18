@@ -1,7 +1,10 @@
 #include "App.h"
 #include "Window.h"
 #include "Scene.h"
+
 #include "Shader.h"
+#include "Mesh.h"
+
 #include <array>
 #include <iostream>
 
@@ -22,7 +25,8 @@ void Init()
 {
 	CreateWindow();
 	CreateShaders();
-	Scene::Create(Scene::TEST);
+	CreateMeshes();
+	Scene::Create(Scene::RASTER);
 }
 
 void Loop()
@@ -94,6 +98,7 @@ void Loop()
 void Quit()
 {
 	Scene::Destroy();
+	DestroyMeshes();
 	DestroyShaders();
 	DestroyWindow();
 }
