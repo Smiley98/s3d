@@ -1,6 +1,7 @@
 #include "RaycastingScene.h"
 #include "Mesh.h"
 #include "Shader.h"
+#include "Window.h"
 
 inline void ScreenToMap(int sx, int sy, int& mx, int& my)
 {
@@ -41,7 +42,9 @@ void RaycastingScene::OnUnload()
 
 void RaycastingScene::OnUpdate(float dt)
 {
-	
+	// Key-pressed test!
+	if (IsKeyPressed(KEY_SPACE))
+		Flip(mImage);
 }
 
 void RaycastingScene::OnDraw()

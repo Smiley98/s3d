@@ -64,7 +64,7 @@ inline void Fill(Image& image, Color color)
 
 inline void DrawLine(Image& image, int x0, int y0, int x1, int y1, Color color)
 {
-	// Make x the smaller of x vs y for more accuracy when interpolating
+	// Make the horizontal component the largest (avoid divide by zero)!
 	bool steep = false;
 	if (fabsf(x0 - x1) < fabsf(y0 - y1))
 	{
@@ -73,7 +73,7 @@ inline void DrawLine(Image& image, int x0, int y0, int x1, int y1, Color color)
 		std::swap(x1, y1);
 	}
 
-	// Make the line always points left-to-right
+	// Make the line point left-to-right
 	if (x0 > x1)
 	{
 		std::swap(x0, x1);

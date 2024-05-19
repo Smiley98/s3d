@@ -1,6 +1,7 @@
 #include "Window.h"
 #include "Config.h"
 #include <iostream>
+#include <array>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -14,12 +15,15 @@ void OnResize(GLFWwindow* window, int width, int height);
 void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 GLFWwindow* fWindow = nullptr;
-bool fKeyboard[KEY_COUNT];
+
+struct Input
+{
+    std::array<int, KEY_COUNT> keysPrev{};
+    std::array<int, KEY_COUNT> keysCurr{};
+} fInput;
 
 void CreateWindow()
 {
-    memset(fKeyboard, 0, sizeof(fKeyboard));
-
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -58,17 +62,19 @@ void DestroyWindow()
 
 bool IsKeyDown(int key)
 {
-    return fKeyboard[key];
+    return fInput.keysCurr[key] == GLFW_PRESS;
 }
 
 bool IsKeyUp(int key)
 {
-    return !fKeyboard[key];
+    return fInput.keysCurr[key] == GLFW_RELEASE;
 }
 
 bool IsKeyPressed(int key)
 {
-    return false;
+    return
+        fInput.keysPrev[key] == GLFW_PRESS &&
+        fInput.keysCurr[key] == GLFW_RELEASE;
 }
 
 bool ShouldClose()
@@ -88,12 +94,19 @@ void Swap()
 
 void Poll()
 {
+    memcpy(fInput.keysPrev.data(), fInput.keysCurr.data(), sizeof(int) * KEY_COUNT);
     glfwPollEvents();
 }
 
 void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    fKeyboard[key] = action != GLFW_RELEASE;
+    // Discard GLFW_REPEAT so action is either GLFW_PRESS or GLFW_RELEASE.
+    if (action == GLFW_REPEAT) return;
+    fInput.keysCurr[key] = action;
+
+    //const char* name = glfwGetKeyName(key, scancode);
+    //const char* status = action == GLFW_PRESS ? "Down" : "Up";
+    //printf("Key %s is %s\n", name, status);
 }
 
 void OnResize(GLFWwindow* window, int width, int height)
