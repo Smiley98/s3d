@@ -63,7 +63,6 @@ void RaycastingScene::OnDraw()
 	UpdateTexture(mTexture, mImage);
 
 	BindTexture(mTexture);
-	glDepthMask(GL_FALSE);
 	glUseProgram(gShaderFSQ);
 	glUniform1i(glGetUniformLocation(gShaderFSQ, "u_tex"), 0);
 	BindFsq();
@@ -71,6 +70,5 @@ void RaycastingScene::OnDraw()
 
 	glBindVertexArray(GL_NONE);
 	glUseProgram(GL_NONE);
-	glDepthMask(GL_TRUE);
 	UnbindTexture(mTexture);
 }

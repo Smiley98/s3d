@@ -63,4 +63,19 @@ void TestScene::OnUpdate(float dt)
 	}
 	UpdateTexture(mTexture, mImage);
 }
+
+void TestScene::OnDraw()
+{
+	UpdateTexture(mTexture, mImage);
+
+	BindTexture(mTexture);
+	glUseProgram(gShaderFSQ);
+	glUniform1i(glGetUniformLocation(gShaderFSQ, "u_tex"), 0);
+	BindFsq();
+	DrawFsq();
+
+	glBindVertexArray(GL_NONE);
+	glUseProgram(GL_NONE);
+	UnbindTexture(mTexture);
+}
 */
