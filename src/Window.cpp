@@ -32,6 +32,7 @@ void CreateWindow()
         return;
     }
 
+    glfwSetWindowPos(fWindow, 100, 100);
     glfwMakeContextCurrent(fWindow);
     glfwSetFramebufferSizeCallback(fWindow, OnResize);
     glfwSetKeyCallback(fWindow, OnKeyInput);

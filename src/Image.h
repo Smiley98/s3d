@@ -1,5 +1,6 @@
 #pragma once
 #include "Math.h"
+#include <cassert>
 #include <vector>
 #include <algorithm>
 
@@ -92,3 +93,15 @@ inline void DrawLine(Image& image, int x0, int y0, int x1, int y1, Color color)
 		SetPixel(image, px, py, color);
 	}
 }
+
+inline void DrawRect(Image& image, int x, int y, int w, int h, Color color)
+{
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			SetPixel(image, x + j, y + i, color);
+		}
+	}
+}
+

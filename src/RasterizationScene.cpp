@@ -37,6 +37,8 @@ void RasterizationScene::OnUpdate(float dt)
 	{
 		DrawLine(mImage, x, 0, x, mImage.height - 1, RED);
 	}
+
+	DrawRect(mImage, 100, 50, 100, 50, GREEN);
 }
 
 void RasterizationScene::OnDraw()

@@ -11,6 +11,7 @@ public:
 		MAIN,
 		TEST,
 		RASTER,
+		RAYCAST,
 		COUNT
 	};
 
