@@ -5,8 +5,8 @@
 #include <array>
 
 constexpr size_t MAP_SIZE = 16;
-constexpr size_t SCREEN_SIZE = 512;
-constexpr size_t TILE_SIZE = SCREEN_SIZE / MAP_SIZE;
+constexpr size_t IMAGE_SIZE = 512;
+constexpr size_t TILE_SIZE = IMAGE_SIZE / MAP_SIZE;
 
 enum TileType : size_t
 {

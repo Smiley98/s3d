@@ -13,6 +13,8 @@
 void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
 void OnResize(GLFWwindow* window, int width, int height);
 void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods);
+void OnMouseInput(GLFWwindow* window, int button, int action, int mods);
+void OnMouseMove(GLFWwindow* window, double xpos, double ypos);
 
 GLFWwindow* fWindow = nullptr;
 
@@ -20,6 +22,13 @@ struct Input
 {
     std::array<int, KEY_COUNT> keysPrev{};
     std::array<int, KEY_COUNT> keysCurr{};
+
+    std::array<int, MOUSE_BUTTON_COUNT> mouseButtonsPrev{};
+    std::array<int, MOUSE_BUTTON_COUNT> mouseButtonsCurr{};
+
+    Vector2 mousePosPrev{};
+    Vector2 mousePosCurr{};
+    Vector2 mousePosDelta{};
 } fInput;
 
 void CreateWindow()
@@ -27,6 +36,11 @@ void CreateWindow()
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+
+#ifdef NDEBUG
+#else
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#endif
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     fWindow = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S3D", NULL, NULL);
@@ -36,15 +50,26 @@ void CreateWindow()
         return;
     }
 
-    glfwSetWindowPos(fWindow, 100, 100);
+    const GLFWvidmode* monitor = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    int x = monitor->width * 0.5f - SCREEN_WIDTH * 0.5f;
+    int y = monitor->height * 0.5f - SCREEN_HEIGHT * 0.5f;
+    glfwSetWindowPos(fWindow, x, y);
     glfwMakeContextCurrent(fWindow);
     glfwSetFramebufferSizeCallback(fWindow, OnResize);
     glfwSetKeyCallback(fWindow, OnKeyInput);
+    glfwSetMouseButtonCallback(fWindow, OnMouseInput);
+    glfwSetCursorPosCallback(fWindow, OnMouseMove);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         return;
     }
+
+#ifdef NDEBUG
+#else
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(glDebugOutput, 0);
+#endif
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -58,23 +83,6 @@ void DestroyWindow()
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     glfwTerminate();
-}
-
-bool IsKeyDown(int key)
-{
-    return fInput.keysCurr[key] == GLFW_PRESS;
-}
-
-bool IsKeyUp(int key)
-{
-    return fInput.keysCurr[key] == GLFW_RELEASE;
-}
-
-bool IsKeyPressed(int key)
-{
-    return
-        fInput.keysPrev[key] == GLFW_PRESS &&
-        fInput.keysCurr[key] == GLFW_RELEASE;
 }
 
 bool ShouldClose()
@@ -94,8 +102,54 @@ void Swap()
 
 void Poll()
 {
+    fInput.mousePosPrev = fInput.mousePosCurr;
+    memcpy(fInput.mouseButtonsPrev.data(), fInput.mouseButtonsCurr.data(), sizeof(int) * MOUSE_BUTTON_COUNT);
     memcpy(fInput.keysPrev.data(), fInput.keysCurr.data(), sizeof(int) * KEY_COUNT);
     glfwPollEvents();
+}
+
+bool IsKeyDown(int key)
+{
+    return fInput.keysCurr[key] == GLFW_PRESS;
+}
+
+bool IsKeyUp(int key)
+{
+    return fInput.keysCurr[key] == GLFW_RELEASE;
+}
+
+bool IsKeyPressed(int key)
+{
+    return
+        fInput.keysPrev[key] == GLFW_PRESS &&
+        fInput.keysCurr[key] == GLFW_RELEASE;
+}
+
+bool IsMouseDown(int button)
+{
+    return fInput.mouseButtonsCurr[button] == GLFW_PRESS;
+}
+
+bool IsMouseUp(int button)
+{
+    return fInput.mouseButtonsCurr[button] == GLFW_RELEASE;
+}
+
+bool IsMouseClicked(int button)
+{
+    return
+        fInput.mouseButtonsPrev[button] == GLFW_PRESS &&
+        fInput.mouseButtonsCurr[button] == GLFW_RELEASE;
+}
+
+Vector2 MousePosition()
+{
+    return fInput.mousePosCurr;
+}
+
+Vector2 MouseDelta()
+{
+    return fInput.mousePosDelta;
 }
 
 void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -104,9 +158,24 @@ void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods)
     if (action == GLFW_REPEAT) return;
     fInput.keysCurr[key] = action;
 
+    // Log key name & status:
     //const char* name = glfwGetKeyName(key, scancode);
     //const char* status = action == GLFW_PRESS ? "Down" : "Up";
     //printf("Key %s is %s\n", name, status);
+}
+
+void OnMouseInput(GLFWwindow* window, int button, int action, int mods)
+{
+    fInput.mouseButtonsCurr[button] = action;
+}
+
+void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
+{
+    fInput.mousePosCurr.x = xpos;
+    fInput.mousePosCurr.y = ypos;
+    fInput.mousePosDelta = Normalize(fInput.mousePosCurr - fInput.mousePosPrev);
+    //printf("%f %f\n", xpos, ypos);
+    //printf("%f %f\n", fInput.mouseDelta.x, fInput.mouseDelta.y);
 }
 
 void OnResize(GLFWwindow* window, int width, int height)

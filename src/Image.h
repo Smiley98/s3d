@@ -1,5 +1,6 @@
 #pragma once
 #include "Math.h"
+#include "Config.h"
 #include <cassert>
 #include <vector>
 #include <algorithm>
@@ -36,6 +37,18 @@ inline void SetCol(Image& image, int col, Color color)
         SetPixel(image, col, i, color);
 }
 
+inline void ScreenToImage(Image& image, int& sx, int& sy)
+{
+	sx *= image.width / SCREEN_WIDTH;
+	sy *= image.height / SCREEN_HEIGHT;
+}
+
+inline void ImageToScreen(Image& image, int& ix, int& iy)
+{
+	ix *= SCREEN_WIDTH / image.width;
+	iy *= SCREEN_HEIGHT / image.height;
+}
+
 void Flip(Image& image);
 void LoadImage(Image& image, const char* path, bool flip = false);
 
@@ -61,6 +74,18 @@ inline void Fill(Image& image, Color color)
 /////////////////////////////////////////////////////////////////////
 // ******************** Rasterization Functions ********************
 /////////////////////////////////////////////////////////////////////
+
+inline void DrawLineX(Image& image, int row, int x0, int x1, Color color)
+{
+	for (int x = x0; x <= x1; x++)
+		SetPixel(image, x, row, color);
+}
+
+inline void DrawLineY(Image& image, int col, int y0, int y1, Color color)
+{
+	for (int y = y0; y <= y1; y++)
+		SetPixel(image, col, y, color);
+}
 
 inline void DrawLine(Image& image, int x0, int y0, int x1, int y1, Color color)
 {
@@ -105,3 +130,72 @@ inline void DrawRect(Image& image, int x, int y, int w, int h, Color color)
 	}
 }
 
+inline void DrawCircle(Image& image, int cx, int cy, int cr, Color color)
+{
+	int x = 0;
+	int y = cr;
+	int d = 3 - 2 * cr;
+
+	auto line = [&](int lx, int ly, int l)
+	{
+		for (int dx = -l; dx <= l; dx++)
+			SetPixel(image, lx + dx, ly, color);
+	};
+
+	while (y >= x)
+	{
+		line(cx, cy + y, x);
+		line(cx, cy - y, x);
+		line(cx, cy + x, y);
+		line(cx, cy - x, y);
+
+		x++;
+		if (d > 0)
+		{
+			y--;
+			d = d + 4 * (x - y) + 10;
+		}
+		else
+		{
+			d = d + 4 * x + 6;
+		}
+	}
+}
+
+inline void DrawRectLines(Image& image, int x, int y, int w, int h, Color color)
+{
+	DrawLineX(image, y + 0, x, x + w, color);
+	DrawLineX(image, y + h, x, x + w, color);
+	DrawLineY(image, x + 0, y, y + h, color);
+	DrawLineY(image, x + w, y, y + h, color);
+}
+
+inline void DrawCircleLines(Image& image, int cx, int cy, int cr, Color color)
+{
+	int x = 0;
+	int y = cr;
+	int d = 3 - 2 * cr;
+
+	while (y >= x)
+	{
+		SetPixel(image, cx + x, cy + y, color);
+		SetPixel(image, cx - x, cy + y, color);
+		SetPixel(image, cx + x, cy - y, color);
+		SetPixel(image, cx - x, cy - y, color);
+		SetPixel(image, cx + y, cy + x, color);
+		SetPixel(image, cx - y, cy + x, color);
+		SetPixel(image, cx + y, cy - x, color);
+		SetPixel(image, cx - y, cy - x, color);
+
+		x++;
+		if (d > 0)
+		{
+			y--;
+			d = d + 4 * (x - y) + 10;
+		}
+		else
+		{
+			d = d + 4 * x + 6;
+		}
+	}
+}
