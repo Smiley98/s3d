@@ -37,18 +37,6 @@ inline void SetCol(Image& image, int col, Color color)
         SetPixel(image, col, i, color);
 }
 
-inline void ScreenToImage(Image& image, int& sx, int& sy)
-{
-	sx *= image.width / SCREEN_WIDTH;
-	sy *= image.height / SCREEN_HEIGHT;
-}
-
-inline void ImageToScreen(Image& image, int& ix, int& iy)
-{
-	ix *= SCREEN_WIDTH / image.width;
-	iy *= SCREEN_HEIGHT / image.height;
-}
-
 void Flip(Image& image);
 void LoadImage(Image& image, const char* path, bool flip = false);
 
@@ -198,4 +186,36 @@ inline void DrawCircleLines(Image& image, int cx, int cy, int cr, Color color)
 			d = d + 4 * x + 6;
 		}
 	}
+}
+
+/////////////////////////////////////////////////////////////////////
+// ********************** Conversion Functions **********************
+/////////////////////////////////////////////////////////////////////
+
+inline void ScreenToImage(Image& image, int* sx, int* sy)
+{
+	*sx *= image.width / SCREEN_WIDTH;
+	*sy *= image.height / SCREEN_HEIGHT;
+}
+
+inline void ImageToScreen(Image& image, int* ix, int* iy)
+{
+	*ix *= SCREEN_WIDTH / image.width;
+	*iy *= SCREEN_HEIGHT / image.height;
+}
+
+inline Vector2 ScreenToImage(Image& image, Vector2 scr)
+{
+	Vector2 img;
+	img.x = scr.x * (image.width / (float)SCREEN_WIDTH);
+	img.y = scr.y * (image.height / (float)SCREEN_HEIGHT);
+	return img;
+}
+
+inline Vector2 ImageToScreen(Image& image, Vector2 img)
+{
+	Vector2 scr;
+	scr.x = img.x * (SCREEN_WIDTH / (float)image.width);
+	scr.y = img.y * (SCREEN_HEIGHT / (float)image.height);
+	return scr;
 }

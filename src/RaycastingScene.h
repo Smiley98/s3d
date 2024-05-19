@@ -24,6 +24,8 @@ public:
 	void OnDraw() final;
 
 private:
+	Vector2 mPosition;
+
 	Image mImage;
 	GLuint mTexture;
 
