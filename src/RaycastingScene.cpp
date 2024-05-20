@@ -14,11 +14,8 @@ struct Cell
 
 using Cells = std::vector<Cell>;
 
-// Lots of generic use-cases between pixel-setting and grid-coordinates!
-// I'll have to modify this to break when it hits a wall,
-// and then predict screen-POI from map-POI.
-
-// Will do so via position + direction * t * TILE_SIZE
+// Gonna need to change this to step in grid space (for performance),
+// but calculate screen-space edge every iteration. Will need to determine offset.
 inline Cells DDA(int x0, int y0, int x1, int y1)
 {
 	// Make the horizontal component the largest (avoid divide by zero)!
@@ -29,7 +26,7 @@ inline Cells DDA(int x0, int y0, int x1, int y1)
 		std::swap(x0, y0);
 		std::swap(x1, y1);
 	}
-
+	
 	// Make the line point left-to-right
 	bool flipX = false;
 	if (x0 > x1)
@@ -110,6 +107,8 @@ void RaycastingScene::OnLoad()
 {
 	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
 	mTexture = LoadTexture(mImage);
+
+	mPosition = CENTER;
 }
 
 void RaycastingScene::OnUnload()
@@ -150,17 +149,19 @@ void RaycastingScene::OnUpdate(float dt)
 	// Map has walls at edges, so we shouldn't be at risk!
 
 	Vector2 mouse = ScreenToImage(mImage, MousePosition());
+	mDirection = Normalize(mouse - mPosition);
+
 	bool bounded = RectRect(8, 8, 496, 496, mouse.x - 3, mouse.y - 3, 6, 6);
 	if (bounded)
 		DrawCircle(mImage, mouse.x, mouse.y, 3, BLUE);
-	DrawLine(mImage, CENTER.x, CENTER.y, mouse.x, mouse.y, BLUE);
+	DrawLine(mImage, mPosition.x, mPosition.y, mouse.x, mouse.y, BLUE);
 
 	int mouseCol, mouseRow;
 	ImageToTile(mouse.x, mouse.y, &mouseCol, &mouseRow);
 	DrawTile(mImage, mouseCol, mouseRow, CYAN);
 
 	int centerCol, centerRow;
-	ImageToTile(CENTER.x, CENTER.y, &centerCol, &centerRow);
+	ImageToTile(mPosition.x, mPosition.y, &centerCol, &centerRow);
 
 	if (IsKeyDown(KEY_SPACE))
 	{
@@ -168,8 +169,17 @@ void RaycastingScene::OnUpdate(float dt)
 		Cells cells;
 		cells = DDA(centerCol, centerRow, mouseCol, mouseRow);
 
-		for (Cell cell : cells)
+		for (size_t i = 0; i < cells.size(); i++)
+		{
+			Cell cell = cells[i];
 			DrawTile(mImage, cell.col, cell.row, BLUE);
+			int cx, cy;
+			TileToImage(cell.col, cell.row, &cx, &cy);
+			DrawCircle(mImage, cx, cy, 5, RED);
+
+			Vector2 end = mPosition + mDirection * (i * TILE_SIZE);
+			DrawCircle(mImage, end.x, end.y, 5, CYAN);
+		}
 		DrawTile(mImage, cells.back().col, cells.back().row, MAGENTA);
 		//DrawCircle(mImage, poi.x, poi.y, 5, RED);
 	}

@@ -25,6 +25,7 @@ public:
 
 private:
 	Vector2 mPosition;
+	Vector2 mDirection{ 1.0f, 0.0f };
 
 	Image mImage;
 	GLuint mTexture;

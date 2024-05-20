@@ -102,6 +102,7 @@ void Swap()
 
 void Poll()
 {
+    fInput.mousePosDelta = Vector2Zero();
     fInput.mousePosPrev = fInput.mousePosCurr;
     memcpy(fInput.mouseButtonsPrev.data(), fInput.mouseButtonsCurr.data(), sizeof(int) * MOUSE_BUTTON_COUNT);
     memcpy(fInput.keysPrev.data(), fInput.keysCurr.data(), sizeof(int) * KEY_COUNT);
