@@ -35,6 +35,9 @@ private:
 	Cells DDA(int x0, int y0, int x1, int y1);
 	void DrawDDA(Vector2 start, Vector2 end);
 
+	float mMoveSpeed = 250.0f;
+	float mTurnSpeed = 360.0f;
+
 	Vector2 mPosition;
 	Vector2 mDirection{ 1.0f, 0.0f };
 

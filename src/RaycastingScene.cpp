@@ -115,8 +115,6 @@ inline void DrawTile(Image& image, int col, int row, Color color)
 
 void RaycastingScene::OnLoad()
 {
-	Vector2 d{ 1.0f, 0.0f };
-	d = Rotate(d, 90.0f * DEG2RAD);
 	mPosition = CENTER;
 
 	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
@@ -156,10 +154,39 @@ void RaycastingScene::OnUpdate(float dt)
 	}
 
 	// DDA rendering test
-	Vector2 mouse = MousePosition();
-	mouse = ScreenToImage(mImage, mouse);
-	if (IsKeyDown(KEY_SPACE))
-		DrawDDA(CENTER, mouse);
+	//Vector2 mouse = MousePosition();
+	//mouse = ScreenToImage(mImage, mouse);
+	//if (IsKeyDown(KEY_SPACE))
+	//	DrawDDA(CENTER, mouse);
+
+	float translationDelta = dt * mMoveSpeed;
+	float rotationDelta = dt * mTurnSpeed * DEG2RAD;
+	if (IsKeyDown(KEY_W))
+	{
+		mPosition += mDirection * translationDelta;
+	}
+	if (IsKeyDown(KEY_S))
+	{
+		mPosition -= mDirection * translationDelta;
+	}
+	if (IsKeyDown(KEY_A))
+	{
+		mDirection = Rotate(mDirection, -rotationDelta);
+	}
+	if (IsKeyDown(KEY_D))
+	{
+		mDirection = Rotate(mDirection, rotationDelta);
+	}
+
+	Vector2 start = mPosition;
+	Vector2 end = mPosition + mDirection * 100.0f;
+	DrawLine(mImage, start.x, start.y, end.x, end.y, RED);
+
+	static bool drawDDA = false;
+	if (IsKeyPressed(KEY_SPACE))
+		drawDDA = !drawDDA;
+	if (drawDDA)
+		DrawDDA(start, end);
 
 	//Vector2 p = DDATest(mPosition, mDirection);
 	//DrawCircle(mImage, p.x, p.y, 5, MAGENTA);
