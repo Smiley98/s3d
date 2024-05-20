@@ -6,15 +6,14 @@
 
 constexpr Vector2 CENTER{ IMAGE_SIZE * 0.5f, IMAGE_SIZE * 0.5f };
 
-struct Cell
+inline float TileOverlap(float position, float direction, float tileLength)
 {
-	int row = -1;
-	int col = -1;
-};
+	float remainder = fmodf(position, tileLength);
+	float edge = direction >= 0.0f ? position + tileLength - remainder : position - remainder;
+	return edge - position;
+}
 
-using Cells = std::vector<Cell>;
-
-inline Cells DDA(int x0, int y0, int x1, int y1)
+inline Cells RaycastingScene::DDA(int x0, int y0, int x1, int y1)
 {
 	Cells cells;
 
@@ -39,6 +38,37 @@ inline Cells DDA(int x0, int y0, int x1, int y1)
 	}
 
 	return cells;
+}
+
+//Cells RaycastingScene::DDA(Vector2 position, Vector2 direction)
+//{
+//	Cells cells;
+//
+//	Vector2 poi = position;
+//
+//	TileType hit = AIR;
+//	//while (hit == AIR)
+//	//{
+//	//	float tx = TileOverlap(poi.x)
+//	//
+//	//	//Cell cell;
+//	//	//cell.row = y;
+//	//	//cell.col = x;
+//	//	//cells.push_back(cell);
+//	//}
+//
+//	return cells;
+//}
+
+inline Vector2 DDATest(Vector2 position, Vector2 direction)
+{
+	Vector2 p = position;
+	float d = 0.0f;
+
+	float xOverlap = TileOverlap(position.x, direction.x, TILE_SIZE);
+	float yOverlap = TileOverlap(position.y, direction.y, TILE_SIZE);
+
+	return p + Vector2{ xOverlap, yOverlap };
 }
 
 inline bool Overlaps(int min1, int max1, int min2, int max2)
@@ -85,11 +115,26 @@ inline void DrawTile(Image& image, int col, int row, Color color)
 
 void RaycastingScene::OnLoad()
 {
+	Vector2 d{ 1.0f, 0.0f };
+	d = Rotate(d, 90.0f * DEG2RAD);
+	mPosition = CENTER;
+
 	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
 	mTexture = LoadTexture(mImage);
 
-	DDA(1, 1, 4, 4);
-	mPosition = CENTER;
+	//Vector2 p = DDATest(mPosition, d);
+	//printf("%f %f\n", p.x, p.y);
+	
+	//d.x = fabsf(d.x <= FLT_EPSILON) ? FLT_EPSILON * Sign(d.x) : d.x;
+	//d.y = fabsf(d.y <= FLT_EPSILON) ? FLT_EPSILON * Sign(d.y) : d.y;
+	//
+	//// Since 30 is more horizontal than vertical, ox / d.x < oy / d.y.
+	//// Hence, we will reach our x-intercept before our y-intercept! 
+	//float ox = TileOverlap(40.0f, d.x, TILE_SIZE);
+	//float oy = TileOverlap(40.0f, d.y, TILE_SIZE);
+	//ox /= d.x;
+	//oy /= d.y;
+	//Cells cells = DDA(2, 2, 3, 16);
 }
 
 void RaycastingScene::OnUnload()
@@ -110,60 +155,14 @@ void RaycastingScene::OnUpdate(float dt)
 		}
 	}
 
-	int x = 128;
-	int y = 384;
-	int r = 16;
-	DrawCircle(mImage, x, y, r, RED);
-	DrawCircleLines(mImage, x, y, r, MAGENTA);
-
-	int w, h;
-	w = h = 32;
-	x = 384;
-	DrawRect(mImage, x, y, w, h, RED);
-	DrawRectLines(mImage, x, y, w, h, MAGENTA);
-	
-	float tt = TotalTime();
-	float ncos = cosf(tt) * 0.5 + 0.5f;
-	DrawCircle(mImage, ncos * IMAGE_SIZE, 256, 16, GREEN);
-	//DrawCircle(mImage, ncos * IMAGE_SIZE, 500, 16, GREEN);
-	// As long as we don't go out of bounds (<0 or > 511) we're fine.
-	// Map has walls at edges, so we shouldn't be at risk!
-
-	Vector2 mouse = ScreenToImage(mImage, MousePosition());
-	mDirection = Normalize(mouse - mPosition);
-
-	bool bounded = RectRect(8, 8, 496, 496, mouse.x - 3, mouse.y - 3, 6, 6);
-	if (bounded)
-		DrawCircle(mImage, mouse.x, mouse.y, 3, BLUE);
-	DrawLine(mImage, mPosition.x, mPosition.y, mouse.x, mouse.y, BLUE);
-
-	int mouseCol, mouseRow;
-	ImageToTile(mouse.x, mouse.y, &mouseCol, &mouseRow);
-	DrawTile(mImage, mouseCol, mouseRow, CYAN);
-
-	int centerCol, centerRow;
-	ImageToTile(mPosition.x, mPosition.y, &centerCol, &centerRow);
-
+	// DDA rendering test
+	Vector2 mouse = MousePosition();
+	mouse = ScreenToImage(mImage, mouse);
 	if (IsKeyDown(KEY_SPACE))
-	{
-		//Vector2 poi;
-		Cells cells;
-		cells = DDA(centerCol, centerRow, mouseCol, mouseRow);
-		DrawTile(mImage, cells.back().col, cells.back().row, MAGENTA);
-		//DrawCircle(mImage, poi.x, poi.y, 5, RED);
-	
-		for (size_t i = 0; i < cells.size(); i++)
-		{
-			Cell cell = cells[i];
-			DrawTile(mImage, cell.col, cell.row, BLUE);
-			int cx, cy;
-			TileToImage(cell.col, cell.row, &cx, &cy);
-			DrawCircle(mImage, cx, cy, 5, RED);
-	
-			Vector2 end = mPosition + mDirection * (i * TILE_SIZE);
-			DrawCircle(mImage, end.x, end.y, 5, CYAN);
-		}
-	}
+		DrawDDA(CENTER, mouse);
+
+	//Vector2 p = DDATest(mPosition, mDirection);
+	//DrawCircle(mImage, p.x, p.y, 5, MAGENTA);
 
 	// Flip since array [0, 0] = top-left but uv [0, 0] = bottom-left
 	Flip(mImage);
@@ -182,4 +181,23 @@ void RaycastingScene::OnDraw()
 	glBindVertexArray(GL_NONE);
 	glUseProgram(GL_NONE);
 	UnbindTexture(mTexture);
+}
+
+void RaycastingScene::DrawDDA(Vector2 start, Vector2 end)
+{
+	int x0, y0, x1, y1;
+	ImageToTile(start.x, start.y, &x0, &y0);
+	ImageToTile(end.x, end.y, &x1, &y1);
+
+	Cells cells = DDA(x0, y0, x1, y1);
+	for (size_t i = 0; i < cells.size(); i++)
+	{
+		Cell cell = cells[i];
+		int tx, ty;
+		TileToImage(cell.col, cell.row, &tx, &ty);
+		DrawTile(mImage, cell.col, cell.row, BLUE);
+		DrawCircle(mImage, tx, ty, 5, RED);
+	}
+	if (!cells.empty())
+		DrawTile(mImage, cells.back().col, cells.back().row, CYAN);
 }

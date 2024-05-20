@@ -8,6 +8,14 @@ constexpr size_t MAP_SIZE = 16;
 constexpr size_t IMAGE_SIZE = 512;
 constexpr size_t TILE_SIZE = IMAGE_SIZE / MAP_SIZE;
 
+struct Cell
+{
+	int row = -1;
+	int col = -1;
+};
+
+using Cells = std::vector<Cell>;
+
 enum TileType : size_t
 {
 	AIR,
@@ -24,6 +32,9 @@ public:
 	void OnDraw() final;
 
 private:
+	Cells DDA(int x0, int y0, int x1, int y1);
+	void DrawDDA(Vector2 start, Vector2 end);
+
 	Vector2 mPosition;
 	Vector2 mDirection{ 1.0f, 0.0f };
 
