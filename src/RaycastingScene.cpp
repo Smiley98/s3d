@@ -60,15 +60,47 @@ inline Cells RaycastingScene::DDA(int x0, int y0, int x1, int y1)
 //	return cells;
 //}
 
+// The most important part is determining whether we will hit the wall first in x or y
 inline Vector2 DDATest(Vector2 position, Vector2 direction)
 {
-	Vector2 p = position;
-	float d = 0.0f;
+	Vector2 poi;
 
-	float xOverlap = TileOverlap(position.x, direction.x, TILE_SIZE);
-	float yOverlap = TileOverlap(position.y, direction.y, TILE_SIZE);
+	// Assuming direction is pointing right:
+	//float px = position.x - fmodf(position.x, TILE_SIZE);
+	//float py = position.y - fmodf(position.y, TILE_SIZE);
 
-	return p + Vector2{ xOverlap, yOverlap };
+	float h = 1.0f / direction.x;
+	float opp = sqrtf(h - 1);
+	poi.x = position.x + TILE_SIZE * direction.x * h;
+	poi.y = position.y + TILE_SIZE * direction.y * opp;
+	return poi;
+	//Vector2 p = position;
+	//float t = 0.0f;
+	//
+	//float xOverlap = TileOverlap(position.x, direction.x, TILE_SIZE);
+	//float yOverlap = TileOverlap(position.y, direction.y, TILE_SIZE);
+	//
+	//// We can 
+	//
+	//Vector2 d = direction;
+	//d.x = fabsf(d.x) <= FLT_EPSILON ? FLT_EPSILON * Sign(d.x) : d.x;
+	//d.y = fabsf(d.y) <= FLT_EPSILON ? FLT_EPSILON * Sign(d.y) : d.y;
+
+	//bool stepX = xOverlap / d.x < yOverlap / d.y;
+	//float t = stepX ? xOverlap / TILE_SIZE : yOverlap / TILE_SIZE;
+
+	//if (stepX)
+	//{
+	//	bool right = d.x > 0.0f;
+	//	t = xOverlap / TILE_SIZE;
+	//}
+	//else
+	//{
+	//	// Might have to invert y xD
+	//	//bool down = d.y > 0.0f;
+	//}
+
+	//return p + Vector2{ xOverlap, yOverlap };
 }
 
 inline bool Overlaps(int min1, int max1, int min2, int max2)
@@ -116,22 +148,13 @@ inline void DrawTile(Image& image, int col, int row, Color color)
 void RaycastingScene::OnLoad()
 {
 	mPosition = CENTER;
+	//mPosition.x += TILE_SIZE * 0.5f;
+	//mPosition.y += TILE_SIZE * 0.5f;
+	DDATest(mPosition, Rotate(mDirection, 130.0f * DEG2RAD));
 
 	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
 	mTexture = LoadTexture(mImage);
 
-	//Vector2 p = DDATest(mPosition, d);
-	//printf("%f %f\n", p.x, p.y);
-	
-	//d.x = fabsf(d.x <= FLT_EPSILON) ? FLT_EPSILON * Sign(d.x) : d.x;
-	//d.y = fabsf(d.y <= FLT_EPSILON) ? FLT_EPSILON * Sign(d.y) : d.y;
-	//
-	//// Since 30 is more horizontal than vertical, ox / d.x < oy / d.y.
-	//// Hence, we will reach our x-intercept before our y-intercept! 
-	//float ox = TileOverlap(40.0f, d.x, TILE_SIZE);
-	//float oy = TileOverlap(40.0f, d.y, TILE_SIZE);
-	//ox /= d.x;
-	//oy /= d.y;
 	//Cells cells = DDA(2, 2, 3, 16);
 }
 
@@ -188,8 +211,8 @@ void RaycastingScene::OnUpdate(float dt)
 	if (drawDDA)
 		DrawDDA(start, end);
 
-	//Vector2 p = DDATest(mPosition, mDirection);
-	//DrawCircle(mImage, p.x, p.y, 5, MAGENTA);
+	Vector2 p = DDATest(mPosition, mDirection);
+	DrawCircle(mImage, p.x, p.y, 5, MAGENTA);
 
 	// Flip since array [0, 0] = top-left but uv [0, 0] = bottom-left
 	Flip(mImage);
