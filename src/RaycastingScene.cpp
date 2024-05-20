@@ -6,6 +6,64 @@
 
 constexpr Vector2 CENTER{ IMAGE_SIZE * 0.5f, IMAGE_SIZE * 0.5f };
 
+struct Cell
+{
+	int row = -1;
+	int col = -1;
+};
+
+using Cells = std::vector<Cell>;
+
+// Lots of generic use-cases between pixel-setting and grid-coordinates!
+// I'll have to modify this to break when it hits a wall,
+// and then predict screen-POI from map-POI.
+
+// Will do so via position + direction * t * TILE_SIZE
+inline Cells DDA(int x0, int y0, int x1, int y1)
+{
+	// Make the horizontal component the largest (avoid divide by zero)!
+	bool flipY = false;
+	if (fabsf(x0 - x1) < fabsf(y0 - y1))
+	{
+		flipY = true;
+		std::swap(x0, y0);
+		std::swap(x1, y1);
+	}
+
+	// Make the line point left-to-right
+	bool flipX = false;
+	if (x0 > x1)
+	{
+		std::swap(x0, x1);
+		std::swap(y0, y1);
+		flipX = true;
+	}
+
+	size_t i = 0;
+	Cells cells;
+	cells.resize((x1 - x0) + 1);
+
+	for (int x = x0; x <= x1; x++, i++)
+	{
+		// Calculate interpolation value
+		float t = (x - x0) / (float)(x1 - x0);
+
+		// Express y in terms of x by lerping!
+		int y = y0 * (1.0f - t) + y1 * t;
+
+		int px = flipY ? y : x;
+		int py = flipY ? x : y;
+
+		cells[i].row = py;
+		cells[i].col = px;
+	}
+
+	if (flipX)
+		std::reverse(cells.begin(), cells.end());
+
+	return cells;
+}
+
 inline bool Overlaps(int min1, int max1, int min2, int max2)
 {
 	return !((max1 < min2) || (max2 < min1));
@@ -29,16 +87,23 @@ inline bool RectRect(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int
 	return collision;
 }
 
-inline void ImageToTile(int ix, int iy, int& tx, int& ty)
+inline void ImageToTile(int x, int y, int* col, int* row)
 {
-	tx = ix / TILE_SIZE;
-	ty = iy / TILE_SIZE;
+	*col = x / TILE_SIZE;
+	*row = y / TILE_SIZE;
 }
 
-inline void TileToImage(int tx, int ty, int& ix, int& iy)
+inline void TileToImage(int col, int row, int* x, int* y)
 {
-	ix = tx * TILE_SIZE;
-	iy = ty * TILE_SIZE;
+	*x = col * TILE_SIZE;
+	*y = row * TILE_SIZE;
+}
+
+inline void DrawTile(Image& image, int col, int row, Color color)
+{
+	int x, y;
+	TileToImage(col, row, &x, &y);
+	DrawRect(image, x, y, TILE_SIZE, TILE_SIZE, color);
 }
 
 void RaycastingScene::OnLoad()
@@ -58,10 +123,10 @@ void RaycastingScene::OnUpdate(float dt)
 		for (size_t col = 0; col < MAP_SIZE; col++)
 		{
 			int rx, ry;
-			TileToImage(col, row, rx, ry);
+			TileToImage(col, row, &rx, &ry);
 
 			Color color = mMap[row][col] == WALL ? MAGENTA : BLACK;
-			DrawRect(mImage, rx, ry, TILE_SIZE, TILE_SIZE, color);
+			DrawTile(mImage, col, row, color);
 		}
 	}
 
@@ -89,6 +154,25 @@ void RaycastingScene::OnUpdate(float dt)
 	if (bounded)
 		DrawCircle(mImage, mouse.x, mouse.y, 3, BLUE);
 	DrawLine(mImage, CENTER.x, CENTER.y, mouse.x, mouse.y, BLUE);
+
+	int mouseCol, mouseRow;
+	ImageToTile(mouse.x, mouse.y, &mouseCol, &mouseRow);
+	DrawTile(mImage, mouseCol, mouseRow, CYAN);
+
+	int centerCol, centerRow;
+	ImageToTile(CENTER.x, CENTER.y, &centerCol, &centerRow);
+
+	if (IsKeyDown(KEY_SPACE))
+	{
+		//Vector2 poi;
+		Cells cells;
+		cells = DDA(centerCol, centerRow, mouseCol, mouseRow);
+
+		for (Cell cell : cells)
+			DrawTile(mImage, cell.col, cell.row, BLUE);
+		DrawTile(mImage, cells.back().col, cells.back().row, MAGENTA);
+		//DrawCircle(mImage, poi.x, poi.y, 5, RED);
+	}
 
 	// Flip since array [0, 0] = top-left but uv [0, 0] = bottom-left
 	Flip(mImage);
