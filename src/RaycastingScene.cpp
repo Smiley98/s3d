@@ -14,49 +14,29 @@ struct Cell
 
 using Cells = std::vector<Cell>;
 
-// Gonna need to change this to step in grid space (for performance),
-// but calculate screen-space edge every iteration. Will need to determine offset.
 inline Cells DDA(int x0, int y0, int x1, int y1)
 {
-	// Make the horizontal component the largest (avoid divide by zero)!
-	bool flipY = false;
-	if (fabsf(x0 - x1) < fabsf(y0 - y1))
-	{
-		flipY = true;
-		std::swap(x0, y0);
-		std::swap(x1, y1);
-	}
-	
-	// Make the line point left-to-right
-	bool flipX = false;
-	if (x0 > x1)
-	{
-		std::swap(x0, x1);
-		std::swap(y0, y1);
-		flipX = true;
-	}
-
-	size_t i = 0;
 	Cells cells;
-	cells.resize((x1 - x0) + 1);
 
-	for (int x = x0; x <= x1; x++, i++)
+	int dx = x1 - x0;
+	int dy = y1 - y0;
+
+	int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+	float xStep = dx / (float)steps;
+	float yStep = dy / (float)steps;
+
+	float x = x0;
+	float y = y0;
+	for (int i = 0; i < steps; i++)
 	{
-		// Calculate interpolation value
-		float t = (x - x0) / (float)(x1 - x0);
+		x += xStep;
+		y += yStep;
 
-		// Express y in terms of x by lerping!
-		int y = y0 * (1.0f - t) + y1 * t;
-
-		int px = flipY ? y : x;
-		int py = flipY ? x : y;
-
-		cells[i].row = py;
-		cells[i].col = px;
+		Cell cell;
+		cell.row = y;
+		cell.col = x;
+		cells.push_back(cell);
 	}
-
-	if (flipX)
-		std::reverse(cells.begin(), cells.end());
 
 	return cells;
 }
@@ -108,6 +88,7 @@ void RaycastingScene::OnLoad()
 	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
 	mTexture = LoadTexture(mImage);
 
+	DDA(1, 1, 4, 4);
 	mPosition = CENTER;
 }
 
@@ -168,7 +149,9 @@ void RaycastingScene::OnUpdate(float dt)
 		//Vector2 poi;
 		Cells cells;
 		cells = DDA(centerCol, centerRow, mouseCol, mouseRow);
-
+		DrawTile(mImage, cells.back().col, cells.back().row, MAGENTA);
+		//DrawCircle(mImage, poi.x, poi.y, 5, RED);
+	
 		for (size_t i = 0; i < cells.size(); i++)
 		{
 			Cell cell = cells[i];
@@ -176,12 +159,10 @@ void RaycastingScene::OnUpdate(float dt)
 			int cx, cy;
 			TileToImage(cell.col, cell.row, &cx, &cy);
 			DrawCircle(mImage, cx, cy, 5, RED);
-
+	
 			Vector2 end = mPosition + mDirection * (i * TILE_SIZE);
 			DrawCircle(mImage, end.x, end.y, 5, CYAN);
 		}
-		DrawTile(mImage, cells.back().col, cells.back().row, MAGENTA);
-		//DrawCircle(mImage, poi.x, poi.y, 5, RED);
 	}
 
 	// Flip since array [0, 0] = top-left but uv [0, 0] = bottom-left

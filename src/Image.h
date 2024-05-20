@@ -79,7 +79,7 @@ inline void DrawLine(Image& image, int x0, int y0, int x1, int y1, Color color)
 {
 	// Make the horizontal component the largest (avoid divide by zero)!
 	bool steep = false;
-	if (fabsf(x0 - x1) < fabsf(y0 - y1))
+	if (abs(x0 - x1) < abs(y0 - y1))
 	{
 		steep = true;
 		std::swap(x0, y0);
