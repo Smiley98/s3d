@@ -59,17 +59,25 @@ inline Cells RaycastingScene::DDA(int x0, int y0, int x1, int y1)
 	return cells;
 }
 
+using Points = std::vector<Vector2>;
+Points pois;
 inline Vector2 RaycastingScene::DDATest(Vector2 position, Vector2 direction)
 {
 	int mapX, mapY;
 	ImageToTile(position.x, position.y, &mapX, &mapY);
 
-	// Easier to convert position to decimal-grid-space
-	// IEEE 754 --> n / 0 = inf <-- "this is fine"
+	// Convert position to unit-grid
 	Vector2 p = position / (float)TILE_SIZE;
-	Vector2 d = Vector2One() / direction;
+
+	// d is essentially the hypotenuse of a triangle.
+	// "How far in the direction's [x or y] axis must we travel to cover 1 grid space"?
+	Vector2 d = Vector2One() / direction; // IEEE 754 --> n / 0 = inf <-- "this is fine"
+
+	// s is distance until the nearest side.
+	// Algorithm works by choosing the nearest side every iteration
 	Vector2 s;
 
+	// TODO -- draw grid lines & test all points this produces. I don't trust it xD
 	int stepX;
 	int stepY;
 	int side;
@@ -95,6 +103,7 @@ inline Vector2 RaycastingScene::DDATest(Vector2 position, Vector2 direction)
 		s.y = (mapY + 1.0f - p.y) * d.y;
 	}
 
+	pois.clear();
 	TileType hit = AIR;
 	while (hit == AIR)
 	{
@@ -111,6 +120,9 @@ inline Vector2 RaycastingScene::DDATest(Vector2 position, Vector2 direction)
 			side = 1;
 		}
 
+		float t = fabsf(side == 0 ? s.x - d.x : s.y - d.y);
+		Vector2 poi = position + direction * t * TILE_SIZE;
+		pois.push_back(poi);
 		hit = (TileType)mMap[mapY][mapX];
 	}
 
@@ -175,6 +187,16 @@ void RaycastingScene::OnUpdate(float dt)
 		}
 	}
 
+	for (size_t row = 0; row < IMAGE_SIZE; row += TILE_SIZE)
+	{
+		SetRow(mImage, row, GRAY);
+	}
+
+	for (size_t col = 0; col < IMAGE_SIZE; col += TILE_SIZE)
+	{
+		SetCol(mImage, col, GRAY);
+	}
+
 	// DDA rendering test
 	//Vector2 mouse = MousePosition();
 	//mouse = ScreenToImage(mImage, mouse);
@@ -199,19 +221,17 @@ void RaycastingScene::OnUpdate(float dt)
 	{
 		mDirection = Rotate(mDirection, rotationDelta);
 	}
-
-	Vector2 start = mPosition;
-	Vector2 end = mPosition + mDirection * 100.0f;
-	DrawLine(mImage, start.x, start.y, end.x, end.y, RED);
+	//mDirection = Normalize(MousePosition() - mPosition);
 
 	static bool drawDDA = false;
 	if (IsKeyPressed(KEY_SPACE))
 		drawDDA = !drawDDA;
-	if (drawDDA)
-		DrawDDA(start, end);
 
 	Vector2 p = DDATest(mPosition, mDirection);
-	DrawCircle(mImage, p.x, p.y, 5, MAGENTA);
+	for (Vector2 point : pois)
+		DrawCircle(mImage, point.x, point.y, 2, RED);
+	DrawLine(mImage, mPosition.x, mPosition.y, p.x, p.y, RED);
+	DrawCircle(mImage, p.x, p.y, 5, RED);
 
 	// Flip since array [0, 0] = top-left but uv [0, 0] = bottom-left
 	Flip(mImage);
