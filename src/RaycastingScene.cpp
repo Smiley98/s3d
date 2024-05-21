@@ -6,11 +6,30 @@
 
 constexpr Vector2 CENTER{ IMAGE_SIZE * 0.5f, IMAGE_SIZE * 0.5f };
 
+inline void ImageToTile(int x, int y, int* col, int* row)
+{
+	*col = x / TILE_SIZE;
+	*row = y / TILE_SIZE;
+}
+
+inline void TileToImage(int col, int row, int* x, int* y)
+{
+	*x = col * TILE_SIZE;
+	*y = row * TILE_SIZE;
+}
+
 inline float TileOverlap(float position, float direction, float tileLength)
 {
 	float remainder = fmodf(position, tileLength);
 	float edge = direction >= 0.0f ? position + tileLength - remainder : position - remainder;
 	return edge - position;
+}
+
+inline float TilePercentage(float position, float direction)
+{
+	float r = fmodf(position, TILE_SIZE);
+	float t = r / TILE_SIZE;
+	return direction >= 0.0f ? t : 1.0f - t;
 }
 
 inline Cells RaycastingScene::DDA(int x0, int y0, int x1, int y1)
@@ -40,67 +59,63 @@ inline Cells RaycastingScene::DDA(int x0, int y0, int x1, int y1)
 	return cells;
 }
 
-//Cells RaycastingScene::DDA(Vector2 position, Vector2 direction)
-//{
-//	Cells cells;
-//
-//	Vector2 poi = position;
-//
-//	TileType hit = AIR;
-//	//while (hit == AIR)
-//	//{
-//	//	float tx = TileOverlap(poi.x)
-//	//
-//	//	//Cell cell;
-//	//	//cell.row = y;
-//	//	//cell.col = x;
-//	//	//cells.push_back(cell);
-//	//}
-//
-//	return cells;
-//}
-
-// The most important part is determining whether we will hit the wall first in x or y
-inline Vector2 DDATest(Vector2 position, Vector2 direction)
+inline Vector2 RaycastingScene::DDATest(Vector2 position, Vector2 direction)
 {
-	Vector2 poi;
+	int mapX, mapY;
+	ImageToTile(position.x, position.y, &mapX, &mapY);
 
-	// Assuming direction is pointing right:
-	//float px = position.x - fmodf(position.x, TILE_SIZE);
-	//float py = position.y - fmodf(position.y, TILE_SIZE);
+	// Easier to convert position to decimal-grid-space
+	// IEEE 754 --> n / 0 = inf <-- "this is fine"
+	Vector2 p = position / (float)TILE_SIZE;
+	Vector2 d = Vector2One() / direction;
+	Vector2 s;
 
-	float h = 1.0f / direction.x;
-	float opp = sqrtf(h - 1);
-	poi.x = position.x + TILE_SIZE * direction.x * h;
-	poi.y = position.y + TILE_SIZE * direction.y * opp;
-	return poi;
-	//Vector2 p = position;
-	//float t = 0.0f;
-	//
-	//float xOverlap = TileOverlap(position.x, direction.x, TILE_SIZE);
-	//float yOverlap = TileOverlap(position.y, direction.y, TILE_SIZE);
-	//
-	//// We can 
-	//
-	//Vector2 d = direction;
-	//d.x = fabsf(d.x) <= FLT_EPSILON ? FLT_EPSILON * Sign(d.x) : d.x;
-	//d.y = fabsf(d.y) <= FLT_EPSILON ? FLT_EPSILON * Sign(d.y) : d.y;
+	int stepX;
+	int stepY;
+	int side;
 
-	//bool stepX = xOverlap / d.x < yOverlap / d.y;
-	//float t = stepX ? xOverlap / TILE_SIZE : yOverlap / TILE_SIZE;
+	if (direction.x < 0.0f)
+	{
+		stepX = -1;
+		s.x = (p.x - mapX) * d.x;
+	}
+	else
+	{
+		stepX = 1;
+		s.x = (mapX + 1.0f - p.x) * d.x;
+	}
+	if (direction.y < 0.0f)
+	{
+		stepY = -1;
+		s.y = (p.y - mapY) * d.y;
+	}
+	else
+	{
+		stepY = 1;
+		s.y = (mapY + 1.0f - p.y) * d.y;
+	}
 
-	//if (stepX)
-	//{
-	//	bool right = d.x > 0.0f;
-	//	t = xOverlap / TILE_SIZE;
-	//}
-	//else
-	//{
-	//	// Might have to invert y xD
-	//	//bool down = d.y > 0.0f;
-	//}
+	TileType hit = AIR;
+	while (hit == AIR)
+	{
+		if (fabsf(s.x) < fabsf(s.y))
+		{
+			s.x += d.x;
+			mapX += stepX;
+			side = 0;
+		}
+		else
+		{
+			s.y += d.y;
+			mapY += stepY;
+			side = 1;
+		}
 
-	//return p + Vector2{ xOverlap, yOverlap };
+		hit = (TileType)mMap[mapY][mapX];
+	}
+
+	float dist = side == 0 ? s.x - d.x : s.y - d.y;
+	return position + direction * fabsf(dist) * TILE_SIZE;
 }
 
 inline bool Overlaps(int min1, int max1, int min2, int max2)
@@ -126,18 +141,6 @@ inline bool RectRect(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int
 	return collision;
 }
 
-inline void ImageToTile(int x, int y, int* col, int* row)
-{
-	*col = x / TILE_SIZE;
-	*row = y / TILE_SIZE;
-}
-
-inline void TileToImage(int col, int row, int* x, int* y)
-{
-	*x = col * TILE_SIZE;
-	*y = row * TILE_SIZE;
-}
-
 inline void DrawTile(Image& image, int col, int row, Color color)
 {
 	int x, y;
@@ -148,14 +151,10 @@ inline void DrawTile(Image& image, int col, int row, Color color)
 void RaycastingScene::OnLoad()
 {
 	mPosition = CENTER;
-	//mPosition.x += TILE_SIZE * 0.5f;
-	//mPosition.y += TILE_SIZE * 0.5f;
-	DDATest(mPosition, Rotate(mDirection, 130.0f * DEG2RAD));
+	Vector2 poi = DDATest(mPosition, Rotate(mDirection, -60.0f * DEG2RAD));
 
 	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
 	mTexture = LoadTexture(mImage);
-
-	//Cells cells = DDA(2, 2, 3, 16);
 }
 
 void RaycastingScene::OnUnload()

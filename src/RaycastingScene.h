@@ -32,6 +32,7 @@ public:
 	void OnDraw() final;
 
 private:
+	Vector2 DDATest(Vector2 position, Vector2 direction);
 	Cells DDA(int x0, int y0, int x1, int y1);
 	void DrawDDA(Vector2 start, Vector2 end);
 
