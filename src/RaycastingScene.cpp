@@ -66,22 +66,32 @@ inline Vector2 RaycastingScene::DDATest(Vector2 position, Vector2 direction)
 	int mapX, mapY;
 	ImageToTile(position.x, position.y, &mapX, &mapY);
 
-	// Convert position to unit-grid
 	Vector2 p = position / (float)TILE_SIZE;
-
-	// d is essentially the hypotenuse of a triangle.
-	// "How far in the direction's [x or y] axis must we travel to cover 1 grid space"?
-	Vector2 d = Vector2One() / direction; // IEEE 754 --> n / 0 = inf <-- "this is fine"
-
-	// s is distance until the nearest side.
-	// Algorithm works by choosing the nearest side every iteration
+	Vector2 d = Vector2One() / direction;
 	Vector2 s;
-
-	// TODO -- draw grid lines & test all points this produces. I don't trust it xD
+	
 	int stepX;
 	int stepY;
 	int side;
-
+	
+	// Step 1 -- Calculate s; how far we need to move in direction to intersect an axis.
+	// 
+	// Example: direction = [0.5, 0.86] (60 degrees), p = 8.5 (middle of tile in middle of grid).
+	// 1. Calculate t:
+	// t = mapX + 1 - pX
+	// t = 8 + 1 - 8.5
+	// t = 0.5 (50% makes sense cause player is half way across its tile).
+	// 
+	// 2. Calculate s:
+	// d = inverse direction --> moving d magnitude in direction moves us 1 unit (d.x * direction.x = 1)
+	// d.x = 1.0 / 0.5 = 2.0
+	// s = t * d --> "if we're 50% across the tile, and d moves us fully across, we must move d * 0.5!"
+	// s.x = 0.5 * 2 = 1
+	// 
+	// Proof -- must move 1 in direction.x to move player to right of tile:
+	// right = p.x + s.x * direction.x
+	// right = 8.5 + 1.0 * 0.5
+	// right = 9.0
 	if (direction.x < 0.0f)
 	{
 		stepX = -1;
@@ -104,6 +114,10 @@ inline Vector2 RaycastingScene::DDATest(Vector2 position, Vector2 direction)
 	}
 
 	pois.clear();
+
+	// Step 2: Now that we've calculated how far to move in direction to intersect x & y axis,
+	// we must march until we've hit a wall!
+	// Do so by incrementing the nearest axis by d to move 1 unit.
 	TileType hit = AIR;
 	while (hit == AIR)
 	{
@@ -163,7 +177,10 @@ inline void DrawTile(Image& image, int col, int row, Color color)
 void RaycastingScene::OnLoad()
 {
 	mPosition = CENTER;
-	Vector2 poi = DDATest(mPosition, Rotate(mDirection, -60.0f * DEG2RAD));
+	mPosition.x += TILE_SIZE * 0.5f;
+	mPosition.y += TILE_SIZE * 0.5f;
+	mDirection = Rotate(mDirection, 60.0f * DEG2RAD);
+	//DDATest(mPosition, mDirection);
 
 	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
 	mTexture = LoadTexture(mImage);
