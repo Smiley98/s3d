@@ -19,7 +19,22 @@ using Cells = std::vector<Cell>;
 enum TileType : size_t
 {
 	AIR,
+	R,
+	G,
+	B,
 	WALL
+};
+
+struct RayHit
+{
+	Vector2 pos;
+	Vector2 dir;
+	Vector2 poi;
+	TileType type;
+
+	// t1 is supposedly fisheye-corrected distance, but its lowkey not so that's what t2 is xD
+	float t;
+	float t2;
 };
 
 class RaycastingScene : public Scene
@@ -32,7 +47,7 @@ public:
 	void OnDraw() final;
 
 private:
-	Vector2 DDATest(Vector2 position, Vector2 direction);
+	RayHit DDATest(Vector2 position, Vector2 direction);
 	Cells DDA(int x0, int y0, int x1, int y1);
 	void DrawDDA(Vector2 start, Vector2 end);
 
@@ -45,23 +60,25 @@ private:
 	Image mImage;
 	GLuint mTexture;
 
+	std::vector<RayHit> mHits;
+
 	std::array<std::array<size_t, MAP_SIZE>, MAP_SIZE> mMap
 	{
-		std::array<size_t, MAP_SIZE>{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-		std::array<size_t, MAP_SIZE>{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+		std::array<size_t, MAP_SIZE>{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, MAP_SIZE>{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }
 	};
 };

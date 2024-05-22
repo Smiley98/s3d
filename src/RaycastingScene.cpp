@@ -18,20 +18,6 @@ inline void TileToImage(int col, int row, int* x, int* y)
 	*y = row * TILE_SIZE;
 }
 
-inline float TileOverlap(float position, float direction, float tileLength)
-{
-	float remainder = fmodf(position, tileLength);
-	float edge = direction >= 0.0f ? position + tileLength - remainder : position - remainder;
-	return edge - position;
-}
-
-inline float TilePercentage(float position, float direction)
-{
-	float r = fmodf(position, TILE_SIZE);
-	float t = r / TILE_SIZE;
-	return direction >= 0.0f ? t : 1.0f - t;
-}
-
 inline Cells RaycastingScene::DDA(int x0, int y0, int x1, int y1)
 {
 	Cells cells;
@@ -60,38 +46,21 @@ inline Cells RaycastingScene::DDA(int x0, int y0, int x1, int y1)
 }
 
 using Points = std::vector<Vector2>;
-Points pois;
-inline Vector2 RaycastingScene::DDATest(Vector2 position, Vector2 direction)
+RayHit RaycastingScene::DDATest(Vector2 position, Vector2 direction)
 {
 	int mapX, mapY;
 	ImageToTile(position.x, position.y, &mapX, &mapY);
 
 	Vector2 p = position / (float)TILE_SIZE;
-	Vector2 d = Vector2One() / direction;
 	Vector2 s;
+	Vector2 d;
+	d.x = fabsf(1.0f / direction.x);
+	d.y = fabsf(1.0f / direction.y);
 	
 	int stepX;
 	int stepY;
 	int side;
 	
-	// Step 1 -- Calculate s; how far we need to move in direction to intersect an axis.
-	// 
-	// Example: direction = [0.5, 0.86] (60 degrees), p = 8.5 (middle of tile in middle of grid).
-	// 1. Calculate t:
-	// t = mapX + 1 - pX
-	// t = 8 + 1 - 8.5
-	// t = 0.5 (50% makes sense cause player is half way across its tile).
-	// 
-	// 2. Calculate s:
-	// d = inverse direction --> moving d magnitude in direction moves us 1 unit (d.x * direction.x = 1)
-	// d.x = 1.0 / 0.5 = 2.0
-	// s = t * d --> "if we're 50% across the tile, and d moves us fully across, we must move d * 0.5!"
-	// s.x = 0.5 * 2 = 1
-	// 
-	// Proof -- must move 1 in direction.x to move player to right of tile:
-	// right = p.x + s.x * direction.x
-	// right = 8.5 + 1.0 * 0.5
-	// right = 9.0
 	if (direction.x < 0.0f)
 	{
 		stepX = -1;
@@ -113,15 +82,10 @@ inline Vector2 RaycastingScene::DDATest(Vector2 position, Vector2 direction)
 		s.y = (mapY + 1.0f - p.y) * d.y;
 	}
 
-	pois.clear();
-
-	// Step 2: Now that we've calculated how far to move in direction to intersect x & y axis,
-	// we must march until we've hit a wall!
-	// Do so by incrementing the nearest axis by d to move 1 unit.
 	TileType hit = AIR;
 	while (hit == AIR)
 	{
-		if (fabsf(s.x) < fabsf(s.y))
+		if (s.x < s.y)
 		{
 			s.x += d.x;
 			mapX += stepX;
@@ -134,14 +98,16 @@ inline Vector2 RaycastingScene::DDATest(Vector2 position, Vector2 direction)
 			side = 1;
 		}
 
-		float t = fabsf(side == 0 ? s.x - d.x : s.y - d.y);
-		Vector2 poi = position + direction * t * TILE_SIZE;
-		pois.push_back(poi);
 		hit = (TileType)mMap[mapY][mapX];
 	}
 
-	float dist = side == 0 ? s.x - d.x : s.y - d.y;
-	return position + direction * fabsf(dist) * TILE_SIZE;
+	RayHit ray;
+	ray.pos = position;
+	ray.dir = direction;
+	ray.t = side == 0 ? s.x - d.x : s.y - d.y;
+	ray.poi = ray.pos + ray.dir * ray.t * TILE_SIZE;
+	ray.type = hit;
+	return ray;
 }
 
 inline bool Overlaps(int min1, int max1, int min2, int max2)
@@ -179,8 +145,8 @@ void RaycastingScene::OnLoad()
 	mPosition = CENTER;
 	mPosition.x += TILE_SIZE * 0.5f;
 	mPosition.y += TILE_SIZE * 0.5f;
-	mDirection = Rotate(mDirection, 60.0f * DEG2RAD);
-	//DDATest(mPosition, mDirection);
+	mDirection = Rotate(mDirection, -90.0 * DEG2RAD);
+	//DDATest(Vector2{475.0f, 475.0f}, mDirection);
 
 	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
 	mTexture = LoadTexture(mImage);
@@ -192,6 +158,7 @@ void RaycastingScene::OnUnload()
 
 void RaycastingScene::OnUpdate(float dt)
 {
+	Color colors[]{ BLACK, RED, GREEN, BLUE, WHITE };
 	for (size_t row = 0; row < MAP_SIZE; row++)
 	{
 		for (size_t col = 0; col < MAP_SIZE; col++)
@@ -199,8 +166,7 @@ void RaycastingScene::OnUpdate(float dt)
 			int rx, ry;
 			TileToImage(col, row, &rx, &ry);
 
-			Color color = mMap[row][col] == WALL ? MAGENTA : BLACK;
-			DrawTile(mImage, col, row, color);
+			DrawTile(mImage, col, row, colors[mMap[row][col]]);
 		}
 	}
 
@@ -240,15 +206,41 @@ void RaycastingScene::OnUpdate(float dt)
 	}
 	//mDirection = Normalize(MousePosition() - mPosition);
 
+	float fov = 90.0f;
+	//float view = tanf(fov * 0.5f * DEG2RAD);
+	// 1.0 if 90
+
+	mHits.clear();
+	mHits.resize(mImage.width);
+	for (size_t i = 0; i < mHits.size(); i++)
+	{
+		float rad = Remap(i, 0, mHits.size() - 1, -fov * 0.5f, fov * 0.5f) * DEG2RAD;
+		Vector2 dir = Rotate(mDirection, rad);
+		mHits[i] = DDATest(mPosition, dir);
+
+		// Cosine weirdness when attempting correction with euclidean distance.
+		// Article I'm following rotates the camera in addition to player so that's probably why t isn't fisheye-corrected.
+		//float t = mHits[i].t;
+		//float t2 = Distance(mHits[i].poi, mHits[i].pos);
+		//float fisheye = fabsf(cosf(Angle(mDirection) - rad));
+
+		mHits[i].t /= 20.0f;
+		mHits[i].t = 1.0f - mHits[i].t;
+	}
+
+	for (int i = 0; i < mImage.width; i++)
+	{
+		float height = mHits[i].t * mImage.height;
+		DrawLineY(mImage, i, 256 - height * 0.5f, 256 + height * 0.5f, colors[mHits[i].type]);
+	}
+
 	static bool drawDDA = false;
 	if (IsKeyPressed(KEY_SPACE))
 		drawDDA = !drawDDA;
 
-	Vector2 p = DDATest(mPosition, mDirection);
-	for (Vector2 point : pois)
-		DrawCircle(mImage, point.x, point.y, 2, RED);
-	DrawLine(mImage, mPosition.x, mPosition.y, p.x, p.y, RED);
-	DrawCircle(mImage, p.x, p.y, 5, RED);
+	RayHit p = DDATest(mPosition, mDirection);
+	DrawLine(mImage, mPosition.x, mPosition.y, p.poi.x, p.poi.y, RED);
+	DrawCircle(mImage, p.poi.x, p.poi.y, 5, RED);
 
 	// Flip since array [0, 0] = top-left but uv [0, 0] = bottom-left
 	Flip(mImage);
