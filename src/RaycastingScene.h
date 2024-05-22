@@ -4,39 +4,6 @@
 #include "Texture.h"
 #include <array>
 
-constexpr size_t MAP_SIZE = 16;
-constexpr size_t IMAGE_SIZE = 512;
-constexpr size_t TILE_SIZE = IMAGE_SIZE / MAP_SIZE;
-
-struct Cell
-{
-	int row = -1;
-	int col = -1;
-};
-
-using Cells = std::vector<Cell>;
-
-enum TileType : size_t
-{
-	AIR,
-	R,
-	G,
-	B,
-	WALL
-};
-
-struct RayHit
-{
-	Vector2 pos;
-	Vector2 dir;
-	Vector2 poi;
-	TileType type;
-
-	// t1 is supposedly fisheye-corrected distance, but its lowkey not so that's what t2 is xD
-	float t;
-	float t2;
-};
-
 class RaycastingScene : public Scene
 {
 public:
@@ -47,9 +14,15 @@ public:
 	void OnDraw() final;
 
 private:
-	RayHit DDATest(Vector2 position, Vector2 direction);
-	Cells DDA(int x0, int y0, int x1, int y1);
-	void DrawDDA(Vector2 start, Vector2 end);
+	struct RayHit
+	{
+		float t;	// Distance along ray
+		size_t i;	// Index of tile hit (tile type)
+		//Vector2 poi; poi = position + direction * t
+	};
+
+	RayHit Raycast(Vector2 position, Vector2 direction);
+	std::vector<RayHit> mHits;
 
 	float mMoveSpeed = 250.0f;
 	float mTurnSpeed = 360.0f;
@@ -60,25 +33,24 @@ private:
 	Image mImage;
 	GLuint mTexture;
 
-	std::vector<RayHit> mHits;
-
-	std::array<std::array<size_t, MAP_SIZE>, MAP_SIZE> mMap
+	// 0 = air, 1 = red, 2 = green, 3 = blue
+	std::array<std::array<size_t, 16>, 16> mMap
 	{
-		std::array<size_t, MAP_SIZE>{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
-		std::array<size_t, MAP_SIZE>{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }
+		std::array<size_t, 16>{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
+		std::array<size_t, 16>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 2, 0, 2, 2, 2, 0, 0, 0, 1, 1, 1, 3, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 3, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 3, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 3, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 3, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 2, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2 },
+		std::array<size_t, 16>{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },
+		std::array<size_t, 16>{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }
 	};
 };

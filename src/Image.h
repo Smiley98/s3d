@@ -219,3 +219,30 @@ inline Vector2 ImageToScreen(Image& image, Vector2 img)
 	scr.y = img.y * (SCREEN_HEIGHT / (float)image.height);
 	return scr;
 }
+
+/////////////////////////////////////////////////////////////////////
+// ********************** Collision Functions ***********************
+/////////////////////////////////////////////////////////////////////
+
+inline bool Overlaps(int min1, int max1, int min2, int max2)
+{
+	return !((max1 < min2) || (max2 < min1));
+}
+
+inline bool RectRect(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
+{
+	int xMin1 = x1;
+	int xMin2 = x2;
+	int yMin1 = y1;
+	int yMin2 = y2;
+
+	int xMax1 = x1 + w1;
+	int xMax2 = x2 + w2;
+	int yMax1 = y1 + h1;
+	int yMax2 = y2 + h2;
+
+	bool collision =
+		Overlaps(xMin1, xMax1, xMin2, xMax2) &&
+		Overlaps(yMin1, yMax1, yMin2, yMax2);
+	return collision;
+}
