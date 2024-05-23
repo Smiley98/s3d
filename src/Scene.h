@@ -10,7 +10,7 @@ public:
 	{
 		MAIN,
 		TEST,
-		DDA,
+		DDA_TEST,
 		RASTER,
 		RAYCAST,
 		COUNT

@@ -61,7 +61,6 @@ void TestScene::OnUpdate(float dt)
 			SetPixel(mImage, x, y, color);
 		}
 	}
-	UpdateTexture(mTexture, mImage);
 }
 
 void TestScene::OnDraw()

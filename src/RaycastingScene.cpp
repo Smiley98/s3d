@@ -21,6 +21,14 @@ inline void TileToImage(int col, int row, int* x, int* y)
 	*y = row * TILE_SIZE;
 }
 
+inline void DrawTile(Image& image, int col, int row, Color color)
+{
+	int x, y;
+	TileToImage(col, row, &x, &y);
+	DrawRect(image, x, y, TILE_SIZE, TILE_SIZE, color);
+}
+
+// This function doesn't need to be a class member. Only member is mMap which can easily be passed in!
 RaycastingScene::RayHit RaycastingScene::Raycast(Vector2 position, Vector2 direction)
 {
 	int mapX, mapY;
@@ -82,13 +90,6 @@ RaycastingScene::RayHit RaycastingScene::Raycast(Vector2 position, Vector2 direc
 	return ray;
 }
 
-inline void DrawTile(Image& image, int col, int row, Color color)
-{
-	int x, y;
-	TileToImage(col, row, &x, &y);
-	DrawRect(image, x, y, TILE_SIZE, TILE_SIZE, color);
-}
-
 void RaycastingScene::OnLoad()
 {
 	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
@@ -116,33 +117,23 @@ void RaycastingScene::OnUpdate(float dt)
 	}
 
 	for (size_t row = 0; row < IMAGE_SIZE; row += TILE_SIZE)
-	{
 		SetRow(mImage, row, GRAY);
-	}
 
 	for (size_t col = 0; col < IMAGE_SIZE; col += TILE_SIZE)
-	{
 		SetCol(mImage, col, GRAY);
-	}
 
+	// TODO -- Add circle-plane for sides & circle-rectangle for tiles,
+	// but not now so I don't accidentally leak assignment & lab solutions to students!
 	float translationDelta = dt * mMoveSpeed;
 	float rotationDelta = dt * mTurnSpeed * DEG2RAD;
 	if (IsKeyDown(KEY_W))
-	{
 		mPosition += mDirection * translationDelta;
-	}
 	if (IsKeyDown(KEY_S))
-	{
 		mPosition -= mDirection * translationDelta;
-	}
 	if (IsKeyDown(KEY_A))
-	{
 		mDirection = Rotate(mDirection, -rotationDelta);
-	}
 	if (IsKeyDown(KEY_D))
-	{
 		mDirection = Rotate(mDirection, rotationDelta);
-	}
 
 	for (size_t i = 0; i < mHits.size(); i++)
 	{
@@ -158,10 +149,6 @@ void RaycastingScene::OnUpdate(float dt)
 		float height = fminf(100.0f / mHits[i].t, mImage.height - 1);
 		DrawLineY(mImage, i, 256 - height * 0.5f, 256 + height * 0.5f, colors[mHits[i].i]);
 	}
-
-	static bool drawDDA = false;
-	if (IsKeyPressed(KEY_SPACE))
-		drawDDA = !drawDDA;
 
 	RayHit hit = Raycast(mPosition, mDirection);
 	Vector2 poi = mPosition + mDirection * hit.t * TILE_SIZE;
@@ -186,33 +173,3 @@ void RaycastingScene::OnDraw()
 	glUseProgram(GL_NONE);
 	UnbindTexture(mTexture);
 }
-
-// DDA visualization:
-/*
-inline Cells DDA(int x0, int y0, int x1, int y1)
-{
-	Cells cells;
-
-	int dx = x1 - x0;
-	int dy = y1 - y0;
-
-	int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
-	float xStep = dx / (float)steps;
-	float yStep = dy / (float)steps;
-
-	float x = x0;
-	float y = y0;
-	for (int i = 0; i < steps; i++)
-	{
-		x += xStep;
-		y += yStep;
-
-		Cell cell;
-		cell.row = y;
-		cell.col = x;
-		cells.push_back(cell);
-	}
-
-	return cells;
-}
-*/

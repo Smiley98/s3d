@@ -13,7 +13,7 @@ void Scene::Create(Scene::Type scene)
 {
 	sScenes[MAIN] = new MainScene;
 	sScenes[TEST] = new TestScene;
-	sScenes[DDA] = new DDAScene;
+	sScenes[DDA_TEST] = new DDAScene;
 	sScenes[RASTER] = new RasterizationScene;
 	sScenes[RAYCAST] = new RaycastingScene;
 
