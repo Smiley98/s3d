@@ -99,6 +99,8 @@ void RaycastingScene::OnLoad()
 
 void RaycastingScene::OnUnload()
 {
+	UnloadTexture(mTexture);
+	UnloadImage(mImage);
 }
 
 void RaycastingScene::OnUpdate(float dt)

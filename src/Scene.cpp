@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "MainScene.h"
 #include "TestScene.h"
+#include "DDAScene.h"
 #include "RasterizationScene.h"
 #include "RaycastingScene.h"
 
@@ -10,8 +11,9 @@ Scene::Type Scene::sCurrent = Scene::COUNT;
 
 void Scene::Create(Scene::Type scene)
 {
-	sScenes[TEST] = new TestScene;
 	sScenes[MAIN] = new MainScene;
+	sScenes[TEST] = new TestScene;
+	sScenes[DDA] = new DDAScene;
 	sScenes[RASTER] = new RasterizationScene;
 	sScenes[RAYCAST] = new RaycastingScene;
 

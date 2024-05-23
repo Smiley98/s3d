@@ -86,6 +86,7 @@
     <ClCompile Include="inc\imgui\imgui_tables.cpp" />
     <ClCompile Include="inc\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\DDAScene.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Image.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -112,6 +113,7 @@
     <ClInclude Include="inc\imgui\imstb_truetype.h" />
     <ClInclude Include="src\App.h" />
     <ClInclude Include="src\Config.h" />
+    <ClInclude Include="src\DDAScene.h" />
     <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\Lights.h" />
     <ClInclude Include="src\Lines.h" />

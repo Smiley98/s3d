@@ -26,7 +26,7 @@ void Init()
 	CreateWindow();
 	CreateShaders();
 	CreateMeshes();
-	Scene::Create(Scene::RAYCAST);
+	Scene::Create(Scene::DDA);
 }
 
 void Loop()
