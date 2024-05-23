@@ -77,33 +77,20 @@ inline void DrawLineY(Image& image, int col, int y0, int y1, Color color)
 
 inline void DrawLine(Image& image, int x0, int y0, int x1, int y1, Color color)
 {
-	// Make the horizontal component the largest (avoid divide by zero)!
-	bool steep = false;
-	if (abs(x0 - x1) < abs(y0 - y1))
+	int dx = x1 - x0;
+	int dy = y1 - y0;
+
+	int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+	float xStep = dx / (float)steps;
+	float yStep = dy / (float)steps;
+
+	float x = x0;
+	float y = y0;
+	for (int i = 0; i < steps; i++)
 	{
-		steep = true;
-		std::swap(x0, y0);
-		std::swap(x1, y1);
-	}
-
-	// Make the line point left-to-right
-	if (x0 > x1)
-	{
-		std::swap(x0, x1);
-		std::swap(y0, y1);
-	}
-
-	for (int x = x0; x <= x1; x++)
-	{
-		// Calculate interpolation value
-		float t = (x - x0) / (float)(x1 - x0);
-
-		// Express y in terms of x by lerping!
-		int y = y0 * (1.0f - t) + y1 * t;
-
-		int px = steep ? y : x;
-		int py = steep ? x : y;
-		SetPixel(image, px, py, color);
+		x += xStep;
+		y += yStep;
+		SetPixel(image, x, y, color);
 	}
 }
 
