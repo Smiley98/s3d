@@ -12,6 +12,9 @@ struct Mesh
 	GLuint normals;
 };
 
+extern Mesh gMeshTriangle;
+extern Mesh gMeshDodecahedron;
+
 void CreateMesh(Mesh& mesh, const char* path);
 void DestroyMesh(Mesh& mesh);
 
@@ -21,3 +24,5 @@ void DestroyMeshes();
 
 void BindFsq();
 void DrawFsq();
+
+void DrawMesh(const Mesh& mesh);

@@ -6,8 +6,12 @@
 #include <vector>
 #include <cassert>
 
-
 std::vector<GLuint> fShaders;
+std::vector<GLuint> fPrograms;
+
+GLuint gShaderFSQ;
+GLuint gShaderColor;
+
 GLuint CreateShader(GLint type, const char* path)
 {
     GLuint shader = 0;
@@ -65,7 +69,6 @@ GLuint CreateShader(GLint type, const char* path)
     return shader;
 }
 
-std::vector<GLuint> fPrograms;
 GLuint CreateProgram(GLuint vs, GLuint fs)
 {
     GLuint program = glCreateProgram();
@@ -87,13 +90,16 @@ GLuint CreateProgram(GLuint vs, GLuint fs)
     return program;
 }
 
-GLuint gShaderFSQ;
 void CreateShaders()
 {
-    GLuint vsFsq = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
+    GLuint vsFSQ = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
     GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
+
+    GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
+    GLuint fsColor= CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
     
-    gShaderFSQ = CreateProgram(vsFsq, fsTexture);
+    gShaderFSQ = CreateProgram(vsFSQ, fsTexture);
+    gShaderColor = CreateProgram(vsMVP, fsColor);
 }
 
 void DestroyShaders()
@@ -106,4 +112,14 @@ void DestroyShaders()
 
     fPrograms.clear();
     fShaders.clear();
+}
+
+void BindShader(GLuint shader)
+{
+    glUseProgram(shader);
+}
+
+void UnbindShader()
+{
+    glUseProgram(GL_NONE);
 }

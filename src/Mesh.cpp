@@ -1,9 +1,21 @@
 #include "Mesh.h"
 #define _CRT_SECURE_NO_WARNINGS
-#include <cstdio>
+
+#define PAR_SHAPES_IMPLEMENTATION
+#include <par_shapes.h>
 
 #include "Math.h"
+#include <cstdio>
 #include <vector>
+
+Mesh gMeshTriangle;
+Mesh gMeshDodecahedron;
+
+//Mesh Create(par_shapes_mesh* pMesh)
+//{
+//	Mesh mesh;
+//	
+//}
 
 void CreateMesh(Mesh& mesh, const char* path)
 {
@@ -124,6 +136,35 @@ GLuint fVaoFsq = GL_NONE;
 void CreateMeshes()
 {
 	glGenVertexArrays(1, &fVaoFsq);
+
+	//par_shapes_mesh* dodecahedron = par_shapes_create_dodecahedron();
+	//par_shapes_unweld(dodecahedron, true);
+	//par_shapes_compute_normals(dodecahedron);
+
+	float vertices[]
+	{
+		-0.5f, -0.5f, 0.0f,
+		 0.5f, -0.5f, 0.0f,
+		 0.0f,  0.5f, 0.0f
+	};
+	int szVertices = 3 * sizeof(Vector3);
+
+	GLuint vbo, tbo, nbo;
+	glGenVertexArrays(1, &gMeshTriangle.vao);
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, szVertices, &vertices, GL_STATIC_DRAW);
+	glBindVertexArray(gMeshTriangle.vao);
+	glEnableVertexAttribArray(0);
+
+	// vbo is bound to GL_ARRAY_BUFFER so I guess the attribute is assiciated with the
+	// array depending on the handle bound to GL_ARRAY_BUFFER.
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+
+	// Prevent us from accidentally overwriting an attribute of the currently bound vao.
+	glBindVertexArray(GL_NONE);
+
+	gMeshTriangle.vertexCount = 3;
 }
 
 void DestroyMeshes()
@@ -141,4 +182,11 @@ void DrawFsq()
 	glDisable(GL_DEPTH_TEST);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glEnable(GL_DEPTH_TEST);
+}
+
+void DrawMesh(const Mesh& mesh)
+{
+	glBindVertexArray(mesh.vao);
+	glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
+	glBindVertexArray(GL_NONE);
 }
