@@ -8,7 +8,9 @@
 #include <cstdio>
 #include <vector>
 
+GLuint fVaoFsq = GL_NONE;
 Mesh gMeshTriangle;
+Mesh gMeshCube;
 Mesh gMeshDodecahedron;
 
 //Mesh Create(par_shapes_mesh* pMesh)
@@ -16,6 +18,9 @@ Mesh gMeshDodecahedron;
 //	Mesh mesh;
 //	
 //}
+
+std::vector<Vector3> fPositions;
+std::vector<Vector3> fNormals;
 
 void CreateMesh(Mesh& mesh, const char* path)
 {
@@ -92,6 +97,9 @@ void CreateMesh(Mesh& mesh, const char* path)
 		out_uvs[i] = temp_uvs[uvIndices[i] - 1];
 	}
 
+	fPositions = out_vertices;
+	fNormals = out_normals;
+
 	glGenVertexArrays(1, &mesh.vao);
 	glGenBuffers(1, &mesh.positions);
 	glGenBuffers(1, &mesh.normals);
@@ -119,6 +127,8 @@ void CreateMesh(Mesh& mesh, const char* path)
 
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.uvs);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), (void*)(0));
+
+	glBindVertexArray(GL_NONE);
 }
 
 void DestroyMesh(Mesh& mesh)
@@ -131,8 +141,6 @@ void DestroyMesh(Mesh& mesh)
 	// Reset handles to 0 signifying they're invalid.
 }
 
-GLuint fVaoFsq = GL_NONE;
-
 void CreateMeshes()
 {
 	glGenVertexArrays(1, &fVaoFsq);
@@ -141,11 +149,17 @@ void CreateMeshes()
 	//par_shapes_unweld(dodecahedron, true);
 	//par_shapes_compute_normals(dodecahedron);
 
+	//float vertices[]
+	//{
+	//	-0.5f, -0.5f, 0.0f,
+	//	 0.5f, -0.5f, 0.0f,
+	//	 0.0f,  0.5f, 0.0f
+	//};
 	float vertices[]
 	{
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f
+		1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 1.0f
 	};
 	int szVertices = 3 * sizeof(Vector3);
 
@@ -163,8 +177,46 @@ void CreateMeshes()
 
 	// Prevent us from accidentally overwriting an attribute of the currently bound vao.
 	glBindVertexArray(GL_NONE);
-
 	gMeshTriangle.vertexCount = 3;
+
+	// 8 points before unwelding, 36 points after unwelding;
+	// Basically optimal representation vs per-vertex representation
+	par_shapes_mesh* cube = par_shapes_create_cube();
+	par_shapes_unweld(cube, true);
+	par_shapes_compute_normals(cube);
+
+	std::vector<Vector3> positions;
+	positions.resize(cube->npoints);
+	memcpy(positions.data(), cube->points, sizeof(Vector3) * cube->npoints);
+
+	std::vector<Vector3> normals;
+	normals.resize(cube->npoints);
+	memcpy(normals.data(), cube->normals, sizeof(Vector3) * cube->npoints);
+
+	glGenVertexArrays(1, &gMeshCube.vao);
+	glGenBuffers(1, &gMeshCube.positions);
+	glGenBuffers(1, &gMeshCube.normals);
+	//glGenBuffers(1, &gMeshCube.uvs);
+	//glGenBuffers(1, &gMeshCube.indices);
+
+	glBindBuffer(GL_ARRAY_BUFFER, gMeshCube.positions);
+	glBufferData(GL_ARRAY_BUFFER, cube->npoints * sizeof(Vector3), cube->points, GL_STATIC_DRAW);
+	
+	//glBindBuffer(GL_ARRAY_BUFFER, gMeshCube.normals);
+	//glBufferData(GL_ARRAY_BUFFER, cube->npoints * sizeof(Vector3), cube->normals, GL_STATIC_DRAW);
+	//
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gMeshCube.indices);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube->ntriangles * sizeof(uint16_t), cube->triangles, GL_STATIC_DRAW);
+
+	glBindVertexArray(gMeshCube.vao);
+	glEnableVertexAttribArray(0);
+	//glEnableVertexAttribArray(1);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glBindVertexArray(GL_NONE);
+	gMeshCube.vertexCount = cube->npoints;
+	//gMeshCube.indexCount = cube->ntriangles;
+	par_shapes_free_mesh(cube);
 }
 
 void DestroyMeshes()

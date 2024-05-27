@@ -68,7 +68,7 @@ void CreateWindow()
 #ifdef NDEBUG
 #else
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(glDebugOutput, 0);
+    glDebugMessageCallback(glDebugOutput, nullptr);
 #endif
 
     IMGUI_CHECKVERSION();

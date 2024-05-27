@@ -15,7 +15,7 @@ out vec2 uv;
 void main()
 {
    position = (u_model * vec4(aPosition, 1.0)).xyz;
-   normal = u_normal * aNormal;
+   normal = aNormal;//u_normal * aNormal;
    uv = aTexure;
 
    gl_Position = u_mvp * vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
