@@ -13,15 +13,6 @@ Mesh gMeshTriangle;
 Mesh gMeshCube;
 Mesh gMeshDodecahedron;
 
-//Mesh Create(par_shapes_mesh* pMesh)
-//{
-//	Mesh mesh;
-//	
-//}
-
-std::vector<Vector3> fPositions;
-std::vector<Vector3> fNormals;
-
 void CreateMesh(Mesh& mesh, const char* path)
 {
 	std::vector<Vector3> out_vertices;
@@ -84,21 +75,69 @@ void CreateMesh(Mesh& mesh, const char* path)
 			}
 		}
 	}
+	fclose(file);
 
 	mesh.vertexCount = vertexIndices.size();
 	out_vertices.resize(mesh.vertexCount);
 	out_normals.resize(mesh.vertexCount);
 	out_uvs.resize(mesh.vertexCount);
 
+	Mesh2 m2;
+	size_t vc = out_vertices.size();
+	m2.vertexCount = vc;
+	assert(vc > 0);
+	m2.positions = new Vector3[vc];
+	if (temp_normals.size() > 0) m2.normals = new Vector3[vc];
+	if (temp_uvs.size() > 0) m2.tcoords = new Vector2[vc];
+
 	// For each vertex of each triangle
-	for (unsigned int i = 0; i < mesh.vertexCount; i++) {
-		out_vertices[i] = temp_vertices[vertexIndices[i] - 1];
-		out_normals[i] = temp_normals[normalIndices[i] - 1];
-		out_uvs[i] = temp_uvs[uvIndices[i] - 1];
+	for (size_t i = 0; i < mesh.vertexCount; i++) {
+		Vector3 position = temp_vertices[vertexIndices[i] - 1];
+		Vector3 normal = temp_normals[normalIndices[i] - 1];
+		Vector2 uv = temp_uvs[uvIndices[i] - 1];
+
+		out_vertices[i] = position;
+		out_normals[i] = normal;
+		out_uvs[i] = uv;
+
+		m2.positions[i] = position;
+		m2.normals[i] = normal;
+		m2.tcoords[i] = uv;
 	}
 
-	fPositions = out_vertices;
-	fNormals = out_normals;
+	glGenVertexArrays(1, &m2.vao);
+	glBindVertexArray(m2.vao);
+
+	glGenBuffers(1, &m2.vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m2.vbo);
+	glBufferData(GL_ARRAY_BUFFER, vc * sizeof(Vector3), m2.positions, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(0);
+
+	if (m2.normals != nullptr)
+	{
+		glGenBuffers(1, &m2.nbo);
+		glBindBuffer(GL_ARRAY_BUFFER, m2.nbo);
+		glBufferData(GL_ARRAY_BUFFER, vc * sizeof(Vector3), m2.normals, GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+		glEnableVertexAttribArray(1);
+	}
+
+	if (m2.tcoords != nullptr)
+	{
+		glGenBuffers(1, &m2.tbo);
+		glBindBuffer(GL_ARRAY_BUFFER, m2.vbo);
+		glBufferData(GL_ARRAY_BUFFER, vc * sizeof(Vector2), m2.tcoords, GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
+		glEnableVertexAttribArray(2);
+	}
+
+	if (m2.indices != nullptr)
+	{
+		glGenBuffers(1, &m2.ibo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m2.ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, vc * sizeof(uint16_t), m2.indices, GL_STATIC_DRAW);
+	}
 
 	glGenVertexArrays(1, &mesh.vao);
 	glGenBuffers(1, &mesh.positions);
