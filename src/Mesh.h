@@ -27,6 +27,8 @@ struct Mesh
 
 extern Mesh gMeshTriangle;
 extern Mesh gMeshCube;
+extern Mesh gMeshSphere;
+extern Mesh gMeshHead;
 extern Mesh gMeshDodecahedron;
 
 // Meshes can be created either from obj, par, or manually,

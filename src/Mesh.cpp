@@ -9,6 +9,8 @@
 GLuint fVaoFsq = GL_NONE;
 Mesh gMeshTriangle;
 Mesh gMeshCube;
+Mesh gMeshSphere;
+Mesh gMeshHead;
 Mesh gMeshDodecahedron;
 
 void CreateMeshCPU(Mesh* mesh, size_t vc, Vector3* positions, Vector3* normals, Vector2* tcoords, uint16_t* indices);
@@ -35,7 +37,7 @@ void CreateMeshes()
 	CreateMeshGPU(&gMeshTriangle);
 
 	// Par vs Obj test
-	bool par = false;
+	bool par = true;
 	if (par)
 	{
 		par_shapes_mesh* cube = par_shapes_create_cube();
@@ -50,6 +52,16 @@ void CreateMeshes()
 	{
 		LoadFromObj(&gMeshCube, "assets/meshes/cube.obj");
 	}
+
+	LoadFromObj(&gMeshHead, "assets/meshes/african_head.obj");
+
+	par_shapes_mesh* sphere = par_shapes_create_subdivided_sphere(2);
+	par_shapes_unweld(sphere, true);
+	par_shapes_compute_normals(sphere);
+
+	LoadFromPar(&gMeshSphere, sphere);
+	par_shapes_free_mesh(sphere);
+	CreateMeshGPU(&gMeshSphere);
 }
 
 void DestroyMeshes()
@@ -259,6 +271,8 @@ void LoadFromObj(Mesh* mesh, const char* path)
 	fclose(file);
 	// Right now my .obj loader needs tcoords on file because it expects them in fscanf.
 	// Replace with TinyObj in the future since it'll handle missing data.
+	// Update: this is simpler than TinyObj and allows for students to create this.
+	// Plus I can just save to binary if I care about performance ;)
 
 	size_t vc = positionIndices.size();
 	vtx_positions.resize(vc);
