@@ -175,6 +175,40 @@ inline void DrawCircleLines(Image& image, int cx, int cy, int cr, Color color)
 	}
 }
 
+inline void DrawTriangle(Image& image, Vector3 v0, Vector3 v1, Vector3 v2, Color color)
+{
+	// Determine triangle's AABB
+	int xMin = image.width - 1;
+	int yMin = image.height - 1;
+	int xMax = 0;
+	int yMax = 0;
+
+	Vector3 vertices[]{ v0, v1, v2 };
+	for (int i = 0; i < 3; i++)
+	{
+		const int x = vertices[i].x;
+		const int y = vertices[i].y;
+		xMin = std::max(0, std::min(xMin, x));
+		yMin = std::max(0, std::min(xMin, y));
+		xMax = std::min(image.width - 1, std::max(xMax, x));
+		yMax = std::min(image.height - 1, std::max(yMax, y));
+	}
+
+	// Loop through every pixel in triangle's AABB.
+	// Discard if barycentric coordinates are negative (point not in triangle)!
+	for (int x = xMin; x < xMax; x++)
+	{
+		for (int y = yMin; y < yMax; y++)
+		{
+			Vector3 p{ x, y, 0.0f };
+			Vector3 bc = Barycenter(p, v0, v1, v2);
+			if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
+				continue;
+			SetPixel(image, x, y, color);
+		}
+	}
+}
+
 /////////////////////////////////////////////////////////////////////
 // ********************** Conversion Functions **********************
 /////////////////////////////////////////////////////////////////////

@@ -36,26 +36,15 @@ void MainScene::OnUpdate(float dt)
 			DrawLine(mImage, x0, y0, x1, y1, GREEN);
 		}
 	}
+
+	Vector3 v0{ 400.0f, 400.0f, 0.0f };
+	Vector3 v1{ 400.0f, 200.0f, 0.0f };
+	Vector3 v2{ 100.0, 100.0f, 0.0f };
+	DrawTriangle(mImage, v0, v1, v2, RED);
 }
 
 void MainScene::OnDraw()
 {
-	//float tt = TotalTime();
-	//
-	//GLint col = glGetUniformLocation(gShaderColor, "u_color");
-	//GLint mvp = glGetUniformLocation(gShaderColor, "u_mvp");
-	//
-	//Matrix m = MatrixIdentity();//Scale(0.5f, 0.5f, 0.5f) * RotateY(100.0f * tt * DEG2RAD);
-	//m = Transpose(m);
-	//
-	//BindShader(gShaderColor);
-	//glUniformMatrix4fv(mvp, 1, GL_FALSE, &m.m0);
-	//glUniform3f(col, 1.0f, 0.0f, 0.0f);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//DrawMesh(gMeshSphere);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//UnbindShader();
-
 	UpdateTexture(mTexture, mImage);
 
 	BindTexture(mTexture);
