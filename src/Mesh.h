@@ -1,21 +1,8 @@
 #pragma once
 #include <glad/glad.h>
-//#include <vector>
 #include "Math.h"
 
 struct Mesh
-{
-	size_t vertexCount = 0;
-	//size_t indexCount = 0;
-	GLuint vao;
-
-	GLuint positions;
-	GLuint uvs;
-	GLuint normals;
-	//GLuint indices;
-};
-
-struct Mesh2
 {
 	// If we don't use stl, then arrays aren't visible in the debugger :(
 	Vector3* positions = nullptr;
@@ -42,8 +29,10 @@ extern Mesh gMeshTriangle;
 extern Mesh gMeshCube;
 extern Mesh gMeshDodecahedron;
 
-void CreateMesh(Mesh& mesh, const char* path);
-void DestroyMesh(Mesh& mesh);
+// Meshes can be created either from obj, par, or manually,
+// so it doesn't make sense to build an API when creation methods varry.
+//void CreateMesh(Mesh* mesh, const char* path);
+//void DestroyMesh(Mesh* mesh);
 
 // Create more shapes with par_shapes!
 void CreateMeshes();
@@ -52,5 +41,5 @@ void DestroyMeshes();
 void BindFsq();
 void DrawFsq();
 
-void DrawMesh(const Mesh& mesh);
+void DrawMesh(Mesh mesh);
 //void DrawMeshIndexed(const Mesh& mesh);
