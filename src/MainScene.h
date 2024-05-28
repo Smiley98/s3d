@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "Image.h"
 #include "Texture.h"
+#include "Mesh.h"
 
 class MainScene : public Scene
 {
@@ -16,4 +17,7 @@ public:
 private:
 	Image mImage;
 	GLuint mTexture;
+
+	Mesh mMesh;
+	std::vector<Color> mColors;
 };

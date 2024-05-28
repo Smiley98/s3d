@@ -216,6 +216,16 @@ constexpr Color WHITE = { 0xFF, 0xFF, 0xFF, 0xFF };
 constexpr Color GRAY = { 0x80, 0x80, 0x80, 0xFF };
 constexpr Color BLACK = { 0x00, 0x00, 0x00, 0xFF };
 
+inline Color RandomColor()
+{
+    Color color;
+    color.r = rand() % 255;
+    color.g = rand() % 255;
+    color.b = rand() % 255;
+    color.a = 255;
+    return color;
+}
+
 // Matrix type (OpenGL style 4x4 - right handed, column major)
 typedef struct Matrix {
     float m0, m4, m8, m12;      // Matrix first row (4 components)
