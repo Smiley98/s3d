@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#define _CRT_SECURE_NO_WARNINGS
 
 #define PAR_SHAPES_IMPLEMENTATION
 #include <par_shapes.h>
@@ -86,9 +85,38 @@ void CreateMesh(Mesh& mesh, const char* path)
 	size_t vc = out_vertices.size();
 	m2.vertexCount = vc;
 	assert(vc > 0);
+
 	m2.positions = new Vector3[vc];
-	if (temp_normals.size() > 0) m2.normals = new Vector3[vc];
-	if (temp_uvs.size() > 0) m2.tcoords = new Vector2[vc];
+	for (size_t i = 0; i < vc; i++)
+	{
+		Vector3 position = temp_vertices[vertexIndices[i] - 1];
+		m2.positions[i] = position;
+	}
+
+	if (!temp_normals.empty())
+	{
+		m2.normals = new Vector3[vc];
+		for (size_t i = 0; i < vc; i++)
+		{
+			Vector3 normal = temp_normals[normalIndices[i] - 1];
+			m2.normals[i] = normal;
+		}
+	}
+
+	if (!temp_uvs.empty())
+	{
+		m2.tcoords = new Vector2[vc];
+		for (size_t i = 0; i < vc; i++)
+		{
+			Vector2 uv = temp_uvs[uvIndices[i] - 1];
+			m2.tcoords[i] = uv;
+		}
+	}
+
+	if (!vertexIndices.empty())
+	{
+		// Make an element buffer?
+	}
 
 	// For each vertex of each triangle
 	for (size_t i = 0; i < mesh.vertexCount; i++) {
@@ -99,10 +127,6 @@ void CreateMesh(Mesh& mesh, const char* path)
 		out_vertices[i] = position;
 		out_normals[i] = normal;
 		out_uvs[i] = uv;
-
-		m2.positions[i] = position;
-		m2.normals[i] = normal;
-		m2.tcoords[i] = uv;
 	}
 
 	glGenVertexArrays(1, &m2.vao);
@@ -126,7 +150,7 @@ void CreateMesh(Mesh& mesh, const char* path)
 	if (m2.tcoords != nullptr)
 	{
 		glGenBuffers(1, &m2.tbo);
-		glBindBuffer(GL_ARRAY_BUFFER, m2.vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, m2.tbo);
 		glBufferData(GL_ARRAY_BUFFER, vc * sizeof(Vector2), m2.tcoords, GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
 		glEnableVertexAttribArray(2);
@@ -138,36 +162,40 @@ void CreateMesh(Mesh& mesh, const char* path)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m2.ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, vc * sizeof(uint16_t), m2.indices, GL_STATIC_DRAW);
 	}
-
-	glGenVertexArrays(1, &mesh.vao);
-	glGenBuffers(1, &mesh.positions);
-	glGenBuffers(1, &mesh.normals);
-	glGenBuffers(1, &mesh.uvs);
-
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.positions);
-	glBufferData(GL_ARRAY_BUFFER, out_vertices.size() * sizeof(Vector3), out_vertices.data(), GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.normals);
-	glBufferData(GL_ARRAY_BUFFER, out_normals.size() * sizeof(Vector3), out_normals.data(), GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.uvs);
-	glBufferData(GL_ARRAY_BUFFER, out_uvs.size() * sizeof(Vector2), out_uvs.data(), GL_STATIC_DRAW);
-
-	glBindVertexArray(mesh.vao);
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.positions);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), (void*)(0));
-
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.normals);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), (void*)(0));
-
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.uvs);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), (void*)(0));
-
 	glBindVertexArray(GL_NONE);
+
+	mesh.vao = m2.vao;
+	mesh.vertexCount = m2.vertexCount;
+
+	//glGenVertexArrays(1, &mesh.vao);
+	//glGenBuffers(1, &mesh.positions);
+	//glGenBuffers(1, &mesh.normals);
+	//glGenBuffers(1, &mesh.uvs);
+	//
+	//glBindBuffer(GL_ARRAY_BUFFER, mesh.positions);
+	//glBufferData(GL_ARRAY_BUFFER, out_vertices.size() * sizeof(Vector3), out_vertices.data(), GL_STATIC_DRAW);
+	//
+	//glBindBuffer(GL_ARRAY_BUFFER, mesh.normals);
+	//glBufferData(GL_ARRAY_BUFFER, out_normals.size() * sizeof(Vector3), out_normals.data(), GL_STATIC_DRAW);
+	//
+	//glBindBuffer(GL_ARRAY_BUFFER, mesh.uvs);
+	//glBufferData(GL_ARRAY_BUFFER, out_uvs.size() * sizeof(Vector2), out_uvs.data(), GL_STATIC_DRAW);
+	//
+	//glBindVertexArray(mesh.vao);
+	//glEnableVertexAttribArray(0);
+	//glEnableVertexAttribArray(1);
+	//glEnableVertexAttribArray(2);
+	//
+	//glBindBuffer(GL_ARRAY_BUFFER, mesh.positions);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), (void*)(0));
+	//
+	//glBindBuffer(GL_ARRAY_BUFFER, mesh.normals);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), (void*)(0));
+	//
+	//glBindBuffer(GL_ARRAY_BUFFER, mesh.uvs);
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), (void*)(0));
+	//
+	//glBindVertexArray(GL_NONE);
 }
 
 void DestroyMesh(Mesh& mesh)
@@ -232,30 +260,32 @@ void CreateMeshes()
 	normals.resize(cube->npoints);
 	memcpy(normals.data(), cube->normals, sizeof(Vector3) * cube->npoints);
 
-	glGenVertexArrays(1, &gMeshCube.vao);
-	glGenBuffers(1, &gMeshCube.positions);
-	glGenBuffers(1, &gMeshCube.normals);
-	//glGenBuffers(1, &gMeshCube.uvs);
-	//glGenBuffers(1, &gMeshCube.indices);
+	CreateMesh(gMeshCube, "assets/meshes/cube.obj");
 
-	glBindBuffer(GL_ARRAY_BUFFER, gMeshCube.positions);
-	glBufferData(GL_ARRAY_BUFFER, cube->npoints * sizeof(Vector3), cube->points, GL_STATIC_DRAW);
-	
-	//glBindBuffer(GL_ARRAY_BUFFER, gMeshCube.normals);
-	//glBufferData(GL_ARRAY_BUFFER, cube->npoints * sizeof(Vector3), cube->normals, GL_STATIC_DRAW);
+	//glGenVertexArrays(1, &gMeshCube.vao);
+	//glGenBuffers(1, &gMeshCube.positions);
+	//glGenBuffers(1, &gMeshCube.normals);
+	////glGenBuffers(1, &gMeshCube.uvs);
+	////glGenBuffers(1, &gMeshCube.indices);
 	//
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gMeshCube.indices);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube->ntriangles * sizeof(uint16_t), cube->triangles, GL_STATIC_DRAW);
-
-	glBindVertexArray(gMeshCube.vao);
-	glEnableVertexAttribArray(0);
-	//glEnableVertexAttribArray(1);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	glBindVertexArray(GL_NONE);
-	gMeshCube.vertexCount = cube->npoints;
-	//gMeshCube.indexCount = cube->ntriangles;
-	par_shapes_free_mesh(cube);
+	//glBindBuffer(GL_ARRAY_BUFFER, gMeshCube.positions);
+	//glBufferData(GL_ARRAY_BUFFER, cube->npoints * sizeof(Vector3), cube->points, GL_STATIC_DRAW);
+	//
+	////glBindBuffer(GL_ARRAY_BUFFER, gMeshCube.normals);
+	////glBufferData(GL_ARRAY_BUFFER, cube->npoints * sizeof(Vector3), cube->normals, GL_STATIC_DRAW);
+	////
+	////glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gMeshCube.indices);
+	////glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube->ntriangles * sizeof(uint16_t), cube->triangles, GL_STATIC_DRAW);
+	//
+	//glBindVertexArray(gMeshCube.vao);
+	//glEnableVertexAttribArray(0);
+	////glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	////glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	//glBindVertexArray(GL_NONE);
+	//gMeshCube.vertexCount = cube->npoints;
+	////gMeshCube.indexCount = cube->ntriangles;
+	//par_shapes_free_mesh(cube);
 }
 
 void DestroyMeshes()
