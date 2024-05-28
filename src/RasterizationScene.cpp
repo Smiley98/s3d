@@ -1,6 +1,7 @@
 #include "RasterizationScene.h"
 #include "Shader.h"
 #include "Mesh.h"
+#include "Rasterization.h"
 #include <cstdio>
 #include <algorithm>
 

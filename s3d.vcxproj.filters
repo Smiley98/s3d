@@ -1,32 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="imgui">
       <UniqueIdentifier>{f1d8d1cd-e293-41ef-a0fa-588aefea4086}</UniqueIdentifier>
     </Filter>
     <Filter Include="Mesh">
       <UniqueIdentifier>{51b1c24a-9733-47dd-9765-71258c0a12c1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shader">
-      <UniqueIdentifier>{e39938a7-7435-4120-923e-7128e8a057df}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shading">
-      <UniqueIdentifier>{6744e09d-8c35-46d5-b5e2-fe1f109bff1f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Texture">
-      <UniqueIdentifier>{9bacd3bd-7c5b-412d-8e6a-dc943f586ffe}</UniqueIdentifier>
     </Filter>
     <Filter Include="Scene">
       <UniqueIdentifier>{13b03527-9a02-4d34-ae4c-c01c1d0b83ef}</UniqueIdentifier>
@@ -37,14 +16,17 @@
     <Filter Include="Image">
       <UniqueIdentifier>{25b4432d-e11a-411a-a957-2e528818b3dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{80cc27b9-9902-4ee0-8dd7-5d87234a49a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entry Point">
+      <UniqueIdentifier>{de232c74-1d21-407f-af99-86c041e39d91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{1a24491b-72bb-4f8e-b84a-b6856fdfffad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="inc\imgui\imgui.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -68,15 +50,6 @@
     </ClCompile>
     <ClCompile Include="src\Mesh.cpp">
       <Filter>Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Shader.cpp">
-      <Filter>Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Materials.cpp">
-      <Filter>Shading</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
-      <Filter>Texture</Filter>
     </ClCompile>
     <ClCompile Include="src\MainScene.cpp">
       <Filter>Scene</Filter>
@@ -104,6 +77,21 @@
     </ClCompile>
     <ClCompile Include="src\DDAScene.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glad.c">
+      <Filter>Entry Point</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Entry Point</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>Image</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Materials.cpp">
+      <Filter>Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -134,26 +122,8 @@
     <ClInclude Include="inc\imgui\imgui_impl_opengl3_loader.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="src\Lines.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Orientation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Mesh.h">
       <Filter>Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Shader.h">
-      <Filter>Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Materials.h">
-      <Filter>Shading</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Lights.h">
-      <Filter>Shading</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Texture.h">
-      <Filter>Texture</Filter>
     </ClInclude>
     <ClInclude Include="src\MainScene.h">
       <Filter>Scene</Filter>
@@ -163,9 +133,6 @@
     </ClInclude>
     <ClInclude Include="src\TestScene.h">
       <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Math.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\App.h">
       <Filter>Application</Filter>
@@ -187,6 +154,30 @@
     </ClInclude>
     <ClInclude Include="src\DDAScene.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Lines.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orientation.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Texture.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shader.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Lights.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Materials.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rasterization.h">
+      <Filter>Image</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

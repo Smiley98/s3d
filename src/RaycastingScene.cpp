@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Window.h"
 #include "App.h"
+#include "Rasterization.h"
 
 constexpr size_t MAP_SIZE = 16;
 constexpr size_t IMAGE_SIZE = 512;

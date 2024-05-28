@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "Window.h"
 #include "App.h"
+#include "Rasterization.h"
 
 constexpr size_t IMAGE_SIZE = 512;
 

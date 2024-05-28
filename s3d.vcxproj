@@ -126,6 +126,7 @@
     <ClInclude Include="src\Math.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Orientation.h" />
+    <ClInclude Include="src\Rasterization.h" />
     <ClInclude Include="src\RasterizationScene.h" />
     <ClInclude Include="src\RaycastingScene.h" />
     <ClInclude Include="src\Scene.h" />
