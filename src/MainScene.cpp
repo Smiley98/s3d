@@ -21,13 +21,8 @@ void MainScene::OnDraw()
 	BindShader(gShaderColor);
 	glUniformMatrix4fv(mvp, 1, GL_FALSE, &m.m0);
 	glUniform3f(col, 1.0f, 0.0f, 0.0f);
-	//DrawMesh(gMeshTriangle);
-	DrawMesh(gMeshCube);
-
-	//bool cull = glIsEnabled(GL_CULL_FACE);	// true
-	//int windingOrder;
-	//glGetIntegerv(GL_FRONT_FACE, &windingOrder);
-	//bool isCCW = windingOrder == GL_CCW;		// true
+	DrawMesh(gMeshTriangle);
+	//DrawMesh(gMeshCube);
 	UnbindShader();
 }
 

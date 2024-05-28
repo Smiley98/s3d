@@ -21,26 +21,20 @@ void LoadFromObj(Mesh* mesh, const char* path);
 
 void CreateMeshes()
 {
+	// FSQ test
 	glGenVertexArrays(1, &fVaoFsq);
 
+	// Triangle test
 	float vertices[]
 	{
-		1.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		0.0f, 1.0f, 1.0f
+		0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f,
+		-0.5f, -0.5f, 0.0f
 	};
-	int szVertices = 3 * sizeof(Vector3);
-	GLuint vbo, tbo, nbo;
-	glGenVertexArrays(1, &gMeshTriangle.vao);
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, szVertices, &vertices, GL_STATIC_DRAW);
-	glBindVertexArray(gMeshTriangle.vao);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	glBindVertexArray(GL_NONE);
-	gMeshTriangle.vertexCount = 3;
+	CreateMeshCPU(&gMeshTriangle, 3, (Vector3*)vertices, nullptr, nullptr, nullptr);
+	CreateMeshGPU(&gMeshTriangle);
 
+	// Par vs Obj test
 	bool par = false;
 	if (par)
 	{
@@ -66,6 +60,7 @@ void DestroyMeshes()
 		DestroyMeshCPU(mesh);
 	};
 
+	Destroy(&gMeshTriangle);
 	Destroy(&gMeshCube);
 	glDeleteVertexArrays(1, &fVaoFsq);
 }
