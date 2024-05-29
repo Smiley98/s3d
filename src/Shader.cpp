@@ -6,11 +6,82 @@
 #include <vector>
 #include <cassert>
 
+Shader* fShader = nullptr;
 std::vector<GLuint> fShaders;
 std::vector<GLuint> fPrograms;
 
-GLuint gShaderFSQ;
-GLuint gShaderColor;
+Shader gShaderFSQ;
+Shader gShaderColor;
+
+GLuint CreateShader(GLint type, const char* path);
+void CreateProgram(Shader* shader, GLuint vs, GLuint fs);
+GLint GetUniform(const char* name);
+
+void CreateShaders()
+{
+    GLuint vsFSQ = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
+    GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
+
+    GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
+    GLuint fsColor= CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
+    
+    CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
+    CreateProgram(&gShaderColor, vsMVP, fsColor);
+}
+
+void DestroyShaders()
+{
+    for (size_t i = 0; i < fPrograms.size(); i++)
+        glDeleteProgram(fPrograms[i]);
+
+    for (size_t i = 0; i < fShaders.size(); i++)
+        glDeleteShader(fShaders[i]);
+
+    fPrograms.clear();
+    fShaders.clear();
+}
+
+void BindShader(Shader* shader)
+{
+    fShader = shader;
+    glUseProgram(shader->id);
+}
+
+void UnbindShader()
+{
+    glUseProgram(GL_NONE);
+    fShader = nullptr;
+}
+
+void SendFloat(const char* name, float v)
+{
+    glUniform1f(GetUniform(name), v);
+}
+
+void SendInt(const char* name, int v)
+{
+    glUniform1i(GetUniform(name), v);
+}
+
+void SendVec2(const char* name, const Vector2& v)
+{
+    glUniform2f(GetUniform(name), v.x, v.y);
+}
+
+void SendVec3(const char* name, const Vector3& v)
+{
+    glUniform3f(GetUniform(name), v.x, v.y, v.z);
+}
+
+void SendVec4(const char* name, const Vector4& v)
+{
+    glUniform4f(GetUniform(name), v.x, v.y, v.z, v.w);
+}
+
+void SendMat4(const char* name, const Matrix* v)
+{
+    glUniformMatrix4fv(GetUniform(name), 1, GL_TRUE, (const GLfloat*)v);
+}
 
 GLuint CreateShader(GLint type, const char* path)
 {
@@ -69,7 +140,7 @@ GLuint CreateShader(GLint type, const char* path)
     return shader;
 }
 
-GLuint CreateProgram(GLuint vs, GLuint fs)
+void CreateProgram(Shader* shader, GLuint vs, GLuint fs)
 {
     GLuint program = glCreateProgram();
     glAttachShader(program, vs);
@@ -87,39 +158,15 @@ GLuint CreateProgram(GLuint vs, GLuint fs)
     }
 
     fPrograms.push_back(program);
-    return program;
+    shader->id = program;
 }
 
-void CreateShaders()
+GLint GetUniform(const char* name)
 {
-    GLuint vsFSQ = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
-    GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
+    if (fShader->locs.find(name) != fShader->locs.end())
+        return fShader->locs[name];
 
-    GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
-    GLuint fsColor= CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
-    
-    gShaderFSQ = CreateProgram(vsFSQ, fsTexture);
-    gShaderColor = CreateProgram(vsMVP, fsColor);
-}
-
-void DestroyShaders()
-{
-    for (size_t i = 0; i < fPrograms.size(); i++)
-        glDeleteProgram(fPrograms[i]);
-
-    for (size_t i = 0; i < fShaders.size(); i++)
-        glDeleteShader(fShaders[i]);
-
-    fPrograms.clear();
-    fShaders.clear();
-}
-
-void BindShader(GLuint shader)
-{
-    glUseProgram(shader);
-}
-
-void UnbindShader()
-{
-    glUseProgram(GL_NONE);
+    GLint loc = glGetUniformLocation(fShader->id, name);
+    fShader->locs[name] = loc;
+    return loc;
 }

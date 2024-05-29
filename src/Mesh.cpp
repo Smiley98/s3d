@@ -87,6 +87,7 @@ void DrawFsq()
 {
 	glDisable(GL_DEPTH_TEST);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glBindVertexArray(GL_NONE);
 	glEnable(GL_DEPTH_TEST);
 }
 

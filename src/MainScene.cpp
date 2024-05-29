@@ -37,8 +37,8 @@ void MainScene::OnDraw()
 	UpdateTexture(mTexture, mImage);
 
 	BindTexture(mTexture);
-	BindShader(gShaderFSQ);
-	glUniform1i(glGetUniformLocation(gShaderFSQ, "u_tex"), 0);
+	BindShader(&gShaderFSQ);
+	SendInt("u_tex", 0);
 	BindFsq();
 	DrawFsq();
 	UnbindShader();

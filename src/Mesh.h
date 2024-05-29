@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include "Math.h"
 
+// Could be generalized into a VertexBuffer struct.
 struct Mesh
 {
 	// If we don't use stl, then arrays aren't visible in the debugger :(

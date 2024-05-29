@@ -75,12 +75,10 @@ void TestScene::OnDraw()
 	UpdateTexture(mTexture, mImage);
 
 	BindTexture(mTexture);
-	glUseProgram(gShaderFSQ);
-	glUniform1i(glGetUniformLocation(gShaderFSQ, "u_tex"), 0);
+	BindShader(&gShaderFSQ);
+	SendInt("u_tex", 0);
 	BindFsq();
 	DrawFsq();
-
-	glBindVertexArray(GL_NONE);
-	glUseProgram(GL_NONE);
+	UnbindShader();
 	UnbindTexture(mTexture);
 }

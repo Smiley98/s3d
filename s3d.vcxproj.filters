@@ -22,7 +22,10 @@
     <Filter Include="Entry Point">
       <UniqueIdentifier>{de232c74-1d21-407f-af99-86c041e39d91}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering">
+    <Filter Include="Pipeline">
+      <UniqueIdentifier>{96f3395a-6337-4b58-8ba3-be4d96d30f3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lighting">
       <UniqueIdentifier>{1a24491b-72bb-4f8e-b84a-b6856fdfffad}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -47,9 +50,6 @@
     </ClCompile>
     <ClCompile Include="inc\imgui\imgui_widgets.cpp">
       <Filter>imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
-      <Filter>Mesh</Filter>
     </ClCompile>
     <ClCompile Include="src\MainScene.cpp">
       <Filter>Scene</Filter>
@@ -87,11 +87,14 @@
     <ClCompile Include="src\Texture.cpp">
       <Filter>Image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Shader.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="src\Materials.cpp">
-      <Filter>Rendering</Filter>
+      <Filter>Lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>Pipeline</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -121,9 +124,6 @@
     </ClInclude>
     <ClInclude Include="inc\imgui\imgui_impl_opengl3_loader.h">
       <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Mesh.h">
-      <Filter>Mesh</Filter>
     </ClInclude>
     <ClInclude Include="src\MainScene.h">
       <Filter>Scene</Filter>
@@ -167,20 +167,23 @@
     <ClInclude Include="src\Texture.h">
       <Filter>Image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Shader.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="src\Lights.h">
-      <Filter>Rendering</Filter>
+      <Filter>Lighting</Filter>
     </ClInclude>
     <ClInclude Include="src\Materials.h">
-      <Filter>Rendering</Filter>
+      <Filter>Lighting</Filter>
     </ClInclude>
     <ClInclude Include="src\Rasterization.h">
       <Filter>Image</Filter>
     </ClInclude>
     <ClInclude Include="src\ImageUtils.h">
       <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shader.h">
+      <Filter>Pipeline</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
