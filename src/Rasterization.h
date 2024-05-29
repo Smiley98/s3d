@@ -2,19 +2,19 @@
 #include "Image.h"
 #include "Mesh.h"
 
-inline void DrawLineX(Image& image, int row, int x0, int x1, Color color)
+inline void DrawLineX(Image* image, int row, int x0, int x1, Color color)
 {
 	for (int x = x0; x <= x1; x++)
 		SetPixel(image, x, row, color);
 }
 
-inline void DrawLineY(Image& image, int col, int y0, int y1, Color color)
+inline void DrawLineY(Image* image, int col, int y0, int y1, Color color)
 {
 	for (int y = y0; y <= y1; y++)
 		SetPixel(image, col, y, color);
 }
 
-inline void DrawLine(Image& image, int x0, int y0, int x1, int y1, Color color)
+inline void DrawLine(Image* image, int x0, int y0, int x1, int y1, Color color)
 {
 	int dx = x1 - x0;
 	int dy = y1 - y0;
@@ -33,7 +33,7 @@ inline void DrawLine(Image& image, int x0, int y0, int x1, int y1, Color color)
 	}
 }
 
-inline void DrawRect(Image& image, int x, int y, int w, int h, Color color)
+inline void DrawRect(Image* image, int x, int y, int w, int h, Color color)
 {
 	for (int i = 0; i < h; i++)
 	{
@@ -44,7 +44,7 @@ inline void DrawRect(Image& image, int x, int y, int w, int h, Color color)
 	}
 }
 
-inline void DrawCircle(Image& image, int cx, int cy, int cr, Color color)
+inline void DrawCircle(Image* image, int cx, int cy, int cr, Color color)
 {
 	int x = 0;
 	int y = cr;
@@ -76,7 +76,7 @@ inline void DrawCircle(Image& image, int cx, int cy, int cr, Color color)
 	}
 }
 
-inline void DrawRectLines(Image& image, int x, int y, int w, int h, Color color)
+inline void DrawRectLines(Image* image, int x, int y, int w, int h, Color color)
 {
 	DrawLineX(image, y + 0, x, x + w, color);
 	DrawLineX(image, y + h, x, x + w, color);
@@ -84,7 +84,7 @@ inline void DrawRectLines(Image& image, int x, int y, int w, int h, Color color)
 	DrawLineY(image, x + w, y, y + h, color);
 }
 
-inline void DrawCircleLines(Image& image, int cx, int cy, int cr, Color color)
+inline void DrawCircleLines(Image* image, int cx, int cy, int cr, Color color)
 {
 	int x = 0;
 	int y = cr;
@@ -114,11 +114,11 @@ inline void DrawCircleLines(Image& image, int cx, int cy, int cr, Color color)
 	}
 }
 
-inline void DrawTriangle(Image& image, Vector3 v0, Vector3 v1, Vector3 v2, Color color)
+inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color color)
 {
 	// Determine triangle's AABB
-	int xMin = image.width - 1;
-	int yMin = image.height - 1;
+	int xMin = image->width - 1;
+	int yMin = image->height - 1;
 	int xMax = 0;
 	int yMax = 0;
 
@@ -129,8 +129,8 @@ inline void DrawTriangle(Image& image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 		const int y = vertices[i].y;
 		xMin = std::max(0, std::min(xMin, x));
 		yMin = std::max(0, std::min(xMin, y));
-		xMax = std::min(image.width - 1, std::max(xMax, x));
-		yMax = std::min(image.height - 1, std::max(yMax, y));
+		xMax = std::min(image->width - 1, std::max(xMax, x));
+		yMax = std::min(image->height - 1, std::max(yMax, y));
 	}
 
 	// Loop through every pixel in triangle's AABB.
@@ -148,35 +148,35 @@ inline void DrawTriangle(Image& image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 	}
 }
 
-inline void DrawFace(Image& image, Mesh mesh, size_t faceStart, Color color)
+inline void DrawFace(Image* image, Mesh mesh, size_t faceStart, Color color)
 {
 	Vector3 vertices[3];
 	for (size_t i = 0; i < 3; i++)
 	{
 		Vector3 v = mesh.positions[faceStart + i];
-		v.x = Remap(v.x, -1.0f, 1.0f, 0, image.width - 1);
-		v.y = Remap(v.y, -1.0f, 1.0f, 0, image.height - 1);
+		v.x = Remap(v.x, -1.0f, 1.0f, 0, image->width - 1);
+		v.y = Remap(v.y, -1.0f, 1.0f, 0, image->height - 1);
 		vertices[i] = v;
 	}
 	DrawTriangle(image, vertices[0], vertices[1], vertices[2], color);
 }
 
-inline void DrawMesh(Image& image, Mesh mesh, Color color)
+inline void DrawMesh(Image* image, Mesh mesh, Color color)
 {
 	for (size_t i = 0; i < mesh.vertexCount; i += 3)
 		DrawFace(image, mesh, i, color);
 }
 
-inline void DrawFaceWireframes(Image& image, Mesh mesh, size_t faceStart, Color color)
+inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t faceStart, Color color)
 {
 	for (size_t i = 0; i < 3; i++)
 	{
 		Vector3 v0 = mesh.positions[faceStart + i];
 		Vector3 v1 = mesh.positions[faceStart + ((i + 1) % 3)];
-		v0.x = Remap(v0.x, -1.0f, 1.0f, 0, image.width - 1);
-		v0.y = Remap(v0.y, -1.0f, 1.0f, 0, image.height - 1);
-		v1.x = Remap(v1.x, -1.0f, 1.0f, 0, image.width - 1);
-		v1.y = Remap(v1.y, -1.0f, 1.0f, 0, image.height - 1);
+		v0.x = Remap(v0.x, -1.0f, 1.0f, 0, image->width - 1);
+		v0.y = Remap(v0.y, -1.0f, 1.0f, 0, image->height - 1);
+		v1.x = Remap(v1.x, -1.0f, 1.0f, 0, image->width - 1);
+		v1.y = Remap(v1.y, -1.0f, 1.0f, 0, image->height - 1);
 
 		int x0 = v0.x;
 		int y0 = v0.y;
@@ -186,7 +186,7 @@ inline void DrawFaceWireframes(Image& image, Mesh mesh, size_t faceStart, Color 
 	}
 }
 
-inline void DrawMeshWireframes(Image& image, Mesh mesh, Color color)
+inline void DrawMeshWireframes(Image* image, Mesh mesh, Color color)
 {
 	for (size_t i = 0; i < mesh.vertexCount; i += 3)
 		DrawFaceWireframes(image, mesh, i, color);

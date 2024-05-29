@@ -4,19 +4,20 @@
 #include "Window.h"
 #include "App.h"
 #include "Rasterization.h"
+#include "ImageUtils.h"
 
 constexpr size_t IMAGE_SIZE = 512;
 
 void DDAScene::OnLoad()
 {
-	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
+	LoadImage(&mImage, IMAGE_SIZE, IMAGE_SIZE);
 	LoadTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
 }
 
 void DDAScene::OnUnload()
 {
 	UnloadTexture(&mTexture);
-	UnloadImage(mImage);
+	UnloadImage(&mImage);
 }
 
 void DDAScene::OnUpdate(float dt)
@@ -29,10 +30,10 @@ void DDAScene::OnUpdate(float dt)
 			Vector2 resolution{ mImage.width, mImage.height };
 			Vector2 uv = fragCoord / resolution;
 			Color color = Convert(uv);
-			SetPixel(mImage, x, y, color);
+			SetPixel(&mImage, x, y, color);
 		}
 	}
-	Flip(mImage);
+	Flip(&mImage);
 
 	Vector2 mouse = MousePosition();
 	mouse = ScreenToImage(mImage, mouse);
@@ -44,19 +45,19 @@ void DDAScene::OnUpdate(float dt)
 	bool bounded = RectRect(8, 8, 496, 496, mouse.x - r, mouse.y - r, r * 2, r * 2);
 	if (bounded)
 	{
-		DrawLine(mImage, x0, y0, mouse.x, mouse.y, RED);
-		DrawCircle(mImage, x0, y0, r, RED);
-		DrawCircle(mImage, mouse.x, mouse.y, r, RED);
+		DrawLine(&mImage, x0, y0, mouse.x, mouse.y, RED);
+		DrawCircle(&mImage, x0, y0, r, RED);
+		DrawCircle(&mImage, mouse.x, mouse.y, r, RED);
 	}
 
 	// Animate a circle in a circle xD xD xD
 	float tt = TotalTime();
 	Matrix m = Translate(100.0f, 100.0f, 0.0f) * RotateZ(tt * 100.0f * DEG2RAD) * Translate(256.0f, 256.0f, 0.0f);
 	Vector3 v = Multiply(Vector3Zero(), m);
-	DrawCircle(mImage, v.x, v.y, 10, CYAN);
-	DrawLine(mImage, x0, y0, v.x, v.y, CYAN);
+	DrawCircle(&mImage, v.x, v.y, 10, CYAN);
+	DrawLine(&mImage, x0, y0, v.x, v.y, CYAN);
 
-	Flip(mImage);
+	Flip(&mImage);
 }
 
 void DDAScene::OnDraw()

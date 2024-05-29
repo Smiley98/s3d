@@ -22,7 +22,7 @@ inline void TileToImage(int col, int row, int* x, int* y)
 	*y = row * TILE_SIZE;
 }
 
-inline void DrawTile(Image& image, int col, int row, Color color)
+inline void DrawTile(Image* image, int col, int row, Color color)
 {
 	int x, y;
 	TileToImage(col, row, &x, &y);
@@ -93,8 +93,9 @@ RaycastingScene::RayHit RaycastingScene::Raycast(Vector2 position, Vector2 direc
 
 void RaycastingScene::OnLoad()
 {
-	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
+	LoadImage(&mImage, IMAGE_SIZE, IMAGE_SIZE);
 	LoadTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
+
 	mHits.resize(mImage.width);
 	mPosition = CENTER;
 }
@@ -102,7 +103,7 @@ void RaycastingScene::OnLoad()
 void RaycastingScene::OnUnload()
 {
 	UnloadTexture(&mTexture);
-	UnloadImage(mImage);
+	UnloadImage(&mImage);
 }
 
 void RaycastingScene::OnUpdate(float dt)
@@ -113,15 +114,15 @@ void RaycastingScene::OnUpdate(float dt)
 	{
 		for (size_t col = 0; col < MAP_SIZE; col++)
 		{
-			DrawTile(mImage, col, row, colors[mMap[row][col]]);
+			DrawTile(&mImage, col, row, colors[mMap[row][col]]);
 		}
 	}
 
 	for (size_t row = 0; row < IMAGE_SIZE; row += TILE_SIZE)
-		SetRow(mImage, row, GRAY);
+		SetRow(&mImage, row, GRAY);
 
 	for (size_t col = 0; col < IMAGE_SIZE; col += TILE_SIZE)
-		SetCol(mImage, col, GRAY);
+		SetCol(&mImage, col, GRAY);
 
 	// TODO -- Add circle-plane for sides & circle-rectangle for tiles,
 	// but not now so I don't accidentally leak assignment & lab solutions to students!
@@ -148,16 +149,16 @@ void RaycastingScene::OnUpdate(float dt)
 	for (int i = 0; i < mImage.width; i++)
 	{
 		float height = fminf(100.0f / mHits[i].t, mImage.height - 1);
-		DrawLineY(mImage, i, 256 - height * 0.5f, 256 + height * 0.5f, colors[mHits[i].i]);
+		DrawLineY(&mImage, i, 256 - height * 0.5f, 256 + height * 0.5f, colors[mHits[i].i]);
 	}
 
 	RayHit hit = Raycast(mPosition, mDirection);
 	Vector2 poi = mPosition + mDirection * hit.t * TILE_SIZE;
-	DrawLine(mImage, mPosition.x, mPosition.y, poi.x, poi.y, RED);
-	DrawCircle(mImage, poi.x, poi.y, 5, RED);
+	DrawLine(&mImage, mPosition.x, mPosition.y, poi.x, poi.y, RED);
+	DrawCircle(&mImage, poi.x, poi.y, 5, RED);
 
 	// Flip since array [0, 0] = top-left but uv [0, 0] = bottom-left
-	Flip(mImage);
+	Flip(&mImage);
 }
 
 void RaycastingScene::OnDraw()

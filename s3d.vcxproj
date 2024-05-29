@@ -119,6 +119,7 @@
     <ClInclude Include="src\Config.h" />
     <ClInclude Include="src\DDAScene.h" />
     <ClInclude Include="src\Image.h" />
+    <ClInclude Include="src\ImageUtils.h" />
     <ClInclude Include="src\Lights.h" />
     <ClInclude Include="src\Lines.h" />
     <ClInclude Include="src\MainScene.h" />

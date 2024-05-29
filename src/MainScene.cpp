@@ -5,7 +5,7 @@
 
 void MainScene::OnLoad()
 {
-	LoadImage(mImage, 512, 512);
+	LoadImage(&mImage, 512, 512);
 	LoadTexture(&mTexture, 512, 512);
 
 	mMesh = gMeshSphere;
@@ -17,7 +17,7 @@ void MainScene::OnLoad()
 void MainScene::OnUnload()
 {
 	UnloadTexture(&mTexture);
-	UnloadImage(mImage);
+	UnloadImage(&mImage);
 }
 
 void MainScene::OnUpdate(float dt)
@@ -26,10 +26,10 @@ void MainScene::OnUpdate(float dt)
 	//DrawMeshWireframes(mImage, mMesh, GREEN);
 
 	for (size_t i = 0, c = 0; i < mMesh.vertexCount; i += 3, c++)
-		DrawFace(mImage, mMesh, i, mColors[c]);
+		DrawFace(&mImage, mMesh, i, mColors[c]);
 	
 	for (size_t i = 0, c = 0; i < mMesh.vertexCount; i += 3, c++)
-		DrawFaceWireframes(mImage, mMesh, i, mColors[c]);
+		DrawFaceWireframes(&mImage, mMesh, i, mColors[c]);
 }
 
 void MainScene::OnDraw()

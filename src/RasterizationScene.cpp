@@ -7,24 +7,21 @@
 
 void RasterizationScene::OnLoad()
 {
-	LoadImage(mImage, 512, 512);
+	LoadImage(&mImage, 512, 512);
 	LoadTexture(&mTexture, 512, 512);
 }
 
 void RasterizationScene::OnUnload()
 {
 	UnloadTexture(&mTexture);
-	UnloadImage(mImage);
+	UnloadImage(&mImage);
 }
 
 void RasterizationScene::OnUpdate(float dt)
 {
 	for (int x = 0; x < mImage.width; x++)
-	{
-		DrawLine(mImage, x, 0, x, mImage.height - 1, RED);
-	}
-
-	DrawRect(mImage, 100, 50, 100, 50, GREEN);
+		DrawLine(&mImage, x, 0, x, mImage.height - 1, RED);
+	DrawRect(&mImage, 100, 50, 100, 50, GREEN);
 }
 
 void RasterizationScene::OnDraw()

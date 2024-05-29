@@ -24,14 +24,14 @@ Color3 Palette(float t) {
 
 void TestScene::OnLoad()
 {
-	LoadImage(mImage, 512, 512);
+	LoadImage(&mImage, 512, 512);
 	LoadTexture(&mTexture, 512, 512);
 }
 
 void TestScene::OnUnload()
 {
 	UnloadTexture(&mTexture);
-	UnloadImage(mImage);
+	UnloadImage(&mImage);
 }
 
 void TestScene::OnUpdate(float dt)
@@ -65,7 +65,7 @@ void TestScene::OnUpdate(float dt)
 			}
 
 			Color color = Convert(finalColor);
-			SetPixel(mImage, x, y, color);
+			SetPixel(&mImage, x, y, color);
 		}
 	}
 }
