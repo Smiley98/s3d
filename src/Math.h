@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <cstdlib>
+#include <cstdio>
 
 //----------------------------------------------------------------------------------
 // Defines and Macros
@@ -246,6 +247,21 @@ typedef struct float16 {
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Utils math
 //----------------------------------------------------------------------------------
+
+RMAPI void Print(Vector2 v)
+{
+    printf("x: %f y: %f\n", v.x, v.y);
+}
+
+RMAPI void Print(Vector3 v)
+{
+    printf("x: %f y: %f z: %f\n", v.x, v.y, v.z);
+}
+
+RMAPI void Print(Vector4 v)
+{
+    printf("x: %f y: %f z: %f w: %f\n", v.x, v.y, v.z, v.w);
+}
 
 // Random value between min and max (can be negative)
 RMAPI float Random(float min, float max)

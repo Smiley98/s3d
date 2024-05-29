@@ -128,8 +128,8 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 		const int x = vertices[i].x;
 		const int y = vertices[i].y;
 		xMin = std::max(0, std::min(xMin, x));
-		yMin = std::max(0, std::min(xMin, y));
-		xMax = std::min(image->width - 1, std::max(xMax, x));
+		yMin = std::max(0, std::min(yMin, y));
+		xMax = std::min(image->width  - 1, std::max(xMax, x));
 		yMax = std::min(image->height - 1, std::max(yMax, y));
 	}
 
