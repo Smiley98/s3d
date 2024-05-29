@@ -8,12 +8,12 @@
 void RasterizationScene::OnLoad()
 {
 	LoadImage(mImage, 512, 512);
-	mTexture = LoadTexture(mImage);
+	LoadTexture(&mTexture, 512, 512);
 }
 
 void RasterizationScene::OnUnload()
 {
-	UnloadTexture(mTexture);
+	UnloadTexture(&mTexture);
 	UnloadImage(mImage);
 }
 

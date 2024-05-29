@@ -16,8 +16,8 @@ void MainScene::OnLoad()
 
 void MainScene::OnUnload()
 {
-	//UnloadTexture(mTexture);
-	//UnloadImage(mImage);
+	UnloadTexture(&mTexture);
+	UnloadImage(mImage);
 }
 
 void MainScene::OnUpdate(float dt)

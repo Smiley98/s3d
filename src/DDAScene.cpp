@@ -10,12 +10,12 @@ constexpr size_t IMAGE_SIZE = 512;
 void DDAScene::OnLoad()
 {
 	LoadImage(mImage, IMAGE_SIZE, IMAGE_SIZE);
-	mTexture = LoadTexture(mImage);
+	LoadTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
 }
 
 void DDAScene::OnUnload()
 {
-	UnloadTexture(mTexture);
+	UnloadTexture(&mTexture);
 	UnloadImage(mImage);
 }
 

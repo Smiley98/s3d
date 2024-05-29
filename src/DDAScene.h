@@ -14,5 +14,5 @@ public:
 
 private:
 	Image mImage;
-	GLuint mTexture;
+	Texture mTexture;
 };

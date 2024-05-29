@@ -31,7 +31,7 @@ private:
 	Vector2 mDirection{ 1.0f, 0.0f };
 
 	Image mImage;
-	GLuint mTexture;
+	Texture mTexture;
 
 	// 0 = air, 1 = red, 2 = green, 3 = blue
 	std::array<std::array<size_t, 16>, 16> mMap
