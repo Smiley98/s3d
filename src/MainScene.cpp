@@ -23,7 +23,7 @@ void MainScene::OnUnload()
 void MainScene::OnUpdate(float dt)
 {
 	for (size_t i = 0, c = 0; i < mMesh.vertexCount; i += 3, c++)
-		DrawFace(&mImage, mMesh, i, mColors[c]);
+		DrawFaceFront(&mImage, mMesh, i);
 	
 	//for (size_t i = 0, c = 0; i < mMesh.vertexCount; i += 3, c++)
 	//	DrawFaceWireframes(&mImage, mMesh, i, mColors[c]);
