@@ -156,6 +156,9 @@ inline void DrawFace(Image* image, Mesh mesh, size_t faceStart, Color color)
 		Vector3 v = mesh.positions[faceStart + i];
 		v.x = Remap(v.x, -1.0f, 1.0f, 0, image->width - 1);
 		v.y = Remap(v.y, -1.0f, 1.0f, 0, image->height - 1);
+
+		// z-value doesn't seem to matter... Should be > 0 to pass triangle test!
+		//v.z = 1.0f;		
 		vertices[i] = v;
 	}
 	DrawTriangle(image, vertices[0], vertices[1], vertices[2], color);

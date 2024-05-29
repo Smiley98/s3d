@@ -26,7 +26,7 @@ void Init()
 	CreateWindow();
 	CreateShaders();
 	CreateMeshes();
-	Scene::Create(Scene::RASTER);
+	Scene::Create(Scene::MAIN);
 }
 
 void Loop()

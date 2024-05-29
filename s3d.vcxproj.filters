@@ -4,9 +4,6 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{f1d8d1cd-e293-41ef-a0fa-588aefea4086}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mesh">
-      <UniqueIdentifier>{51b1c24a-9733-47dd-9765-71258c0a12c1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Scene">
       <UniqueIdentifier>{13b03527-9a02-4d34-ae4c-c01c1d0b83ef}</UniqueIdentifier>
     </Filter>
