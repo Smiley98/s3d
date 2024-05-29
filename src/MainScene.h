@@ -16,7 +16,7 @@ public:
 	void OnDrawGui() final;
 private:
 	Image mImage;
-	GLuint mTexture;
+	Texture mTexture;
 
 	Mesh mMesh;
 	std::vector<Color> mColors;
