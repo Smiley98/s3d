@@ -3,10 +3,12 @@
 #include "App.h"
 #include "Rasterization.h"
 
+constexpr int IMAGE_SIZE = 512;
+
 void MainScene::OnLoad()
 {
-	LoadImage(&mImage, 512, 512);
-	LoadTexture(&mTexture, 512, 512);
+	LoadImage(&mImage, IMAGE_SIZE, IMAGE_SIZE);
+	LoadTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
 
 	mMesh = gMeshHead;
 	mColors.resize(mMesh.vertexCount / 3);
@@ -22,11 +24,31 @@ void MainScene::OnUnload()
 
 void MainScene::OnUpdate(float dt)
 {
-	for (size_t i = 0, c = 0; i < mMesh.vertexCount; i += 3, c++)
-		DrawFaceFront(&mImage, mMesh, i);
-	
-	//for (size_t i = 0, c = 0; i < mMesh.vertexCount; i += 3, c++)
-	//	DrawFaceWireframes(&mImage, mMesh, i, mColors[c]);
+	Fill(&mImage, BLACK);
+	float tt = TotalTime();
+	float ncos = cosf(tt) * 0.25f + 0.75f;
+	Vector3 v = Vector3One();
+	v *= ncos;
+
+	Mesh copy;
+	copy.vertexCount = mMesh.vertexCount;
+	copy.positions = new Vector3[copy.vertexCount];
+	for (size_t i = 0; i < mMesh.vertexCount; i++)
+	{
+		Matrix transform =
+			Scale(v.x, v.y, v.z) *
+			RotateZ(TotalTime() * 100.0f * DEG2RAD) *
+			Translate(cosf(tt), 0.0f, 0.0f);
+		copy.positions[i] = Multiply(mMesh.positions[i], transform);
+	}
+
+	for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
+		DrawFaceFront(&mImage, copy, i);
+
+	for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
+		DrawFaceWireframes(&mImage, copy, i, mColors[c]);
+
+	delete[] copy.positions;
 }
 
 void MainScene::OnDraw()
