@@ -26,7 +26,7 @@ void Init()
 	CreateWindow();
 	CreateShaders();
 	CreateMeshes();
-	Scene::Create(Scene::MAIN);
+	Scene::Create(Scene::TEST);
 }
 
 void Loop()
