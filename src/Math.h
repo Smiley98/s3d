@@ -24,16 +24,6 @@
 #define RAD2DEG (180.0f/PI)
 #endif
 
-// Get float vector for Matrix
-#ifndef MatrixToFloat
-#define MatrixToFloat(mat) (ToFloatV(mat).v)
-#endif
-
-// Get float vector for Vector3
-#ifndef Vector3ToFloat
-#define Vector3ToFloat(vec) (ToFloatV(vec).v)
-#endif
-
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
@@ -227,22 +217,15 @@ inline Color RandomColor()
     return color;
 }
 
-// Matrix type (OpenGL style 4x4 - right handed, column major)
+// Logically column-major (c0 = [m0, m1, m2, m3]).
+// Physically row-major (m[0] = m0, m[1] = m4, m[2] = m8, m[3] = m12).
+// Transpose to change memory to column-major (OpenGL's memory layout).
 typedef struct Matrix {
     float m0, m4, m8, m12;      // Matrix first row (4 components)
     float m1, m5, m9, m13;      // Matrix second row (4 components)
     float m2, m6, m10, m14;     // Matrix third row (4 components)
     float m3, m7, m11, m15;     // Matrix fourth row (4 components)
 } Matrix;
-
-// NOTE: Helper types to be used instead of array return types for *ToFloat functions
-typedef struct float3 {
-    float v[3]{};
-} float3;
-
-typedef struct float16 {
-    float v[16]{};
-} float16;
 
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Utils math
@@ -1198,18 +1181,6 @@ RMAPI Vector3 Unproject(Vector3 source, Matrix projection, Matrix view)
     return result;
 }
 
-// Get Vector3 as float array
-RMAPI float3 ToFloatV(Vector3 v)
-{
-    float3 buffer = { 0 };
-
-    buffer.v[0] = v.x;
-    buffer.v[1] = v.y;
-    buffer.v[2] = v.z;
-
-    return buffer;
-}
-
 // Invert the given vector
 RMAPI Vector3 Invert(Vector3 v)
 {
@@ -1822,31 +1793,6 @@ RMAPI Matrix LookAt(Vector3 eye, Vector3 target, Vector3 up)
     result.m13 = -(vy.x * eye.x + vy.y * eye.y + vy.z * eye.z);   // Vector3DotProduct(vy, eye)
     result.m14 = -(vz.x * eye.x + vz.y * eye.y + vz.z * eye.z);   // Vector3DotProduct(vz, eye)
     result.m15 = 1.0f;
-
-    return result;
-}
-
-// Get float array of matrix data
-RMAPI float16 ToFloatV(Matrix mat)
-{
-    float16 result = { 0 };
-
-    result.v[0] = mat.m0;
-    result.v[1] = mat.m1;
-    result.v[2] = mat.m2;
-    result.v[3] = mat.m3;
-    result.v[4] = mat.m4;
-    result.v[5] = mat.m5;
-    result.v[6] = mat.m6;
-    result.v[7] = mat.m7;
-    result.v[8] = mat.m8;
-    result.v[9] = mat.m9;
-    result.v[10] = mat.m10;
-    result.v[11] = mat.m11;
-    result.v[12] = mat.m12;
-    result.v[13] = mat.m13;
-    result.v[14] = mat.m14;
-    result.v[15] = mat.m15;
 
     return result;
 }
