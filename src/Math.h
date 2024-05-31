@@ -1,7 +1,6 @@
 #pragma once
-#include <cstdint>
+#include <cmath>
 #include <cstdlib>
-#include <cstdio>
 
 //----------------------------------------------------------------------------------
 // Defines and Macros
@@ -28,21 +27,9 @@
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
 
-typedef struct Vector2 {
-    union
-    {
-        struct
-        {
-            float x;
-            float y;
-        };
-
-        struct
-        {
-            float r;
-            float g;
-        };
-    };
+struct Vector2 {
+    float x;
+    float y;
 
     Vector2 operator+=(Vector2 v)
     {
@@ -72,25 +59,12 @@ typedef struct Vector2 {
         return *this;
     }
 
-} Vector2;
+};
 
-typedef struct Vector3 {
-    union
-    {
-        struct
-        {
-            float x;
-            float y;
-            float z;
-        };
-
-        struct
-        {
-            float r;
-            float g;
-            float b;
-        };
-    };
+struct Vector3 {
+    float x;
+    float y;
+    float z;
 
     Vector3 operator+=(Vector3 v)
     {
@@ -123,27 +97,13 @@ typedef struct Vector3 {
         z /= f;
         return *this;
     }
-} Vector3;
+};
 
-typedef struct Vector4 {
-    union
-    {
-        struct
-        {
-            float x;
-            float y;
-            float z;
-            float w;
-        };
-
-        struct
-        {
-            float r;
-            float g;
-            float b;
-            float a;
-        };
-    };
+struct Vector4 {
+    float x;
+    float y;
+    float z;
+    float w;
 
     Vector4 operator+=(Vector4 v)
     {
@@ -180,42 +140,9 @@ typedef struct Vector4 {
         w /= f;
         return *this;
     }
-} Vector4;
+};
 
 typedef Vector4 Quaternion;
-typedef Vector2 Color2;
-typedef Vector3 Color3;
-typedef Vector4 Color4;
-
-typedef struct Color
-{
-    uint8_t r = 0;
-    uint8_t g = 0;
-    uint8_t b = 0;
-    uint8_t a = 0;
-} Color;
-
-constexpr Color RED = { 0xFF, 0x00, 0x00, 0xFF };
-constexpr Color GREEN = { 0x00, 0xFF, 0x00, 0xFF };
-constexpr Color BLUE = { 0x00, 0x00, 0xFF, 0xFF };
-
-constexpr Color CYAN = { 0x00, 0xFF, 0xFF, 0xFF };
-constexpr Color MAGENTA = { 0xFF, 0x00, 0xFF, 0xFF };
-constexpr Color YELLOW = { 0xFF, 0xFF, 0x00, 0xFF };
-
-constexpr Color WHITE = { 0xFF, 0xFF, 0xFF, 0xFF };
-constexpr Color GRAY = { 0x80, 0x80, 0x80, 0xFF };
-constexpr Color BLACK = { 0x00, 0x00, 0x00, 0xFF };
-
-inline Color RandomColor()
-{
-    Color color;
-    color.r = rand() % 255;
-    color.g = rand() % 255;
-    color.b = rand() % 255;
-    color.a = 255;
-    return color;
-}
 
 // Logically column-major (c0 = [m0, m1, m2, m3]).
 // Physically row-major (m[0] = m0, m[1] = m4, m[2] = m8, m[3] = m12).
@@ -226,25 +153,6 @@ typedef struct Matrix {
     float m2, m6, m10, m14;     // Matrix third row (4 components)
     float m3, m7, m11, m15;     // Matrix fourth row (4 components)
 } Matrix;
-
-//----------------------------------------------------------------------------------
-// Module Functions Definition - Utils math
-//----------------------------------------------------------------------------------
-
-RMAPI void Print(Vector2 v)
-{
-    printf("x: %f y: %f\n", v.x, v.y);
-}
-
-RMAPI void Print(Vector3 v)
-{
-    printf("x: %f y: %f z: %f\n", v.x, v.y, v.z);
-}
-
-RMAPI void Print(Vector4 v)
-{
-    printf("x: %f y: %f z: %f w: %f\n", v.x, v.y, v.z, v.w);
-}
 
 // Random value between min and max (can be negative)
 RMAPI float Random(float min, float max)
@@ -300,36 +208,6 @@ RMAPI int Equals(float x, float y)
     int result = (fabsf(x - y)) <= (EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))));
 
     return result;
-}
-
-//----------------------------------------------------------------------------------
-// Module Functions Definition - Color conversions
-//----------------------------------------------------------------------------------
-RMAPI Color Convert(Color2 c)
-{
-    Color color;
-    color.r = Clamp(c.r, 0.0f, 1.0f) * 255.0f;
-    color.g = Clamp(c.g, 0.0f, 1.0f) * 255.0f;
-    return color;
-}
-
-RMAPI Color Convert(Color3 c)
-{
-    Color color;
-    color.r = Clamp(c.r, 0.0f, 1.0f) * 255.0f;
-    color.g = Clamp(c.g, 0.0f, 1.0f) * 255.0f;
-    color.b = Clamp(c.b, 0.0f, 1.0f) * 255.0f;
-    return color;
-}
-
-RMAPI Color Convert(Color4 c)
-{
-    Color color;
-    color.r = Clamp(c.r, 0.0f, 1.0f) * 255.0f;
-    color.g = Clamp(c.g, 0.0f, 1.0f) * 255.0f;
-    color.b = Clamp(c.b, 0.0f, 1.0f) * 255.0f;
-    color.a = Clamp(c.a, 0.0f, 1.0f) * 255.0f;
-    return color;
 }
 
 //----------------------------------------------------------------------------------

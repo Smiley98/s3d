@@ -182,5 +182,11 @@
     <ClInclude Include="src\Shader.h">
       <Filter>Pipeline</Filter>
     </ClInclude>
+    <ClInclude Include="src\Color.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Log.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

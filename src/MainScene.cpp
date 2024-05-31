@@ -13,7 +13,7 @@ void MainScene::OnLoad()
 	mMesh = gMeshHead;
 	mColors.resize(mMesh.vertexCount / 3);
 	for (size_t i = 0; i < mColors.size(); i++)
-		mColors[i] = RandomColor();
+		mColors[i] = RandRGB();
 }
 
 void MainScene::OnUnload()

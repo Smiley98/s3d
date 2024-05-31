@@ -29,7 +29,7 @@ void DDAScene::OnUpdate(float dt)
 			Vector2 fragCoord{ x, y };
 			Vector2 resolution{ mImage.width, mImage.height };
 			Vector2 uv = fragCoord / resolution;
-			Color color = Convert(uv);
+			Color color = Float2ToColor(&uv.x);
 			SetPixel(&mImage, x, y, color);
 		}
 	}

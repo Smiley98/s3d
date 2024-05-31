@@ -1,5 +1,6 @@
 #pragma once
 #include <glad/glad.h>
+#include <cstdint>
 #include "Math.h"
 
 // Could be generalized into a VertexBuffer struct.

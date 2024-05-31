@@ -8,16 +8,16 @@ float Fract(float f)
 	return f - floorf(f);
 }
 
-Color3 Palette(float t) {
-	Color3 a { 0.5f, 0.5f, 0.5f };
-	Color3 b { 0.5f, 0.5f, 0.5f };
-	Color3 c { 1.0f, 1.0f, 1.0f };
-	Color3 d{ 0.263f, 0.416f, 0.557f };
-
-	Color3 cd = (c * t + d) * 6.28318f;
-	cd.r = cosf(cd.r);
-	cd.g = cosf(cd.g);
-	cd.b = cosf(cd.b);
+Vector3 Palette(float t) {
+	Vector3 a { 0.5f, 0.5f, 0.5f };
+	Vector3 b { 0.5f, 0.5f, 0.5f };
+	Vector3 c { 1.0f, 1.0f, 1.0f };
+	Vector3 d{ 0.263f, 0.416f, 0.557f };
+	
+	Vector3 cd = (c * t + d) * 6.28318f;
+	cd.x = cosf(cd.x);
+	cd.y = cosf(cd.y);
+	cd.z = cosf(cd.z);
 
 	return a + b * cd;
 }
@@ -48,14 +48,14 @@ void TestScene::OnUpdate(float dt)
 			uv.x *= SCREEN_ASPECT;
 
 			Vector2 uv0 = uv;
-			Color3 finalColor = Vector3Zero();
+			Vector3 finalColor = Vector3Zero();
 
 			for (float k = 0.0f; k < 4.0f; k++)
 			{
 				uv.x = Fract(uv.x * 1.5f) - 0.5f;
 				uv.y = Fract(uv.y * 1.5f) - 0.5f;
 
-				Color3 col = Palette(Length(uv0) + k * 0.4f + tt * 0.4f);
+				Vector3 col = Palette(Length(uv0) + k * 0.4f + tt * 0.4f);
 				float d = Length(uv);
 				d = sinf(d * 8.0f + tt) / 8.0f;
 				d = fabsf(d);
@@ -64,7 +64,7 @@ void TestScene::OnUpdate(float dt)
 				finalColor += col * d;
 			}
 
-			Color color = Convert(finalColor);
+			Color color = Float3ToColor(&finalColor.x);
 			SetPixel(&mImage, x, y, color);
 		}
 	}

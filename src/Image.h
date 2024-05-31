@@ -1,7 +1,6 @@
 #pragma once
-#include "Math.h"
+#include "Color.h"
 #include <vector>
-#include <algorithm>
 // See ImageUtils.h for additional features.
 
 struct Image

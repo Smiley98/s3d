@@ -52,6 +52,7 @@
       <AdditionalIncludeDirectories>./inc/</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>
       </AdditionalUsingDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -71,6 +72,7 @@
       <AdditionalIncludeDirectories>./inc/</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>
       </AdditionalUsingDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -116,12 +118,14 @@
     <ClInclude Include="inc\imgui\imstb_textedit.h" />
     <ClInclude Include="inc\imgui\imstb_truetype.h" />
     <ClInclude Include="src\App.h" />
+    <ClInclude Include="src\Color.h" />
     <ClInclude Include="src\Config.h" />
     <ClInclude Include="src\DDAScene.h" />
     <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\ImageUtils.h" />
     <ClInclude Include="src\Lights.h" />
     <ClInclude Include="src\Lines.h" />
+    <ClInclude Include="src\Log.h" />
     <ClInclude Include="src\MainScene.h" />
     <ClInclude Include="src\Materials.h" />
     <ClInclude Include="src\Math.h" />
