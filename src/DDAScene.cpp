@@ -53,7 +53,7 @@ void DDAScene::OnUpdate(float dt)
 	// Animate a circle in a circle xD xD xD
 	float tt = TotalTime();
 	Matrix m = Translate(100.0f, 100.0f, 0.0f) * RotateZ(tt * 100.0f * DEG2RAD) * Translate(256.0f, 256.0f, 0.0f);
-	Vector3 v = Multiply(Vector3Zero(), m);
+	Vector3 v = m * V3_ZERO;
 	DrawCircle(&mImage, v.x, v.y, 10, CYAN);
 	DrawLine(&mImage, x0, y0, v.x, v.y, CYAN);
 

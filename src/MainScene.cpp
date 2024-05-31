@@ -27,7 +27,7 @@ void MainScene::OnUpdate(float dt)
 	Fill(&mImage, BLACK);
 	float tt = TotalTime();
 	float ncos = cosf(tt) * 0.25f + 0.75f;
-	Vector3 v = Vector3One();
+	Vector3 v = V3_ONE;
 	v *= ncos;
 
 	Mesh copy;

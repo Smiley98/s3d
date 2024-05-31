@@ -48,7 +48,7 @@ void TestScene::OnUpdate(float dt)
 			uv.x *= SCREEN_ASPECT;
 
 			Vector2 uv0 = uv;
-			Vector3 finalColor = Vector3Zero();
+			Vector3 finalColor = V3_ZERO;
 
 			for (float k = 0.0f; k < 4.0f; k++)
 			{

@@ -124,13 +124,11 @@
     <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\ImageUtils.h" />
     <ClInclude Include="src\Lights.h" />
-    <ClInclude Include="src\Lines.h" />
     <ClInclude Include="src\Log.h" />
     <ClInclude Include="src\MainScene.h" />
     <ClInclude Include="src\Materials.h" />
     <ClInclude Include="src\Math.h" />
     <ClInclude Include="src\Mesh.h" />
-    <ClInclude Include="src\Orientation.h" />
     <ClInclude Include="src\Rasterization.h" />
     <ClInclude Include="src\RasterizationScene.h" />
     <ClInclude Include="src\RaycastingScene.h" />

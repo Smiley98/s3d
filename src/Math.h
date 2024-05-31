@@ -33,6 +33,11 @@ struct Vector2 {
 
     RMAPI Vector2 operator+=(Vector2 v);
     RMAPI Vector2 operator-=(Vector2 v);
+    RMAPI Vector2 operator*=(Vector2 v);
+    RMAPI Vector2 operator/=(Vector2 v);
+
+    RMAPI Vector2 operator+=(float f);
+    RMAPI Vector2 operator-=(float f);
     RMAPI Vector2 operator*=(float f);
     RMAPI Vector2 operator/=(float f);
 };
@@ -54,6 +59,11 @@ struct Vector3 {
 
     RMAPI Vector3 operator+=(Vector3 v);
     RMAPI Vector3 operator-=(Vector3 v);
+    RMAPI Vector3 operator*=(Vector3 v);
+    RMAPI Vector3 operator/=(Vector3 v);
+
+    RMAPI Vector3 operator+=(float f);
+    RMAPI Vector3 operator-=(float f);
     RMAPI Vector3 operator*=(float f);
     RMAPI Vector3 operator/=(float f);
 };
@@ -76,6 +86,11 @@ struct Vector4 {
 
     RMAPI Vector4 operator+=(Vector4 v);
     RMAPI Vector4 operator-=(Vector4 v);
+    RMAPI Vector4 operator*=(Vector4 v);
+    RMAPI Vector4 operator/=(Vector4 v);
+
+    RMAPI Vector4 operator+=(float f);
+    RMAPI Vector4 operator-=(float f);
     RMAPI Vector4 operator*=(float f);
     RMAPI Vector4 operator/=(float f);
 };
@@ -102,11 +117,32 @@ typedef struct Matrix {
     float m3, m7, m11, m15;     // Matrix fourth row (4 components)
 } Matrix;
 
-
-RMAPI Matrix operator+(const Matrix& a, const Matrix& b);
-RMAPI Matrix operator-(const Matrix& a, const Matrix& b);
-RMAPI Matrix operator*(const Matrix& a, const Matrix& b);
+RMAPI Matrix operator+(Matrix a, Matrix b);
+RMAPI Matrix operator-(Matrix a, Matrix b);
+RMAPI Matrix operator*(Matrix a, Matrix b);
 // No need for matrix division.
+
+RMAPI Vector4 operator*(Matrix m, Vector4 v);
+RMAPI Vector3 operator*(Matrix m, Vector3 v);
+RMAPI Vector2 operator*(Matrix m, Vector2 v);
+RMAPI Vector3 operator*(Quaternion a, Vector3 b);
+
+constexpr Vector2 V2_RIGHT = { 1.0f, 0.0f };
+constexpr Vector2 V2_UP = { 0.0f, 1.0f };
+
+constexpr Vector3 V3_RIGHT = { 1.0f, 0.0f, 0.0f };
+constexpr Vector3 V3_UP = { 0.0f, 1.0f, 0.0f };
+constexpr Vector3 V3_FORWARD = { 0.0f, 0.0f, 1.0f };
+
+constexpr Vector2 V2_ZERO = { 0.0f, 0.0f };
+constexpr Vector2 V2_ONE = { 1.0f, 1.0f };
+constexpr Vector3 V3_ZERO = { 0.0f, 0.0f, 0.0f };
+constexpr Vector3 V3_ONE = { 1.0f, 1.0f, 1.0f };
+constexpr Vector4 V4_IDENTITY = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Scalar math
+//----------------------------------------------------------------------------------
 
 // Random value between min and max (can be negative)
 RMAPI float Random(float min, float max)
@@ -167,22 +203,6 @@ RMAPI int Equals(float x, float y)
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Vector2 math
 //----------------------------------------------------------------------------------
-
-// Vector with components value 0.0f
-RMAPI Vector2 Vector2Zero(void)
-{
-    Vector2 result = { 0.0f, 0.0f };
-
-    return result;
-}
-
-// Vector with components value 1.0f
-RMAPI Vector2 Vector2One(void)
-{
-    Vector2 result = { 1.0f, 1.0f };
-
-    return result;
-}
 
 // Add two vectors (v1 + v2)
 RMAPI Vector2 Add(Vector2 v1, Vector2 v2)
@@ -322,6 +342,13 @@ RMAPI Vector2 Project(Vector2 v1, Vector2 v2)
 {
     float t = Dot(v1, v2) / Dot(v2, v2);
     return { t * v2.x, t * v2.y };
+}
+
+// Scalar projection of v1 onto v2
+RMAPI float ProjectScalar(Vector2 v1, Vector2 v2)
+{
+    float t = Dot(v1, v2) / Dot(v2, v2);
+    return t;
 }
 
 // Projects point P onto line AB
@@ -511,22 +538,6 @@ RMAPI bool Equals(Vector2 p, Vector2 q)
 // Module Functions Definition - Vector3 math
 //----------------------------------------------------------------------------------
 
-// Vector with components value 0.0f
-RMAPI Vector3 Vector3Zero(void)
-{
-    Vector3 result = { 0.0f, 0.0f, 0.0f };
-
-    return result;
-}
-
-// Vector with components value 1.0f
-RMAPI Vector3 Vector3One(void)
-{
-    Vector3 result = { 1.0f, 1.0f, 1.0f };
-
-    return result;
-}
-
 // Add two vectors
 RMAPI Vector3 Add(Vector3 v1, Vector3 v2)
 {
@@ -667,6 +678,13 @@ RMAPI Vector3 Project(Vector3 v1, Vector3 v2)
 {
     float t = Dot(v1, v2) / Dot(v2, v2);
     return { t * v2.x, t * v2.y, t * v2.z };
+}
+
+// Scalar projection of v1 onto v2
+RMAPI float ProjectScalar(Vector3 v1, Vector3 v2)
+{
+    float t = Dot(v1, v2) / Dot(v2, v2);
+    return t;
 }
 
 // Returns the point on line AB nearest to point P
@@ -2104,6 +2122,45 @@ RMAPI int Equals(Quaternion p, Quaternion q)
 }
 
 //----------------------------------------------------------------------------------
+// Module Functions Definition - Vector & Matrix helpers
+//----------------------------------------------------------------------------------
+
+RMAPI Vector3 Forward(Matrix m)
+{
+    return { m.m8, m.m9, m.m10 };
+}
+
+RMAPI Vector3 Right(Matrix m)
+{
+    return { m.m0, m.m1, m.m2 };
+}
+
+RMAPI Vector3 Up(Matrix m)
+{
+    return { m.m4, m.m5, m.m6 };
+}
+
+RMAPI Vector3 Translation(Matrix m)
+{
+    return { m.m12, m.m13, m.m14 };
+}
+
+RMAPI Matrix Translate(Vector3 v)
+{
+    return Translate(v.x, v.y, v.z);
+}
+
+RMAPI Quaternion FromEuler(Vector3 v)
+{
+    return FromEuler(v.x, v.y, v.z);
+}
+
+RMAPI Matrix Scale(Vector3 v)
+{
+    return Scale(v.x, v.y, v.z);
+}
+
+//----------------------------------------------------------------------------------
 // Module Functions Definition - Global operator overloads
 //----------------------------------------------------------------------------------
 
@@ -2227,19 +2284,44 @@ RMAPI Vector4 operator/(Vector4 a, float b)
     return Scale(a, 1.0f / b);
 }
 
-RMAPI Matrix operator+(const Matrix& a, const Matrix& b)
+RMAPI Matrix operator+(Matrix a, Matrix b)
 {
     return Add(a, b);
 }
 
-RMAPI Matrix operator-(const Matrix& a, const Matrix& b)
+RMAPI Matrix operator-(Matrix a, Matrix b)
 {
     return Subtract(a, b);
 }
 
-RMAPI Matrix operator*(const Matrix& a, const Matrix& b)
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Matrix multiplication overloads
+//----------------------------------------------------------------------------------
+
+RMAPI Matrix operator*(Matrix a, Matrix b)
 {
     return Multiply(a, b);
+}
+
+RMAPI Vector4 operator*(Matrix m, Vector4 v)
+{
+    return Multiply(v, m);
+}
+
+RMAPI Vector3 operator*(Matrix m, Vector3 v)
+{
+    return Multiply(v, m);
+}
+
+RMAPI Vector2 operator*(Matrix m, Vector2 v)
+{
+    return Multiply(v, m);
+}
+
+RMAPI Vector3 operator*(Quaternion a, Vector3 b)
+{
+    // Not part of raylib but uses ToMatrix which is part of raylib
+    return Multiply(b, ToMatrix(a));
 }
 
 //----------------------------------------------------------------------------------
@@ -2257,6 +2339,34 @@ RMAPI Vector2 Vector2::operator-=(Vector2 v)
 {
     x -= v.x;
     y -= v.y;
+    return *this;
+}
+
+RMAPI Vector2 Vector2::operator*=(Vector2 v)
+{
+    x *= v.x;
+    y *= v.y;
+    return *this;
+}
+
+RMAPI Vector2 Vector2::operator/=(Vector2 v)
+{
+    x /= v.x;
+    y /= v.y;
+    return *this;
+}
+
+RMAPI Vector2 Vector2::operator+=(float f)
+{
+    x += f;
+    y += f;
+    return *this;
+}
+
+RMAPI Vector2 Vector2::operator-=(float f)
+{
+    x -= f;
+    y -= f;
     return *this;
 }
 
@@ -2287,6 +2397,38 @@ RMAPI Vector3 Vector3::operator-=(Vector3 v)
     x -= v.x;
     y -= v.y;
     z -= v.z;
+    return *this;
+}
+
+RMAPI Vector3 Vector3::operator*=(Vector3 v)
+{
+    x *= v.x;
+    y *= v.y;
+    z *= v.z;
+    return *this;
+}
+
+RMAPI Vector3 Vector3::operator/=(Vector3 v)
+{
+    x /= v.x;
+    y /= v.y;
+    z /= v.z;
+    return *this;
+}
+
+RMAPI Vector3 Vector3::operator+=(float f)
+{
+    x += f;
+    y += f;
+    z += f;
+    return *this;
+}
+
+RMAPI Vector3 Vector3::operator-=(float f)
+{
+    x -= f;
+    y -= f;
+    z -= f;
     return *this;
 }
 
@@ -2321,6 +2463,42 @@ RMAPI Vector4 Vector4::operator-=(Vector4 v)
     y -= v.y;
     z -= v.z;
     w -= v.w;
+    return *this;
+}
+
+RMAPI Vector4 Vector4::operator*=(Vector4 v)
+{
+    x *= v.x;
+    y *= v.y;
+    z *= v.z;
+    w *= v.w;
+    return *this;
+}
+
+RMAPI Vector4 Vector4::operator/=(Vector4 v)
+{
+    x /= v.x;
+    y /= v.y;
+    z /= v.z;
+    w /= v.w;
+    return *this;
+}
+
+RMAPI Vector4 Vector4::operator+=(float f)
+{
+    x += f;
+    y += f;
+    z += f;
+    w += f;
+    return *this;
+}
+
+RMAPI Vector4 Vector4::operator-=(float f)
+{
+    x -= f;
+    y -= f;
+    z -= f;
+    w -= f;
     return *this;
 }
 
