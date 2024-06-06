@@ -114,7 +114,7 @@ inline void DrawCircleLines(Image* image, int cx, int cy, int cr, Color color)
 	}
 }
 
-inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color color)
+inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color color, bool depth = true)
 {
 	// Determine triangle's AABB
 	int xMin = image->width - 1;
@@ -134,8 +134,7 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 	}
 
 	// Loop through every pixel in triangle's AABB.
-	// Discard if barycentric coordinates are negative (point not in triangle)!
-	// Modified t be <= to fix artifacts but I'm awaiting an out-of-bounds error xD
+	// Discard if barycentric coordinates are negative (point not in triangle)! xD
 	for (int x = xMin; x <= xMax; x++)
 	{
 		for (int y = yMin; y <= yMax; y++)
@@ -144,7 +143,22 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 			Vector3 bc = Barycenter(p, v0, v1, v2);
 			if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
 				continue;
-			SetPixel(image, x, y, color);
+
+			// In OpenGL 0.0 --> near, 1.0 --> far.
+			// Manually clearing depth to 1.0 every frame so I can do a < comparison.
+			if (depth)
+			{
+				float z = 0.0f;
+				z += v0.z * bc.x;
+				z += v1.z * bc.y;
+				z += v2.z * bc.z;
+
+				if (z < GetDepth(*image, x, y))
+				{
+					SetDepth(image, x, y, z);
+					SetPixel(image, x, y, color);
+				}
+			}
 		}
 	}
 }

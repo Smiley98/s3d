@@ -11,6 +11,7 @@ void MainScene::OnLoad()
 	LoadTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
 
 	mMesh = gMeshHead;
+	mMesh2 = gMeshSphere;
 	mColors.resize(mMesh.vertexCount / 3);
 	for (size_t i = 0; i < mColors.size(); i++)
 		mColors[i] = RandRGB();
@@ -24,7 +25,50 @@ void MainScene::OnUnload()
 
 void MainScene::OnUpdate(float dt)
 {
-	Fill(&mImage, BLACK);
+	ClearColor(&mImage, BLACK);
+	ClearDepth(&mImage, 1.0f);
+
+	for (size_t i = 0, c = 0; i < mMesh.vertexCount; i += 3, c++)
+		DrawFaceFront(&mImage, mMesh, i);
+
+	float tt = TotalTime();
+	Vector3 v = V3_ONE;
+
+	Mesh copy;
+	copy.vertexCount = mMesh2.vertexCount;
+	copy.positions = new Vector3[copy.vertexCount];
+	for (size_t i = 0; i < copy.vertexCount; i++)
+	{
+		Matrix transform = Translate(0.0f, 0.0f, cosf(tt));
+		copy.positions[i] = Multiply(mMesh2.positions[i], transform);
+	}
+
+	for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
+		DrawFaceFront(&mImage, copy, i);
+
+	delete[] copy.positions;
+}
+
+void MainScene::OnDraw()
+{
+	UpdateTexture(mTexture, mImage);
+
+	BindTexture(mTexture);
+	BindShader(&gShaderFSQ);
+	SendInt("u_tex", 0);
+	BindFsq();
+	DrawFsq();
+	UnbindShader();
+	UnbindTexture(mTexture);
+}
+
+void MainScene::OnDrawGui()
+{
+}
+
+void MainScene::AnimationTest()
+{
+	ClearColor(&mImage, BLACK);
 	float tt = TotalTime();
 	float ncos = cosf(tt) * 0.25f + 0.75f;
 	Vector3 v = V3_ONE;
@@ -49,21 +93,4 @@ void MainScene::OnUpdate(float dt)
 		DrawFaceWireframes(&mImage, copy, i, mColors[c]);
 
 	delete[] copy.positions;
-}
-
-void MainScene::OnDraw()
-{
-	UpdateTexture(mTexture, mImage);
-
-	BindTexture(mTexture);
-	BindShader(&gShaderFSQ);
-	SendInt("u_tex", 0);
-	BindFsq();
-	DrawFsq();
-	UnbindShader();
-	UnbindTexture(mTexture);
-}
-
-void MainScene::OnDrawGui()
-{
 }

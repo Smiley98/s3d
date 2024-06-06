@@ -18,6 +18,8 @@ private:
 	Image mImage;
 	Texture mTexture;
 
-	Mesh mMesh;
+	Mesh mMesh, mMesh2;
 	std::vector<Color> mColors;
+
+	void AnimationTest();
 };
