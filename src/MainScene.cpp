@@ -33,7 +33,7 @@ void MainScene::OnUpdate(float dt)
 	ClearDepth(&mImage, 1.0f);
 
 	for (size_t i = 0; i < mMesh.faceCount; i++)
-		DrawFaceFront(&mImage, mMesh, i);
+		DrawFace(&mImage, mMesh, i);
 }
 
 void MainScene::OnDraw()
@@ -73,10 +73,10 @@ void MainScene::AnimationTest()
 		copy.positions[i] = Multiply(mMesh.positions[i], transform);
 	}
 
-	//for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
-	//	DrawFaceFront(&mImage, copy, i);
+	//for (size_t i = 0; i < copy.faceCount; i++)
+	//	DrawFace(&mImage, copy, i);
 	//
-	//for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
+	//for (size_t i = 0; i < copy.faceCount; i++)
 	//	DrawFaceWireframes(&mImage, copy, i, mColors[c]);
 
 	delete[] copy.positions;
@@ -88,7 +88,7 @@ void MainScene::DepthTest()
 	ClearDepth(&mImage, 1.0f);
 
 	for (size_t i = 0, c = 0; i < mMesh.vertexCount; i += 3, c++)
-		DrawFaceFront(&mImage, mMesh, i);
+		DrawFace(&mImage, mMesh, i);
 
 	float tt = TotalTime();
 	Vector3 v = V3_ONE;
@@ -103,7 +103,7 @@ void MainScene::DepthTest()
 	//}
 	//
 	//for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
-	//	DrawFaceFront(&mImage, copy, i);
+	//	DrawFace(&mImage, copy, i);
 
 	delete[] copy.positions;
 }
