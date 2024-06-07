@@ -101,7 +101,10 @@ void DrawMesh(Mesh mesh)
 void CreateMeshCPU(Mesh* mesh, size_t vc,
 	Vector3* positions, Vector3* normals, Vector2* tcoords, uint16_t* indices)
 {
+	assert(vc % 3 == 0);
 	mesh->vertexCount = vc;
+	mesh->faceCount = vc / 3;
+
 	mesh->positions = new Vector3[vc];
 	memcpy(mesh->positions, positions, vc * sizeof(Vector3));
 
@@ -175,14 +178,15 @@ void DestroyMeshCPU(Mesh* mesh)
 
 	if (mesh->indices != nullptr)
 		delete[] mesh->indices;
-
 	delete[] mesh->positions;
-	mesh->vertexCount = 0;
 
 	mesh->positions = nullptr;
 	mesh->normals = nullptr;
 	mesh->tcoords = nullptr;
 	mesh->indices = nullptr;
+
+	mesh->vertexCount = 0;
+	mesh->faceCount = 0;
 }
 
 void DestroyMeshGPU(Mesh* mesh)
@@ -228,7 +232,10 @@ void LoadFromObj(Mesh* mesh, const char* path)
 
 	FILE* file = fopen(path, "r");
 	if (!file)
-		printf("Could not open mesh: %s", path);
+	{
+		assert(false, "Could not open mesh");
+		return;
+	}
 
 	while (true)
 	{
@@ -271,10 +278,6 @@ void LoadFromObj(Mesh* mesh, const char* path)
 		}
 	}
 	fclose(file);
-	// Right now my .obj loader needs tcoords on file because it expects them in fscanf.
-	// Replace with TinyObj in the future since it'll handle missing data.
-	// Update: this is simpler than TinyObj and allows for students to create this.
-	// Plus I can just save to binary if I care about performance ;)
 
 	size_t vc = positionIndices.size();
 	vtx_positions.resize(vc);

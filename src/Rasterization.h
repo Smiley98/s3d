@@ -114,7 +114,8 @@ inline void DrawCircleLines(Image* image, int cx, int cy, int cr, Color color)
 	}
 }
 
-inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color color, bool depth = true)
+// Refactor to pass in mesh. Even with globals I still need vertex indices...
+inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color color = WHITE, bool depth = true)
 {
 	// Determine triangle's AABB
 	int xMin = image->width - 1;
@@ -176,35 +177,33 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 	}
 }
 
-// let ABC = vertices of triangle
-// let abc = vertex weights of ABC
-// (x, y) = aA + bB + cC
-
-inline void DrawFace(Image* image, Mesh mesh, size_t faceStart, Color color)
+inline void DrawFace(Image* image, Mesh mesh, size_t face)
 {
+	size_t vertex = face * 3;
 	Vector3 vertices[3];
 	for (size_t i = 0; i < 3; i++)
 	{
-		Vector3 v = mesh.positions[faceStart + i];
+		Vector3 v = mesh.positions[vertex + i];
 		v.x = Remap(v.x, -1.0f, 1.0f, 0, image->width - 1);
 		v.y = Remap(v.y, -1.0f, 1.0f, 0, image->height - 1);	
 		vertices[i] = v;
 	}
-	DrawTriangle(image, vertices[0], vertices[1], vertices[2], color);
+	DrawTriangle(image, vertices[0], vertices[1], vertices[2]);
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, Color color)
+inline void DrawMesh(Image* image, Mesh mesh)
 {
-	for (size_t i = 0; i < mesh.vertexCount; i += 3)
-		DrawFace(image, mesh, i, color);
+	for (size_t i = 0; i < mesh.faceCount; i++)
+		DrawFace(image, mesh, i);
 }
 
-inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t faceStart, Color color)
+inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t face)
 {
+	size_t vertex = face * 3;
 	for (size_t i = 0; i < 3; i++)
 	{
-		Vector3 v0 = mesh.positions[faceStart + i];
-		Vector3 v1 = mesh.positions[faceStart + ((i + 1) % 3)];
+		Vector3 v0 = mesh.positions[vertex + i];
+		Vector3 v1 = mesh.positions[vertex + ((i + 1) % 3)];
 		v0.x = Remap(v0.x, -1.0f, 1.0f, 0, image->width - 1);
 		v0.y = Remap(v0.y, -1.0f, 1.0f, 0, image->height - 1);
 		v1.x = Remap(v1.x, -1.0f, 1.0f, 0, image->width - 1);
@@ -214,24 +213,25 @@ inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t faceStart, Color 
 		int y0 = v0.y;
 		int x1 = v1.x;
 		int y1 = v1.y;
-		DrawLine(image, x0, y0, x1, y1, color);
+		DrawLine(image, x0, y0, x1, y1, WHITE);
 	}
 }
 
-inline void DrawMeshWireframes(Image* image, Mesh mesh, Color color)
+inline void DrawMeshWireframes(Image* image, Mesh mesh)
 {
-	for (size_t i = 0; i < mesh.vertexCount; i += 3)
-		DrawFaceWireframes(image, mesh, i, color);
+	for (size_t i = 0; i < mesh.faceCount; i ++)
+		DrawFaceWireframes(image, mesh, i);
 }
 
 // Culls back-facing triangles
-inline void DrawFaceFront(Image* image, Mesh mesh, size_t faceStart)
+inline void DrawFaceFront(Image* image, Mesh mesh, size_t face)
 {
+	size_t vertex = face * 3;
 	Vector3 world[3];
 	Vector3 screen[3];
 	for (size_t i = 0; i < 3; i++)
 	{
-		Vector3 v = mesh.positions[faceStart + i];
+		Vector3 v = mesh.positions[vertex + i];
 		world[i] = screen[i] = v;
 		screen[i].x = Remap(v.x, -1.0f, 1.0f, 0, image->width - 1);
 		screen[i].y = Remap(v.y, -1.0f, 1.0f, 0, image->height - 1);

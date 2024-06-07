@@ -32,7 +32,7 @@ void MainScene::OnUpdate(float dt)
 	ClearColor(&mImage, BLACK);
 	ClearDepth(&mImage, 1.0f);
 
-	for (size_t i = 0, c = 0; i < mMesh.vertexCount; i += 3, c++)
+	for (size_t i = 0; i < mMesh.faceCount; i++)
 		DrawFaceFront(&mImage, mMesh, i);
 }
 
@@ -73,11 +73,11 @@ void MainScene::AnimationTest()
 		copy.positions[i] = Multiply(mMesh.positions[i], transform);
 	}
 
-	for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
-		DrawFaceFront(&mImage, copy, i);
-
-	for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
-		DrawFaceWireframes(&mImage, copy, i, mColors[c]);
+	//for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
+	//	DrawFaceFront(&mImage, copy, i);
+	//
+	//for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
+	//	DrawFaceWireframes(&mImage, copy, i, mColors[c]);
 
 	delete[] copy.positions;
 }
@@ -96,14 +96,14 @@ void MainScene::DepthTest()
 	Mesh copy;
 	copy.vertexCount = mMesh2.vertexCount;
 	copy.positions = new Vector3[copy.vertexCount];
-	for (size_t i = 0; i < copy.vertexCount; i++)
-	{
-		Matrix transform = Translate(0.0f, 0.0f, cosf(tt));
-		copy.positions[i] = Multiply(mMesh2.positions[i], transform);
-	}
-
-	for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
-		DrawFaceFront(&mImage, copy, i);
+	//for (size_t i = 0; i < copy.vertexCount; i++)
+	//{
+	//	Matrix transform = Translate(0.0f, 0.0f, cosf(tt));
+	//	copy.positions[i] = Multiply(mMesh2.positions[i], transform);
+	//}
+	//
+	//for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
+	//	DrawFaceFront(&mImage, copy, i);
 
 	delete[] copy.positions;
 }

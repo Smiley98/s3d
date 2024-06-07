@@ -17,7 +17,9 @@ struct Mesh
 	//std::vector<Vector3> normals;
 	//std::vector<Vector2> tcoords;
 	//std::vector<uint16_t> indices;
+
 	size_t vertexCount = 0;
+	size_t faceCount = 0;
 
 	// No need in CPU renderer, but easier to store all in one place!
 	GLuint vao = GL_NONE;	// Vertex array object
