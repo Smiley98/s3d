@@ -115,15 +115,46 @@ inline void DrawCircleLines(Image* image, int cx, int cy, int cr, Color color)
 }
 
 // Refactor to pass in mesh. Even with globals I still need vertex indices...
-inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color color = WHITE, bool depth = true)
+inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Color color, bool depth = true)
 {
+	Vector3 vertices[3];	// screen-space vertices (clip space, gl_Position in the future)
+	Vector3 positions[3];	// world-space positions
+	Vector3 normals[3];
+	Vector2 tcoords[3];
+	Vector3 colors[3];
+
+	size_t vertex = face * 3;
+	for (size_t i = 0; i < 3; i++)
+	{
+		positions[i] = mesh.positions[vertex + i];
+		vertices[i] = mesh.positions[vertex + i];
+		vertices[i].x = Remap(vertices[i].x, -1.0f, 1.0f, 0, image->width - 1);
+		vertices[i].y = Remap(vertices[i].y, -1.0f, 1.0f, 0, image->height - 1);
+	}
+
+	if (mesh.normals != nullptr)
+	{
+		for (size_t i = 0; i < 3; i++)
+			normals[i] = mesh.normals[vertex + i];
+	}
+
+	if (mesh.tcoords != nullptr)
+	{
+		for (size_t i = 0; i < 3; i++)
+			tcoords[i] = mesh.tcoords[vertex + i];
+	}
+
+	if (mesh.colors != nullptr)
+	{
+		for (size_t i = 0; i < 3; i++)
+			colors[i] = mesh.colors[vertex + i];
+	}
+
 	// Determine triangle's AABB
 	int xMin = image->width - 1;
 	int yMin = image->height - 1;
 	int xMax = 0;
 	int yMax = 0;
-
-	Vector3 vertices[]{ v0, v1, v2 };
 	for (int i = 0; i < 3; i++)
 	{
 		const int x = vertices[i].x;
@@ -134,18 +165,24 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 		yMax = std::min(image->height - 1, std::max(yMax, y));
 	}
 
-	Vector3 colors[]{ {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };
-
 	// Loop through every pixel in triangle's AABB.
 	// Discard if barycentric coordinates are negative (point not in triangle)! xD
 	for (int x = xMin; x <= xMax; x++)
 	{
 		for (int y = yMin; y <= yMax; y++)
 		{
-			Vector3 p{ x, y, 0.0f };
-			Vector3 bc = Barycenter(p, v0, v1, v2);
+			Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f },
+				vertices[0], vertices[1], vertices[2]);
+
 			if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
 				continue;
+
+			// Looks cooler (pun not intended) with negative colours
+			Vector3 p0 = positions[0];// * 0.5f + 0.5f;
+			Vector3 p1 = positions[1];// * 0.5f + 0.5f;
+			Vector3 p2 = positions[2];// * 0.5f + 0.5f;
+			Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
+			color = Float3ToColor(&p.x);
 
 			//Vector2 uv0 = { 1.0f, 0.0f };
 			//Vector2 uv1 = { 0.0f, 1.0f };
@@ -153,19 +190,14 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 			//Vector2 uv = uv0 * bc.x + uv1 * bc.y + uv2 * bc.z;
 			//Color tex = GetPixel(*image, uv.x * (float)image->width, uv.y * (float)image->height);
 			
-			// This works!
-			// Next step is refactoring so that we pass all vertex attributes to this.
-			//Vector3 color3 = colors[0] * bc.x + colors[1] * bc.y + colors[2] * bc.z;
-			//color = Float3ToColor(&color3.x);
-
 			// In OpenGL 0.0 --> near, 1.0 --> far.
 			// Manually clearing depth to 1.0 every frame so I can do a < comparison.
 			if (depth)
 			{
 				float z = 0.0f;
-				z += v0.z * bc.x;
-				z += v1.z * bc.y;
-				z += v2.z * bc.z;
+				z += vertices[0].z * bc.x;
+				z += vertices[1].z * bc.y;
+				z += vertices[2].z * bc.z;
 
 				if (z < GetDepth(*image, x, y))
 				{
@@ -181,24 +213,17 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 inline void DrawFace(Image* image, Mesh mesh, size_t face)
 {
 	size_t vertex = face * 3;
-	Vector3 world[3];
-	Vector3 screen[3];
-	for (size_t i = 0; i < 3; i++)
-	{
-		Vector3 v = mesh.positions[vertex + i];
-		world[i] = screen[i] = v;
-		screen[i].x = Remap(v.x, -1.0f, 1.0f, 0, image->width - 1);
-		screen[i].y = Remap(v.y, -1.0f, 1.0f, 0, image->height - 1);
-	}
-
-	// Is the winding-order CW?? Normals along +z should be front-facing but l is -z...
-	Vector3 n = Normalize(Cross(world[2] - world[0], world[1] - world[0]));
+	Vector3 v0 = mesh.positions[vertex + 0];
+	Vector3 v1 = mesh.positions[vertex + 1];
+	Vector3 v2 = mesh.positions[vertex + 2];
+	Vector3 n = Normalize(Cross(v2 - v0, v1 - v0));
 	Vector3 l{ 0.0f, 0.0f, -1.0f };
+
 	float intensity = Dot(n, l);
 	if (intensity > 0.0f)
 	{
 		Color color{ intensity * 255.0f,intensity * 255.0f, intensity * 255.0f, 255 };
-		DrawTriangle(image, screen[0], screen[1], screen[2], color);
+		DrawTriangle(image, mesh, face, color);
 	}
 }
 
