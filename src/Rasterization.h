@@ -115,7 +115,7 @@ inline void DrawCircleLines(Image* image, int cx, int cy, int cr, Color color)
 }
 
 // Refactor to pass in mesh. Even with globals I still need vertex indices...
-inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Vector3 tint, bool depth = true)
+inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Vector3 tint = V3_ONE, bool depth = true)
 {
 	Vector3 vertices[3];	// screen-space vertices (clip space, gl_Position in the future)
 	Vector3 positions[3];	// world-space positions
@@ -176,18 +176,19 @@ inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Vector3 tint, boo
 			// Discard if barycentric coordinates are negative (point not in triangle)! xD
 			if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
 				continue;
+			Color color = BLACK;
 
 			Vector3 p0 = positions[0];
 			Vector3 p1 = positions[1];
 			Vector3 p2 = positions[2];
 			Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
-			//color = Float3ToColor(&p.x);
+			color = Float3ToColor(&p.x);
 
 			Vector3 n0 = normals[0];
 			Vector3 n1 = normals[1];
 			Vector3 n2 = normals[2];
 			Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
-			//color = Float3ToColor(&n.x);
+			color = Float3ToColor(&n.x);
 
 			Vector2 uv0 = tcoords[0];
 			Vector2 uv1 = tcoords[1];
@@ -196,7 +197,11 @@ inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Vector3 tint, boo
 
 			float tw = gImageDiffuse.width;
 			float th = gImageDiffuse.height;
-			Color color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
+			color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
+			Vector3 c{ color.r, color.g, color.b };
+			c /= 255.0f;
+			c *= tint;
+			color = Float3ToColor(&c.x);
 			
 			// Clip OpenGL: -1 = near, +1 = far.
 			// Clip DirectX: 0 = near,  1 = far.
