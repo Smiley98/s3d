@@ -177,12 +177,16 @@ inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Color color, bool
 			if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
 				continue;
 
-			// Looks cooler (pun not intended) with negative colours
-			Vector3 p0 = positions[0];// * 0.5f + 0.5f;
-			Vector3 p1 = positions[1];// * 0.5f + 0.5f;
-			Vector3 p2 = positions[2];// * 0.5f + 0.5f;
+			Vector3 p0 = positions[0];
+			Vector3 p1 = positions[1];
+			Vector3 p2 = positions[2];
 			Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
-			color = Float3ToColor(&p.x);
+
+			Vector3 n0 = normals[0];
+			Vector3 n1 = normals[1];
+			Vector3 n2 = normals[2];
+			Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
+			color = Float3ToColor(&n.x);
 
 			//Vector2 uv0 = { 1.0f, 0.0f };
 			//Vector2 uv1 = { 0.0f, 1.0f };
