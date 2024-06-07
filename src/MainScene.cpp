@@ -30,7 +30,7 @@ void MainScene::OnUnload()
 void MainScene::OnUpdate(float dt)
 {
 	ClearColor(&mImage, BLACK);
-	ClearDepth(&mImage, 1.0f);
+	ClearDepth(&mImage, -1.0f);
 
 	for (size_t i = 0; i < mMesh.faceCount; i++)
 		DrawFace(&mImage, mMesh, i);

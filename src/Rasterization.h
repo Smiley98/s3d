@@ -115,7 +115,7 @@ inline void DrawCircleLines(Image* image, int cx, int cy, int cr, Color color)
 }
 
 // Refactor to pass in mesh. Even with globals I still need vertex indices...
-inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Color color, bool depth = true)
+inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Vector3 tint, bool depth = true)
 {
 	Vector3 vertices[3];	// screen-space vertices (clip space, gl_Position in the future)
 	Vector3 positions[3];	// world-space positions
@@ -196,10 +196,13 @@ inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Color color, bool
 
 			float tw = gImageDiffuse.width;
 			float th = gImageDiffuse.height;
-			//color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
+			Color color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
 			
-			// In OpenGL 0.0 --> near, 1.0 --> far.
-			// Manually clearing depth to 1.0 every frame so I can do a < comparison.
+			// Clip OpenGL: -1 = near, +1 = far.
+			// Clip DirectX: 0 = near,  1 = far.
+			// Seems things only work correctly with z = 0, clear depth = -1, & cmp GREATER.
+			// Probably gonna understand this better once we convert to clip-space.
+			// (Dunno if tutorial follows DX or GL's clip-space).
 			if (depth)
 			{
 				float z = 0.0f;
@@ -207,7 +210,7 @@ inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Color color, bool
 				z += vertices[1].z * bc.y;
 				z += vertices[2].z * bc.z;
 
-				if (z < GetDepth(*image, x, y))
+				if (z > GetDepth(*image, x, y))
 				{
 					SetDepth(image, x, y, z);
 					SetPixel(image, x, y, color);
@@ -226,13 +229,11 @@ inline void DrawFace(Image* image, Mesh mesh, size_t face)
 	Vector3 v2 = mesh.positions[vertex + 2];
 	Vector3 n = Normalize(Cross(v2 - v0, v1 - v0));
 	Vector3 l{ 0.0f, 0.0f, -1.0f };
+	// Assumes -z is forward.
 
 	float intensity = Dot(n, l);
 	if (intensity > 0.0f)
-	{
-		Color color{ intensity * 255.0f,intensity * 255.0f, intensity * 255.0f, 255 };
-		DrawTriangle(image, mesh, face, color);
-	}
+		DrawTriangle(image, mesh, face, V3_ONE * intensity);
 }
 
 inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t face)
