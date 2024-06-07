@@ -13,7 +13,10 @@ Mesh gMeshSphere;
 Mesh gMeshHead;
 Mesh gMeshDodecahedron;
 
-void CreateMeshCPU(Mesh* mesh, size_t vc, Vector3* positions, Vector3* normals, Vector2* tcoords, uint16_t* indices);
+void CreateMeshCPU(Mesh* mesh, size_t vc,
+	Vector3* positions, Vector3* normals, Vector2* tcoords,
+	Vector3* colors, uint16_t* indices);
+
 void CreateMeshGPU(Mesh* mesh);
 void DestroyMeshCPU(Mesh* mesh);
 void DestroyMeshGPU(Mesh* mesh);
@@ -33,7 +36,7 @@ void CreateMeshes()
 		0.0f, 0.5f, 0.0f,
 		-0.5f, -0.5f, 0.0f
 	};
-	CreateMeshCPU(&gMeshTriangle, 3, (Vector3*)vertices, nullptr, nullptr, nullptr);
+	CreateMeshCPU(&gMeshTriangle, 3, (Vector3*)vertices, nullptr, nullptr, nullptr, nullptr);
 	CreateMeshGPU(&gMeshTriangle);
 
 	// Par vs Obj test
@@ -99,7 +102,7 @@ void DrawMesh(Mesh mesh)
 }
 
 void CreateMeshCPU(Mesh* mesh, size_t vc,
-	Vector3* positions, Vector3* normals, Vector2* tcoords, uint16_t* indices)
+	Vector3* positions, Vector3* normals, Vector2* tcoords, Vector3* colors, uint16_t* indices)
 {
 	assert(vc % 3 == 0);
 	mesh->vertexCount = vc;
@@ -118,6 +121,12 @@ void CreateMeshCPU(Mesh* mesh, size_t vc,
 	{
 		mesh->tcoords = new Vector2[vc];
 		memcpy(mesh->tcoords, tcoords, vc * sizeof(Vector2));
+	}
+
+	if (colors != nullptr)
+	{
+		mesh->colors = new Vector3[vc];
+		memcpy(mesh->colors, colors, vc * sizeof(Vector3));
 	}
 
 	// Double-check whether index count ntriangles or npoints
@@ -158,6 +167,16 @@ void CreateMeshGPU(Mesh* mesh)
 		glEnableVertexAttribArray(2);
 	}
 
+	if (mesh->colors != nullptr)
+	{
+		glGenBuffers(1, &mesh->cbo);
+		glBindBuffer(GL_ARRAY_BUFFER, mesh->cbo);
+		glBufferData(GL_ARRAY_BUFFER, vc * sizeof(Vector3), mesh->colors, GL_STATIC_DRAW);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+		glEnableVertexAttribArray(3);
+	}
+
+	// Double-check if ebo is associated with vao. Unbind if not!
 	if (mesh->indices != nullptr)
 	{
 		glGenBuffers(1, &mesh->ibo);
@@ -176,6 +195,9 @@ void DestroyMeshCPU(Mesh* mesh)
 	if (mesh->tcoords != nullptr)
 		delete[] mesh->tcoords;
 
+	if (mesh->colors != nullptr)
+		delete[] mesh->colors;
+
 	if (mesh->indices != nullptr)
 		delete[] mesh->indices;
 	delete[] mesh->positions;
@@ -183,6 +205,7 @@ void DestroyMeshCPU(Mesh* mesh)
 	mesh->positions = nullptr;
 	mesh->normals = nullptr;
 	mesh->tcoords = nullptr;
+	mesh->colors = nullptr;
 	mesh->indices = nullptr;
 
 	mesh->vertexCount = 0;
@@ -197,6 +220,9 @@ void DestroyMeshGPU(Mesh* mesh)
 	if (mesh->tbo != GL_NONE)
 		glDeleteBuffers(1, &mesh->tbo);
 
+	if (mesh->cbo != GL_NONE)
+		glDeleteBuffers(1, &mesh->cbo);
+
 	if (mesh->ibo != GL_NONE)
 		glDeleteBuffers(1, &mesh->ibo);
 	
@@ -207,6 +233,7 @@ void DestroyMeshGPU(Mesh* mesh)
 	mesh->vbo = GL_NONE;
 	mesh->nbo = GL_NONE;
 	mesh->tbo = GL_NONE;
+	mesh->cbo = GL_NONE;
 	mesh->ibo = GL_NONE;
 }
 
@@ -216,6 +243,7 @@ void LoadFromPar(Mesh* mesh, par_shapes_mesh* par_mesh)
 		reinterpret_cast<Vector3*>(par_mesh->points),
 		reinterpret_cast<Vector3*>(par_mesh->normals),
 		reinterpret_cast<Vector2*>(par_mesh->tcoords),
+		nullptr,/*colors*/
 		reinterpret_cast<uint16_t*>(par_mesh->triangles)
 	);
 }
@@ -294,6 +322,6 @@ void LoadFromObj(Mesh* mesh, const char* path)
 		vtx_tcoords[i] = uv;
 	}
 
-	CreateMeshCPU(mesh, vc, vtx_positions.data(), vtx_normals.data(), vtx_tcoords.data(), nullptr);
+	CreateMeshCPU(mesh, vc, vtx_positions.data(), vtx_normals.data(), vtx_tcoords.data(), nullptr, nullptr);
 	CreateMeshGPU(mesh);
 }

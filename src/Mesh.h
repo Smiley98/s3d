@@ -10,13 +10,8 @@ struct Mesh
 	Vector3* positions = nullptr;
 	Vector3* normals = nullptr;
 	Vector2* tcoords = nullptr;
+	Vector3* colors = nullptr;
 	uint16_t* indices = nullptr;
-	
-	// If we use stl vectors, then this object must be passed by reference :(
-	//std::vector<Vector3> positions;
-	//std::vector<Vector3> normals;
-	//std::vector<Vector2> tcoords;
-	//std::vector<uint16_t> indices;
 
 	size_t vertexCount = 0;
 	size_t faceCount = 0;
@@ -26,6 +21,7 @@ struct Mesh
 	GLuint vbo = GL_NONE;	// Vertex positions
 	GLuint nbo = GL_NONE;	// Vertex normals
 	GLuint tbo = GL_NONE;	// Vertex texture coordinates
+	GLuint cbo = GL_NONE;	// Vertex colors
 	GLuint ibo = GL_NONE;	// Vertex indices
 };
 
