@@ -166,7 +166,6 @@ inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Color color, bool
 	}
 
 	// Loop through every pixel in triangle's AABB.
-	// Discard if barycentric coordinates are negative (point not in triangle)! xD
 	for (int x = xMin; x <= xMax; x++)
 	{
 		for (int y = yMin; y <= yMax; y++)
@@ -174,6 +173,7 @@ inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Color color, bool
 			Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f },
 				vertices[0], vertices[1], vertices[2]);
 
+			// Discard if barycentric coordinates are negative (point not in triangle)! xD
 			if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
 				continue;
 
@@ -181,18 +181,22 @@ inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Color color, bool
 			Vector3 p1 = positions[1];
 			Vector3 p2 = positions[2];
 			Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
+			//color = Float3ToColor(&p.x);
 
 			Vector3 n0 = normals[0];
 			Vector3 n1 = normals[1];
 			Vector3 n2 = normals[2];
 			Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
-			color = Float3ToColor(&n.x);
+			//color = Float3ToColor(&n.x);
 
-			//Vector2 uv0 = { 1.0f, 0.0f };
-			//Vector2 uv1 = { 0.0f, 1.0f };
-			//Vector2 uv2 = { 1.0f, 1.0f };
-			//Vector2 uv = uv0 * bc.x + uv1 * bc.y + uv2 * bc.z;
-			//Color tex = GetPixel(*image, uv.x * (float)image->width, uv.y * (float)image->height);
+			Vector2 uv0 = tcoords[0];
+			Vector2 uv1 = tcoords[1];
+			Vector2 uv2 = tcoords[2];
+			Vector2 uv = uv0 * bc.x + uv1 * bc.y + uv2 * bc.z;
+
+			float tw = gImageDiffuse.width;
+			float th = gImageDiffuse.height;
+			//color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
 			
 			// In OpenGL 0.0 --> near, 1.0 --> far.
 			// Manually clearing depth to 1.0 every frame so I can do a < comparison.

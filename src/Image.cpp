@@ -27,7 +27,7 @@ Image gImageDiffuse;
 
 void CreateImages()
 {
-    LoadImage(&gImageDiffuse, "assets/textures/african_head_diffuse.png");
+    LoadImage(&gImageDiffuse, "assets/textures/african_head_diffuse.png", true);
 }
 
 void DestroyImages()
