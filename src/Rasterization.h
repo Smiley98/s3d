@@ -133,6 +133,8 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 		yMax = std::min(image->height - 1, std::max(yMax, y));
 	}
 
+	Vector3 colors[]{ {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };
+
 	// Loop through every pixel in triangle's AABB.
 	// Discard if barycentric coordinates are negative (point not in triangle)! xD
 	for (int x = xMin; x <= xMax; x++)
@@ -143,6 +145,9 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 			Vector3 bc = Barycenter(p, v0, v1, v2);
 			if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
 				continue;
+
+			Vector3 color3 = colors[0] * bc.x + colors[1] * bc.y + colors[2] * bc.z;
+			color = Float3ToColor(&color3.x);
 
 			// In OpenGL 0.0 --> near, 1.0 --> far.
 			// Manually clearing depth to 1.0 every frame so I can do a < comparison.
@@ -162,6 +167,10 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 		}
 	}
 }
+
+// let ABC = vertices of triangle
+// let abc = vertex weights of ABC
+// (x, y) = aA + bB + cC
 
 inline void DrawFace(Image* image, Mesh mesh, size_t faceStart, Color color)
 {
@@ -220,7 +229,7 @@ inline void DrawFaceFront(Image* image, Mesh mesh, size_t faceStart)
 		screen[i].y = Remap(v.y, -1.0f, 1.0f, 0, image->height - 1);
 	}
 
-	// Is the winding-order CW?? Normals along +z shoudl be front-facing but l is -z...
+	// Is the winding-order CW?? Normals along +z should be front-facing but l is -z...
 	Vector3 n = Normalize(Cross(world[2] - world[0], world[1] - world[0]));
 	Vector3 l{ 0.0f, 0.0f, -1.0f };
 	float intensity = Dot(n, l);
