@@ -17,9 +17,11 @@ public:
 private:
 	Image mImage;
 	Texture mTexture;
+	//Texture mTexHead;
 
 	Mesh mMesh, mMesh2;
 	std::vector<Color> mColors;
 
 	void AnimationTest();
+	void DepthTest();
 };

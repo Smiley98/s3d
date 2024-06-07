@@ -4,6 +4,7 @@
 
 #include "Shader.h"
 #include "Mesh.h"
+#include "Image.h"
 
 #include <array>
 #include <iostream>
@@ -26,6 +27,8 @@ void Init()
 	CreateWindow();
 	CreateShaders();
 	CreateMeshes();
+	CreateImages();
+
 	Scene::Create(Scene::MAIN);
 }
 
@@ -98,6 +101,7 @@ void Loop()
 void Quit()
 {
 	Scene::Destroy();
+	DestroyImages();
 	DestroyMeshes();
 	DestroyShaders();
 	DestroyWindow();

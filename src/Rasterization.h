@@ -146,8 +146,16 @@ inline void DrawTriangle(Image* image, Vector3 v0, Vector3 v1, Vector3 v2, Color
 			if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
 				continue;
 
-			Vector3 color3 = colors[0] * bc.x + colors[1] * bc.y + colors[2] * bc.z;
-			color = Float3ToColor(&color3.x);
+			//Vector2 uv0 = { 1.0f, 0.0f };
+			//Vector2 uv1 = { 0.0f, 1.0f };
+			//Vector2 uv2 = { 1.0f, 1.0f };
+			//Vector2 uv = uv0 * bc.x + uv1 * bc.y + uv2 * bc.z;
+			//Color tex = GetPixel(*image, uv.x * (float)image->width, uv.y * (float)image->height);
+			
+			// This works!
+			// Next step is refactoring so that we pass all vertex attributes to this.
+			//Vector3 color3 = colors[0] * bc.x + colors[1] * bc.y + colors[2] * bc.z;
+			//color = Float3ToColor(&color3.x);
 
 			// In OpenGL 0.0 --> near, 1.0 --> far.
 			// Manually clearing depth to 1.0 every frame so I can do a < comparison.

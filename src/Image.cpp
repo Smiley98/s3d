@@ -22,3 +22,15 @@ void LoadImage(Image* image, const char* path, bool flip)
     if (flip)
         Flip(image);
 }
+
+Image gImageDiffuse;
+
+void CreateImages()
+{
+    LoadImage(&gImageDiffuse, "assets/textures/african_head_diffuse.png");
+}
+
+void DestroyImages()
+{
+    UnloadImage(&gImageDiffuse);
+}
