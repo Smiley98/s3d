@@ -142,7 +142,7 @@ inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t face)
 	}
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world, Matrix normal)
+inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world, Matrix normal, Vector3 tint = V3_ONE)
 {
 	Vector3* vertices = new Vector3[mesh.vertexCount];	// clip-space
 	Vector3* positions = new Vector3[mesh.vertexCount];	// world-space
@@ -204,8 +204,9 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world, Matrix n
 		Vector3 p0 = positions[vertex + 0];
 		Vector3 p1 = positions[vertex + 1];
 		Vector3 p2 = positions[vertex + 2];
+		Vector3 f = { 0.0f, 0.0f, 1.0f };
 		Vector3 n = Normalize(Cross(p1 - p0, p2 - p0));	// CCW
-		float intensity = Dot(n, V3_FORWARD);
+		float intensity = Dot(n, f);
 		frontFacing[face] = intensity > 0.0;
 		// Cross(p2 - p0, p1 - p0) --> CW
 		// Cross(p1 - p0, p2 - p0) --> CCW
@@ -262,22 +263,22 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world, Matrix n
 				Color color = BLACK;
 				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
 				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
-				//color = Float3ToColor(&p.x);
-				//color = Float3ToColor(&n.x);
+				n = Normalize(n);
+
+				float dotNL = fmaxf(Dot(n, V3_ONE), 0.0f);
 
 				Vector2 uv = uv0 * bc.x + uv1 * bc.y + uv2 * bc.z;
 				float tw = gImageDiffuse.width;
 				float th = gImageDiffuse.height;
 				color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
 
-				// *Insert point-in-screen test here*
+				Vector3 c{ color.r, color.g, color.b };
+				c /= 255.0f;
+				c *= tint * dotNL;
+				color = Float3ToColor(&c.x);
+
 				SetPixel(image, x, y, color);
 				SetDepth(image, x, y, z);
-
-				//Vector3 c{ color.r, color.g, color.b };
-				//c /= 255.0f;
-				//c *= tint;
-				//color = Float3ToColor(&c.x);
 			}
 		}
 	}

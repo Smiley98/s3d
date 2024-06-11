@@ -25,7 +25,7 @@ void MainScene::OnUpdate(float dt)
 
 	float tt = TotalTime();
 	Matrix translation = MatrixIdentity();//Translate(cos(tt), 1.0f, 0.0f);
-	Matrix rotation = RotateY(tt * 100.0f * DEG2RAD);
+	Matrix rotation = MatrixIdentity();//RotateY(tt * 100.0f * DEG2RAD);
 	Matrix scale = MatrixIdentity();//Scale(cos(tt) * 0.4f + 0.6f, sin(tt) * 0.4f + 0.6f, 1.0f);
 	Matrix model = scale * rotation * translation;
 
