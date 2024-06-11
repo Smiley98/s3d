@@ -122,133 +122,6 @@ inline void DrawCircleLines(Image* image, int cx, int cy, int cr, Color color)
 	}
 }
 
-// Refactor to pass in mesh. Even with globals I still need vertex indices...
-inline void DrawTriangle(Image* image, Mesh mesh, size_t face, Vector3 tint = V3_ONE, bool depth = true)
-{
-	Vector3 vertices[3];	// screen-space vertices (clip space, gl_Position in the future)
-	Vector3 positions[3];	// world-space positions
-	Vector3 normals[3];
-	Vector2 tcoords[3];
-	Vector3 colors[3];
-
-	size_t vertex = face * 3;
-	for (size_t i = 0; i < 3; i++)
-	{
-		positions[i] = mesh.positions[vertex + i];
-		vertices[i] = mesh.positions[vertex + i];
-		vertices[i].x = Remap(vertices[i].x, -1.0f, 1.0f, 0, image->width - 1);
-		vertices[i].y = Remap(vertices[i].y, -1.0f, 1.0f, 0, image->height - 1);
-	}
-
-	if (mesh.normals != nullptr)
-	{
-		for (size_t i = 0; i < 3; i++)
-			normals[i] = mesh.normals[vertex + i];
-	}
-
-	if (mesh.tcoords != nullptr)
-	{
-		for (size_t i = 0; i < 3; i++)
-			tcoords[i] = mesh.tcoords[vertex + i];
-	}
-
-	if (mesh.colors != nullptr)
-	{
-		for (size_t i = 0; i < 3; i++)
-			colors[i] = mesh.colors[vertex + i];
-	}
-
-	// Determine triangle's AABB
-	int xMin = image->width - 1;
-	int yMin = image->height - 1;
-	int xMax = 0;
-	int yMax = 0;
-	for (int i = 0; i < 3; i++)
-	{
-		const int x = vertices[i].x;
-		const int y = vertices[i].y;
-		xMin = std::max(0, std::min(xMin, x));
-		yMin = std::max(0, std::min(yMin, y));
-		xMax = std::min(image->width  - 1, std::max(xMax, x));
-		yMax = std::min(image->height - 1, std::max(yMax, y));
-	}
-
-	// Loop through every pixel in triangle's AABB.
-	for (int x = xMin; x <= xMax; x++)
-	{
-		for (int y = yMin; y <= yMax; y++)
-		{
-			Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f },
-				vertices[0], vertices[1], vertices[2]);
-
-			// Discard if barycentric coordinates are negative (point not in triangle)! xD
-			if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
-				continue;
-			Color color = BLACK;
-
-			Vector3 p0 = positions[0];
-			Vector3 p1 = positions[1];
-			Vector3 p2 = positions[2];
-			Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
-			color = Float3ToColor(&p.x);
-
-			Vector3 n0 = normals[0];
-			Vector3 n1 = normals[1];
-			Vector3 n2 = normals[2];
-			Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
-			color = Float3ToColor(&n.x);
-
-			Vector2 uv0 = tcoords[0];
-			Vector2 uv1 = tcoords[1];
-			Vector2 uv2 = tcoords[2];
-			Vector2 uv = uv0 * bc.x + uv1 * bc.y + uv2 * bc.z;
-
-			float tw = gImageDiffuse.width;
-			float th = gImageDiffuse.height;
-			color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
-			Vector3 c{ color.r, color.g, color.b };
-			c /= 255.0f;
-			c *= tint;
-			color = Float3ToColor(&c.x);
-			
-			// Clip OpenGL: -1 = near, +1 = far.
-			// Clip DirectX: 0 = near,  1 = far.
-			// Seems things only work correctly with z = 0, clear depth = -1, & cmp GREATER.
-			// Probably gonna understand this better once we convert to clip-space.
-			// (Dunno if tutorial follows DX or GL's clip-space).
-			if (depth)
-			{
-				float z = 0.0f;
-				z += vertices[0].z * bc.x;
-				z += vertices[1].z * bc.y;
-				z += vertices[2].z * bc.z;
-
-				if (z > GetDepth(*image, x, y))
-				{
-					SetDepth(image, x, y, z);
-					SetPixel(image, x, y, color);
-				}
-			}
-		}
-	}
-}
-
-// Culls back-facing triangles
-inline void DrawFace(Image* image, Mesh mesh, size_t face)
-{
-	size_t vertex = face * 3;
-	Vector3 v0 = mesh.positions[vertex + 0];
-	Vector3 v1 = mesh.positions[vertex + 1];
-	Vector3 v2 = mesh.positions[vertex + 2];
-	Vector3 n = Normalize(Cross(v2 - v0, v1 - v0));
-	Vector3 l{ 0.0f, 0.0f, -1.0f };
-	// Assumes -z is forward.
-
-	float intensity = Dot(n, l);
-	if (intensity > 0.0f)
-		DrawTriangle(image, mesh, face, V3_ONE * intensity);
-}
-
 inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t face)
 {
 	size_t vertex = face * 3;
@@ -269,7 +142,7 @@ inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t face)
 	}
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world/*, Matrix normal*/)
+inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world, Matrix normal)
 {
 	Vector3* vertices = new Vector3[mesh.vertexCount];	// clip-space
 	Vector3* positions = new Vector3[mesh.vertexCount];	// world-space
@@ -296,7 +169,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world/*, Matrix
 		vertices[vertex] = screen;
 
 		positions[vertex] = world * mesh.positions[vertex];
-		normals[vertex] = mesh.normals[vertex];
+		normals[vertex] = normal * mesh.normals[vertex];
 		tcoords[vertex] = mesh.tcoords[vertex];
 	}
 
@@ -331,10 +204,11 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world/*, Matrix
 		Vector3 p0 = positions[vertex + 0];
 		Vector3 p1 = positions[vertex + 1];
 		Vector3 p2 = positions[vertex + 2];
-		Vector3 n = Normalize(Cross(p2 - p0, p1 - p0));
-		Vector3 l{ 0.0f, 0.0f, -1.0f };
-		float intensity = Dot(n, l);
+		Vector3 n = Normalize(Cross(p1 - p0, p2 - p0));	// CCW
+		float intensity = Dot(n, V3_FORWARD);
 		frontFacing[face] = intensity > 0.0;
+		// Cross(p2 - p0, p1 - p0) --> CW
+		// Cross(p1 - p0, p2 - p0) --> CCW
 	}
 
 	// Draw triangles:
@@ -349,6 +223,10 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world/*, Matrix
 		Vector3 v1 = vertices[vertex + 1];
 		Vector3 v2 = vertices[vertex + 2];
 
+		Vector3 p0 = positions[vertex + 0];
+		Vector3 p1 = positions[vertex + 1];
+		Vector3 p2 = positions[vertex + 2];
+
 		Vector3 n0 = normals[vertex + 0];
 		Vector3 n1 = normals[vertex + 1];
 		Vector3 n2 = normals[vertex + 2];
@@ -361,10 +239,14 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world/*, Matrix
 		{
 			for (int y = rects[face].yMin; y <= rects[face].yMax; y++)
 			{
+				// bc is inf/nan sometimes despite all inputs being valid...
 				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f },v0, v1, v2);
+				bool inf = isinf(bc.x) || isinf(bc.y) || isinf(bc.z);
+				bool nan = isnan(bc.x) || isnan(bc.y) || isnan(bc.z);
+				bool neg = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
 
 				// Discard if pixel not in triangle
-				if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
+				if (neg || nan || inf)
 					continue;
 
 				// Discard if depth test fails
@@ -375,11 +257,14 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world/*, Matrix
 				if (z > GetDepth(*image, x, y))
 					continue;
 				// Note that proj allows us to use depth intuitively!
-				// [-1 <= NEAR < z < FAR <= 1] (or maybe its 0 = near, test this).
+				// [-1 <= NEAR < z < FAR <= 1] (or maybe its 0 = near... test this).
 
 				Color color = BLACK;
-				//Vector3 v = v0 * bc.x + v1 * bc.y + v2 * bc.z;
-				//Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
+				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
+				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
+				//color = Float3ToColor(&p.x);
+				//color = Float3ToColor(&n.x);
+
 				Vector2 uv = uv0 * bc.x + uv1 * bc.y + uv2 * bc.z;
 				float tw = gImageDiffuse.width;
 				float th = gImageDiffuse.height;
@@ -388,9 +273,6 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world/*, Matrix
 				// *Insert point-in-screen test here*
 				SetPixel(image, x, y, color);
 				SetDepth(image, x, y, z);
-
-				//color = Float3ToColor(&n.x);
-				//color = Float3ToColor(&v.x);
 
 				//Vector3 c{ color.r, color.g, color.b };
 				//c /= 255.0f;
@@ -407,13 +289,3 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world/*, Matrix
 	delete[] positions;
 	delete[] vertices;
 }
-
-// Not going to handle vertices outside of clip-space;
-// Just render a mesh with all pixels on screen for my sanity's sake!
-
-// TODO -- test with world-space normals instead.
-// This is fine for now since we're not computing normals so ~same efficiency!
-
-// *Insert screen-culling & viewport transform here*
-// Probably some sophisticated algorithm to reform triangles to prevent overdraw...
-// Can probably just do if > 0 && < screen to preven out of bounds.

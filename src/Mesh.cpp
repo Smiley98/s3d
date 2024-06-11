@@ -55,8 +55,7 @@ void CreateMeshes()
 	{
 		LoadFromObj(&gMeshCube, "assets/meshes/cube.obj");
 	}
-
-	LoadFromObj(&gMeshHead, "assets/meshes/african_head.obj");
+	LoadFromObj(&gMeshHead, "assets/meshes/head.obj");
 
 	par_shapes_mesh* sphere = par_shapes_create_subdivided_sphere(1);
 	par_shapes_unweld(sphere, true);
