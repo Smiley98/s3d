@@ -1,6 +1,6 @@
 #include "App.h"
 
-int main(const char* path)
+int main()
 {
     Init();
     Loop();

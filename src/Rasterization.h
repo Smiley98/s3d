@@ -2,6 +2,14 @@
 #include "Image.h"
 #include "Mesh.h"
 
+struct Rect
+{
+	int xMin;
+	int xMax;
+	int yMin;
+	int yMax;
+};
+
 inline void DrawLineX(Image* image, int row, int x0, int x1, Color color)
 {
 	for (int x = x0; x <= x1; x++)
@@ -260,3 +268,152 @@ inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t face)
 		DrawLine(image, x0, y0, x1, y1, WHITE);
 	}
 }
+
+inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world/*, Matrix normal*/)
+{
+	Vector3* vertices = new Vector3[mesh.vertexCount];	// clip-space
+	Vector3* positions = new Vector3[mesh.vertexCount];	// world-space
+	Vector3* normals = new Vector3[mesh.vertexCount];	// object-space (soon to be world-space)
+	Vector2* tcoords = new Vector2[mesh.vertexCount];	// object-space
+	Rect* rects = new Rect[mesh.faceCount];				// Triangle AABBs
+
+	// Vertex pre-processing (space-transformations)
+	for (size_t vertex = 0; vertex < mesh.vertexCount; vertex++)
+	{
+		Vector4 clip;
+		clip.x = mesh.positions[vertex].x;
+		clip.y = mesh.positions[vertex].y;
+		clip.z = mesh.positions[vertex].z;
+		clip.w = 1.0f;
+
+		clip = mvp * clip;
+		clip /= clip.w;
+
+		Vector3 screen;
+		screen.x = Remap(clip.x, -1.0f, 1.0f, 0.0f, (float)image->width - 1.0f);
+		screen.y = Remap(clip.y, -1.0f, 1.0f, 0.0f, (float)image->height - 1.0f);
+		screen.z = clip.z;
+		vertices[vertex] = screen;
+
+		positions[vertex] = world * mesh.positions[vertex];
+		normals[vertex] = mesh.normals[vertex];
+		tcoords[vertex] = mesh.tcoords[vertex];
+	}
+
+	// Triangle AABBs:
+	for (size_t face = 0; face < mesh.faceCount; face++)
+	{
+		int xMin = image->width - 1;
+		int yMin = image->height - 1;
+		int xMax = 0;
+		int yMax = 0;
+		size_t vertex = face * 3;
+		for (size_t i = 0; i < 3; i++)
+		{	
+			int x = vertices[vertex + i].x;
+			int y = vertices[vertex + i].y;
+			xMin = std::max(0, std::min(xMin, x));
+			yMin = std::max(0, std::min(yMin, y));
+			xMax = std::min(image->width - 1, std::max(xMax, x));
+			yMax = std::min(image->height - 1, std::max(yMax, y));
+		}
+		rects[face].xMin = xMin;
+		rects[face].xMax = xMax;
+		rects[face].yMin = yMin;
+		rects[face].yMax = yMax;
+	}
+
+	// Back-face culling:
+	bool* frontFacing = new bool[mesh.faceCount];
+	for (size_t face = 0; face < mesh.faceCount; face++)
+	{
+		size_t vertex = face * 3;
+		Vector3 p0 = positions[vertex + 0];
+		Vector3 p1 = positions[vertex + 1];
+		Vector3 p2 = positions[vertex + 2];
+		Vector3 n = Normalize(Cross(p2 - p0, p1 - p0));
+		Vector3 l{ 0.0f, 0.0f, -1.0f };
+		float intensity = Dot(n, l);
+		frontFacing[face] = intensity > 0.0;
+	}
+
+	// Draw triangles:
+	for (size_t face = 0; face < mesh.faceCount; face++)
+	{
+		// Discard if back-facing
+		if (!frontFacing[face])
+			continue;
+
+		size_t vertex = face * 3;
+		Vector3 v0 = vertices[vertex + 0];
+		Vector3 v1 = vertices[vertex + 1];
+		Vector3 v2 = vertices[vertex + 2];
+
+		Vector3 n0 = normals[vertex + 0];
+		Vector3 n1 = normals[vertex + 1];
+		Vector3 n2 = normals[vertex + 2];
+
+		Vector2 uv0 = tcoords[vertex + 0];
+		Vector2 uv1 = tcoords[vertex + 1];
+		Vector2 uv2 = tcoords[vertex + 2];
+
+		for (int x = rects[face].xMin; x <= rects[face].xMax; x++)
+		{
+			for (int y = rects[face].yMin; y <= rects[face].yMax; y++)
+			{
+				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f },v0, v1, v2);
+
+				// Discard if pixel not in triangle
+				if (bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f)
+					continue;
+
+				// Discard if depth test fails
+				float z = 0.0f;
+				z += v0.z * bc.x;
+				z += v1.z * bc.y;
+				z += v2.z * bc.z;
+				if (z > GetDepth(*image, x, y))
+					continue;
+				// Note that proj allows us to use depth intuitively!
+				// [-1 <= NEAR < z < FAR <= 1] (or maybe its 0 = near, test this).
+
+				Color color = BLACK;
+				//Vector3 v = v0 * bc.x + v1 * bc.y + v2 * bc.z;
+				//Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
+				Vector2 uv = uv0 * bc.x + uv1 * bc.y + uv2 * bc.z;
+				float tw = gImageDiffuse.width;
+				float th = gImageDiffuse.height;
+				color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
+
+				// *Insert point-in-screen test here*
+				SetPixel(image, x, y, color);
+				SetDepth(image, x, y, z);
+
+				//color = Float3ToColor(&n.x);
+				//color = Float3ToColor(&v.x);
+
+				//Vector3 c{ color.r, color.g, color.b };
+				//c /= 255.0f;
+				//c *= tint;
+				//color = Float3ToColor(&c.x);
+			}
+		}
+	}
+
+	delete[] frontFacing;
+	delete[] rects;
+	delete[] tcoords;
+	delete[] normals;
+	delete[] positions;
+	delete[] vertices;
+}
+
+// Not going to handle vertices outside of clip-space;
+// Just render a mesh with all pixels on screen for my sanity's sake!
+
+// TODO -- test with world-space normals instead.
+// This is fine for now since we're not computing normals so ~same efficiency!
+
+// *Insert screen-culling & viewport transform here*
+// Probably some sophisticated algorithm to reform triangles to prevent overdraw...
+// Can probably just do if > 0 && < screen to preven out of bounds.

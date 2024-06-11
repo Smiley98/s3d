@@ -13,12 +13,7 @@ void MainScene::OnLoad()
 	// Works. Might need to flip it!
 	//LoadTexture(&mTexHead, gImageDiffuse.width, gImageDiffuse.height);
 	//UpdateTexture(mTexHead, gImageDiffuse);
-
 	mMesh = gMeshHead;
-	mMesh2 = gMeshSphere;
-	mColors.resize(mMesh.vertexCount / 3);
-	for (size_t i = 0; i < mColors.size(); i++)
-		mColors[i] = RandRGB();
 }
 
 void MainScene::OnUnload()
@@ -30,13 +25,18 @@ void MainScene::OnUnload()
 void MainScene::OnUpdate(float dt)
 {
 	ClearColor(&mImage, BLACK);
-	ClearDepth(&mImage, -1.0f);
+	ClearDepth(&mImage, 1.0f);
 
-	for (size_t i = 0; i < mMesh.faceCount; i++)
-		DrawFace(&mImage, mMesh, i);
+	Matrix model = Translate(0.0f, 0.0f, 0.0f);
+	Matrix view = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
+	//Matrix proj = Perspective(75.0f * DEG2RAD, 1.0f, 0.001f, 100.0f);
+	Matrix proj = Ortho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f);
+	// Pay attention to near/far & view z (depth test might fail)!
+	Matrix mvp = model * view * proj;
+	DrawMesh(&mImage, mMesh, mvp, model);
 }
 
-void MainScene::OnDraw()
+void MainScene::OnDraw() 
 {
 	UpdateTexture(mTexture, mImage);
 
@@ -51,59 +51,4 @@ void MainScene::OnDraw()
 
 void MainScene::OnDrawGui()
 {
-}
-
-void MainScene::AnimationTest()
-{
-	ClearColor(&mImage, BLACK);
-	float tt = TotalTime();
-	float ncos = cosf(tt) * 0.25f + 0.75f;
-	Vector3 v = V3_ONE;
-	v *= ncos;
-
-	Mesh copy;
-	copy.vertexCount = mMesh.vertexCount;
-	copy.positions = new Vector3[copy.vertexCount];
-	for (size_t i = 0; i < mMesh.vertexCount; i++)
-	{
-		Matrix transform =
-			Scale(v.x, v.y, v.z) *
-			RotateZ(TotalTime() * 100.0f * DEG2RAD) *
-			Translate(cosf(tt), 0.0f, 0.0f);
-		copy.positions[i] = Multiply(mMesh.positions[i], transform);
-	}
-
-	//for (size_t i = 0; i < copy.faceCount; i++)
-	//	DrawFace(&mImage, copy, i);
-	//
-	//for (size_t i = 0; i < copy.faceCount; i++)
-	//	DrawFaceWireframes(&mImage, copy, i, mColors[c]);
-
-	delete[] copy.positions;
-}
-
-void MainScene::DepthTest()
-{
-	ClearColor(&mImage, BLACK);
-	ClearDepth(&mImage, 1.0f);
-
-	for (size_t i = 0, c = 0; i < mMesh.vertexCount; i += 3, c++)
-		DrawFace(&mImage, mMesh, i);
-
-	float tt = TotalTime();
-	Vector3 v = V3_ONE;
-
-	Mesh copy;
-	copy.vertexCount = mMesh2.vertexCount;
-	copy.positions = new Vector3[copy.vertexCount];
-	//for (size_t i = 0; i < copy.vertexCount; i++)
-	//{
-	//	Matrix transform = Translate(0.0f, 0.0f, cosf(tt));
-	//	copy.positions[i] = Multiply(mMesh2.positions[i], transform);
-	//}
-	//
-	//for (size_t i = 0, c = 0; i < copy.vertexCount; i += 3, c++)
-	//	DrawFace(&mImage, copy, i);
-
-	delete[] copy.positions;
 }
