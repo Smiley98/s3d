@@ -60,3 +60,15 @@ inline bool RectRect(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int
 		Overlaps(yMin1, yMax1, yMin2, yMax2);
 	return collision;
 }
+
+/////////////////////////////////////////////////////////////////////
+// ************************* Miscellaneous **************************
+/////////////////////////////////////////////////////////////////////
+inline Vector3 Palette(Vector3 a, Vector3 b, Vector3 c, Vector3 d, float t)
+{
+	Vector3 cd = (c * t + d) * 6.28318f;
+	cd.x = cosf(cd.x);
+	cd.y = cosf(cd.y);
+	cd.z = cosf(cd.z);
+	return a + b * cd;
+}

@@ -2,6 +2,7 @@
 #include "Shader.h"
 #include "App.h"
 #include "Rasterization.h"
+#include "ImageUtils.h"
 
 constexpr int IMAGE_SIZE = 512;
 
@@ -39,7 +40,26 @@ void MainScene::OnUpdate(float dt)
 	// Setting w = 0.0 doesn't work in this math library.
 	// Must completely remove translation from normal matrix.
 
-	DrawMesh(&mImage, mMesh, mvp, model, normal);
+	UniformData data;
+	data.mvp = mvp;
+	data.world = model;
+	data.normal = normal;
+
+	data.cameraPosition = { 0.0f, 0.0f, 5.0f };
+	data.lightPosition = Translate(0.0f, 0.0f, 5.0f) * RotateY(tt * 100.0f * DEG2RAD) * V3_ZERO;
+	
+	// Palette parameters
+	Vector3 a{ 0.5f, 0.5f, 0.5f };
+	Vector3 b{ 0.5f, 0.5f, 0.5f };
+	Vector3 c{ 1.0f, 1.0f, 1.0f };
+	Vector3 d{ 0.263f, 0.416f, 0.557f };
+	data.lightColor = Palette(a, b, c, d, cosf(tt) * 0.5f + 0.5f);
+
+	data.ambient = 0.25f;
+	data.diffuse = 0.75f;
+	data.specular = 32.0f;
+
+	DrawMesh(&mImage, mMesh, data);
 }
 
 void MainScene::OnDraw() 

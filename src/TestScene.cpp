@@ -2,24 +2,11 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "App.h"
+#include "ImageUtils.h"
 
 float Fract(float f)
 {
 	return f - floorf(f);
-}
-
-Vector3 Palette(float t) {
-	Vector3 a { 0.5f, 0.5f, 0.5f };
-	Vector3 b { 0.5f, 0.5f, 0.5f };
-	Vector3 c { 1.0f, 1.0f, 1.0f };
-	Vector3 d{ 0.263f, 0.416f, 0.557f };
-	
-	Vector3 cd = (c * t + d) * 6.28318f;
-	cd.x = cosf(cd.x);
-	cd.y = cosf(cd.y);
-	cd.z = cosf(cd.z);
-
-	return a + b * cd;
 }
 
 void TestScene::OnLoad()
@@ -36,6 +23,12 @@ void TestScene::OnUnload()
 
 void TestScene::OnUpdate(float dt)
 {
+	// Palette parameters
+	Vector3 a{ 0.5f, 0.5f, 0.5f };
+	Vector3 b{ 0.5f, 0.5f, 0.5f };
+	Vector3 c{ 1.0f, 1.0f, 1.0f };
+	Vector3 d{ 0.263f, 0.416f, 0.557f };
+	
 	float tt = TotalTime();
 	for (int y = 0; y < mImage.height; y++)
 	{
@@ -55,7 +48,8 @@ void TestScene::OnUpdate(float dt)
 				uv.x = Fract(uv.x * 1.5f) - 0.5f;
 				uv.y = Fract(uv.y * 1.5f) - 0.5f;
 
-				Vector3 col = Palette(Length(uv0) + k * 0.4f + tt * 0.4f);
+				float t = Length(uv0) + k * 0.4f + tt * 0.4f;
+				Vector3 col = Palette(a, b, c, d, t);
 				float d = Length(uv);
 				d = sinf(d * 8.0f + tt) / 8.0f;
 				d = fabsf(d);

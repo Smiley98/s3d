@@ -142,7 +142,40 @@ inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t face)
 	}
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world, Matrix normal, Vector3 tint = V3_ONE)
+struct UniformData
+{
+	Matrix mvp;
+	Matrix world;
+	Matrix normal;
+
+	Vector3 cameraPosition;
+	Vector3 lightPosition;
+	Vector3 lightColor;
+
+	float ambient;
+	float diffuse;
+	float specular;
+};
+
+inline Vector3 Phong(Vector3 position, Vector3 normal, Vector3 camera, Vector3 light,
+	Vector3 color, float ambient, float diffuse, float specular)
+{
+	Vector3 N = normal;
+	Vector3 L = Normalize(light - position);
+	Vector3 V = Normalize(camera - position);
+	Vector3 R = Reflect(L * -1.0f, N);
+
+	float dotNL = fmaxf(Dot(N, L), 0.0f);
+	float dotVR = fmaxf(Dot(V, R), 0.0f);
+
+	Vector3 phong = V3_ZERO;
+	phong += color * ambient;
+	phong += color * diffuse;
+	phong += color * powf(dotVR, specular);
+	return phong;
+}
+
+inline void DrawMesh(Image* image, Mesh mesh, UniformData u)
 {
 	Vector3* vertices = new Vector3[mesh.vertexCount];	// clip-space
 	Vector3* positions = new Vector3[mesh.vertexCount];	// world-space
@@ -159,7 +192,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world, Matrix n
 		clip.z = mesh.positions[vertex].z;
 		clip.w = 1.0f;
 
-		clip = mvp * clip;
+		clip = u.mvp * clip;
 		clip /= clip.w;
 
 		Vector3 screen;
@@ -168,8 +201,8 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world, Matrix n
 		screen.z = clip.z;
 		vertices[vertex] = screen;
 
-		positions[vertex] = world * mesh.positions[vertex];
-		normals[vertex] = normal * mesh.normals[vertex];
+		positions[vertex] = u.world * mesh.positions[vertex];
+		normals[vertex] = u.normal * mesh.normals[vertex];
 		tcoords[vertex] = mesh.tcoords[vertex];
 	}
 
@@ -272,9 +305,12 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world, Matrix n
 				float th = gImageDiffuse.height;
 				color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
 
+				Vector3 phong = Phong(p, n, u.cameraPosition, u.lightPosition, u.lightColor,
+					u.ambient, u.diffuse, u.specular);
+
 				Vector3 c{ color.r, color.g, color.b };
 				c /= 255.0f;
-				c *= tint * dotNL;
+				c *= phong;
 				color = Float3ToColor(&c.x);
 
 				SetPixel(image, x, y, color);
