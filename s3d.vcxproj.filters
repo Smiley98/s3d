@@ -60,17 +60,8 @@
     <ClCompile Include="src\Window.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="src\RasterizationScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\Image.cpp">
       <Filter>Image</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RaycastingScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DDAScene.cpp">
-      <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\glad.c">
       <Filter>Entry Point</Filter>
@@ -137,17 +128,8 @@
     <ClInclude Include="src\Window.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="src\RasterizationScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\Image.h">
       <Filter>Image</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RaycastingScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\DDAScene.h">
-      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Texture.h">
       <Filter>Image</Filter>

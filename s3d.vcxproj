@@ -92,15 +92,12 @@
     <ClCompile Include="inc\imgui\imgui_tables.cpp" />
     <ClCompile Include="inc\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\App.cpp" />
-    <ClCompile Include="src\DDAScene.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Image.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainScene.cpp" />
     <ClCompile Include="src\Materials.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
-    <ClCompile Include="src\RasterizationScene.cpp" />
-    <ClCompile Include="src\RaycastingScene.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\TestScene.cpp" />
@@ -120,7 +117,6 @@
     <ClInclude Include="src\App.h" />
     <ClInclude Include="src\Color.h" />
     <ClInclude Include="src\Config.h" />
-    <ClInclude Include="src\DDAScene.h" />
     <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\ImageUtils.h" />
     <ClInclude Include="src\Lights.h" />
@@ -130,8 +126,6 @@
     <ClInclude Include="src\Math.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Rasterization.h" />
-    <ClInclude Include="src\RasterizationScene.h" />
-    <ClInclude Include="src\RaycastingScene.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\TestScene.h" />

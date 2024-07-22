@@ -17,5 +17,4 @@ public:
 private:
 	Image mImage;
 	Texture mTexture;
-	Mesh mMesh;
 };
