@@ -23,17 +23,16 @@ void MainScene::OnUpdate(float dt)
 {
 	ClearColor(&mImage, BLACK);
 
-	Mesh copy;
-	copy.positions = new Vector3[gMeshHead.vertexCount];
-	memcpy(copy.positions, gMeshHead.positions, sizeof(Vector3) * gMeshHead.vertexCount);
+	Vector3* positions = new Vector3[gMeshHead.vertexCount];
+	memcpy(positions, gMeshHead.positions, sizeof(Vector3) * gMeshHead.vertexCount);
 
 	for (size_t i = 0; i < gMeshHead.vertexCount; i++)
-		copy.positions[i] = RotateY(TotalTime() * 100.0f * DEG2RAD) * copy.positions[i];
+		positions[i] = RotateY(TotalTime() * 100.0f * DEG2RAD) * positions[i];
 
 	for (size_t i = 0; i < gMeshHead.faceCount; i++)
-		DrawFaceWireframes(&mImage, copy, i, RED);
+		DrawFaceWireframes(&mImage, positions, i, RED);
 
-	delete[] copy.positions;
+	delete[] positions;
 }
 
 void MainScene::OnDraw()
