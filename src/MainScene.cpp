@@ -1,5 +1,6 @@
 #include "MainScene.h"
 #include "Shader.h"
+#include "Mesh.h"
 #include "App.h"
 #include "Rasterization.h"
 #include "ImageUtils.h"
@@ -20,8 +21,26 @@ void MainScene::OnUnload()
 
 void MainScene::OnUpdate(float dt)
 {
-	DrawCircle(&mImage, 100, 100, 10, MAGENTA);
-	DrawCircleLines(&mImage, 100, 100, 11, CYAN);
+	for (int y = 0; y < mImage.height; y++)
+	{
+		for (int x = 0; x < mImage.width; x++)
+		{
+			// Per-pixel operations (shading)
+			Color color = BLACK;
+			SetPixel(&mImage, x, y, color);
+		}
+	}
+
+	DrawCircle(&mImage, 100, 100, 10, MAGENTA);		// Filled circle
+	DrawCircleLines(&mImage, 100, 100, 11, CYAN);	// Outlined circle
+
+	// Homework:
+	// Draw a border around your screen using DrawRectLines
+	// Draw 2 horizontal lines
+	// Draw 2 vertical lines
+	// Draw a rectangle in the centre of your screen and outline it
+	// Draw a circle at your mouse cursor and outline it
+	// Draw a line connecting the above two shapes
 }
 
 void MainScene::OnDraw()
@@ -35,8 +54,4 @@ void MainScene::OnDraw()
 	DrawFsq();
 	UnbindShader();
 	UnbindTexture(mTexture);
-}
-
-void MainScene::OnDrawGui()
-{
 }

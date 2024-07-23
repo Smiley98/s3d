@@ -27,7 +27,8 @@ inline void DrawLine(Image* image, int x0, int y0, int x1, int y1, Color color)
 	// let dx = x1 - x0
 	// let dy = y1 - y0
 
-	// let steps = absolute value of dx if its greater than that of dy, otherwise dy
+	// let steps = abs dx if abs dx > abs dy, else abs dy
+	// abs = "absolute value"
 
 	// let xStep = dx / steps as float
 	// let yStep = dy / steps as float
