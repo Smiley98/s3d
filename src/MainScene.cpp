@@ -21,26 +21,19 @@ void MainScene::OnUnload()
 
 void MainScene::OnUpdate(float dt)
 {
-	for (int y = 0; y < mImage.height; y++)
-	{
-		for (int x = 0; x < mImage.width; x++)
-		{
-			// Per-pixel operations (shading)
-			Color color = BLACK;
-			SetPixel(&mImage, x, y, color);
-		}
-	}
+	ClearColor(&mImage, BLACK);
 
-	DrawCircle(&mImage, 100, 100, 10, MAGENTA);		// Filled circle
-	DrawCircleLines(&mImage, 100, 100, 11, CYAN);	// Outlined circle
+	Mesh copy;
+	copy.positions = new Vector3[gMeshHead.vertexCount];
+	memcpy(copy.positions, gMeshHead.positions, sizeof(Vector3) * gMeshHead.vertexCount);
 
-	// Homework:
-	// Draw a border around your screen using DrawRectLines
-	// Draw 2 horizontal lines
-	// Draw 2 vertical lines
-	// Draw a rectangle in the centre of your screen and outline it
-	// Draw a circle at your mouse cursor and outline it
-	// Draw a line connecting the above two shapes
+	for (size_t i = 0; i < gMeshHead.vertexCount; i++)
+		copy.positions[i] = RotateY(TotalTime() * 100.0f * DEG2RAD) * copy.positions[i];
+
+	for (size_t i = 0; i < gMeshHead.faceCount; i++)
+		DrawFaceWireframes(&mImage, copy, i, RED);
+
+	delete[] copy.positions;
 }
 
 void MainScene::OnDraw()

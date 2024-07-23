@@ -12,8 +12,6 @@ public:
 
 	void OnUpdate(float dt) final;
 	void OnDraw() final;
-
-	void OnDrawGui() final;
 private:
 	Image mImage;
 	Texture mTexture;

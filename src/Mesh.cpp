@@ -43,6 +43,7 @@ void CreateMeshes()
 	par_shapes_mesh* cube = par_shapes_create_cube();
 	par_shapes_unweld(cube, true);
 	par_shapes_compute_normals(cube);
+	//par_shapes_scale(cube, 0.9f, 0.9f, 0.9f);
 	LoadFromPar(&gMeshCube, cube);
 	par_shapes_free_mesh(cube);
 	CreateMeshGPU(&gMeshCube);
