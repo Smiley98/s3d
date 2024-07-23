@@ -46,7 +46,7 @@ inline void DrawRect(Image* image, int x, int y, int w, int h, Color color)
 {
 	// Option 1:
 	// for ry in y to y + h:
-	//		for rx in x to x + h:
+	//		for rx in x to x + w:
 	//			set pixel at rx, ry
 	
 	// Option 2:
