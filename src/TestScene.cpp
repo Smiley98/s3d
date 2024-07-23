@@ -22,7 +22,14 @@ void TestScene::OnUpdate(float dt)
 	{
 		for (int x = 0; x < mImage.width; x++)
 		{
-			Color color = RED;
+			Vector2 fragCoord{ x, y };
+			Vector2 resolution{ mImage.width, mImage.height };
+			Vector2 uv = fragCoord / resolution;
+			uv = uv * 2.0f - 1.0f;
+			uv.x *= SCREEN_ASPECT;
+			float dist = Length(uv);
+
+			Color color = dist > 1.0f ? WHITE : BLACK;
 			SetPixel(&mImage, x, y, color);
 		}
 	}

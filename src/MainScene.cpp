@@ -20,17 +20,11 @@ void MainScene::OnUnload()
 
 void MainScene::OnUpdate(float dt)
 {
-	for (int y = 0; y < mImage.height; y++)
-	{
-		for (int x = 0; x < mImage.width; x++)
-		{
-			Color color = RED;
-			SetPixel(&mImage, x, y, color);
-		}
-	}
+	DrawCircle(&mImage, 100, 100, 10, MAGENTA);
+	DrawCircleLines(&mImage, 100, 100, 11, CYAN);
 }
 
-void MainScene::OnDraw() 
+void MainScene::OnDraw()
 {
 	UpdateTexture(mTexture, mImage);
 
