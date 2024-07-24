@@ -244,11 +244,15 @@ void LoadFromPar(Mesh* mesh, par_shapes_mesh* par_mesh)
 
 void LoadFromObj(Mesh* mesh, const char* path)
 {
+	// Indices of values that make up a face
+	// (ie face 1 uses position 69, normal 420, and tcoord 1337)
 	std::vector<uint16_t> positionIndices, normalIndices, tcoordIndices;
 
+	// Values read top-down from file
 	std::vector<Vector3> obj_positions, obj_normals;
 	std::vector<Vector2> obj_tcoords;
 
+	// Values organized face-by-face
 	std::vector<Vector3> vtx_positions, vtx_normals;
 	std::vector<Vector2> vtx_tcoords;
 
@@ -285,6 +289,8 @@ void LoadFromObj(Mesh* mesh, const char* path)
 		}
 		else if (strcmp(lineHeader, "f") == 0)
 		{
+			// A face needs 3 vertices.
+			// Each vertex has a position, normal, and tcoord!
 			int positionIndex[3], tcoordIndex[3], normalIndex[3];
 			fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
 				&positionIndex[0], &tcoordIndex[0], &normalIndex[0],
@@ -306,13 +312,13 @@ void LoadFromObj(Mesh* mesh, const char* path)
 	vtx_tcoords.resize(vc);
 	for (size_t i = 0; i < vc; i++)
 	{
-		Vector3 position = obj_positions[positionIndices[i] - 1];
-		Vector3 normal = obj_normals[normalIndices[i] - 1];
-		Vector2 uv = obj_tcoords[tcoordIndices[i] - 1];
+		// let position = file positions at position index i - 1
+		// let normal = file normals at normal index i - 1
+		// let tcoord = file tcoords at tcoord index i - 1
 
-		vtx_positions[i] = position;
-		vtx_normals[i] = normal;
-		vtx_tcoords[i] = uv;
+		// set vertex position at i to position
+		// set vertex normal at i to normal
+		// set vertex tcoord at i to tcoord
 	}
 
 	CreateMeshCPU(mesh, vc, vtx_positions.data(), vtx_normals.data(), vtx_tcoords.data(), nullptr, nullptr);

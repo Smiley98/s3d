@@ -22,17 +22,8 @@ void MainScene::OnUnload()
 void MainScene::OnUpdate(float dt)
 {
 	ClearColor(&mImage, BLACK);
-
-	Vector3* positions = new Vector3[gMeshHead.vertexCount];
-	memcpy(positions, gMeshHead.positions, sizeof(Vector3) * gMeshHead.vertexCount);
-
-	for (size_t i = 0; i < gMeshHead.vertexCount; i++)
-		positions[i] = RotateY(TotalTime() * 100.0f * DEG2RAD) * positions[i];
-
-	for (size_t i = 0; i < gMeshHead.faceCount; i++)
-		DrawFaceWireframes(&mImage, positions, i, RED);
-
-	delete[] positions;
+	for (size_t i = 0; i < gMeshSphere.faceCount; i++)
+		DrawFaceWireframes(&mImage, gMeshSphere.positions, i, RED);
 }
 
 void MainScene::OnDraw()
