@@ -9,6 +9,7 @@
 GLuint fVaoFsq = GL_NONE;
 Mesh gMeshTriangle;
 Mesh gMeshCube;
+Mesh gMeshCube2;
 Mesh gMeshSphere;
 Mesh gMeshHead;
 Mesh gMeshDodecahedron;
@@ -43,7 +44,12 @@ void CreateMeshes()
 	par_shapes_mesh* cube = par_shapes_create_cube();
 	par_shapes_unweld(cube, true);
 	par_shapes_compute_normals(cube);
-	//par_shapes_scale(cube, 0.9f, 0.9f, 0.9f);
+	
+	// Translate cube to centre, rotate cube 45 degrees about XY, and scale by 25%
+	Vector3 axis = Normalize(V3_RIGHT + V3_UP);
+	par_shapes_translate(cube, -0.5f, -0.5f, -0.5f);
+	par_shapes_rotate(cube, 45.0f * DEG2RAD, &axis.x);
+	par_shapes_scale(cube, 1.25f, 1.25f, 1.25f);
 	LoadFromPar(&gMeshCube, cube);
 	par_shapes_free_mesh(cube);
 	CreateMeshGPU(&gMeshCube);
@@ -321,6 +327,7 @@ void LoadFromObj(Mesh* mesh, const char* path)
 		// set vertex tcoord at i to tcoord
 	}
 
-	CreateMeshCPU(mesh, vc, vtx_positions.data(), vtx_normals.data(), vtx_tcoords.data(), nullptr, nullptr);
+	CreateMeshCPU(mesh, vc, vtx_positions.data(), vtx_normals.data(),
+		vtx_tcoords.data(), nullptr, nullptr);
 	CreateMeshGPU(mesh);
 }
