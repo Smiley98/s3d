@@ -141,3 +141,78 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 		DrawLine(image, x0, y0, x1, y1, color);
 	}
 }
+
+inline void DrawMesh(Image* image, Mesh mesh)
+{
+	Vector3* vertices = new Vector3[mesh.vertexCount];	// screen-space
+	Rect* rects = new Rect[mesh.faceCount];				// triangle AABBs
+
+	// TODO -- discard if out of bounds??
+	// After perspective divide, check if abs(clip.xyz) > 1
+	// discard[vertex / 3] = true.
+	// Do so before main rendering loop, its fine if we still compute AABB.
+	bool discard = new bool[mesh.faceCount];
+
+
+	// Convert mesh positions from NDC to screen-space
+	for (size_t i = 0; i < mesh.vertexCount; i++)
+	{
+		Vector3 ndc = mesh.positions[i];
+		Vector3 screen;
+		screen.x = Remap(ndc.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
+		screen.y = Remap(ndc.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
+		screen.z = ndc.z;
+		vertices[i] = screen;
+	}
+
+	for (size_t face = 0; face < mesh.faceCount; face++)
+	{
+		// Ensure min & max get overwritten
+		int xMin = image->width - 1;
+		int yMin = image->height - 1;
+		int xMax = 0;
+		int yMax = 0;
+
+		// Determine min & max of face, ensure its on-screen
+		const size_t vertex = face * 3;
+		for (size_t i = 0; i < 3; i++)
+		{
+			int x = vertices[vertex + i].x;
+			int y = vertices[vertex + i].y;
+			xMin = std::max(0, std::min(xMin, x));
+			yMin = std::max(0, std::min(yMin, y));
+			xMax = std::min(image->width - 1, std::max(xMax, x));
+			yMax = std::min(image->height - 1, std::max(yMax, y));
+		}
+
+		rects[face].xMin = xMin;
+		rects[face].xMax = xMax;
+		rects[face].yMin = yMin;
+		rects[face].yMax = yMax;
+	}
+
+	for (size_t face = 0; face < mesh.faceCount; face++)
+	{
+		for (int x = rects[face].xMin; x <= rects[face].xMax; x++)
+		{
+			for (int y = rects[face].yMin; y <= rects[face].yMax; y++)
+			{
+				size_t vertex = face * 3;
+				Vector3 v0 = vertices[vertex + 0];
+				Vector3 v1 = vertices[vertex + 1];
+				Vector3 v2 = vertices[vertex + 2];
+
+				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
+				bool inf = isinf(bc.x) || isinf(bc.y) || isinf(bc.z);
+				bool nan = isnan(bc.x) || isnan(bc.y) || isnan(bc.z);
+				bool neg = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
+
+				// Discard if pixel not in triangle
+				if (neg || nan || inf)
+					continue;
+
+				SetPixel(image, x, y, GRAY);
+			}
+		}
+	}
+}

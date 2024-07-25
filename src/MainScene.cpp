@@ -35,16 +35,7 @@ void MainScene::OnUnload()
 void MainScene::OnUpdate(float dt)
 {
 	ClearColor(&mImage, BLACK);
-	const size_t vc = gMeshSphere.vertexCount;
-	const size_t fc = gMeshSphere.faceCount;
-	
-	Vector3* positions = CopyPositions(gMeshSphere.positions, vc);
-	Matrix rotation = RotateY(TotalTime() * 100.0f * DEG2RAD);
-	TransformPositions(rotation, positions, vc);
-	
-	for (size_t i = 0; i < fc; i++)
-		DrawFaceWireframes(&mImage, positions, i, GREEN);
-	delete[] positions;
+	DrawMesh(&mImage, gMeshSphere);
 }
 
 void MainScene::OnDraw()
