@@ -197,15 +197,13 @@ inline void DrawMesh(Image* image, Mesh mesh)
 				Vector3 v1 = vertices[vertex + 1];
 				Vector3 v2 = vertices[vertex + 2];
 				
+				// Tri-linear interpolation, ensure 0.0 >= uvw <= 1.0
 				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
-				// Shouldn't ever have zero-division since loop won't run in the first place...
-				//bool inf = isinf(bc.x) || isinf(bc.y) || isinf(bc.z);
-				//bool nan = isnan(bc.x) || isnan(bc.y) || isnan(bc.z);
 				bool low = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
 				bool high = bc.x > 1.0f || bc.y > 1.0f || bc.z > 1.0f;
 
 				// Discard if pixel not in triangle
-				if (low || high /*|| nan || inf*/)
+				if (low || high)
 					continue;
 				SetPixel(image, x, y, GRAY);
 			}
