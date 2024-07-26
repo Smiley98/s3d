@@ -205,7 +205,9 @@ inline void DrawMesh(Image* image, Mesh mesh)
 				// Discard if pixel not in triangle
 				if (low || high)
 					continue;
-				SetPixel(image, x, y, GRAY);
+
+				Color color = Float3ToColor(&bc.x);
+				SetPixel(image, x, y, color);
 			}
 		}
 	}
