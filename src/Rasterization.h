@@ -273,14 +273,13 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData u)
 		{
 			for (int y = rects[face].yMin; y <= rects[face].yMax; y++)
 			{
-				// bc is inf/nan sometimes despite all inputs being valid...
+				// nan errors seem to have disappeared (on my laptop)?
 				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f },v0, v1, v2);
-				bool inf = isinf(bc.x) || isinf(bc.y) || isinf(bc.z);
-				bool nan = isnan(bc.x) || isnan(bc.y) || isnan(bc.z);
-				bool neg = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
+				bool low = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
+				bool high = bc.x > 1.0f || bc.y > 1.0f || bc.z > 1.0f;
 
 				// Discard if pixel not in triangle
-				if (neg || nan || inf)
+				if (low || high)
 					continue;
 
 				// Discard if depth test fails
