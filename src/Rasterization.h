@@ -145,7 +145,9 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 inline void DrawMesh(Image* image, Mesh mesh)
 {
 	// screen-space
-	Vector3* vertices = new Vector3[mesh.vertexCount];	
+	Vector3* vertices = new Vector3[mesh.vertexCount];
+	Vector3* positions = new Vector3[mesh.vertexCount];
+	Vector3* normals = new Vector3[mesh.vertexCount];
 
 	// Convert mesh positions from NDC to screen-space
 	for (size_t i = 0; i < mesh.vertexCount; i++)
@@ -156,6 +158,8 @@ inline void DrawMesh(Image* image, Mesh mesh)
 		screen.y = Remap(ndc.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
 		screen.z = ndc.z;
 		vertices[i] = screen;
+		positions[i] = ndc;
+		normals[i] = mesh.normals[i];
 	}
 
 	// Triangle AABBs
@@ -206,9 +210,24 @@ inline void DrawMesh(Image* image, Mesh mesh)
 				if (low || high)
 					continue;
 
-				Color color = Float3ToColor(&bc.x);
+				Vector3 p0 = positions[vertex + 0];
+				Vector3 p1 = positions[vertex + 1];
+				Vector3 p2 = positions[vertex + 2];
+				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
+
+				Vector3 n0 = normals[vertex + 0];
+				Vector3 n1 = normals[vertex + 1];
+				Vector3 n2 = normals[vertex + 2];
+				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
+
+				Color color = Float3ToColor(&n.x);
 				SetPixel(image, x, y, color);
 			}
 		}
 	}
+
+	delete[] rects;
+	delete[] normals;
+	delete[] positions;
+	delete[] vertices;
 }
