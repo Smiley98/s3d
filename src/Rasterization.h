@@ -146,20 +146,22 @@ inline void DrawMesh(Image* image, Mesh mesh)
 {
 	// screen-space
 	Vector3* vertices = new Vector3[mesh.vertexCount];
-	Vector3* positions = new Vector3[mesh.vertexCount];
-	Vector3* normals = new Vector3[mesh.vertexCount];
+
+	// TODO -- make an array of positions of size vertex count
+	// TODO -- make an array of normals of size vertex count
 
 	// Convert mesh positions from NDC to screen-space
 	for (size_t i = 0; i < mesh.vertexCount; i++)
 	{
 		Vector3 ndc = mesh.positions[i];
+		Vector3 normal = mesh.normals[i];
 		Vector3 screen;
 		screen.x = Remap(ndc.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
 		screen.y = Remap(ndc.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
 		screen.z = ndc.z;
 		vertices[i] = screen;
-		positions[i] = ndc;
-		normals[i] = mesh.normals[i];
+		// TODO -- write ndc to the current position element
+		// TODO -- write normal to the current normal element
 	}
 
 	// Triangle AABBs
@@ -210,24 +212,27 @@ inline void DrawMesh(Image* image, Mesh mesh)
 				if (low || high)
 					continue;
 
-				Vector3 p0 = positions[vertex + 0];
-				Vector3 p1 = positions[vertex + 1];
-				Vector3 p2 = positions[vertex + 2];
-				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
+				// Tip: trilinear-interpolation is A * u + B * v + C * w
 
-				Vector3 n0 = normals[vertex + 0];
-				Vector3 n1 = normals[vertex + 1];
-				Vector3 n2 = normals[vertex + 2];
-				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
+				// let p0 = face position 0
+				// let p1 = face position 1
+				// let p2 = face position 2
+				// let p = trilinear-interpolation(p0, p1, p2, bc)
+				
+				// let n0 = face normal 0
+				// let n1 = face normal 1
+				// let n2 = face normal 2
+				// let n = trilinear-interpolation(n0, n1, n2, bc)
 
-				Color color = Float3ToColor(&n.x);
+				// TODO -- test by passing p or n instead of bc
+				Color color = Float3ToColor(&bc.x);
 				SetPixel(image, x, y, color);
 			}
 		}
 	}
 
 	delete[] rects;
-	delete[] normals;
-	delete[] positions;
 	delete[] vertices;
+	// TODO -- delete positions
+	// TODO -- delete normals
 }
