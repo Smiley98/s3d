@@ -62,22 +62,21 @@ void CreateMeshes()
 	par_shapes_free_mesh(sphere);
 	CreateMeshGPU(&gMeshSphere);
 
-	// Task 1 -- use par_shapes + s3d to generate a dodecahedron.
-
-	// Task 2 -- complete the LoadFromObj function and use it to load the head mesh.
 	LoadFromObj(&gMeshHead, "assets/meshes/head.obj");
 }
 
 void DestroyMeshes()
 {
 	auto Destroy = [](Mesh* mesh)
-		{
-			DestroyMeshGPU(mesh);
-			DestroyMeshCPU(mesh);
-		};
+	{
+		DestroyMeshGPU(mesh);
+		DestroyMeshCPU(mesh);
+	};
 
 	Destroy(&gMeshTriangle);
 	Destroy(&gMeshCube);
+	Destroy(&gMeshSphere);
+	Destroy(&gMeshHead);
 	glDeleteVertexArrays(1, &fVaoFsq);
 }
 

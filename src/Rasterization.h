@@ -144,15 +144,8 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 
 inline void DrawMesh(Image* image, Mesh mesh)
 {
-	Vector3* vertices = new Vector3[mesh.vertexCount];	// screen-space
-	Rect* rects = new Rect[mesh.faceCount];				// triangle AABBs
-
-	// TODO -- discard if out of bounds??
-	// After perspective divide, check if abs(clip.xyz) > 1
-	// discard[vertex / 3] = true.
-	// Do so before main rendering loop, its fine if we still compute AABB.
-	bool discard = new bool[mesh.faceCount];
-
+	// screen-space
+	Vector3* vertices = new Vector3[mesh.vertexCount];	
 
 	// Convert mesh positions from NDC to screen-space
 	for (size_t i = 0; i < mesh.vertexCount; i++)
@@ -165,6 +158,8 @@ inline void DrawMesh(Image* image, Mesh mesh)
 		vertices[i] = screen;
 	}
 
+	// Triangle AABBs
+	Rect* rects = new Rect[mesh.faceCount];				
 	for (size_t face = 0; face < mesh.faceCount; face++)
 	{
 		// Ensure min & max get overwritten
@@ -201,16 +196,17 @@ inline void DrawMesh(Image* image, Mesh mesh)
 				Vector3 v0 = vertices[vertex + 0];
 				Vector3 v1 = vertices[vertex + 1];
 				Vector3 v2 = vertices[vertex + 2];
-
+				
 				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
-				bool inf = isinf(bc.x) || isinf(bc.y) || isinf(bc.z);
-				bool nan = isnan(bc.x) || isnan(bc.y) || isnan(bc.z);
-				bool neg = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
+				// Shouldn't ever have zero-division since loop won't run in the first place...
+				//bool inf = isinf(bc.x) || isinf(bc.y) || isinf(bc.z);
+				//bool nan = isnan(bc.x) || isnan(bc.y) || isnan(bc.z);
+				bool low = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
+				bool high = bc.x > 1.0f || bc.y > 1.0f || bc.z > 1.0f;
 
 				// Discard if pixel not in triangle
-				if (neg || nan || inf)
+				if (low || high /*|| nan || inf*/)
 					continue;
-
 				SetPixel(image, x, y, GRAY);
 			}
 		}
