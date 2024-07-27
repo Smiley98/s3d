@@ -226,8 +226,9 @@ inline void DrawMesh(Image* image, Mesh mesh)
 				Vector3 n2 = normals[vertex + 2];
 				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
 
-				Vector3 c = V3_ONE * (1.0f - depth);
-				Color color = Float3ToColor(&p.x);
+				// GREATER so 0 at extents will be min and 1 at centre will be max
+				Vector3 c = V3_ONE * depth;
+				Color color = Float3ToColor(&c.x);
 				SetPixel(image, x, y, color);
 			}
 		}
