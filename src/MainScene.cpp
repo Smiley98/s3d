@@ -35,7 +35,7 @@ void MainScene::OnUnload()
 void MainScene::OnUpdate(float dt)
 {
 	ClearColor(&mImage, BLACK);
-	ClearDepth(&mImage, -1.0f);
+	ClearDepth(&mImage, 1.0f);
 	DrawMesh(&mImage, gMeshSphere);
 }
 

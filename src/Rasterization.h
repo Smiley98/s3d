@@ -146,19 +146,34 @@ inline void DrawMesh(Image* image, Mesh mesh)
 {
 	// screen-space
 	Vector3* vertices = new Vector3[mesh.vertexCount];
+
+	// object-space
 	Vector3* positions = new Vector3[mesh.vertexCount];
 	Vector3* normals = new Vector3[mesh.vertexCount];
 
-	// Convert mesh positions from NDC to screen-space
+	Matrix view = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
+	Matrix proj = Perspective(90.0f * DEG2RAD, 1.0f, 0.001f, 10.0f);
+	Matrix mvp = view * proj;
+
+	// Convert mesh vertices from view-space to screen-space
 	for (size_t i = 0; i < mesh.vertexCount; i++)
 	{
-		Vector3 ndc = mesh.positions[i];
+		Vector4 clip;
+		clip.x = mesh.positions[i].x;
+		clip.y = mesh.positions[i].y;
+		clip.z = mesh.positions[i].z;
+		clip.w = 1.0f;
+
+		clip = mvp * clip;
+		clip /= clip.w;
+
 		Vector3 screen;
-		screen.x = Remap(ndc.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
-		screen.y = Remap(ndc.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
-		screen.z = ndc.z;
+		screen.x = Remap(clip.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
+		screen.y = Remap(clip.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
+		screen.z = clip.z;
 		vertices[i] = screen;
-		positions[i] = ndc;
+
+		positions[i] = mesh.positions[i];
 		normals[i] = mesh.normals[i];
 	}
 
@@ -212,7 +227,7 @@ inline void DrawMesh(Image* image, Mesh mesh)
 
 				// Easiest to visualize depth if we set z to min = -1, max = 1 so GREATER
 				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
-				if (depth < GetDepth(*image, x, y))
+				if (depth > GetDepth(*image, x, y))
 					continue;
 				SetDepth(image, x, y, depth);
 
