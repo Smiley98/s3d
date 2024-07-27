@@ -210,17 +210,24 @@ inline void DrawMesh(Image* image, Mesh mesh)
 				if (low || high)
 					continue;
 
+				// Easiest to visualize depth if we set z to min = -1, max = 1 so GREATER
+				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
+				if (depth < GetDepth(*image, x, y))
+					continue;
+				SetDepth(image, x, y, depth);
+
 				Vector3 p0 = positions[vertex + 0];
 				Vector3 p1 = positions[vertex + 1];
 				Vector3 p2 = positions[vertex + 2];
 				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
-
+				
 				Vector3 n0 = normals[vertex + 0];
 				Vector3 n1 = normals[vertex + 1];
 				Vector3 n2 = normals[vertex + 2];
 				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
 
-				Color color = Float3ToColor(&n.x);
+				Vector3 c = V3_ONE * (1.0f - depth);
+				Color color = Float3ToColor(&p.x);
 				SetPixel(image, x, y, color);
 			}
 		}
