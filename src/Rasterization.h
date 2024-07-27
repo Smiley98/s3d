@@ -151,9 +151,11 @@ inline void DrawMesh(Image* image, Mesh mesh)
 	Vector3* positions = new Vector3[mesh.vertexCount];
 	Vector3* normals = new Vector3[mesh.vertexCount];
 
-	Matrix view = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
+	float ncos = cosf(TotalTime()) * 0.5 + 0.5f;
+	Matrix model = Translate(0.0f, 0.0f, 2.0f + 6.0f * ncos);
+	Matrix view = LookAt({ 0.0f, 0.0f, 10.0f }, V3_ZERO, V3_UP);
 	Matrix proj = Perspective(90.0f * DEG2RAD, 1.0f, 0.001f, 10.0f);
-	Matrix mvp = view * proj;
+	Matrix mvp = model * view * proj;
 
 	// Convert mesh vertices from view-space to screen-space
 	for (size_t i = 0; i < mesh.vertexCount; i++)
@@ -225,8 +227,9 @@ inline void DrawMesh(Image* image, Mesh mesh)
 				if (low || high)
 					continue;
 
-				// Easiest to visualize depth if we set z to min = -1, max = 1 so GREATER
+				// Depth is now within [near = 0.001, far = 10.0], comparison is LESS
 				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
+				//if (depth < GetDepth(*image, x, y)) // <-- Old
 				if (depth > GetDepth(*image, x, y))
 					continue;
 				SetDepth(image, x, y, depth);
@@ -241,8 +244,6 @@ inline void DrawMesh(Image* image, Mesh mesh)
 				//Vector3 n2 = normals[vertex + 2];
 				//Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
 
-				// GREATER so 0 at extents will be min and 1 at centre will be max
-				//Vector3 c = V3_ONE * Remap(depth, -1.0f, 1.0f, 0.0f, 1.0f);
 				Color color = Float3ToColor(&bc.x);
 				SetPixel(image, x, y, color);
 			}
