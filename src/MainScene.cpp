@@ -36,8 +36,13 @@ void MainScene::OnUpdate(float dt)
 {
 	ClearColor(&mImage, BLACK);
 	ClearDepth(&mImage, 1.0f);
-	//ClearDepth(&mImage, -1.0f);  // <-- Old
-	DrawMesh(&mImage, gMeshSphere);
+
+	float ncos = cosf(TotalTime()) * 0.5 + 0.5f;
+	Matrix model = Translate(0.0f, 0.0f, 2.0f + 6.0f * ncos);
+	Matrix view = LookAt({ 0.0f, 0.0f, 10.0f }, V3_ZERO, V3_UP);
+	Matrix proj = Perspective(90.0f * DEG2RAD, 1.0f, 0.001f, 10.0f);
+	Matrix mvp = model * view * proj;
+	DrawMesh(&mImage, gMeshSphere, mvp);
 }
 
 void MainScene::OnDraw()

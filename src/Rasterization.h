@@ -142,7 +142,7 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 	}
 }
 
-inline void DrawMesh(Image* image, Mesh mesh)
+inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp)
 {
 	// screen-space
 	Vector3* vertices = new Vector3[mesh.vertexCount];
@@ -150,12 +150,6 @@ inline void DrawMesh(Image* image, Mesh mesh)
 	// object-space
 	Vector3* positions = new Vector3[mesh.vertexCount];
 	Vector3* normals = new Vector3[mesh.vertexCount];
-
-	float ncos = cosf(TotalTime()) * 0.5 + 0.5f;
-	Matrix model = Translate(0.0f, 0.0f, 2.0f + 6.0f * ncos);
-	Matrix view = LookAt({ 0.0f, 0.0f, 10.0f }, V3_ZERO, V3_UP);
-	Matrix proj = Perspective(90.0f * DEG2RAD, 1.0f, 0.001f, 10.0f);
-	Matrix mvp = model * view * proj;
 
 	// Convert mesh vertices from view-space to screen-space
 	for (size_t i = 0; i < mesh.vertexCount; i++)
