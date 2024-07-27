@@ -216,19 +216,19 @@ inline void DrawMesh(Image* image, Mesh mesh)
 					continue;
 				SetDepth(image, x, y, depth);
 
-				Vector3 p0 = positions[vertex + 0];
-				Vector3 p1 = positions[vertex + 1];
-				Vector3 p2 = positions[vertex + 2];
-				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
+				//Vector3 p0 = positions[vertex + 0];
+				//Vector3 p1 = positions[vertex + 1];
+				//Vector3 p2 = positions[vertex + 2];
+				//Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
 				
-				Vector3 n0 = normals[vertex + 0];
-				Vector3 n1 = normals[vertex + 1];
-				Vector3 n2 = normals[vertex + 2];
-				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
+				//Vector3 n0 = normals[vertex + 0];
+				//Vector3 n1 = normals[vertex + 1];
+				//Vector3 n2 = normals[vertex + 2];
+				//Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
 
 				// GREATER so 0 at extents will be min and 1 at centre will be max
-				Vector3 c = V3_ONE * depth;
-				Color color = Float3ToColor(&c.x);
+				//Vector3 c = V3_ONE * Remap(depth, -1.0f, 1.0f, 0.0f, 1.0f);
+				Color color = Float3ToColor(&bc.x);
 				SetPixel(image, x, y, color);
 			}
 		}
