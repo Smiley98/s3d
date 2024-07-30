@@ -37,14 +37,16 @@ void MainScene::OnUpdate(float dt)
 	ClearColor(&mImage, BLACK);
 	ClearDepth(&mImage, 1.0f);
 
-	float tt = TotalTime();
-	Matrix model =
-		Translate(0.0f, 0.0f, 5.0f + sinf(tt) * 3.0f);
-
+	Matrix model = Translate(0.0f, 0.0f, 5.0f + sinf(TotalTime()) * 3.0f);
 	Matrix view = LookAt({ 0.0f, 0.0f, 10.0f }, V3_ZERO, V3_UP);
 	Matrix proj = Perspective(90.0f * DEG2RAD, 1.0f, 0.001f, 10.0f);
-	Matrix mvp = model * view * proj;
-	DrawMesh(&mImage, gMeshSphere, mvp, model);
+
+	UniformData uniform;
+	uniform.mvp = model * view * proj;
+	uniform.world = model;
+	uniform.normal = NormalMatrix(model);
+	
+	DrawMesh(&mImage, gMeshSphere, uniform);
 }
 
 void MainScene::OnDraw()

@@ -142,19 +142,45 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 	}
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world)
+// Easier to change the signature of FragmentShader
+// since we need to change vertex input & rasterizer output
+// for something like texture coordinates
+struct FragmentInput
+{
+	Vector3 position;
+	Vector3 normal;
+};
+
+struct UniformData
+{
+	Matrix mvp;
+	Matrix world;
+	Matrix normal;
+};
+
+using FragmentShader = void(*)(const FragmentInput& in);
+
+// Tri-linear interpolation
+inline Vector3 Terp(Vector3 A, Vector3 B, Vector3 C, Vector3 t)
+{
+	return A * t.x + B * t.y + C * t.z;
+}
+
+inline Matrix NormalMatrix(Matrix world)
+{
+	Matrix normal = world;
+	normal.m12 = normal.m13 = normal.m14 = 0.0f;
+	normal = Transpose(Invert(normal));
+	return normal;
+}
+
+inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 {
 	// Vertex input begin
 	Vector3* vertices = new Vector3[mesh.vertexCount];
 	Vector3* positions = new Vector3[mesh.vertexCount];
 	Vector3* normals = new Vector3[mesh.vertexCount];
 	// Vertex input end
-
-	// Uniform data begin
-	Matrix normal = world;
-	normal.m12 = normal.m13 = normal.m14 = 0.0f;
-	normal = Transpose(Invert(normal));
-	// Uniform data end
 
 	// Vertex shader begin
 	for (size_t i = 0; i < mesh.vertexCount; i++)
@@ -165,7 +191,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world)
 		clip.z = mesh.positions[i].z;
 		clip.w = 1.0f;
 
-		clip = mvp * clip;
+		clip = uniform.mvp * clip;
 		clip /= clip.w;
 
 		Vector3 screen;
@@ -174,8 +200,8 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world)
 		screen.z = clip.z;
 
 		vertices[i] = screen;
-		positions[i] = world * mesh.positions[i];
-		normals[i] = Normalize(normal * mesh.normals[i]);
+		positions[i] = uniform.world * mesh.positions[i];
+		normals[i] = Normalize(uniform.normal * mesh.normals[i]);
 	}
 	// Vertex shader end
 
@@ -236,12 +262,12 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world)
 				Vector3 p0 = positions[vertex + 0];
 				Vector3 p1 = positions[vertex + 1];
 				Vector3 p2 = positions[vertex + 2];
-				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
+				Vector3 p = Terp(p0, p1, p2, bc);
 				
 				Vector3 n0 = normals[vertex + 0];
 				Vector3 n1 = normals[vertex + 1];
 				Vector3 n2 = normals[vertex + 2];
-				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
+				Vector3 n = Terp(n0, n1, n2, bc);
 
 				Color color = Float3ToColor(&n.x);
 				SetPixel(image, x, y, color);
