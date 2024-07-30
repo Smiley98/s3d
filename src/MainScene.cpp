@@ -46,7 +46,7 @@ void MainScene::OnUpdate(float dt)
 	uniform.world = model;
 	uniform.normal = NormalMatrix(model);
 	
-	DrawMesh(&mImage, gMeshSphere, uniform);
+	DrawMesh(&mImage, gMeshSphere, uniform, ShadeNormals);
 }
 
 void MainScene::OnDraw()

@@ -142,15 +142,6 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 	}
 }
 
-// Easier to change the signature of FragmentShader
-// since we need to change vertex input & rasterizer output
-// for something like texture coordinates
-struct FragmentInput
-{
-	Vector3 position;
-	Vector3 normal;
-};
-
 struct UniformData
 {
 	Matrix mvp;
@@ -158,7 +149,12 @@ struct UniformData
 	Matrix normal;
 };
 
-using FragmentShader = void(*)(const FragmentInput& in);
+using FragmentShader = Color(*)(Vector3 position, Vector3 normal);
+
+inline Color ShadeNormals(Vector3 position, Vector3 normal)
+{
+	return Float3ToColor(&normal.x);
+}
 
 // Tri-linear interpolation
 inline Vector3 Terp(Vector3 A, Vector3 B, Vector3 C, Vector3 t)
@@ -174,7 +170,7 @@ inline Matrix NormalMatrix(Matrix world)
 	return normal;
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
+inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform, FragmentShader fragmentShader)
 {
 	// Vertex input begin
 	Vector3* vertices = new Vector3[mesh.vertexCount];
@@ -269,7 +265,7 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 				Vector3 n2 = normals[vertex + 2];
 				Vector3 n = Terp(n0, n1, n2, bc);
 
-				Color color = Float3ToColor(&n.x);
+				Color color = fragmentShader(p, n);
 				SetPixel(image, x, y, color);
 				// Fragment shader end
 			}
