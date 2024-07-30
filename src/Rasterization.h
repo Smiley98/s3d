@@ -158,30 +158,25 @@ inline Matrix NormalMatrix(Matrix world)
 	return normal;
 }
 
-// Tri-linear interpolation
+// Tri-linear interpolation across 3d points
 inline Vector3 Terp(Vector3 A, Vector3 B, Vector3 C, Vector3 t)
 {
 	return A * t.x + B * t.y + C * t.z;
 }
 
-inline Color ShadePositions(Vector3 position, Vector3 normal)
+// Tri-linear interpolation across 2d points
+inline Vector2 Terp(Vector2 A, Vector2 B, Vector2 C, Vector3 t)
 {
-	return Float3ToColor(&position.x);
+	return A * t.x + B * t.y + C * t.z;
 }
 
-inline Color ShadeNormals(Vector3 position, Vector3 normal)
-{
-	return Float3ToColor(&normal.x);
-}
-
-using FragmentShader = Color(*)(Vector3 position, Vector3 normal);
-
-inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform, FragmentShader shader)
+inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 {
 	// Vertex input begin
 	Vector3* vertices = new Vector3[mesh.vertexCount];
 	Vector3* positions = new Vector3[mesh.vertexCount];
 	Vector3* normals = new Vector3[mesh.vertexCount];
+	Vector2* tcoords = new Vector2[mesh.vertexCount];
 	// Vertex input end
 
 	// Vertex shader begin
@@ -204,6 +199,7 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform, FragmentShade
 		vertices[i] = screen;
 		positions[i] = uniform.world * mesh.positions[i];
 		normals[i] = Normalize(uniform.normal * mesh.normals[i]);
+		tcoords[i] = mesh.tcoords[i];
 	}
 	// Vertex shader end
 
@@ -250,8 +246,10 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform, FragmentShade
 				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
 				bool low = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
 				bool high = bc.x > 1.0f || bc.y > 1.0f || bc.z > 1.0f;
+				bool nan = _isnanf(bc.x) || _isnanf(bc.y) || _isnanf(bc.z);
+				// nan only seems to affect uvs but not positions or normals...
 
-				if (low || high)
+				if (low || high || nan)
 					continue;
 
 				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
@@ -271,7 +269,14 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform, FragmentShade
 				Vector3 n2 = normals[vertex + 2];
 				Vector3 n = Terp(n0, n1, n2, bc);
 
-				Color color = shader(p, n);
+				Vector2 uv0 = tcoords[vertex + 0];
+				Vector2 uv1 = tcoords[vertex + 1];
+				Vector2 uv2 = tcoords[vertex + 2];
+				Vector2 uv = Terp(uv0, uv1, uv2, bc);
+
+				float tw = gImageDiffuse.width;
+				float th = gImageDiffuse.height;
+				Color color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
 				SetPixel(image, x, y, color);
 				// Fragment shader end
 			}
@@ -279,6 +284,7 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform, FragmentShade
 	}
 
 	delete[] rects;
+	delete[] tcoords;
 	delete[] normals;
 	delete[] positions;
 	delete[] vertices;

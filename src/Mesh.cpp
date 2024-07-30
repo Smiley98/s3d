@@ -317,13 +317,13 @@ void LoadFromObj(Mesh* mesh, const char* path)
 	vtx_tcoords.resize(vc);
 	for (size_t i = 0; i < vc; i++)
 	{
-		// let position = file positions at position index i - 1
-		// let normal = file normals at normal index i - 1
-		// let tcoord = file tcoords at tcoord index i - 1
+		Vector3 position = obj_positions[positionIndices[i] - 1];
+		Vector3 normal = obj_normals[normalIndices[i] - 1];
+		Vector2 uv = obj_tcoords[tcoordIndices[i] - 1];
 
-		// set vertex position at i to position
-		// set vertex normal at i to normal
-		// set vertex tcoord at i to tcoord
+		vtx_positions[i] = position;
+		vtx_normals[i] = normal;
+		vtx_tcoords[i] = uv;
 	}
 
 	CreateMeshCPU(mesh, vc, vtx_positions.data(), vtx_normals.data(),
