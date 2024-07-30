@@ -38,13 +38,13 @@ void MainScene::OnUpdate(float dt)
 	ClearColor(&mImage, BLACK);
 	ClearDepth(&mImage, 1.0f);
 
-	Matrix translation = Translate(0.0f, 0.0f, 8.0f);// +sinf(TotalTime()) * 3.0f);
+	Matrix translation = Translate(0.0f, 0.0f, 8.0f);
 	Matrix rotation = RotateY(TotalTime() * 00.0f * DEG2RAD);
 	Matrix scale = MatrixIdentity();
 
 	Matrix model = scale * rotation * translation;
 	Matrix view = LookAt({ 0.0f, 0.0f, 10.0f }, V3_ZERO, V3_UP);
-	Matrix proj = Perspective(90.0f * DEG2RAD, 1.0f, 0.001f, 10.0f);
+	Matrix proj = Perspective(90.0f * DEG2RAD, 1.0f, 0.001f, 100.0f);
 
 	UniformData uniform;
 	uniform.mvp = model * view * proj;

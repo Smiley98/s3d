@@ -176,6 +176,7 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 {
 	// Vertex input begin
 	Vector3* vertices = new Vector3[mesh.vertexCount];
+	Vector3* ndcs = new Vector3[mesh.vertexCount];
 	Vector3* positions = new Vector3[mesh.vertexCount];
 	Vector3* normals = new Vector3[mesh.vertexCount];
 	Vector2* tcoords = new Vector2[mesh.vertexCount];
@@ -193,12 +194,13 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 		clip = uniform.mvp * clip;
 		clip /= clip.w;
 
-		Vector3 screen;
+		Vector3 ndc{ clip.x, clip.y, clip.z };
+		Vector3 screen = ndc;
 		screen.x = Remap(clip.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
 		screen.y = Remap(clip.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
-		screen.z = clip.z;
 
 		vertices[i] = screen;
+		ndcs[i] = ndc;
 		positions[i] = uniform.world * mesh.positions[i];
 		normals[i] = Normalize(uniform.normal * mesh.normals[i]);
 		tcoords[i] = mesh.tcoords[i];
@@ -227,7 +229,11 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 			yMax = std::min(image->height - 1, std::max(yMax, y));
 		}
 
-		Vector3 n = normals[vertex];
+		// Face culling
+		Vector3 v0 = ndcs[vertex + 0];
+		Vector3 v1 = ndcs[vertex + 1];
+		Vector3 v2 = ndcs[vertex + 2];
+		Vector3 n = Normalize(Cross(v1 - v0, v2 - v1));
 		bool front = Dot(n, V3_FORWARD) > 0.0f;
 		if (front)
 		{
@@ -312,5 +318,6 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 	delete[] tcoords;
 	delete[] normals;
 	delete[] positions;
+	delete[] ndcs;
 	delete[] vertices;
 }
