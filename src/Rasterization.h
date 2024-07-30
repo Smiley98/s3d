@@ -142,14 +142,19 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 	}
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp)
+inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world)
 {
 	// screen-space
 	Vector3* vertices = new Vector3[mesh.vertexCount];
 
-	// object-space
+	// world-space
 	Vector3* positions = new Vector3[mesh.vertexCount];
 	Vector3* normals = new Vector3[mesh.vertexCount];
+
+	// Extract normal-matrix (remove translation and handle non-uniform scale)
+	Matrix normal = world;
+	normal.m12 = normal.m13 = normal.m14 = 0.0f;
+	normal = Transpose(Invert(normal));
 
 	// Convert mesh vertices from view-space to screen-space
 	for (size_t i = 0; i < mesh.vertexCount; i++)
@@ -167,10 +172,10 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp)
 		screen.x = Remap(clip.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
 		screen.y = Remap(clip.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
 		screen.z = clip.z;
-		vertices[i] = screen;
 
-		positions[i] = mesh.positions[i];
-		normals[i] = mesh.normals[i];
+		vertices[i] = screen;
+		positions[i] = world * mesh.positions[i];
+		normals[i] = Normalize(normal * mesh.normals[i]);
 	}
 
 	// Triangle AABBs
@@ -228,17 +233,17 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp)
 					continue;
 				SetDepth(image, x, y, depth);
 
-				//Vector3 p0 = positions[vertex + 0];
-				//Vector3 p1 = positions[vertex + 1];
-				//Vector3 p2 = positions[vertex + 2];
-				//Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
+				Vector3 p0 = positions[vertex + 0];
+				Vector3 p1 = positions[vertex + 1];
+				Vector3 p2 = positions[vertex + 2];
+				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
 				
-				//Vector3 n0 = normals[vertex + 0];
-				//Vector3 n1 = normals[vertex + 1];
-				//Vector3 n2 = normals[vertex + 2];
-				//Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
+				Vector3 n0 = normals[vertex + 0];
+				Vector3 n1 = normals[vertex + 1];
+				Vector3 n2 = normals[vertex + 2];
+				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
 
-				Color color = Float3ToColor(&bc.x);
+				Color color = Float3ToColor(&n.x);
 				SetPixel(image, x, y, color);
 			}
 		}
