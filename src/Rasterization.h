@@ -144,19 +144,19 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 
 inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world)
 {
-	// screen-space
+	// Vertex input begin
 	Vector3* vertices = new Vector3[mesh.vertexCount];
-
-	// world-space
 	Vector3* positions = new Vector3[mesh.vertexCount];
 	Vector3* normals = new Vector3[mesh.vertexCount];
+	// Vertex input end
 
-	// Extract normal-matrix (remove translation and handle non-uniform scale)
+	// Uniform data begin
 	Matrix normal = world;
 	normal.m12 = normal.m13 = normal.m14 = 0.0f;
 	normal = Transpose(Invert(normal));
+	// Uniform data end
 
-	// Convert mesh vertices from view-space to screen-space
+	// Vertex shader begin
 	for (size_t i = 0; i < mesh.vertexCount; i++)
 	{
 		Vector4 clip;
@@ -177,6 +177,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world)
 		positions[i] = world * mesh.positions[i];
 		normals[i] = Normalize(normal * mesh.normals[i]);
 	}
+	// Vertex shader end
 
 	// Triangle AABBs
 	Rect* rects = new Rect[mesh.faceCount];				
@@ -212,26 +213,26 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world)
 		{
 			for (int y = rects[face].yMin; y <= rects[face].yMax; y++)
 			{
+				// Rasterizer begin
 				size_t vertex = face * 3;
 				Vector3 v0 = vertices[vertex + 0];
 				Vector3 v1 = vertices[vertex + 1];
 				Vector3 v2 = vertices[vertex + 2];
 				
-				// Tri-linear interpolation, ensure 0.0 >= uvw <= 1.0
 				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
 				bool low = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
 				bool high = bc.x > 1.0f || bc.y > 1.0f || bc.z > 1.0f;
 
-				// Discard if pixel not in triangle
 				if (low || high)
 					continue;
 
-				// Depth is now within [near = 0.001, far = 10.0], comparison is LESS
 				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
 				if (depth > GetDepth(*image, x, y))
 					continue;
 				SetDepth(image, x, y, depth);
+				// Rasterizer end
 
+				// Fragment shader begin
 				Vector3 p0 = positions[vertex + 0];
 				Vector3 p1 = positions[vertex + 1];
 				Vector3 p2 = positions[vertex + 2];
@@ -244,6 +245,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world)
 
 				Color color = Float3ToColor(&n.x);
 				SetPixel(image, x, y, color);
+				// Fragment shader end
 			}
 		}
 	}
