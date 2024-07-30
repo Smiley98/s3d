@@ -228,7 +228,6 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix mvp, Matrix world)
 
 				// Depth is now within [near = 0.001, far = 10.0], comparison is LESS
 				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
-				//if (depth < GetDepth(*image, x, y)) // <-- Old
 				if (depth > GetDepth(*image, x, y))
 					continue;
 				SetDepth(image, x, y, depth);

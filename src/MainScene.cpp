@@ -37,18 +37,9 @@ void MainScene::OnUpdate(float dt)
 	ClearColor(&mImage, BLACK);
 	ClearDepth(&mImage, 1.0f);
 
-	// See if you can cull faces with view-space normals
-	// (re-calculating normals via cross-product seems counter-intuitive...)
-	// Try rendering red/green for front vs back faces!
-
 	float tt = TotalTime();
-	float sx = sinf(tt + 2.0f * PI * 0.333f);
-	float sy = sinf(tt + 2.0f * PI * 0.666f);
-	float sz = sinf(tt + 2.0f * PI * 1.000f);
 	Matrix model =
-		Scale(sx * 2.0f, sy * 3.0f, sz * 4.0f) *
-		RotateY(TotalTime() * 100.0f * DEG2RAD) *
-		Translate(0.0f, 0.0f, 3.0f);
+		Translate(0.0f, 0.0f, 5.0f + sinf(tt) * 3.0f);
 
 	Matrix view = LookAt({ 0.0f, 0.0f, 10.0f }, V3_ZERO, V3_UP);
 	Matrix proj = Perspective(90.0f * DEG2RAD, 1.0f, 0.001f, 10.0f);
