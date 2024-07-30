@@ -276,7 +276,14 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 
 				float tw = gImageDiffuse.width;
 				float th = gImageDiffuse.height;
-				Color color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
+				Color textureColor = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
+
+				Vector3 pixelColor{ textureColor.r, textureColor.g, textureColor.b };
+				pixelColor /= 255.0f;
+				pixelColor *= n;
+				pixelColor *= 3.0f;
+
+				Color color = Float3ToColor(&pixelColor.x);
 				SetPixel(image, x, y, color);
 				// Fragment shader end
 			}
