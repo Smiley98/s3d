@@ -4,6 +4,7 @@
 #include "App.h"
 #include "Rasterization.h"
 #include "ImageUtils.h"
+#include "Window.h"
 
 constexpr int IMAGE_SIZE = 512;
 
@@ -46,7 +47,12 @@ void MainScene::OnUpdate(float dt)
 	uniform.world = model;
 	uniform.normal = NormalMatrix(model);
 	
-	DrawMesh(&mImage, gMeshSphere, uniform, ShadeNormals);
+	static bool toggle = false;
+	if (IsKeyPressed(KEY_SPACE))
+		toggle = !toggle;
+
+	FragmentShader fs = toggle ? ShadePositions : ShadeNormals;
+	DrawMesh(&mImage, gMeshSphere, uniform, fs);
 }
 
 void MainScene::OnDraw()

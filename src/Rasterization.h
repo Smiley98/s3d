@@ -149,19 +149,7 @@ struct UniformData
 	Matrix normal;
 };
 
-using FragmentShader = Color(*)(Vector3 position, Vector3 normal);
-
-inline Color ShadeNormals(Vector3 position, Vector3 normal)
-{
-	return Float3ToColor(&normal.x);
-}
-
-// Tri-linear interpolation
-inline Vector3 Terp(Vector3 A, Vector3 B, Vector3 C, Vector3 t)
-{
-	return A * t.x + B * t.y + C * t.z;
-}
-
+// Extract rotation from world matrix
 inline Matrix NormalMatrix(Matrix world)
 {
 	Matrix normal = world;
@@ -170,7 +158,25 @@ inline Matrix NormalMatrix(Matrix world)
 	return normal;
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform, FragmentShader fragmentShader)
+// Tri-linear interpolation
+inline Vector3 Terp(Vector3 A, Vector3 B, Vector3 C, Vector3 t)
+{
+	return A * t.x + B * t.y + C * t.z;
+}
+
+inline Color ShadePositions(Vector3 position, Vector3 normal)
+{
+	return Float3ToColor(&position.x);
+}
+
+inline Color ShadeNormals(Vector3 position, Vector3 normal)
+{
+	return Float3ToColor(&normal.x);
+}
+
+using FragmentShader = Color(*)(Vector3 position, Vector3 normal);
+
+inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform, FragmentShader shader)
 {
 	// Vertex input begin
 	Vector3* vertices = new Vector3[mesh.vertexCount];
@@ -265,7 +271,7 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform, FragmentShade
 				Vector3 n2 = normals[vertex + 2];
 				Vector3 n = Terp(n0, n1, n2, bc);
 
-				Color color = fragmentShader(p, n);
+				Color color = shader(p, n);
 				SetPixel(image, x, y, color);
 				// Fragment shader end
 			}
