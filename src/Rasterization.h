@@ -147,6 +147,8 @@ struct UniformData
 	Matrix mvp;
 	Matrix world;
 	Matrix normal;
+
+	Vector3 lightPosition;
 };
 
 // Extract rotation from world matrix
@@ -204,7 +206,7 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 	// Vertex shader end
 
 	// Triangle AABBs
-	Rect* rects = new Rect[mesh.faceCount];				
+	Rect* rects = new Rect[mesh.faceCount];
 	for (size_t face = 0; face < mesh.faceCount; face++)
 	{
 		// Ensure min & max get overwritten
@@ -225,10 +227,22 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 			yMax = std::min(image->height - 1, std::max(yMax, y));
 		}
 
-		rects[face].xMin = xMin;
-		rects[face].xMax = xMax;
-		rects[face].yMin = yMin;
-		rects[face].yMax = yMax;
+		Vector3 n = normals[vertex];
+		bool front = Dot(n, V3_FORWARD) > 0.0f;
+		if (front)
+		{
+			rects[face].xMin = xMin;
+			rects[face].xMax = xMax;
+			rects[face].yMin = yMin;
+			rects[face].yMax = yMax;
+		}
+		else
+		{
+			rects[face].xMin = 0;
+			rects[face].xMax = -1;
+			rects[face].yMin = 0;
+			rects[face].yMax = -1;
+		}
 	}
 
 	for (size_t face = 0; face < mesh.faceCount; face++)
@@ -278,10 +292,14 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 				float th = gImageDiffuse.height;
 				Color textureColor = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
 
+				// Light vector -- FROM fragment TO light
+				Vector3 l = Normalize(uniform.lightPosition - p);
+				float diffuseIntensity = Dot(n, l);
+				Vector3 diffuseColor = { 1.0f, 0.0f, 0.0f };
+
 				Vector3 pixelColor{ textureColor.r, textureColor.g, textureColor.b };
 				pixelColor /= 255.0f;
-				pixelColor *= n;
-				pixelColor *= 3.0f;
+				pixelColor *= diffuseColor * diffuseIntensity;
 
 				Color color = Float3ToColor(&pixelColor.x);
 				SetPixel(image, x, y, color);

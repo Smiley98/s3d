@@ -51,6 +51,8 @@ void MainScene::OnUpdate(float dt)
 	uniform.world = model;
 	uniform.normal = NormalMatrix(model);
 
+	uniform.lightPosition = { 0.0f, sinf(TotalTime()) * 3.0f, 10.0f};
+
 	DrawMesh(&mImage, gMeshHead, uniform);
 }
 
