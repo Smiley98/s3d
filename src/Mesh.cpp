@@ -63,9 +63,7 @@ void CreateMeshes()
 	CreateMeshGPU(&gMeshSphere);
 
 	// Task 1 -- use par_shapes + s3d to generate a dodecahedron.
-
 	// Task 2 -- complete the LoadFromObj function and use it to load the head mesh.
-	LoadFromObj(&gMeshHead, "assets/meshes/head.obj");
 }
 
 void DestroyMeshes()
@@ -318,13 +316,13 @@ void LoadFromObj(Mesh* mesh, const char* path)
 	vtx_tcoords.resize(vc);
 	for (size_t i = 0; i < vc; i++)
 	{
-		// let position = file positions at position index i - 1
-		// let normal = file normals at normal index i - 1
-		// let tcoord = file tcoords at tcoord index i - 1
+		// let position = obj positions at (position index i) - 1
+		// let normal = obj normals at (normal index i) - 1
+		// let tcoord = obj tcoords at (tcoord index i) - 1
 
-		// set vertex position at i to position
-		// set vertex normal at i to normal
-		// set vertex tcoord at i to tcoord
+		// set vtx position at i to position
+		// set vtx normal at i to normal
+		// set vtx tcoord at i to tcoord
 	}
 
 	CreateMeshCPU(mesh, vc, vtx_positions.data(), vtx_normals.data(),
