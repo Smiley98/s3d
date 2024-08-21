@@ -69,15 +69,35 @@ void CreateMeshes()
 
 void DestroyMeshes()
 {
-	auto Destroy = [](Mesh* mesh)
-	{
-		DestroyMeshGPU(mesh);
-		DestroyMeshCPU(mesh);
-	};
-
-	Destroy(&gMeshTriangle);
-	Destroy(&gMeshCube);
+	DestroyMesh(&gMeshTriangle);
+	DestroyMesh(&gMeshCube);
 	glDeleteVertexArrays(1, &fVaoFsq);
+}
+
+void CreateMesh(Mesh* mesh, size_t vc, Vector3* positions, Vector3* normals, Vector2* tcoords, Vector3* colors, uint16_t* indices)
+{
+	CreateMeshCPU(mesh, vc, positions, normals, tcoords, colors, indices);
+	CreateMeshGPU(mesh);
+}
+
+void DestroyMesh(Mesh* mesh)
+{
+	DestroyMeshGPU(mesh);
+	DestroyMeshCPU(mesh);
+}
+
+void CopyMesh(Mesh src, Mesh* dst)
+{
+	// TODO -- consider making CPU vs GPU copy-flags
+	CreateMeshCPU(dst, src.vertexCount, src.positions, src.normals, src.tcoords, src.colors, src.indices);
+	CreateMeshGPU(dst);
+}
+
+void DrawMesh(Mesh mesh)
+{
+	glBindVertexArray(mesh.vao);
+	glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
+	glBindVertexArray(GL_NONE);
 }
 
 void BindFsq()
@@ -91,13 +111,6 @@ void DrawFsq()
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glBindVertexArray(GL_NONE);
 	glEnable(GL_DEPTH_TEST);
-}
-
-void DrawMesh(Mesh mesh)
-{
-	glBindVertexArray(mesh.vao);
-	glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
-	glBindVertexArray(GL_NONE);
 }
 
 void CreateMeshCPU(Mesh* mesh, size_t vc,

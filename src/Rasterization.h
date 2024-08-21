@@ -52,6 +52,14 @@ inline void DrawRect(Image* image, int x, int y, int w, int h, Color color)
 	}
 }
 
+inline void DrawRectLines(Image* image, int x, int y, int w, int h, Color color)
+{
+	DrawLineX(image, y + 0, x, x + w, color);
+	DrawLineX(image, y + h, x, x + w, color);
+	DrawLineY(image, x + 0, y, y + h, color);
+	DrawLineY(image, x + w, y, y + h, color);
+}
+
 inline void DrawCircle(Image* image, int cx, int cy, int cr, Color color)
 {
 	int x = 0;
@@ -84,14 +92,6 @@ inline void DrawCircle(Image* image, int cx, int cy, int cr, Color color)
 	}
 }
 
-inline void DrawRectLines(Image* image, int x, int y, int w, int h, Color color)
-{
-	DrawLineX(image, y + 0, x, x + w, color);
-	DrawLineX(image, y + h, x, x + w, color);
-	DrawLineY(image, x + 0, y, y + h, color);
-	DrawLineY(image, x + w, y, y + h, color);
-}
-
 inline void DrawCircleLines(Image* image, int cx, int cy, int cr, Color color)
 {
 	int x = 0;
@@ -122,23 +122,34 @@ inline void DrawCircleLines(Image* image, int cx, int cy, int cr, Color color)
 	}
 }
 
-inline void DrawFaceWireframes(Image* image, Mesh mesh, size_t face)
+inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Color color = WHITE)
 {
+	const int xMin = 0;
+	const int yMin = 0;
+	const int xMax = image->width - 1;
+	const int yMax = image->height - 1;
 	size_t vertex = face * 3;
 	for (size_t i = 0; i < 3; i++)
 	{
-		Vector3 v0 = mesh.positions[vertex + i];
-		Vector3 v1 = mesh.positions[vertex + ((i + 1) % 3)];
-		v0.x = Remap(v0.x, -1.0f, 1.0f, 0, image->width - 1);
-		v0.y = Remap(v0.y, -1.0f, 1.0f, 0, image->height - 1);
-		v1.x = Remap(v1.x, -1.0f, 1.0f, 0, image->width - 1);
-		v1.y = Remap(v1.y, -1.0f, 1.0f, 0, image->height - 1);
+		Vector3 v0 = positions[vertex + i];
+		Vector3 v1 = positions[vertex + ((i + 1) % 3)];
+
+		v0.x = Remap(v0.x, -1.0f, 1.0f, xMin, xMax);
+		v0.y = Remap(v0.y, -1.0f, 1.0f, yMin, yMax);
+		v1.x = Remap(v1.x, -1.0f, 1.0f, xMin, xMax);
+		v1.y = Remap(v1.y, -1.0f, 1.0f, yMin, yMax);
 
 		int x0 = v0.x;
 		int y0 = v0.y;
 		int x1 = v1.x;
 		int y1 = v1.y;
-		DrawLine(image, x0, y0, x1, y1, WHITE);
+
+		// Better if I did a line-rectangle intersection with the screen
+		//if (x0 < xMin || x0 > xMax || x1 < xMin || x1 > xMax ||
+		//	y0 < yMin || y0 > yMax || y1 < yMin || y1 > yMax)
+		//	continue;
+
+		DrawLine(image, x0, y0, x1, y1, color);
 	}
 }
 
@@ -146,7 +157,6 @@ struct UniformData
 {
 	Matrix mvp;
 	Matrix world;
-	Matrix normal;
 
 	Vector3 cameraPosition;
 	Vector3 lightPosition;
@@ -170,52 +180,89 @@ inline Vector3 Phong(Vector3 position, Vector3 normal, Vector3 camera, Vector3 l
 
 	Vector3 phong = V3_ZERO;
 	phong += color * ambient;
-	phong += color * diffuse;
+	phong += color * diffuse * dotNL;
 	phong += color * powf(dotVR, specular);
 	return phong;
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, UniformData u)
+// Extract rotation from world matrix
+inline Matrix NormalMatrix(Matrix world)
 {
-	Vector3* vertices = new Vector3[mesh.vertexCount];	// clip-space
-	Vector3* positions = new Vector3[mesh.vertexCount];	// world-space
-	Vector3* normals = new Vector3[mesh.vertexCount];	// object-space (soon to be world-space)
-	Vector2* tcoords = new Vector2[mesh.vertexCount];	// object-space
-	Rect* rects = new Rect[mesh.faceCount];				// Triangle AABBs
+	Matrix normal = world;
+	normal.m12 = normal.m13 = normal.m14 = 0.0f;
+	normal = Transpose(Invert(normal));
+	return normal;
+}
 
-	// Vertex pre-processing (space-transformations)
-	for (size_t vertex = 0; vertex < mesh.vertexCount; vertex++)
+// Tri-linear interpolation across 3d points
+inline Vector3 Terp(Vector3 A, Vector3 B, Vector3 C, Vector3 t)
+{
+	return A * t.x + B * t.y + C * t.z;
+}
+
+// Tri-linear interpolation across 2d points
+inline Vector2 Terp(Vector2 A, Vector2 B, Vector2 C, Vector3 t)
+{
+	return A * t.x + B * t.y + C * t.z;
+}
+
+// Convert from object-space to normalized-device-coordinates
+inline Vector3 Clip(Vector3 v, Matrix m)
+{
+	Vector4 clip;
+	clip.x = v.x;
+	clip.y = v.y;
+	clip.z = v.z;
+	clip.w = 1.0f;
+
+	clip = m * clip;
+	clip /= clip.w;
+
+	return { clip.x, clip.y, clip.z };
+}
+
+inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
+{
+	// Vertex input begin
+	Vector3* vertices = new Vector3[mesh.vertexCount];
+	Vector3* ndcs = new Vector3[mesh.vertexCount];
+	Vector3* positions = new Vector3[mesh.vertexCount];
+	Vector3* normals = new Vector3[mesh.vertexCount];
+	Vector2* tcoords = new Vector2[mesh.vertexCount];
+	// Vertex input end
+
+	Matrix normalMatrix = NormalMatrix(uniform.world);
+
+	// Vertex shader begin
+	for (size_t i = 0; i < mesh.vertexCount; i++)
 	{
-		Vector4 clip;
-		clip.x = mesh.positions[vertex].x;
-		clip.y = mesh.positions[vertex].y;
-		clip.z = mesh.positions[vertex].z;
-		clip.w = 1.0f;
+		Vector3 ndc = Clip(mesh.positions[i], uniform.mvp);
+		Vector3 screen = ndc;
+		screen.x = Remap(screen.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
+		screen.y = Remap(screen.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
 
-		clip = u.mvp * clip;
-		clip /= clip.w;
-
-		Vector3 screen;
-		screen.x = Remap(clip.x, -1.0f, 1.0f, 0.0f, (float)image->width - 1.0f);
-		screen.y = Remap(clip.y, -1.0f, 1.0f, 0.0f, (float)image->height - 1.0f);
-		screen.z = clip.z;
-		vertices[vertex] = screen;
-
-		positions[vertex] = u.world * mesh.positions[vertex];
-		normals[vertex] = u.normal * mesh.normals[vertex];
-		tcoords[vertex] = mesh.tcoords[vertex];
+		vertices[i] = screen;
+		ndcs[i] = ndc;
+		positions[i] = uniform.world * mesh.positions[i];
+		normals[i] = Normalize(normalMatrix * mesh.normals[i]);
+		tcoords[i] = mesh.tcoords[i];
 	}
+	// Vertex shader end
 
-	// Triangle AABBs:
+	// Triangle AABBs
+	Rect* rects = new Rect[mesh.faceCount];
 	for (size_t face = 0; face < mesh.faceCount; face++)
 	{
+		// Ensure min & max get overwritten
 		int xMin = image->width - 1;
 		int yMin = image->height - 1;
 		int xMax = 0;
 		int yMax = 0;
-		size_t vertex = face * 3;
+
+		// Determine min & max of face, ensure its on-screen
+		const size_t vertex = face * 3;
 		for (size_t i = 0; i < 3; i++)
-		{	
+		{
 			int x = vertices[vertex + i].x;
 			int y = vertices[vertex + i].y;
 			xMin = std::max(0, std::min(xMin, x));
@@ -223,105 +270,94 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData u)
 			xMax = std::min(image->width - 1, std::max(xMax, x));
 			yMax = std::min(image->height - 1, std::max(yMax, y));
 		}
-		rects[face].xMin = xMin;
-		rects[face].xMax = xMax;
-		rects[face].yMin = yMin;
-		rects[face].yMax = yMax;
+
+		// Face culling
+		Vector3 v0 = ndcs[vertex + 0];
+		Vector3 v1 = ndcs[vertex + 1];
+		Vector3 v2 = ndcs[vertex + 2];
+		Vector3 n = Normalize(Cross(v1 - v0, v2 - v1));
+		bool front = Dot(n, V3_FORWARD) > 0.0f;
+		if (front)
+		{
+			rects[face].xMin = xMin;
+			rects[face].xMax = xMax;
+			rects[face].yMin = yMin;
+			rects[face].yMax = yMax;
+		}
+		else
+		{
+			rects[face].xMin = 0;
+			rects[face].xMax = -1;
+			rects[face].yMin = 0;
+			rects[face].yMax = -1;
+		}
 	}
 
-	// Back-face culling:
-	bool* frontFacing = new bool[mesh.faceCount];
 	for (size_t face = 0; face < mesh.faceCount; face++)
 	{
-		size_t vertex = face * 3;
-		Vector3 p0 = positions[vertex + 0];
-		Vector3 p1 = positions[vertex + 1];
-		Vector3 p2 = positions[vertex + 2];
-		Vector3 f = { 0.0f, 0.0f, 1.0f };
-		Vector3 n = Normalize(Cross(p1 - p0, p2 - p0));	// CCW
-		float intensity = Dot(n, f);
-		frontFacing[face] = intensity > 0.0;
-		// Cross(p2 - p0, p1 - p0) --> CW
-		// Cross(p1 - p0, p2 - p0) --> CCW
-	}
-
-	// Draw triangles:
-	for (size_t face = 0; face < mesh.faceCount; face++)
-	{
-		// Discard if back-facing
-		if (!frontFacing[face])
-			continue;
-
-		size_t vertex = face * 3;
-		Vector3 v0 = vertices[vertex + 0];
-		Vector3 v1 = vertices[vertex + 1];
-		Vector3 v2 = vertices[vertex + 2];
-
-		Vector3 p0 = positions[vertex + 0];
-		Vector3 p1 = positions[vertex + 1];
-		Vector3 p2 = positions[vertex + 2];
-
-		Vector3 n0 = normals[vertex + 0];
-		Vector3 n1 = normals[vertex + 1];
-		Vector3 n2 = normals[vertex + 2];
-
-		Vector2 uv0 = tcoords[vertex + 0];
-		Vector2 uv1 = tcoords[vertex + 1];
-		Vector2 uv2 = tcoords[vertex + 2];
-
 		for (int x = rects[face].xMin; x <= rects[face].xMax; x++)
 		{
 			for (int y = rects[face].yMin; y <= rects[face].yMax; y++)
 			{
-				// nan errors seem to have disappeared (on my laptop)?
-				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f },v0, v1, v2);
+				// Rasterizer begin
+				size_t vertex = face * 3;
+				Vector3 v0 = vertices[vertex + 0];
+				Vector3 v1 = vertices[vertex + 1];
+				Vector3 v2 = vertices[vertex + 2];
+
+				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
 				bool low = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
 				bool high = bc.x > 1.0f || bc.y > 1.0f || bc.z > 1.0f;
+				bool nan = _isnanf(bc.x) || _isnanf(bc.y) || _isnanf(bc.z);
+				// nan only seems to affect uvs but not positions or normals...
 
-				// Discard if pixel not in triangle
-				if (low || high)
+				if (low || high || nan)
 					continue;
 
-				// Discard if depth test fails
-				float z = 0.0f;
-				z += v0.z * bc.x;
-				z += v1.z * bc.y;
-				z += v2.z * bc.z;
-				if (z > GetDepth(*image, x, y))
+				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
+				if (depth > GetDepth(*image, x, y))
 					continue;
-				// Note that proj allows us to use depth intuitively!
-				// [-1 <= NEAR < z < FAR <= 1] (or maybe its 0 = near... test this).
+				SetDepth(image, x, y, depth);
+				// Rasterizer end
 
-				Color color = BLACK;
-				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
-				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
-				n = Normalize(n);
+				// Fragment shader begin
+				Vector3 p0 = positions[vertex + 0];
+				Vector3 p1 = positions[vertex + 1];
+				Vector3 p2 = positions[vertex + 2];
+				Vector3 p = Terp(p0, p1, p2, bc);
 
-				float dotNL = fmaxf(Dot(n, V3_ONE), 0.0f);
+				Vector3 n0 = normals[vertex + 0];
+				Vector3 n1 = normals[vertex + 1];
+				Vector3 n2 = normals[vertex + 2];
+				Vector3 n = Terp(n0, n1, n2, bc);
 
-				Vector2 uv = uv0 * bc.x + uv1 * bc.y + uv2 * bc.z;
+				Vector2 uv0 = tcoords[vertex + 0];
+				Vector2 uv1 = tcoords[vertex + 1];
+				Vector2 uv2 = tcoords[vertex + 2];
+				Vector2 uv = Terp(uv0, uv1, uv2, bc);
+
 				float tw = gImageDiffuse.width;
 				float th = gImageDiffuse.height;
-				color = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
+				Color textureColor = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
 
-				Vector3 phong = Phong(p, n, u.cameraPosition, u.lightPosition, u.lightColor,
-					u.ambient, u.diffuse, u.specular);
+				Vector3 baseColor = Phong(p, n, uniform.cameraPosition, uniform.lightPosition,
+					uniform.lightColor, uniform.ambient, uniform.diffuse, uniform.specular);
 
-				Vector3 c{ color.r, color.g, color.b };
-				c /= 255.0f;
-				c *= phong;
-				color = Float3ToColor(&c.x);
+				Vector3 pixelColor{ textureColor.r, textureColor.g, textureColor.b };
+				pixelColor /= 255.0f;
+				pixelColor *= baseColor;
 
+				Color color = Float3ToColor(&pixelColor.x);
 				SetPixel(image, x, y, color);
-				SetDepth(image, x, y, z);
+				// Fragment shader end
 			}
 		}
 	}
 
-	delete[] frontFacing;
 	delete[] rects;
 	delete[] tcoords;
 	delete[] normals;
 	delete[] positions;
+	delete[] ndcs;
 	delete[] vertices;
 }

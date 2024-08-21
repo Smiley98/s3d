@@ -34,7 +34,11 @@ extern Mesh gMeshDodecahedron;
 void CreateMeshes();
 void DestroyMeshes();
 
+void CreateMesh(Mesh* mesh, size_t vc, Vector3* positions, Vector3* normals, Vector2* tcoords, Vector3* colors, uint16_t* indices);
+void DestroyMesh(Mesh* mesh);
+
+void CopyMesh(Mesh src, Mesh* dst);
+void DrawMesh(Mesh mesh);
+
 void BindFsq();
 void DrawFsq();
-
-void DrawMesh(Mesh mesh);
