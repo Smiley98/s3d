@@ -22,6 +22,9 @@
     <Filter Include="Lighting">
       <UniqueIdentifier>{1a24491b-72bb-4f8e-b84a-b6856fdfffad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{b13a314b-0975-4b45-8644-d4719818a80b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\imgui\imgui.cpp">
@@ -89,6 +92,9 @@
     </ClCompile>
     <ClCompile Include="src\Shader.cpp">
       <Filter>Pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render.cpp">
+      <Filter>Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="src\Math.h">
       <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render.h">
+      <Filter>Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

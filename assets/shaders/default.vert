@@ -5,7 +5,7 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexure;
 
 uniform mat4 u_mvp;
-uniform mat4 u_model;
+uniform mat4 u_world;
 uniform mat3 u_normal;
 
 out vec3 position;
@@ -14,7 +14,7 @@ out vec2 uv;
 
 void main()
 {
-   position = (u_model * vec4(aPosition, 1.0)).xyz;
+   position = (u_world * vec4(aPosition, 1.0)).xyz;
    normal = u_normal * aNormal;
    uv = aTexure;
    //normal = aNormal; <-- object-space!

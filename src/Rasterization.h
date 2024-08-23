@@ -185,42 +185,6 @@ inline Vector3 Phong(Vector3 position, Vector3 normal, Vector3 camera, Vector3 l
 	return phong;
 }
 
-// Extract rotation from world matrix
-inline Matrix NormalMatrix(Matrix world)
-{
-	Matrix normal = world;
-	normal.m12 = normal.m13 = normal.m14 = 0.0f;
-	normal = Transpose(Invert(normal));
-	return normal;
-}
-
-// Tri-linear interpolation across 3d points
-inline Vector3 Terp(Vector3 A, Vector3 B, Vector3 C, Vector3 t)
-{
-	return A * t.x + B * t.y + C * t.z;
-}
-
-// Tri-linear interpolation across 2d points
-inline Vector2 Terp(Vector2 A, Vector2 B, Vector2 C, Vector3 t)
-{
-	return A * t.x + B * t.y + C * t.z;
-}
-
-// Convert from object-space to normalized-device-coordinates
-inline Vector3 Clip(Vector3 v, Matrix m)
-{
-	Vector4 clip;
-	clip.x = v.x;
-	clip.y = v.y;
-	clip.z = v.z;
-	clip.w = 1.0f;
-
-	clip = m * clip;
-	clip /= clip.w;
-
-	return { clip.x, clip.y, clip.z };
-}
-
 inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 {
 	// Vertex input begin

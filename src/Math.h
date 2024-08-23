@@ -2519,3 +2519,106 @@ RMAPI Vector4 Vector4::operator/=(float f)
     w /= f;
     return *this;
 }
+
+// 3d tri-linear interpolation
+inline Vector3 Terp(Vector3 A, Vector3 B, Vector3 C, Vector3 t)
+{
+    return A * t.x + B * t.y + C * t.z;
+}
+
+// 2d tri-linear interpolation
+inline Vector2 Terp(Vector2 A, Vector2 B, Vector2 C, Vector3 t)
+{
+    return A * t.x + B * t.y + C * t.z;
+}
+
+// 1d tri-linear interpolation
+inline float Terp(float A, float B, float C, Vector3 t)
+{
+    return A * t.x + B * t.y + C * t.z;
+}
+
+// Extract rotation from world matrix
+inline Matrix NormalMatrix(Matrix world)
+{
+    Matrix normal = world;
+    normal.m12 = normal.m13 = normal.m14 = 0.0f;
+    normal = Transpose(Invert(normal));
+    return normal;
+}
+
+// Convert from object-space to normalized-device-coordinates
+inline Vector3 Clip(Vector3 v, Matrix m)
+{
+    Vector4 clip;
+    clip.x = v.x;
+    clip.y = v.y;
+    clip.z = v.z;
+    clip.w = 1.0f;
+
+    clip = m * clip;
+    clip /= clip.w;
+
+    return { clip.x, clip.y, clip.z };
+}
+
+// OpenGL uniform matrix has a transpose flag so this is unnecessary.
+// Can just transpose manually if I use uniform buffer objects.
+// (At that point you're mapping structures rather than matrices).
+// (Probably not a good idea cause there's too many moving parts).
+/*
+// Get float vector for Matrix
+#ifndef MatrixToFloat
+#define MatrixToFloat(mat) (ToFloatV(mat).v)
+#endif
+
+// Get float vector for Vector3
+#ifndef Vector3ToFloat
+#define Vector3ToFloat(vec) (ToFloatV(vec).v)
+#endif
+
+typedef struct float3 {
+    float v[3]{};
+} float3;
+
+typedef struct float16 {
+    float v[16]{};
+} float16;
+
+// Get Vector3 as float array
+RMAPI float3 ToFloatV(Vector3 v)
+{
+    float3 buffer = { 0 };
+
+    buffer.v[0] = v.x;
+    buffer.v[1] = v.y;
+    buffer.v[2] = v.z;
+
+    return buffer;
+}
+
+// Get float array of matrix data (transposes the matrix from row-major to column-major)!
+RMAPI float16 ToFloatV(Matrix mat)
+{
+    float16 result = { 0 };
+
+    result.v[0] = mat.m0;
+    result.v[1] = mat.m1;
+    result.v[2] = mat.m2;
+    result.v[3] = mat.m3;
+    result.v[4] = mat.m4;
+    result.v[5] = mat.m5;
+    result.v[6] = mat.m6;
+    result.v[7] = mat.m7;
+    result.v[8] = mat.m8;
+    result.v[9] = mat.m9;
+    result.v[10] = mat.m10;
+    result.v[11] = mat.m11;
+    result.v[12] = mat.m12;
+    result.v[13] = mat.m13;
+    result.v[14] = mat.m14;
+    result.v[15] = mat.m15;
+
+    return result;
+}
+*/

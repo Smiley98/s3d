@@ -29,7 +29,7 @@ void Init()
 	CreateMeshes();
 	CreateImages();
 
-	Scene::Create(Scene::MAIN);
+	Scene::Create(Scene::RASTER);
 }
 
 void Loop()
