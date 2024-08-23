@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "App.h"
 #include "ImageUtils.h"
+#include "Time.h"
 
 float Fract(float f)
 {

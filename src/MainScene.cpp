@@ -3,6 +3,7 @@
 #include "App.h"
 #include "Rasterization.h"
 #include "ImageUtils.h"
+#include "Time.h"
 
 constexpr int IMAGE_SIZE = 512;
 

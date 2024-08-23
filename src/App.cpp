@@ -1,6 +1,7 @@
 #include "App.h"
 #include "Window.h"
 #include "Scene.h"
+#include "Time.h"
 
 #include "Shader.h"
 #include "Mesh.h"
@@ -107,16 +108,6 @@ void Quit()
 	DestroyWindow();
 }
 
-double FrameTime()
-{
-	return fFrameDelta;
-}
-
-double TotalTime()
-{
-	return glfwGetTime();
-}
-
 void Update(float dt)
 {
 	Scene::Update(dt);
@@ -132,4 +123,14 @@ void Draw()
 void DrawImGui()
 {
 	Scene::DrawImGui();
+}
+
+double FrameTime()
+{
+	return fFrameDelta;
+}
+
+double TotalTime()
+{
+	return glfwGetTime();
 }

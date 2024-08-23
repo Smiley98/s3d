@@ -2,9 +2,9 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "Window.h"
-#include "App.h"
 #include "Rasterization.h"
 #include "ImageUtils.h"
+#include "Time.h"
 
 constexpr size_t IMAGE_SIZE = 512;
 

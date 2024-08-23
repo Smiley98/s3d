@@ -138,6 +138,7 @@
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\TestScene.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\Time.h" />
     <ClInclude Include="src\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
