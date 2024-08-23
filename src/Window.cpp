@@ -70,6 +70,7 @@ void CreateWindow()
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(glDebugOutput, nullptr);
 #endif
+    glEnable(GL_DEPTH_TEST);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

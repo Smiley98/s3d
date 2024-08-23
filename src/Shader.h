@@ -11,6 +11,7 @@ struct Shader
 
 extern Shader gShaderFSQ;
 extern Shader gShaderColor;
+extern Shader gShaderNormals;
 
 void CreateShaders();
 void DestroyShaders();
@@ -23,4 +24,5 @@ void SendInt(const char* name, int v);
 void SendVec2(const char* name, const Vector2& v);
 void SendVec3(const char* name, const Vector3& v);
 void SendVec4(const char* name, const Vector4& v);
+void SendMat3(const char* name, const Matrix* v);
 void SendMat4(const char* name, const Matrix* v);

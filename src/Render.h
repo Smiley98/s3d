@@ -6,3 +6,4 @@
 #include "Texture.h"
 
 void DrawMeshWireframes(Mesh mesh, Matrix mvp, Vector3 color);
+void DrawMeshNormals(Mesh mesh, Matrix mvp, Matrix world = MatrixIdentity());

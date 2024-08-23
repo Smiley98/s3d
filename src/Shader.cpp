@@ -12,6 +12,7 @@ std::vector<GLuint> fPrograms;
 
 Shader gShaderFSQ;
 Shader gShaderColor;
+Shader gShaderNormals;
 
 GLuint CreateShader(GLint type, const char* path);
 void CreateProgram(Shader* shader, GLuint vs, GLuint fs);
@@ -23,10 +24,12 @@ void CreateShaders()
     GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
 
     GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
-    GLuint fsColor= CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
+    GLuint fsColor = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
+    GLuint fsNormals = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/normals.frag");
     
     CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
     CreateProgram(&gShaderColor, vsMVP, fsColor);
+    CreateProgram(&gShaderNormals, vsMVP, fsNormals);
 }
 
 void DestroyShaders()
@@ -76,6 +79,11 @@ void SendVec3(const char* name, const Vector3& v)
 void SendVec4(const char* name, const Vector4& v)
 {
     glUniform4f(GetUniform(name), v.x, v.y, v.z, v.w);
+}
+
+void SendMat3(const char* name, const Matrix* v)
+{
+    glUniformMatrix3fv(GetUniform(name), 1, GL_TRUE, (const GLfloat*)v);
 }
 
 void SendMat4(const char* name, const Matrix* v)
