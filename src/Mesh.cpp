@@ -1,28 +1,40 @@
-#include "Mesh.h"
-
 #define PAR_SHAPES_IMPLEMENTATION
-#include <par_shapes.h>
-
+#include "Mesh.h"
 #include <cstdio>
 #include <vector>
 
 GLuint fVaoFsq = GL_NONE;
+
 Mesh gMeshTriangle;
 Mesh gMeshCube;
 Mesh gMeshSphere;
-Mesh gMeshHead;
 Mesh gMeshDodecahedron;
+
+Mesh gMeshHead;
+
+// Not exposing since ParsePar(PrimitiveShape) is also file-scope.
+enum PrimitiveShape
+{
+	CUBE,
+	SPHERE,
+	DODECAHEDRON
+};
 
 void CreateMeshCPU(Mesh* mesh, size_t vc,
 	Vector3* positions, Vector3* normals, Vector2* tcoords,
 	Vector3* colors, uint16_t* indices);
 
 void CreateMeshGPU(Mesh* mesh);
+
 void DestroyMeshCPU(Mesh* mesh);
 void DestroyMeshGPU(Mesh* mesh);
 
-void LoadFromPar(Mesh* mesh, par_shapes_mesh* par_mesh);
-void LoadFromObj(Mesh* mesh, const char* path);
+size_t ParseObj(const char* path,
+	std::vector<Vector3>* vtx_positions,
+	std::vector<Vector3>* vtx_normals,
+	std::vector<Vector2>* vtx_tcoords);
+
+par_shapes_mesh* ParsePar(PrimitiveShape shape);
 
 void CreateMeshes()
 {
@@ -32,51 +44,74 @@ void CreateMeshes()
 	// Triangle test
 	float vertices[]
 	{
-		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f
+		1.0f, -1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f
 	};
-	CreateMeshCPU(&gMeshTriangle, 3, (Vector3*)vertices, nullptr, nullptr, nullptr, nullptr);
-	CreateMeshGPU(&gMeshTriangle);
+	CreateMesh(&gMeshTriangle, 3, (Vector3*)vertices, nullptr, nullptr, nullptr, nullptr);
 
-	// Par vs Obj test
-	bool par = true;
-	if (par)
-	{
-		par_shapes_mesh* cube = par_shapes_create_cube();
-		par_shapes_unweld(cube, true);
-		par_shapes_compute_normals(cube);
+	// Par cube (NOT a unit cube -- l = 2, unit cube has l = 1)
+	par_shapes_mesh* cube = par_shapes_create_cube();
+	par_shapes_translate(cube, -0.5f, -0.5f, -0.5f);
+	par_shapes_scale(cube, 2.0f, 2.0f, 2.0f);
+	par_shapes_unweld(cube, true);
+	par_shapes_compute_normals(cube);
+	CreateMeshPar(&gMeshCube, cube);
+	par_shapes_free_mesh(cube);
 
-		LoadFromPar(&gMeshCube, cube);
-		par_shapes_free_mesh(cube);
-		CreateMeshGPU(&gMeshCube);
-	}
-	else
-	{
-		LoadFromObj(&gMeshCube, "assets/meshes/cube.obj");
-	}
-	LoadFromObj(&gMeshHead, "assets/meshes/head.obj");
-
-	par_shapes_mesh* sphere = par_shapes_create_subdivided_sphere(1);
-	par_shapes_unweld(sphere, true);
-	par_shapes_compute_normals(sphere);
-	//par_shapes_scale(sphere, 0.5f, 0.5f, 0.0f);
-
-	LoadFromPar(&gMeshSphere, sphere);
+	// Par sphere (unit sphere, r = 1)
+	par_shapes_mesh* sphere = ParsePar(SPHERE);
+	CreateMeshPar(&gMeshSphere, sphere);
 	par_shapes_free_mesh(sphere);
-	CreateMeshGPU(&gMeshSphere);
+
+	// Par dodecahedron
+	par_shapes_mesh* dodecahedron = ParsePar(DODECAHEDRON);
+	CreateMeshPar(&gMeshDodecahedron, dodecahedron);
+	par_shapes_free_mesh(dodecahedron);
+
+	// Obj head
+	CreateMeshObj(&gMeshHead, "assets/meshes/head.obj");
 }
 
 void DestroyMeshes()
 {
-	DestroyMesh(&gMeshTriangle);
+	DestroyMesh(&gMeshHead);
+	DestroyMesh(&gMeshDodecahedron);
+	DestroyMesh(&gMeshSphere);
 	DestroyMesh(&gMeshCube);
+	DestroyMesh(&gMeshTriangle);
 	glDeleteVertexArrays(1, &fVaoFsq);
 }
 
 void CreateMesh(Mesh* mesh, size_t vc, Vector3* positions, Vector3* normals, Vector2* tcoords, Vector3* colors, uint16_t* indices)
 {
 	CreateMeshCPU(mesh, vc, positions, normals, tcoords, colors, indices);
+	CreateMeshGPU(mesh);
+}
+
+void CreateMeshObj(Mesh* mesh, const char* file)
+{
+	std::vector<Vector3> vtx_positions;
+	std::vector<Vector3> vtx_normals;
+	std::vector<Vector2> vtx_tcoords;
+	size_t vertex_count = ParseObj(file, &vtx_positions, &vtx_normals, &vtx_tcoords);
+	CreateMeshCPU(mesh, vertex_count,
+		vtx_positions.data(),
+		vtx_normals.data(),
+		vtx_tcoords.data(),
+		nullptr, nullptr);
+	CreateMeshGPU(mesh);
+}
+
+void CreateMeshPar(Mesh* mesh, par_shapes_mesh* par_mesh)
+{
+	CreateMeshCPU(mesh, par_mesh->npoints,
+		reinterpret_cast<Vector3*>(par_mesh->points),
+		reinterpret_cast<Vector3*>(par_mesh->normals),
+		reinterpret_cast<Vector2*>(par_mesh->tcoords),
+		nullptr,/*colors*/
+		reinterpret_cast<uint16_t*>(par_mesh->triangles)
+	);
 	CreateMeshGPU(mesh);
 }
 
@@ -88,7 +123,6 @@ void DestroyMesh(Mesh* mesh)
 
 void CopyMesh(Mesh src, Mesh* dst)
 {
-	// TODO -- consider making CPU vs GPU copy-flags
 	CreateMeshCPU(dst, src.vertexCount, src.positions, src.normals, src.tcoords, src.colors, src.indices);
 	CreateMeshGPU(dst);
 }
@@ -249,32 +283,45 @@ void DestroyMeshGPU(Mesh* mesh)
 	mesh->ibo = GL_NONE;
 }
 
-void LoadFromPar(Mesh* mesh, par_shapes_mesh* par_mesh)
+par_shapes_mesh* ParsePar(PrimitiveShape shape)
 {
-	CreateMeshCPU(mesh, par_mesh->npoints,
-		reinterpret_cast<Vector3*>(par_mesh->points),
-		reinterpret_cast<Vector3*>(par_mesh->normals),
-		reinterpret_cast<Vector2*>(par_mesh->tcoords),
-		nullptr,/*colors*/
-		reinterpret_cast<uint16_t*>(par_mesh->triangles)
-	);
+	par_shapes_mesh* mesh = nullptr;
+	switch (shape)
+	{
+	case CUBE:
+		mesh = par_shapes_create_cube();
+		break;
+
+	case SPHERE:
+		mesh = par_shapes_create_subdivided_sphere(1);
+		break;
+
+	case DODECAHEDRON:
+		mesh = par_shapes_create_dodecahedron();
+		break;
+
+	default:
+		assert(false, "Invalid par_shapes Mesh Type");
+	}
+
+	par_shapes_unweld(mesh, true);
+	par_shapes_compute_normals(mesh);
+	return mesh;
 }
 
-void LoadFromObj(Mesh* mesh, const char* path)
+size_t ParseObj(const char* path,
+	std::vector<Vector3>* vtx_positions, std::vector<Vector3>* vtx_normals, std::vector<Vector2>* vtx_tcoords)
 {
 	std::vector<uint16_t> positionIndices, normalIndices, tcoordIndices;
 
 	std::vector<Vector3> obj_positions, obj_normals;
 	std::vector<Vector2> obj_tcoords;
 
-	std::vector<Vector3> vtx_positions, vtx_normals;
-	std::vector<Vector2> vtx_tcoords;
-
 	FILE* file = fopen(path, "r");
 	if (!file)
 	{
 		assert(false, "Could not open mesh");
-		return;
+		return 0;
 	}
 
 	while (true)
@@ -320,20 +367,19 @@ void LoadFromObj(Mesh* mesh, const char* path)
 	fclose(file);
 
 	size_t vc = positionIndices.size();
-	vtx_positions.resize(vc);
-	vtx_normals.resize(vc);
-	vtx_tcoords.resize(vc);
+	vtx_positions->resize(vc);
+	vtx_normals->resize(vc);
+	vtx_tcoords->resize(vc);
 	for (size_t i = 0; i < vc; i++)
 	{
 		Vector3 position = obj_positions[positionIndices[i] - 1];
 		Vector3 normal = obj_normals[normalIndices[i] - 1];
 		Vector2 uv = obj_tcoords[tcoordIndices[i] - 1];
 
-		vtx_positions[i] = position;
-		vtx_normals[i] = normal;
-		vtx_tcoords[i] = uv;
+		(*vtx_positions)[i] = position;
+		(*vtx_normals)[i] = normal;
+		(*vtx_tcoords)[i] = uv;
 	}
 
-	CreateMeshCPU(mesh, vc, vtx_positions.data(), vtx_normals.data(), vtx_tcoords.data(), nullptr, nullptr);
-	CreateMeshGPU(mesh);
+	return vc;
 }

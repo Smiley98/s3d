@@ -1,4 +1,5 @@
 #include "Render.h"
+#include <par_shapes.h>
 
 void DrawMeshWireframes(Mesh mesh, Matrix mvp, Vector3 color)
 {
@@ -19,4 +20,9 @@ void DrawMeshNormals(Mesh mesh, Matrix mvp, Matrix world)
 	SendMat3("u_normal", &normal);
 	DrawMesh(mesh);
 	UnbindShader();
+}
+
+void DrawSphere(Vector3 position, Vector3 color)
+{
+	
 }
