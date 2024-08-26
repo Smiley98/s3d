@@ -23,6 +23,18 @@
 #define RAD2DEG (180.0f/PI)
 #endif
 
+typedef struct float3 {
+    float v[3]{};
+} float3;
+
+typedef struct float9 {
+    float v[9]{};
+} float9;
+
+typedef struct float16 {
+    float v[16]{};
+} float16;
+
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
@@ -140,6 +152,75 @@ constexpr Vector3 V3_ZERO = { 0.0f, 0.0f, 0.0f };
 constexpr Vector3 V3_ONE = { 1.0f, 1.0f, 1.0f };
 constexpr Vector4 V4_IDENTITY = { 0.0f, 0.0f, 0.0f, 1.0f };
 
+// Get float vector for Vector3
+//#ifndef VecPtr
+//#define VecPtr(vec) (ToFloat3(vec).v)
+//#endif
+//
+// Get float vector for Matrix
+//#ifndef MatPtr
+//#define MatPtr(mat) (ToFloat16(mat).v)
+//#endif
+//
+// (I don't like the above macros because you can just do ToFloatN.v for float*)
+
+// Get Vector3 as float array
+RMAPI float3 ToFloat3(Vector3 v)
+{
+    float3 buffer = { 0 };
+
+    buffer.v[0] = v.x;
+    buffer.v[1] = v.y;
+    buffer.v[2] = v.z;
+
+    return buffer;
+}
+
+RMAPI float9 ToFloat9(Matrix mat)
+{
+    float9 result = { 0 };
+
+    result.v[0] = mat.m0;
+    result.v[1] = mat.m1;
+    result.v[2] = mat.m2;
+
+    result.v[3] = mat.m4;
+    result.v[4] = mat.m5;
+    result.v[5] = mat.m6;
+
+    result.v[6] = mat.m8;
+    result.v[7] = mat.m9;
+    result.v[8] = mat.m10;
+
+    return result;
+}
+
+// Get float array of matrix data (transposes the matrix from row-major to column-major)!
+// col0 = v[0-3], col1 = v[4-7], col2 = v[8-11], col3 = v[12-15]. Inspect in debugger!!!!
+RMAPI float16 ToFloat16(Matrix mat)
+{
+    float16 result = { 0 };
+
+    result.v[0] = mat.m0;
+    result.v[1] = mat.m1;
+    result.v[2] = mat.m2;
+    result.v[3] = mat.m3;
+    result.v[4] = mat.m4;
+    result.v[5] = mat.m5;
+    result.v[6] = mat.m6;
+    result.v[7] = mat.m7;
+    result.v[8] = mat.m8;
+    result.v[9] = mat.m9;
+    result.v[10] = mat.m10;
+    result.v[11] = mat.m11;
+    result.v[12] = mat.m12;
+    result.v[13] = mat.m13;
+    result.v[14] = mat.m14;
+    result.v[15] = mat.m15;
+
+    return result;
+}
+
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Scalar math
 //----------------------------------------------------------------------------------
@@ -166,6 +247,12 @@ RMAPI float Lerp(float start, float end, float amount)
     float result = start + amount * (end - start);
 
     return result;
+}
+
+// 1d tri-linear interpolation
+RMAPI float Terp(float A, float B, float C, Vector3 t)
+{
+    return A * t.x + B * t.y + C * t.z;
 }
 
 // Normalize input value within input range
@@ -423,6 +510,12 @@ RMAPI Vector2 Lerp(Vector2 v1, Vector2 v2, float amount)
     result.y = v1.y + amount * (v2.y - v1.y);
 
     return result;
+}
+
+// 2d tri-linear interpolation
+RMAPI Vector2 Terp(Vector2 A, Vector2 B, Vector2 C, Vector3 t)
+{
+    return A * t.x + B * t.y + C * t.z;
 }
 
 // Calculate reflected vector to normal
@@ -865,6 +958,12 @@ RMAPI Vector3 Lerp(Vector3 v1, Vector3 v2, float amount)
     result.z = v1.z + amount * (v2.z - v1.z);
 
     return result;
+}
+
+// 3d tri-linear interpolation
+RMAPI Vector3 Terp(Vector3 A, Vector3 B, Vector3 C, Vector3 t)
+{
+    return A * t.x + B * t.y + C * t.z;
 }
 
 // Calculate reflected vector to normal
@@ -1631,6 +1730,30 @@ RMAPI Matrix LookAt(Vector3 eye, Vector3 target, Vector3 up)
     result.m15 = 1.0f;
 
     return result;
+}
+
+// Extract rotation from world matrix
+inline Matrix NormalMatrix(Matrix world)
+{
+    Matrix normal = world;
+    normal.m12 = normal.m13 = normal.m14 = 0.0f;
+    normal = Transpose(Invert(normal));
+    return normal;
+}
+
+// Convert from object-space to normalized-device-coordinates
+inline Vector3 Clip(Matrix m, Vector3 v)
+{
+    Vector4 clip;
+    clip.x = v.x;
+    clip.y = v.y;
+    clip.z = v.z;
+    clip.w = 1.0f;
+
+    clip = m * clip;
+    clip /= clip.w;
+
+    return { clip.x, clip.y, clip.z };
 }
 
 //----------------------------------------------------------------------------------
@@ -2519,106 +2642,3 @@ RMAPI Vector4 Vector4::operator/=(float f)
     w /= f;
     return *this;
 }
-
-// 3d tri-linear interpolation
-inline Vector3 Terp(Vector3 A, Vector3 B, Vector3 C, Vector3 t)
-{
-    return A * t.x + B * t.y + C * t.z;
-}
-
-// 2d tri-linear interpolation
-inline Vector2 Terp(Vector2 A, Vector2 B, Vector2 C, Vector3 t)
-{
-    return A * t.x + B * t.y + C * t.z;
-}
-
-// 1d tri-linear interpolation
-inline float Terp(float A, float B, float C, Vector3 t)
-{
-    return A * t.x + B * t.y + C * t.z;
-}
-
-// Extract rotation from world matrix
-inline Matrix NormalMatrix(Matrix world)
-{
-    Matrix normal = world;
-    normal.m12 = normal.m13 = normal.m14 = 0.0f;
-    normal = Transpose(Invert(normal));
-    return normal;
-}
-
-// Convert from object-space to normalized-device-coordinates
-inline Vector3 Clip(Vector3 v, Matrix m)
-{
-    Vector4 clip;
-    clip.x = v.x;
-    clip.y = v.y;
-    clip.z = v.z;
-    clip.w = 1.0f;
-
-    clip = m * clip;
-    clip /= clip.w;
-
-    return { clip.x, clip.y, clip.z };
-}
-
-// OpenGL uniform matrix has a transpose flag so this is unnecessary.
-// Can just transpose manually if I use uniform buffer objects.
-// (At that point you're mapping structures rather than matrices).
-// (Probably not a good idea cause there's too many moving parts).
-/*
-// Get float vector for Matrix
-#ifndef MatrixToFloat
-#define MatrixToFloat(mat) (ToFloatV(mat).v)
-#endif
-
-// Get float vector for Vector3
-#ifndef Vector3ToFloat
-#define Vector3ToFloat(vec) (ToFloatV(vec).v)
-#endif
-
-typedef struct float3 {
-    float v[3]{};
-} float3;
-
-typedef struct float16 {
-    float v[16]{};
-} float16;
-
-// Get Vector3 as float array
-RMAPI float3 ToFloatV(Vector3 v)
-{
-    float3 buffer = { 0 };
-
-    buffer.v[0] = v.x;
-    buffer.v[1] = v.y;
-    buffer.v[2] = v.z;
-
-    return buffer;
-}
-
-// Get float array of matrix data (transposes the matrix from row-major to column-major)!
-RMAPI float16 ToFloatV(Matrix mat)
-{
-    float16 result = { 0 };
-
-    result.v[0] = mat.m0;
-    result.v[1] = mat.m1;
-    result.v[2] = mat.m2;
-    result.v[3] = mat.m3;
-    result.v[4] = mat.m4;
-    result.v[5] = mat.m5;
-    result.v[6] = mat.m6;
-    result.v[7] = mat.m7;
-    result.v[8] = mat.m8;
-    result.v[9] = mat.m9;
-    result.v[10] = mat.m10;
-    result.v[11] = mat.m11;
-    result.v[12] = mat.m12;
-    result.v[13] = mat.m13;
-    result.v[14] = mat.m14;
-    result.v[15] = mat.m15;
-
-    return result;
-}
-*/

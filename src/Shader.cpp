@@ -83,12 +83,14 @@ void SendVec4(const char* name, const Vector4& v)
 
 void SendMat3(const char* name, const Matrix* v)
 {
-    glUniformMatrix3fv(GetUniform(name), 1, GL_TRUE, (const GLfloat*)v);
+    float9 mat3 = ToFloat9(*v);
+    glUniformMatrix3fv(GetUniform(name), 1, GL_FALSE, mat3.v);
 }
 
 void SendMat4(const char* name, const Matrix* v)
 {
-    glUniformMatrix4fv(GetUniform(name), 1, GL_TRUE, (const GLfloat*)v);
+    float16 mat4 = ToFloat16(*v);
+    glUniformMatrix4fv(GetUniform(name), 1, GL_FALSE, mat4.v);
 }
 
 GLuint CreateShader(GLint type, const char* path)

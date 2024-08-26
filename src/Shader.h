@@ -26,3 +26,4 @@ void SendVec3(const char* name, const Vector3& v);
 void SendVec4(const char* name, const Vector4& v);
 void SendMat3(const char* name, const Matrix* v);
 void SendMat4(const char* name, const Matrix* v);
+// Don't add quantity & transpose parameters unless they're actually needed.

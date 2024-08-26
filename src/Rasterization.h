@@ -200,7 +200,7 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 	// Vertex shader begin
 	for (size_t i = 0; i < mesh.vertexCount; i++)
 	{
-		Vector3 ndc = Clip(mesh.positions[i], uniform.mvp);
+		Vector3 ndc = Clip(uniform.mvp, mesh.positions[i]);
 		Vector3 screen = ndc;
 		screen.x = Remap(screen.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
 		screen.y = Remap(screen.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
