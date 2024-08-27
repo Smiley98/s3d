@@ -48,6 +48,9 @@ void Loop()
 		frameStart = glfwGetTime();
 		Update(fFrameDelta);
 		Draw();
+		DrawImGui();
+		// Not sure if a game gui callback makes sense.
+		// Is it better to render GUI at the end of Draw instead?
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();

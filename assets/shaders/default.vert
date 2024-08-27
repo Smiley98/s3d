@@ -18,5 +18,5 @@ void main()
    normal = normalize(u_normal * aNormal);
    uv = aTexure;
 
-   gl_Position = u_mvp * vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
+   gl_Position = u_mvp * vec4(aPosition, 1.0);
 }
