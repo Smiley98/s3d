@@ -21,6 +21,7 @@ double fFrameDelta = FRAME_TIME;
 
 void Update(float dt);
 void Draw();
+void DrawGui();
 void DrawImGui();
 
 void Init()
@@ -48,7 +49,7 @@ void Loop()
 		frameStart = glfwGetTime();
 		Update(fFrameDelta);
 		Draw();
-		DrawImGui();
+		DrawGui();
 		// Not sure if a game gui callback makes sense.
 		// Is it better to render GUI at the end of Draw instead?
 
@@ -121,6 +122,11 @@ void Draw()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Scene::Draw();
+}
+
+void DrawGui()
+{
+	Scene::DrawGui();
 }
 
 void DrawImGui()

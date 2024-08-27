@@ -1,37 +1,123 @@
 #include "RasterizationScene.h"
-#include "Render.h"
 #include "Time.h"
+#include <imgui/imgui.h>
+
+enum ShaderType : int
+{
+	FLAT,
+	WIRE,
+	POSITIONS_WORLD,
+	POSITIONS_SCREEN,
+	NORMALS_OBJECT,
+	NORMALS_WORLD
+} fShader{};
+
+bool fTranslate = false;
+bool fRotate = true;
+bool fScale = false;
+
+Vector3 fColor = V3_ONE;
 
 void RasterizationScene::OnDraw()
 {
-	Matrix translation = MatrixIdentity();
-	Matrix rotation = RotateY(TotalTime() * 100.0f * DEG2RAD);
-	Matrix scale = MatrixIdentity();
+	float tt = TotalTime();
+
+	Matrix translation = fTranslate? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity();
+	Matrix rotation = fRotate ? RotateY(TotalTime() * 100.0f * DEG2RAD) : MatrixIdentity();
+	Matrix scale = fScale ? Scale(cosf(tt), sinf(tt), 1.0f) : MatrixIdentity();
 
 	Matrix world = scale * rotation * translation;
-	Matrix view = LookAt({ 0.0f, 0.0f, 1.5f }, V3_ZERO, V3_UP);
-	Matrix proj = Ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 2.0f);
-	//Matrix proj = Perspective(75.0f * DEG2RAD, 1.0f, 0.001f, 100.0f);
+	Matrix view = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
+	Matrix proj = mProj;
 	Matrix mvp = world * view * proj;
 
-	//DrawMeshWireframes(gMeshTriangle, mvp, { 1.0f, 0.0f, 0.0f });
-	//DrawMeshWireframes(gMeshPlane, mvp, { 1.0f, 0.0f, 1.0f });
-	//DrawMeshWireframes(gMeshCube, mvp, { 0.0f, 1.0f, 0.0f });
-	//DrawMeshWireframes(gMeshCircle, mvp, { 1.0f, 1.0f, 0.0f });
-	//DrawMeshWireframes(gMeshSphere, mvp, { 0.0f, 0.0f, 1.0f });
-	//DrawMeshWireframes(gMeshHead, mvp, { 0.0f, 1.0f, 1.0f });
+	switch (fShader)
+	{
+	case FLAT:
+		DrawMeshFlat(*mMesh, mvp, fColor);
+		break;
 
-	DrawMeshPositionsWorld(gMeshHead, mvp, world);
-	SetWireframes(true);
-	DrawMeshPositionsScreen(gMeshHead, mvp);
-	SetWireframes(false);
+	case WIRE:
+		DrawMeshWireframes(*mMesh, mvp, fColor);
+		break;
 
-	//DrawMeshNormals(gMeshTriangle, mvp, world);
-	//DrawMeshNormals(gMeshPlane, mvp, world);
-	//DrawMeshNormals(gMeshCube, mvp, world);
-	//DrawMeshNormals(gMeshCircle, mvp, world);
-	//DrawMeshNormals(gMeshSphere, mvp, world);
-	//DrawMeshNormals(gMeshHead, mvp, world);
+	case POSITIONS_WORLD:
+		DrawMeshPositionsWorld(*mMesh, mvp, world);
+		break;
 
+	case POSITIONS_SCREEN:
+		DrawMeshPositionsScreen(*mMesh, mvp);
+		break;
+
+	case NORMALS_OBJECT:
+		DrawMeshNormals(*mMesh, mvp, MatrixIdentity());
+		break;
+
+	case NORMALS_WORLD:
+		DrawMeshNormals(*mMesh, mvp, world);
+		break;
+
+	default:
+		assert(false, "Invalid Shader");
+		break;
+	}
 	// TODO -- create sphere, capsule, and box rendering functions via par_shapes
+}
+
+void RasterizationScene::OnDrawImGui()
+{
+	//ImGui::ShowDemoWindow();
+	
+	const char* meshNames[] =
+	{
+		"Triangle",
+		"Plane",
+		"Cube",
+		"Circle",
+		"Sphere",
+		"Head"
+	};
+
+	const char* shaderNames[] =
+	{
+		"Flat",
+		"Wireframe",
+		"World-Space Positions",
+		"Screen-Space Positions",
+		"Object-Space Normals",
+		"World-Space Normals"
+	};
+
+	static Mesh* meshes[] =
+	{
+		&gMeshTriangle,
+		&gMeshPlane,
+		&gMeshCube,
+		&gMeshCircle,
+		&gMeshSphere,
+		&gMeshHead
+	};
+
+	static Matrix projections[] =
+	{
+		Ortho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f),
+		Perspective(75.0f * DEG2RAD, 1.0f, 0.001f, 100.0f)
+	};
+
+	static int projIndex = 0;
+	ImGui::RadioButton("Orthographic", &projIndex, 0); ImGui::SameLine();
+	ImGui::RadioButton("Perspective", &projIndex, 1);
+	mProj = projections[projIndex];
+
+	ImGui::Checkbox("Translate", &fTranslate); ImGui::SameLine();
+	ImGui::Checkbox("Rotate", &fRotate); ImGui::SameLine();
+	ImGui::Checkbox("Scale", &fScale);
+	
+	static int meshIndex = 0;
+	ImGui::Combo("Meshes", &meshIndex, meshNames, IM_ARRAYSIZE(meshNames));
+	mMesh = meshes[meshIndex];
+
+	ImGui::Combo("Shaders", (int*)&fShader, shaderNames, IM_ARRAYSIZE(shaderNames));
+
+	ImGui::ColorPicker3("Colour", &fColor.x);
 }
