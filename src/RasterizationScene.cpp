@@ -4,17 +4,13 @@
 
 void RasterizationScene::OnDraw()
 {
-	float tt = TotalTime();
-	float nsin = sinf(tt) * 0.5f + 0.5f;
-	float ncos = cosf(tt) * 0.5f + 0.5f;
-
-	Matrix translation = MatrixIdentity();//Translate(cos(tt), 0.0f, 0.0f);
-	Matrix rotation = RotateY(tt * 100.0f * DEG2RAD);
-	Matrix scale = Scale(5.0f, 5.0f, 5.0f);//MatrixIdentity();//Scale(cos(tt) * 0.4f + 0.6f, sin(tt) * 0.4f + 0.6f, 1.0f);
+	Matrix translation = MatrixIdentity();
+	Matrix rotation = RotateY(TotalTime() * 100.0f * DEG2RAD);
+	Matrix scale = MatrixIdentity();
 
 	Matrix world = scale * rotation * translation;
-	Matrix view = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
-	Matrix proj = Ortho(-10.0f, 10.0f, -10.0f, 10.0f, -10.0f, 10.0f);
+	Matrix view = LookAt({ 0.0f, 0.0f, 1.5f }, V3_ZERO, V3_UP);
+	Matrix proj = Ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 2.0f);
 	//Matrix proj = Perspective(75.0f * DEG2RAD, 1.0f, 0.001f, 100.0f);
 	Matrix mvp = world * view * proj;
 
