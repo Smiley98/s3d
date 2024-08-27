@@ -21,6 +21,11 @@ void RasterizationScene::OnDraw()
 	//DrawMeshWireframes(gMeshSphere, mvp, { 0.0f, 0.0f, 1.0f });
 	//DrawMeshWireframes(gMeshHead, mvp, { 0.0f, 1.0f, 1.0f });
 
+	DrawMeshPositionsWorld(gMeshHead, mvp, world);
+	SetWireframes(true);
+	DrawMeshPositionsScreen(gMeshHead, mvp);
+	SetWireframes(false);
+
 	//DrawMeshNormals(gMeshTriangle, mvp, world);
 	//DrawMeshNormals(gMeshPlane, mvp, world);
 	//DrawMeshNormals(gMeshCube, mvp, world);

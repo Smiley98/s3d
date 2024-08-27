@@ -12,8 +12,9 @@ std::vector<GLuint> fPrograms;
 
 Shader gShaderFSQ;
 Shader gShaderColor;
-Shader gShaderPositions;
 Shader gShaderNormals;
+Shader gShaderPositionsWorld;
+Shader gShaderPositionsScreen;
 
 GLuint CreateShader(GLint type, const char* path);
 void CreateProgram(Shader* shader, GLuint vs, GLuint fs);
@@ -26,13 +27,15 @@ void CreateShaders()
 
     GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
     GLuint fsColor = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
-    GLuint fsPositions = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions.frag");
     GLuint fsNormals = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/normals.frag");
+    GLuint fsPositionsWorld = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_world.frag");
+    GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
     
     CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
     CreateProgram(&gShaderColor, vsMVP, fsColor);
-    CreateProgram(&gShaderPositions, vsMVP, fsPositions);
     CreateProgram(&gShaderNormals, vsMVP, fsNormals);
+    CreateProgram(&gShaderPositionsWorld, vsMVP, fsPositionsWorld);
+    CreateProgram(&gShaderPositionsScreen, vsMVP, fsPositionsScreen);
 }
 
 void DestroyShaders()

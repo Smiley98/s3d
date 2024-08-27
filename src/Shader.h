@@ -11,8 +11,9 @@ struct Shader
 
 extern Shader gShaderFSQ;
 extern Shader gShaderColor;
-extern Shader gShaderPositions;
 extern Shader gShaderNormals;
+extern Shader gShaderPositionsWorld;
+extern Shader gShaderPositionsScreen;
 
 void CreateShaders();
 void DestroyShaders();
