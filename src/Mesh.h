@@ -26,7 +26,9 @@ struct Mesh
 
 // Generated meshes
 extern Mesh gMeshTriangle;
+extern Mesh gMeshPlane;
 extern Mesh gMeshCube;
+extern Mesh gMeshCircle;
 extern Mesh gMeshSphere;
 extern Mesh gMeshDodecahedron;
 

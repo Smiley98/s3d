@@ -6,7 +6,9 @@
 GLuint fVaoFsq = GL_NONE;
 
 Mesh gMeshTriangle;
+Mesh gMeshPlane;
 Mesh gMeshCube;
+Mesh gMeshCircle;
 Mesh gMeshSphere;
 Mesh gMeshDodecahedron;
 
@@ -42,24 +44,45 @@ void CreateMeshes()
 	glGenVertexArrays(1, &fVaoFsq);
 
 	// Triangle test
-	float vertices[]
+	float positions[]
 	{
 		1.0f, -1.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
 		-1.0f, -1.0f, 0.0f
 	};
-	CreateMesh(&gMeshTriangle, 3, (Vector3*)vertices, nullptr, nullptr, nullptr, nullptr);
+	float normals[]
+	{
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f
+	};
+	CreateMesh(&gMeshTriangle, 3, (Vector3*)positions, (Vector3*)normals, nullptr, nullptr, nullptr);
 
-	// Par cube (NOT a unit cube -- l = 2, unit cube has l = 1)
+	// Par plane (unit plane, length = 1, centre = [0.5, 0.5, 0.0])
+	par_shapes_mesh* plane = par_shapes_create_plane(1, 1);
+	par_shapes_translate(plane, -0.5f, -0.5f, 0.0f);
+	par_shapes_unweld(plane, true);
+	par_shapes_compute_normals(plane);
+	CreateMeshPar(&gMeshPlane, plane);
+	par_shapes_free_mesh(plane);
+
+	// Par cube (unit cube, length = 1, centre = [0.5, 0.5, 0.5])
 	par_shapes_mesh* cube = par_shapes_create_cube();
 	par_shapes_translate(cube, -0.5f, -0.5f, -0.5f);
-	par_shapes_scale(cube, 2.0f, 2.0f, 2.0f);
 	par_shapes_unweld(cube, true);
 	par_shapes_compute_normals(cube);
 	CreateMeshPar(&gMeshCube, cube);
 	par_shapes_free_mesh(cube);
 
-	// Par sphere (unit sphere, r = 1)
+	Vector3 position = V3_ZERO;
+	Vector3 normal = V3_FORWARD;
+	par_shapes_mesh* circle = par_shapes_create_disk(1.0f, 32, &position.x, &normal.x);
+	par_shapes_unweld(circle, true);
+	par_shapes_compute_normals(circle);
+	CreateMeshPar(&gMeshCircle, circle);
+	par_shapes_free_mesh(circle);
+
+	// Par sphere (unit sphere, radius = 1, centre = [0.0, 0.0, 0.0])
 	par_shapes_mesh* sphere = ParsePar(SPHERE);
 	CreateMeshPar(&gMeshSphere, sphere);
 	par_shapes_free_mesh(sphere);
