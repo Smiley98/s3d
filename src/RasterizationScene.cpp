@@ -14,12 +14,12 @@ void RasterizationScene::OnDraw()
 	//Matrix proj = Perspective(75.0f * DEG2RAD, 1.0f, 0.001f, 100.0f);
 	Matrix mvp = world * view * proj;
 
-	DrawMeshWireframes(gMeshTriangle, mvp, { 1.0f, 0.0f, 0.0f });
-	DrawMeshWireframes(gMeshPlane, mvp, { 1.0f, 0.0f, 1.0f });
-	DrawMeshWireframes(gMeshCube, mvp, { 0.0f, 1.0f, 0.0f });
-	DrawMeshWireframes(gMeshCircle, mvp, { 1.0f, 1.0f, 0.0f });
-	DrawMeshWireframes(gMeshSphere, mvp, { 0.0f, 0.0f, 1.0f });
-	DrawMeshWireframes(gMeshHead, mvp, { 0.0f, 1.0f, 1.0f });
+	//DrawMeshWireframes(gMeshTriangle, mvp, { 1.0f, 0.0f, 0.0f });
+	//DrawMeshWireframes(gMeshPlane, mvp, { 1.0f, 0.0f, 1.0f });
+	//DrawMeshWireframes(gMeshCube, mvp, { 0.0f, 1.0f, 0.0f });
+	//DrawMeshWireframes(gMeshCircle, mvp, { 1.0f, 1.0f, 0.0f });
+	//DrawMeshWireframes(gMeshSphere, mvp, { 0.0f, 0.0f, 1.0f });
+	//DrawMeshWireframes(gMeshHead, mvp, { 0.0f, 1.0f, 1.0f });
 
 	//DrawMeshNormals(gMeshTriangle, mvp, world);
 	//DrawMeshNormals(gMeshPlane, mvp, world);
