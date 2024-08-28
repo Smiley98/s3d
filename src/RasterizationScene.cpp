@@ -22,7 +22,7 @@ void RasterizationScene::OnDraw()
 {
 	float tt = TotalTime();
 
-	Matrix translation = fTranslate? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity();
+	Matrix translation = fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity();
 	Matrix rotation = fRotate ? RotateY(TotalTime() * 100.0f * DEG2RAD) : MatrixIdentity();
 	Matrix scale = fScale ? Scale(cosf(tt), sinf(tt), 1.0f) : MatrixIdentity();
 
