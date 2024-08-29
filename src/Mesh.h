@@ -29,7 +29,9 @@ extern Mesh gMeshTriangle;
 extern Mesh gMeshPlane;
 extern Mesh gMeshCube;
 extern Mesh gMeshCircle;
+extern Mesh gMeshSemicircle;
 extern Mesh gMeshSphere;
+// TODO -- hemisphere & cylinder
 extern Mesh gMeshDodecahedron;
 
 // Imported meshes

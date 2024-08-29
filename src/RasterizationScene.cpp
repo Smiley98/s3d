@@ -13,7 +13,7 @@ enum ShaderType : int
 } fShader{};
 
 bool fTranslate = false;
-bool fRotate = true;
+bool fRotate = false;
 bool fScale = false;
 
 Vector3 fColor = V3_ONE;
@@ -74,6 +74,7 @@ void RasterizationScene::OnDrawImGui()
 		"Plane",
 		"Cube",
 		"Circle",
+		"Semicircle",
 		"Sphere",
 		"Head"
 	};
@@ -94,6 +95,7 @@ void RasterizationScene::OnDrawImGui()
 		&gMeshPlane,
 		&gMeshCube,
 		&gMeshCircle,
+		&gMeshSemicircle,
 		&gMeshSphere,
 		&gMeshHead
 	};

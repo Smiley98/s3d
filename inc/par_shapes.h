@@ -117,6 +117,11 @@ par_shapes_mesh* par_shapes_create_cube();
 par_shapes_mesh* par_shapes_create_disk(float radius, int slices,
     float const* center, float const* normal);
 
+// Generate an orientable half-disk shape in 3-space.  Does not include normals or
+// texture coordinates.
+par_shapes_mesh* par_shapes_create_half_disk(float radius, int slices,
+    float const* center, float const* normal);
+
 // Create an empty shape.  Useful for building scenes with merge_and_free.
 par_shapes_mesh* par_shapes_create_empty();
 
@@ -743,6 +748,48 @@ par_shapes_mesh* par_shapes_create_disk(float radius, int slices,
         *triangles++ = 1 + (i + 1) % slices;
     }
     float k[3] = {0, 0, -1};
+    float axis[3];
+    par_shapes__cross3(axis, nnormal, k);
+    par_shapes__normalize3(axis);
+    par_shapes_rotate(mesh, acos(nnormal[2]), axis);
+    par_shapes_translate(mesh, center[0], center[1], center[2]);
+    return mesh;
+}
+
+par_shapes_mesh* par_shapes_create_half_disk(float radius, int slices,
+    float const* center, float const* normal)
+{
+    par_shapes_mesh* mesh = PAR_CALLOC(par_shapes_mesh, 1);
+    mesh->npoints = slices + 2;
+    mesh->points = PAR_MALLOC(float, 3 * mesh->npoints);
+    float* points = mesh->points;
+    *points++ = 0;
+    *points++ = 0;
+    *points++ = 0;
+    for (int i = 0; i <= slices; i++) {
+        float theta = i * PAR_PI / slices;
+        *points++ = radius * cos(theta);
+        *points++ = radius * sin(theta);
+        *points++ = 0;
+    }
+    float nnormal[3] = { normal[0], normal[1], normal[2] };
+    par_shapes__normalize3(nnormal);
+    mesh->normals = PAR_MALLOC(float, 3 * mesh->npoints);
+    float* norms = mesh->normals;
+    for (int i = 0; i < mesh->npoints; i++) {
+        *norms++ = nnormal[0];
+        *norms++ = nnormal[1];
+        *norms++ = nnormal[2];
+    }
+    mesh->ntriangles = slices + 1;
+    mesh->triangles = PAR_MALLOC(PAR_SHAPES_T, 3 * mesh->ntriangles);
+    PAR_SHAPES_T* triangles = mesh->triangles;
+    for (int i = 0; i < slices + 1; i++) {
+        *triangles++ = 0;
+        *triangles++ = 1 + i;
+        *triangles++ = 1 + (i + 1) % (slices + 1);
+    }
+    float k[3] = { 0, 0, -1 };
     float axis[3];
     par_shapes__cross3(axis, nnormal, k);
     par_shapes__normalize3(axis);
