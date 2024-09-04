@@ -1,6 +1,9 @@
 #include "Render.h"
 #include <par_shapes.h>
 
+Matrix gView = MatrixIdentity();
+Matrix gProj = MatrixIdentity();
+
 void SetWireframes(bool wireframes)
 {
 	glPolygonMode(GL_FRONT_AND_BACK, wireframes ? GL_LINE : GL_FILL);
@@ -48,4 +51,63 @@ void DrawMeshNormals(Mesh mesh, Matrix mvp, Matrix world)
 	SendMat3("u_normal", &normal);
 	DrawMesh(mesh);
 	UnbindShader();
+}
+
+void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
+{
+	Mesh mesh;
+	GenPlane(&mesh);
+
+	Matrix world =
+		Translate(-0.5f, -0.5f, 0.0f) *
+		Scale(width, height, 1.0f) *
+		RotateZ(angle) *
+		Translate(center.x, center.y, 0.0f);
+	
+	Matrix mvp = world * gView * gProj;
+	DrawMeshFlat(mesh, mvp, color);
+
+	DestroyMesh(&mesh);
+}
+
+void DrawCircle(Vector2 center, float radius, Vector3 color)
+{
+	Mesh mesh;
+	GenCircle(&mesh);
+
+	Matrix world =
+		Scale(radius, radius, 1.0f) *
+		Translate(center.x, center.y, 0.0f);
+
+	Matrix mvp = world * gView * gProj;
+	DrawMeshFlat(mesh, mvp, color);
+
+	DestroyMesh(&mesh);
+}
+
+void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
+{
+	Mesh mesh;
+	GenSemicircle(&mesh);
+
+	Matrix world =
+		Scale(radius, radius, 1.0f) *
+		RotateZ(angle) *
+		Translate(center.x, center.y, 0.0f);
+
+	Matrix mvp = world * gView * gProj;
+	DrawMeshFlat(mesh, mvp, color);
+
+	DestroyMesh(&mesh);
+}
+
+void DrawCapsule(Vector2 center, float radius, float halfHeight, Vector3 color, float angle)
+{
+	Vector2 direction = Direction(angle);
+	Vector2 top = center + direction * halfHeight;
+	Vector2 bot = center - direction * halfHeight;
+	float offset = -PI * 0.5f;
+	DrawSemicircle(top, radius, color, offset + angle);
+	DrawSemicircle(bot, radius, color, offset + angle + PI);
+	DrawRectangle(center, halfHeight * 2.0f, radius * 2.0f, color, angle);
 }

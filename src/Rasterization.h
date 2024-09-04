@@ -269,16 +269,16 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 				Vector3 v1 = vertices[vertex + 1];
 				Vector3 v2 = vertices[vertex + 2];
 
-				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
-				bool low = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
-				bool high = bc.x > 1.0f || bc.y > 1.0f || bc.z > 1.0f;
-				bool nan = _isnanf(bc.x) || _isnanf(bc.y) || _isnanf(bc.z);
+				Vector3 uvw = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
+				bool low = uvw.x < 0.0f || uvw.y < 0.0f || uvw.z < 0.0f;
+				bool high = uvw.x > 1.0f || uvw.y > 1.0f || uvw.z > 1.0f;
+				bool nan = _isnanf(uvw.x) || _isnanf(uvw.y) || _isnanf(uvw.z);
 				// nan only seems to affect uvs but not positions or normals...
 
 				if (low || high || nan)
 					continue;
 
-				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
+				float depth = v0.z * uvw.x + v1.z * uvw.y + v2.z * uvw.z;
 				if (depth > GetDepth(*image, x, y))
 					continue;
 				SetDepth(image, x, y, depth);
@@ -288,21 +288,21 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 				Vector3 p0 = positions[vertex + 0];
 				Vector3 p1 = positions[vertex + 1];
 				Vector3 p2 = positions[vertex + 2];
-				Vector3 p = Terp(p0, p1, p2, bc);
+				Vector3 p = Terp(p0, p1, p2, uvw);
 
 				Vector3 n0 = normals[vertex + 0];
 				Vector3 n1 = normals[vertex + 1];
 				Vector3 n2 = normals[vertex + 2];
-				Vector3 n = Terp(n0, n1, n2, bc);
+				Vector3 n = Terp(n0, n1, n2, uvw);
 
-				Vector2 uv0 = tcoords[vertex + 0];
-				Vector2 uv1 = tcoords[vertex + 1];
-				Vector2 uv2 = tcoords[vertex + 2];
-				Vector2 uv = Terp(uv0, uv1, uv2, bc);
+				Vector2 tc0 = tcoords[vertex + 0];
+				Vector2 tc1 = tcoords[vertex + 1];
+				Vector2 tc2 = tcoords[vertex + 2];
+				Vector2 tc = Terp(tc0, tc1, tc2, uvw);
 
 				float tw = gImageDiffuse.width;
 				float th = gImageDiffuse.height;
-				Color textureColor = GetPixel(gImageDiffuse, uv.x * tw, uv.y * th);
+				Color textureColor = GetPixel(gImageDiffuse, tc.x * tw, tc.y * th);
 
 				Vector3 baseColor = Phong(p, n, uniform.cameraPosition, uniform.lightPosition,
 					uniform.lightColor, uniform.ambient, uniform.diffuse, uniform.specular);

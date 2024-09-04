@@ -55,3 +55,9 @@ void DrawMesh(Mesh mesh);
 
 void BindFsq();
 void DrawFsq();
+
+
+// Mesh generation
+void GenPlane(Mesh* mesh);
+void GenCircle(Mesh* mesh);
+void GenSemicircle(Mesh* mesh);

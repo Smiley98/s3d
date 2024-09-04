@@ -39,6 +39,10 @@ typedef struct float16 {
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
 
+struct Vector2;
+struct Vector3;
+struct Vector4;
+
 struct Vector2 {
     float x;
     float y;
@@ -52,6 +56,8 @@ struct Vector2 {
     RMAPI Vector2 operator-=(float f);
     RMAPI Vector2 operator*=(float f);
     RMAPI Vector2 operator/=(float f);
+
+    RMAPI operator Vector3();
 };
 
 RMAPI Vector2 operator+(Vector2 a, Vector2 b);
@@ -78,6 +84,8 @@ struct Vector3 {
     RMAPI Vector3 operator-=(float f);
     RMAPI Vector3 operator*=(float f);
     RMAPI Vector3 operator/=(float f);
+
+    RMAPI operator Vector4();
 };
 
 RMAPI Vector3 operator+(Vector3 a, Vector3 b);
@@ -105,6 +113,8 @@ struct Vector4 {
     RMAPI Vector4 operator-=(float f);
     RMAPI Vector4 operator*=(float f);
     RMAPI Vector4 operator/=(float f);
+
+    RMAPI operator Vector3();
 };
 
 RMAPI Vector4 operator+(Vector4 a, Vector4 b);
@@ -2641,4 +2651,19 @@ RMAPI Vector4 Vector4::operator/=(float f)
     z /= f;
     w /= f;
     return *this;
+}
+
+RMAPI Vector2::operator Vector3()
+{
+    return { x, y, 0.0f };
+}
+
+RMAPI Vector3::operator Vector4()
+{
+    return { x, y, z, 1.0f };
+}
+
+RMAPI Vector4::operator Vector3()
+{
+    return { x, y, z };
 }

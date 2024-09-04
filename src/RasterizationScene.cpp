@@ -31,6 +31,16 @@ void RasterizationScene::OnDraw()
 	Matrix proj = mProj;
 	Matrix mvp = world * view * proj;
 
+	gView = view;
+	gProj = proj;
+	
+	float angle = tt * 100.0f * DEG2RAD;
+	DrawRectangle({-2.0f, 1.0f}, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, angle);
+	DrawRectangle({ 2.0f, 1.0f}, 2.0f, 1.0f, { 0.0f, 1.0f, 0.0f }, angle);
+	DrawCapsule({}, 0.5f, 2.0f, { 0.5f, 0.0f, 1.0f }, angle);
+	DrawCircle({ 0.0f, -1.0f }, 1.0f, { 1.0f, 1.0f, 0.0f });
+	DrawSemicircle({ -1.0f, -1.0f }, 1.0f, { 0.0f, 0.0f, 1.0f }, angle);
+
 	switch (fShader)
 	{
 	case FLAT:
@@ -61,14 +71,11 @@ void RasterizationScene::OnDraw()
 		assert(false, "Invalid Shader");
 		break;
 	}
-	// TODO -- create sphere, capsule, and box rendering functions via par_shapes
 }
 
 void RasterizationScene::OnDrawImGui()
 {
-	//ImGui::ShowDemoWindow();
-	
-	const char* meshNames[] =
+	static const char* meshNames[] =
 	{
 		"Triangle",
 		"Plane",
@@ -79,7 +86,7 @@ void RasterizationScene::OnDrawImGui()
 		"Head"
 	};
 
-	const char* shaderNames[] =
+	static const char* shaderNames[] =
 	{
 		"Flat",
 		"Wireframe",
@@ -106,7 +113,7 @@ void RasterizationScene::OnDrawImGui()
 		Perspective(75.0f * DEG2RAD, 1.0f, 0.001f, 100.0f)
 	};
 
-	static int projIndex = 0;
+	static int projIndex = 1;
 	ImGui::RadioButton("Orthographic", &projIndex, 0); ImGui::SameLine();
 	ImGui::RadioButton("Perspective", &projIndex, 1);
 	mProj = projections[projIndex];
@@ -122,4 +129,5 @@ void RasterizationScene::OnDrawImGui()
 	ImGui::Combo("Shaders", (int*)&fShader, shaderNames, IM_ARRAYSIZE(shaderNames));
 
 	ImGui::ColorPicker3("Colour", &fColor.x);
+	//ImGui::ShowDemoWindow();
 }

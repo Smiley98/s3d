@@ -163,6 +163,27 @@ void DrawFsq()
 	glEnable(GL_DEPTH_TEST);
 }
 
+void GenPlane(Mesh* mesh)
+{
+	par_shapes_mesh* shape = LoadPrimitive(PLANE);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
+}
+
+void GenCircle(Mesh* mesh)
+{
+	par_shapes_mesh* shape = LoadPrimitive(CIRCLE);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
+}
+
+void GenSemicircle(Mesh* mesh)
+{
+	par_shapes_mesh* shape = LoadPrimitive(SEMICIRCLE);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
+}
+
 void CreateMeshCPU(Mesh* mesh, size_t vc,
 	Vector3* positions, Vector3* normals, Vector2* tcoords, Vector3* colors, uint16_t* indices)
 {
