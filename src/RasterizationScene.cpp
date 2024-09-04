@@ -35,11 +35,10 @@ void RasterizationScene::OnDraw()
 	gProj = proj;
 	
 	float angle = tt * 100.0f * DEG2RAD;
-	DrawRectangle({-2.0f, 1.0f}, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, angle);
-	DrawRectangle({ 2.0f, 1.0f}, 2.0f, 1.0f, { 0.0f, 1.0f, 0.0f }, angle);
-	DrawCapsule({}, 0.5f, 2.0f, { 0.5f, 0.0f, 1.0f }, angle);
-	DrawCircle({ 0.0f, -1.0f }, 1.0f, { 1.0f, 1.0f, 0.0f });
-	DrawSemicircle({ -1.0f, -1.0f }, 1.0f, { 0.0f, 0.0f, 1.0f }, angle);
+	DrawRectangle({ -2.0f, 1.0f }, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, angle);
+	DrawRectangle({  2.0f, 1.0f }, 2.0f, 1.0f, { 1.0f, 0.5f, 0.0f }, angle);
+	DrawCapsuleH({ -2.0f, -1.0f }, 0.5f, 1.0f, { 0.5f, 0.0f, 1.0f }, angle);
+	DrawCapsuleV({  2.0f, -1.0f }, 0.5f, 1.0f, { 0.0f, 1.0f, 1.0f }, angle);
 
 	switch (fShader)
 	{

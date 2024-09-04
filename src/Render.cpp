@@ -85,6 +85,7 @@ void DrawCircle(Vector2 center, float radius, Vector3 color)
 	DestroyMesh(&mesh);
 }
 
+// GenSemicircle produces a vertical semicircle
 void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 {
 	Mesh mesh;
@@ -101,13 +102,32 @@ void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 	DestroyMesh(&mesh);
 }
 
-void DrawCapsule(Vector2 center, float radius, float halfHeight, Vector3 color, float angle)
+void DrawSemicircleH(Vector2 center, float radius, Vector3 color, float angle)
 {
-	Vector2 direction = Direction(angle);
+	DrawSemicircle(center, radius, color, angle - PI * 0.5f);
+}
+
+void DrawSemicircleV(Vector2 center, float radius, Vector3 color, float angle)
+{
+	DrawSemicircle(center, radius, color, angle);
+}
+
+void DrawCapsuleH(Vector2 center, float radius, float halfHeight, Vector3 color, float angle)
+{
+	Vector2 direction = Rotate(V2_RIGHT, angle);
 	Vector2 top = center + direction * halfHeight;
 	Vector2 bot = center - direction * halfHeight;
-	float offset = -PI * 0.5f;
-	DrawSemicircle(top, radius, color, offset + angle);
-	DrawSemicircle(bot, radius, color, offset + angle + PI);
+	DrawSemicircleH(top, radius, color, angle);
+	DrawSemicircleH(bot, radius, color, angle + PI);
 	DrawRectangle(center, halfHeight * 2.0f, radius * 2.0f, color, angle);
+}
+
+void DrawCapsuleV(Vector2 center, float radius, float halfHeight, Vector3 color, float angle)
+{
+	Vector2 direction = Rotate(V2_UP, angle);
+	Vector2 top = center + direction * halfHeight;
+	Vector2 bot = center - direction * halfHeight;
+	DrawSemicircleV(top, radius, color, angle);
+	DrawSemicircleV(bot, radius, color, angle + PI);
+	DrawRectangle(center, radius * 2.0f, halfHeight * 2.0f, color, angle);
 }
