@@ -192,6 +192,20 @@ void GenSemicircle(Mesh* mesh)
 	par_shapes_free_mesh(shape);
 }
 
+void GenCube(Mesh* mesh)
+{
+	par_shapes_mesh* shape = LoadPrimitive(CUBE);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
+}
+
+void GenSphere(Mesh* mesh)
+{
+	par_shapes_mesh* shape = LoadPrimitive(SPHERE);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
+}
+
 void CreateMeshCPU(Mesh* mesh, size_t vc,
 	Vector3* positions, Vector3* normals, Vector2* tcoords, Vector3* colors, uint16_t* indices)
 {

@@ -41,6 +41,11 @@ void RasterizationScene::OnDraw()
 	DrawCapsuleH({ -2.0f, -1.0f }, 0.5f, 1.0f, { 0.5f, 0.0f, 1.0f }, angle);
 	DrawCapsuleV({  2.0f, -1.0f }, 0.5f, 1.0f, { 0.0f, 1.0f, 1.0f }, angle);
 
+	SetWireframes(true);
+	DrawCube({1.0f, 0.0f, 0.0f}, 1.0f, 1.0f, 1.0f, { 0.0f, 1.0f, 0.0f }, rotation);
+	DrawSphere({ -1.0f, 0.0f, 0.0f }, 0.5f, { 1.0f, 1.0f, 0.0f }, rotation);
+	SetWireframes(false);
+
 	switch (fShader)
 	{
 	case FLAT:

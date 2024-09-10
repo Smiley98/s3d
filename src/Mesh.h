@@ -75,8 +75,15 @@ void DrawMesh(Mesh mesh);
 void BindFsq();
 void DrawFsq();
 
-// Mesh generation
 void GenTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2);
+
 void GenPlane(Mesh* mesh);
 void GenCircle(Mesh* mesh);
 void GenSemicircle(Mesh* mesh);
+
+void GenCube(Mesh* mesh);
+void GenSphere(Mesh* mesh);
+
+void GenPlaneXZ(Mesh* mesh);
+void GenPlaneYZ(Mesh* mesh);
+void GenPlaneXY(Mesh* mesh);

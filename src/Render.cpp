@@ -142,3 +142,36 @@ void DrawCapsuleV(Vector2 center, float radius, float halfHeight, Vector3 color,
 	DrawSemicircleV(bot, radius, color, angle + PI);
 	DrawRectangle(center, radius * 2.0f, halfHeight * 2.0f, color, angle);
 }
+
+void DrawCube(Vector3 center, float width, float height, float depth, Vector3 color, Matrix rotation)
+{
+	Mesh mesh;
+	GenCube(&mesh);
+
+	Matrix world =
+		Translate(-0.5f, -0.5f, -0.5f) *
+		Scale(width, height, depth) * 
+		rotation * 
+		Translate(center.x, center.y, center.z);
+
+	Matrix mvp = world * gView * gProj;
+	DrawMeshFlat(mesh, mvp, color);
+
+	DestroyMesh(&mesh);
+}
+
+void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
+{
+	Mesh mesh;
+	GenSphere(&mesh);
+
+	Matrix world =
+		Scale(radius, radius, radius) *
+		rotation * 
+		Translate(center.x, center.y, center.z);
+
+	Matrix mvp = world * gView * gProj;
+	DrawMeshFlat(mesh, mvp, color);
+
+	DestroyMesh(&mesh);
+}
