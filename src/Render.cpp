@@ -70,6 +70,17 @@ void DrawRectangle(Vector2 center, float width, float height, Vector3 color, flo
 	DestroyMesh(&mesh);
 }
 
+void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color)
+{
+	Mesh mesh;
+	GenTriangle(&mesh, v0, v1, v2);
+
+	Matrix mvp = MatrixIdentity() * gView * gProj;
+	DrawMeshFlat(mesh, mvp, color);
+
+	DestroyMesh(&mesh);
+}
+
 void DrawCircle(Vector2 center, float radius, Vector3 color)
 {
 	Mesh mesh;

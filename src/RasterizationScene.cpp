@@ -35,6 +35,7 @@ void RasterizationScene::OnDraw()
 	gProj = proj;
 	
 	float angle = tt * 100.0f * DEG2RAD;
+	DrawTriangle({ 0.5f, 0.0f }, { 0.0f, 0.5f }, { -0.5f, 0.0f }, {1.0f, 0.0f, 0.0f});
 	DrawRectangle({ -2.0f, 1.0f }, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, angle);
 	DrawRectangle({  2.0f, 1.0f }, 2.0f, 1.0f, { 1.0f, 0.5f, 0.0f }, angle);
 	DrawCapsuleH({ -2.0f, -1.0f }, 0.5f, 1.0f, { 0.5f, 0.0f, 1.0f }, angle);

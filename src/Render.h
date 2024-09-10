@@ -16,6 +16,7 @@ void DrawMeshPositionsWorld(Mesh mesh, Matrix mvp, Matrix world);
 void DrawMeshPositionsScreen(Mesh mesh, Matrix mvp, Vector2 resolution = { SCREEN_WIDTH, SCREEN_HEIGHT });
 
 // 2d:
+void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color);
 void DrawCircle(Vector2 center, float radius, Vector3 color);
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle = 0.0f);
 void DrawSemicircleH(Vector2 center, float radius, Vector3 color, float angle = 0.0f);

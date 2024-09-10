@@ -2,10 +2,29 @@
 #include <glad/glad.h>
 #include <par_shapes.h>
 #include "Math.h"
+// Mesh notes:
+// 
+// -Currently using native arrays
+//	Pros are no accidental copies
+//	Cons are no memory safety & invisible in the debugger
+// 
+// -Currently copying all data from par_shapes_mesh to Mesh
+//	Pros are legibility
+//	Cons are needless copying
+// 
+// -Probably going to leave unchanged as things currently work well.
+// -If I were to re-write this I'd probably store a par_shapes_mesh.
+// -Using STL means unavoidable copies.
+// -If I want both STL & no copies, I'll have to write my own mesh generator.
+// 
+// -Could incorporate an index buffer since par_shapes generates indices,
+//  but my obj loader does not so I must stick with naive vertices.
+//
+// -TLDR to improve this I should migrate to tiny_obj / 
+//  whatever other quality libraries are out there instead of this...
 
 struct Mesh
 {
-	// Pros: no accidental copies. Cons: memory-corruption prone & invisible in the debugger.
 	Vector3* positions = nullptr;
 	Vector3* normals = nullptr;
 	Vector2* tcoords = nullptr;
@@ -56,8 +75,8 @@ void DrawMesh(Mesh mesh);
 void BindFsq();
 void DrawFsq();
 
-
 // Mesh generation
+void GenTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2);
 void GenPlane(Mesh* mesh);
 void GenCircle(Mesh* mesh);
 void GenSemicircle(Mesh* mesh);

@@ -163,6 +163,14 @@ void DrawFsq()
 	glEnable(GL_DEPTH_TEST);
 }
 
+void GenTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2)
+{
+	Vector3 n = Cross(Normalize(v1 - v0), Normalize(v2 - v0));
+	Vector3 positions[3] = { v0, v1, v2 };
+	Vector3 normals[3] = { n, n, n };
+	CreateMesh(mesh, 3, positions, normals, nullptr, nullptr, nullptr);
+}
+
 void GenPlane(Mesh* mesh)
 {
 	par_shapes_mesh* shape = LoadPrimitive(PLANE);
