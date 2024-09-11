@@ -252,14 +252,23 @@ void GenCylinder(Mesh* mesh)
 
 void GenPlaneXZ(Mesh* mesh)
 {
+	par_shapes_mesh* shape = LoadPrimitive(PLANE_XZ);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
 }
 
 void GenPlaneYZ(Mesh* mesh)
 {
+	par_shapes_mesh* shape = LoadPrimitive(PLANE_YZ);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
 }
 
 void GenPlaneXY(Mesh* mesh)
 {
+	par_shapes_mesh* shape = LoadPrimitive(PLANE_XY);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
 }
 
 void GenDodecahedron(Mesh* mesh)
@@ -440,6 +449,7 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 
 	case SQUARE:
 		mesh = par_shapes_create_plane(1, 1);
+		par_shapes_translate(mesh, -0.5f, -0.5f, 0.0f);
 		break;
 
 	case CIRCLE:
@@ -452,6 +462,7 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 
 	case CUBE:
 		mesh = par_shapes_create_cube();
+		par_shapes_translate(mesh, -0.5f, -0.5f, -0.5f);
 		break;
 
 	case SPHERE:
@@ -459,34 +470,39 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 		break;
 
 	case HEMISPHERE:
-		mesh = par_shapes_create_hemisphere(8, 8);
-		break;
-
-	case CYLINDER:
-		mesh = par_shapes_create_cylinder(8, 8);
-		break;
-
-	case PLANE_XZ:
-		mesh = par_shapes_create_plane(1, 1);
+		mesh = par_shapes_create_hemisphere(4, 4);
 		{
 			Vector3 axis = V3_RIGHT;
 			par_shapes_rotate(mesh, PI * 0.5f, &axis.x);
 		}
 		break;
 
+	case CYLINDER:
+		mesh = par_shapes_create_cylinder(8, 1);
+		par_shapes_translate(mesh, 0.0f, 0.0f, -0.5f);
+		break;
+
+	case PLANE_XZ:
+		mesh = par_shapes_create_plane(1, 1);
+		par_shapes_translate(mesh, -0.5f, -0.5f, 0.0f);
+		{
+			Vector3 axis = V3_RIGHT;
+			par_shapes_rotate(mesh, -PI * 0.5f, &axis.x);
+		}
+		break;
+
 	case PLANE_YZ:
 		mesh = par_shapes_create_plane(1, 1);
+		par_shapes_translate(mesh, -0.5f, -0.5f, 0.0f);
 		{
 			Vector3 axis = V3_UP;
 			par_shapes_rotate(mesh, PI * 0.5f, &axis.x);
 		}
 		break;
 
-		// Rotation won't be handled correctly since origin is bottom-left
-		// Should change this so all shapes have center as origin
-		// (Maybe excluding hemispheres)
 	case PLANE_XY:
 		mesh = par_shapes_create_plane(1, 1);
+		par_shapes_translate(mesh, -0.5f, -0.5f, 0.0f);
 		break;
 
 	case DODECAHEDRON:

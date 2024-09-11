@@ -18,6 +18,14 @@ bool fScale = false;
 
 Vector3 fColor = V3_ONE;
 
+void RasterizationScene::OnCreate()
+{
+}
+
+void RasterizationScene::OnDestroy()
+{
+}
+
 void RasterizationScene::OnDraw()
 {
 	float tt = TotalTime();
@@ -27,13 +35,11 @@ void RasterizationScene::OnDraw()
 	Matrix scale = fScale ? Scale(cosf(tt), sinf(tt), 1.0f) : MatrixIdentity();
 
 	Matrix world = scale * rotation * translation;
-	Matrix view = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
-	Matrix proj = mProj;
-	Matrix mvp = world * view * proj;
+	Matrix mvp = world * mView * mProj;
 
 	// Temporary hack to test primitive-rendering
-	SetView(view);
-	SetProj(proj);
+	SetView(mView);
+	SetProj(mProj);
 	
 	float angle = tt * 100.0f * DEG2RAD;
 	//DrawTriangle({ 0.5f, -0.5f }, { 0.0f, 1.0f }, { -0.5f, -0.5f }, {1.0f, 0.0f, 0.0f});
@@ -45,9 +51,13 @@ void RasterizationScene::OnDraw()
 	SetWireframes(true);
 	DrawCube({ 1.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 1.0f, { 0.0f, 1.0f, 0.0f }, rotation);
 	DrawSphere({ -1.0f, 0.0f, 0.0f }, 0.5f, { 1.0f, 1.0f, 0.0f }, rotation);
-	DrawHemisphere({ 1.0f, 1.0f, 0.0f }, 1.0f, { 1.0f, 0.0f, 1.0f }, rotation);
 	DrawCylinder({ -1.0f, -1.0f, 0.0f }, 1.0f, 1.0f, { 1.0f, 0.0f, 1.0f }, rotation);
+	DrawHemisphere({ 1.0f, 1.0f, 0.0f }, 1.0f, { 1.0f, 0.0f, 1.0f }, rotation);
 	SetWireframes(false);
+
+	DrawPlaneXZ({0.0f, -1.0f, 0.0f}, 2.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, rotation);
+	//DrawPlaneYZ({}, 2.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, rotation);
+	//DrawPlaneXY({}, 2.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, rotation);
 
 	switch (fShader)
 	{
@@ -137,6 +147,10 @@ void RasterizationScene::OnDrawImGui()
 	ImGui::Checkbox("Translate", &fTranslate); ImGui::SameLine();
 	ImGui::Checkbox("Rotate", &fRotate); ImGui::SameLine();
 	ImGui::Checkbox("Scale", &fScale);
+
+	static Vector3 camPos{ 0.0f, 0.0f, 5.0f };
+	ImGui::SliderFloat3("Camera Position", &camPos.x, -10.0f, 10.0f);
+	mView = LookAt(camPos, V3_ZERO, V3_UP);
 	
 	static int meshIndex = 0;
 	ImGui::Combo("Meshes", &meshIndex, meshNames, IM_ARRAYSIZE(meshNames));

@@ -5,11 +5,16 @@
 class RasterizationScene : public Scene
 {
 public:
+	void OnCreate() final;
+	void OnDestroy() final;
+
 	void OnDraw() final;
 	void OnDrawImGui() final;
 
 private:
 	Shader* mShader = nullptr;
 	Mesh* mMesh = &gMeshTriangle;
-	Matrix mProj = MatrixIdentity();
+
+	Matrix mView;
+	Matrix mProj;
 };
