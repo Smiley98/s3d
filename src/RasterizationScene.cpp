@@ -43,13 +43,12 @@ void RasterizationScene::OnDraw()
 	DrawCapsuleV({  2.0f, -1.0f }, 0.5f, 1.0f, { 0.0f, 1.0f, 1.0f }, angle);
 
 	SetWireframes(true);
-	DrawCube({1.0f, 0.0f, 0.0f}, 1.0f, 1.0f, 1.0f, { 0.0f, 1.0f, 0.0f }, rotation);
+	DrawCube({ 1.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 1.0f, { 0.0f, 1.0f, 0.0f }, rotation);
 	DrawSphere({ -1.0f, 0.0f, 0.0f }, 0.5f, { 1.0f, 1.0f, 0.0f }, rotation);
-	DrawHemisphere({}, 1.0f, { 1.0f, 0.0f, 1.0f }, rotation);
+	DrawHemisphere({ 1.0f, 1.0f, 0.0f }, 1.0f, { 1.0f, 0.0f, 1.0f }, rotation);
+	DrawCylinder({ -1.0f, -1.0f, 0.0f }, 1.0f, 1.0f, { 1.0f, 0.0f, 1.0f }, rotation);
 	SetWireframes(false);
-	//DrawCylinder({}, 1.0f, 1.0f, { 1.0f, 0.0f, 1.0f }, rotation);
 
-	return;
 	switch (fShader)
 	{
 	case FLAT:
@@ -87,11 +86,15 @@ void RasterizationScene::OnDrawImGui()
 	static const char* meshNames[] =
 	{
 		"Triangle",
-		"Plane",
-		"Cube",
+		"Square",
 		"Circle",
 		"Semicircle",
+
+		"Cube",
 		"Sphere",
+		"Hemisphere",
+		"Cylinder",
+
 		"Head"
 	};
 
@@ -109,10 +112,14 @@ void RasterizationScene::OnDrawImGui()
 	{
 		&gMeshTriangle,
 		&gMeshSquare,
-		&gMeshCube,
 		&gMeshCircle,
 		&gMeshSemicircle,
+
+		&gMeshCube,
 		&gMeshSphere,
+		&gMeshHemisphere,
+		&gMeshCylinder,
+
 		&gMeshHead
 	};
 

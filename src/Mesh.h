@@ -50,8 +50,8 @@ extern Mesh gMeshSemicircle;
 
 extern Mesh gMeshCube;
 extern Mesh gMeshSphere;
-extern Mesh gMeshHemisphere;	// unimplemented
-extern Mesh gMeshCylinder;		// unimplemented
+extern Mesh gMeshHemisphere;
+extern Mesh gMeshCylinder;
 
 extern Mesh gMeshPlaneXZ; // unimplemented
 extern Mesh gMeshPlaneYZ; // unimplemented

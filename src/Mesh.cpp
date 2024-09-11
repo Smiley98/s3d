@@ -12,8 +12,8 @@ Mesh gMeshSemicircle;
 
 Mesh gMeshCube;
 Mesh gMeshSphere;
-Mesh gMeshHemisphere;	// unimplemented
-Mesh gMeshCylinder;		// unimplemented
+Mesh gMeshHemisphere;
+Mesh gMeshCylinder;
 
 Mesh gMeshPlaneXZ; // unimplemented
 Mesh gMeshPlaneYZ; // unimplemented
@@ -85,6 +85,14 @@ void CreateMeshes()
 	CreateMeshPar(&gMeshSphere, sphere);
 	par_shapes_free_mesh(sphere);
 
+	par_shapes_mesh* hemisphere = LoadPrimitive(HEMISPHERE);
+	CreateMeshPar(&gMeshHemisphere, hemisphere);
+	par_shapes_free_mesh(hemisphere);
+
+	par_shapes_mesh* cylinder = LoadPrimitive(CYLINDER);
+	CreateMeshPar(&gMeshCylinder, cylinder);
+	par_shapes_free_mesh(cylinder);
+
 	par_shapes_mesh* dodecahedron = LoadPrimitive(DODECAHEDRON);
 	CreateMeshPar(&gMeshDodecahedron, dodecahedron);
 	par_shapes_free_mesh(dodecahedron);
@@ -97,6 +105,12 @@ void DestroyMeshes()
 	DestroyMesh(&gMeshHead);
 
 	DestroyMesh(&gMeshDodecahedron);
+	//DestroyMesh(&gMeshPlaneXY);
+	//DestroyMesh(&gMeshPlaneYZ);
+	//DestroyMesh(&gMeshPlaneXZ);
+
+	DestroyMesh(&gMeshCylinder);
+	DestroyMesh(&gMeshHemisphere);
 	DestroyMesh(&gMeshSphere);
 	DestroyMesh(&gMeshCube);
 
