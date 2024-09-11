@@ -5,7 +5,6 @@
 class RasterizationScene : public Scene
 {
 public:
-
 	void OnCreate() final;
 	void OnDestroy() final;
 

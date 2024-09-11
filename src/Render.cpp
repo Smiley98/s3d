@@ -202,7 +202,7 @@ void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color,
 	GenCylinder(mesh);
 
 	Matrix world =
-		Scale(radius, radius, halfHeight) *
+		Scale(radius, radius, halfHeight * 2.0f) *
 		rotation *
 		Translate(center.x, center.y, center.z);
 
@@ -213,7 +213,13 @@ void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color,
 
 void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation)
 {
-	// TODO -- complete this!
+	Vector3 forward{ rotation.m8, rotation.m9, rotation.m10 };
+	Vector3 top = center + forward * halfHeight;
+	Vector3 bot = center - forward * halfHeight;
+	
+	DrawCylinder(center, radius, halfHeight, color, rotation);
+	DrawHemisphere(top, radius, color, rotation);
+	DrawHemisphere(bot, radius, color, RotateX(PI) * rotation);
 }
 
 void DrawPlaneXZ(Vector3 center, float width, float depth, Vector3 color, Matrix rotation)

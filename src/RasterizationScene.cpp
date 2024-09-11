@@ -52,6 +52,11 @@ void RasterizationScene::OnDraw()
 	SetView(fView);
 	SetProj(fProj);
 
+	// Capsule is oriented along +Z so you must rotate accordingly!
+	DrawSpherocylinder({}, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f },
+		ToMatrix(FromEuler(-PI * 0.25f, PI * 0.5f, 0.0f)));
+
+	return;
 	switch (fShader)
 	{
 	case FLAT:
