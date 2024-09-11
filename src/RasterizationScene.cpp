@@ -16,8 +16,11 @@ bool fTranslate = false;
 bool fRotate = false;
 bool fScale = false;
 
-Vector3 fColor = V3_ONE;
-Vector3 fPosition = V3_ZERO;
+static Vector3 fColor = V3_ONE;
+static Vector3 fPosition = V3_ZERO;
+static Matrix fView;
+static Matrix fProj;
+static Mesh* fMesh = nullptr;
 
 void RasterizationScene::OnDraw()
 {
@@ -33,42 +36,48 @@ void RasterizationScene::OnDraw()
 		fScale ? Scale(cosf(tt), sinf(tt), 1.0f) : MatrixIdentity();
 
 	Matrix world = scale * rotation * translation;
-	Matrix mvp = world * mView * mProj;
+	Matrix mvp = world * fView * fProj;
 
 	// Temporary hack to test primitive-rendering
-	SetView(mView);
-	SetProj(mProj);
+	SetView(fView);
+	SetProj(fProj);
 
+	if (fMesh == nullptr) return;
 	switch (fShader)
 	{
 	case FLAT:
-		DrawMeshFlat(*mMesh, mvp, fColor);
+		DrawMeshFlat(*fMesh, mvp, fColor);
 		break;
 
 	case WIRE:
-		DrawMeshWireframes(*mMesh, mvp, fColor);
+		DrawMeshWireframes(*fMesh, mvp, fColor);
 		break;
 
 	case POSITIONS_WORLD:
-		DrawMeshPositionsWorld(*mMesh, mvp, world);
+		DrawMeshPositionsWorld(*fMesh, mvp, world);
 		break;
 
 	case POSITIONS_SCREEN:
-		DrawMeshPositionsScreen(*mMesh, mvp);
+		DrawMeshPositionsScreen(*fMesh, mvp);
 		break;
 
 	case NORMALS_OBJECT:
-		DrawMeshNormals(*mMesh, mvp, MatrixIdentity());
+		DrawMeshNormals(*fMesh, mvp, MatrixIdentity());
 		break;
 
 	case NORMALS_WORLD:
-		DrawMeshNormals(*mMesh, mvp, world);
+		DrawMeshNormals(*fMesh, mvp, world);
 		break;
 
 	default:
 		assert(false, "Invalid Shader");
 		break;
 	}
+}
+
+void GenNone(Mesh* mesh)
+{
+	mesh = nullptr;
 }
 
 void GenHead(Mesh* mesh)
@@ -81,6 +90,8 @@ void RasterizationScene::OnDrawImGui()
 
 	static const char* meshNames[] =
 	{
+		"None",
+
 		"Triangle",
 		"Square",
 		"Circle",
@@ -99,19 +110,11 @@ void RasterizationScene::OnDrawImGui()
 		"Head"
 	};
 
-	static const char* shaderNames[] =
-	{
-		"Flat",
-		"Wireframe",
-		"World-Space Positions",
-		"Screen-Space Positions",
-		"Object-Space Normals",
-		"World-Space Normals"
-	};
-
 	using MeshGenerator = void(*)(Mesh*);
 	static MeshGenerator generators[] =
 	{
+		GenNone,
+
 		GenEquilateral,
 		GenSquare,
 		GenCircle,
@@ -130,6 +133,16 @@ void RasterizationScene::OnDrawImGui()
 		GenHead
 	};
 
+	static const char* shaderNames[] =
+	{
+		"Flat",
+		"Wireframe",
+		"World-Space Positions",
+		"Screen-Space Positions",
+		"Object-Space Normals",
+		"World-Space Normals"
+	};
+
 	static Matrix projections[] =
 	{
 		Ortho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f),
@@ -139,7 +152,7 @@ void RasterizationScene::OnDrawImGui()
 	static int projIndex = 1;
 	ImGui::RadioButton("Orthographic", &projIndex, 0); ImGui::SameLine();
 	ImGui::RadioButton("Perspective", &projIndex, 1);
-	mProj = projections[projIndex];
+	fProj = projections[projIndex];
 
 	ImGui::Checkbox("Translate", &fTranslate); ImGui::SameLine();
 	ImGui::Checkbox("Rotate", &fRotate); ImGui::SameLine();
@@ -149,15 +162,17 @@ void RasterizationScene::OnDrawImGui()
 
 	static Vector3 camPos{ 0.0f, 0.0f, 5.0f };
 	ImGui::SliderFloat3("Camera Position", &camPos.x, -10.0f, 10.0f);
-	mView = LookAt(camPos, V3_ZERO, V3_UP);
+	fView = LookAt(camPos, V3_ZERO, V3_UP);
 
+	// TODO -- rework mesh to use references instead of pointers
+	// I don't want *& everywhere and changing address is probably not good xD
 	static int meshIndex = 0;
-	int meshCount = IM_ARRAYSIZE(meshNames);
-	bool gen = ImGui::Combo("Meshes", &meshIndex, meshNames, meshCount);
+	bool gen = ImGui::Combo("Meshes", &meshIndex, meshNames, IM_ARRAYSIZE(meshNames));
 	if (gen)
 	{
-		DestroyMesh(mMesh);
-		generators[meshIndex](mMesh);
+		if (fMesh != nullptr)
+			DestroyMesh(fMesh);
+		generators[meshIndex](fMesh);
 	}
 
 	ImGui::Combo("Shaders", (int*)&fShader, shaderNames, IM_ARRAYSIZE(shaderNames));
