@@ -466,6 +466,29 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 		mesh = par_shapes_create_cylinder(8, 8);
 		break;
 
+	case PLANE_XZ:
+		mesh = par_shapes_create_plane(1, 1);
+		{
+			Vector3 axis = V3_RIGHT;
+			par_shapes_rotate(mesh, PI * 0.5f, &axis.x);
+		}
+		break;
+
+	case PLANE_YZ:
+		mesh = par_shapes_create_plane(1, 1);
+		{
+			Vector3 axis = V3_UP;
+			par_shapes_rotate(mesh, PI * 0.5f, &axis.x);
+		}
+		break;
+
+		// Rotation won't be handled correctly since origin is bottom-left
+		// Should change this so all shapes have center as origin
+		// (Maybe excluding hemispheres)
+	case PLANE_XY:
+		mesh = par_shapes_create_plane(1, 1);
+		break;
+
 	case DODECAHEDRON:
 		mesh = par_shapes_create_dodecahedron();
 		break;
