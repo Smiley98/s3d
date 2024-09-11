@@ -50,36 +50,36 @@ void CreateMeshes();
 void DestroyMeshes();
 
 // Create mesh from data
-void CreateMesh(Mesh* mesh, size_t vc, Vector3* positions, Vector3* normals, Vector2* tcoords, Vector3* colors, uint16_t* indices);
-void DestroyMesh(Mesh* mesh);
+void CreateMesh(Mesh& mesh, size_t vc, Vector3* positions, Vector3* normals, Vector2* tcoords, Vector3* colors, uint16_t* indices);
+void DestroyMesh(Mesh& mesh);
 
 // Create mesh from obj file
-void CreateMeshObj(Mesh* mesh, const char* file);
+void CreateMeshObj(Mesh& mesh, const char* file);
 
 // Create mesh from par_shapes
-void CreateMeshPar(Mesh* mesh, par_shapes_mesh* par_mesh);
+void CreateMeshPar(Mesh& mesh, par_shapes_mesh* par_mesh);
 
-void CopyMesh(Mesh src, Mesh* dst);
+void CopyMesh(Mesh src, Mesh& dst);
 void DrawMesh(Mesh mesh);
 
 void BindFsq();
 void DrawFsq();
 
-void GenTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2);
-void GenEquilateral(Mesh* mesh);
-void GenSquare(Mesh* mesh);
-void GenCircle(Mesh* mesh);
-void GenSemicircle(Mesh* mesh);
+void GenTriangle(Mesh& mesh, Vector3 v0, Vector3 v1, Vector3 v2);
+void GenEquilateral(Mesh& mesh);
+void GenSquare(Mesh& mesh);
+void GenCircle(Mesh& mesh);
+void GenSemicircle(Mesh& mesh);
 
-void GenCube(Mesh* mesh);
-void GenSphere(Mesh* mesh);
-void GenHemisphere(Mesh* mesh);
-void GenCylinder(Mesh* mesh);
+void GenCube(Mesh& mesh);
+void GenSphere(Mesh& mesh);
+void GenHemisphere(Mesh& mesh);
+void GenCylinder(Mesh& mesh);
 
-void GenPlaneXZ(Mesh* mesh);
-void GenPlaneYZ(Mesh* mesh);
-void GenPlaneXY(Mesh* mesh);
-void GenDodecahedron(Mesh* mesh);
+void GenPlaneXZ(Mesh& mesh);
+void GenPlaneYZ(Mesh& mesh);
+void GenPlaneXY(Mesh& mesh);
+void GenDodecahedron(Mesh& mesh);
 
 // Replaced with mesh generation
 //extern Mesh gMeshTriangle;

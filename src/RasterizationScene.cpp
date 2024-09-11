@@ -20,7 +20,17 @@ static Vector3 fColor = V3_ONE;
 static Vector3 fPosition = V3_ZERO;
 static Matrix fView;
 static Matrix fProj;
-static Mesh* fMesh = nullptr;
+static Mesh fMesh;
+
+void RasterizationScene::OnCreate()
+{
+	GenEquilateral(fMesh);
+}
+
+void RasterizationScene::OnDestroy()
+{
+	DestroyMesh(fMesh);
+}
 
 void RasterizationScene::OnDraw()
 {
@@ -42,31 +52,30 @@ void RasterizationScene::OnDraw()
 	SetView(fView);
 	SetProj(fProj);
 
-	if (fMesh == nullptr) return;
 	switch (fShader)
 	{
 	case FLAT:
-		DrawMeshFlat(*fMesh, mvp, fColor);
+		DrawMeshFlat(fMesh, mvp, fColor);
 		break;
 
 	case WIRE:
-		DrawMeshWireframes(*fMesh, mvp, fColor);
+		DrawMeshWireframes(fMesh, mvp, fColor);
 		break;
 
 	case POSITIONS_WORLD:
-		DrawMeshPositionsWorld(*fMesh, mvp, world);
+		DrawMeshPositionsWorld(fMesh, mvp, world);
 		break;
 
 	case POSITIONS_SCREEN:
-		DrawMeshPositionsScreen(*fMesh, mvp);
+		DrawMeshPositionsScreen(fMesh, mvp);
 		break;
 
 	case NORMALS_OBJECT:
-		DrawMeshNormals(*fMesh, mvp, MatrixIdentity());
+		DrawMeshNormals(fMesh, mvp, MatrixIdentity());
 		break;
 
 	case NORMALS_WORLD:
-		DrawMeshNormals(*fMesh, mvp, world);
+		DrawMeshNormals(fMesh, mvp, world);
 		break;
 
 	default:
@@ -75,23 +84,15 @@ void RasterizationScene::OnDraw()
 	}
 }
 
-void GenNone(Mesh* mesh)
-{
-	mesh = nullptr;
-}
-
-void GenHead(Mesh* mesh)
+void GenHead(Mesh& mesh)
 {
 	CopyMesh(gMeshHead, mesh);
 }
 
 void RasterizationScene::OnDrawImGui()
 {
-
 	static const char* meshNames[] =
 	{
-		"None",
-
 		"Triangle",
 		"Square",
 		"Circle",
@@ -110,11 +111,9 @@ void RasterizationScene::OnDrawImGui()
 		"Head"
 	};
 
-	using MeshGenerator = void(*)(Mesh*);
+	using MeshGenerator = void(*)(Mesh&);
 	static MeshGenerator generators[] =
 	{
-		GenNone,
-
 		GenEquilateral,
 		GenSquare,
 		GenCircle,
@@ -164,14 +163,11 @@ void RasterizationScene::OnDrawImGui()
 	ImGui::SliderFloat3("Camera Position", &camPos.x, -10.0f, 10.0f);
 	fView = LookAt(camPos, V3_ZERO, V3_UP);
 
-	// TODO -- rework mesh to use references instead of pointers
-	// I don't want *& everywhere and changing address is probably not good xD
 	static int meshIndex = 0;
 	bool gen = ImGui::Combo("Meshes", &meshIndex, meshNames, IM_ARRAYSIZE(meshNames));
 	if (gen)
 	{
-		if (fMesh != nullptr)
-			DestroyMesh(fMesh);
+		DestroyMesh(fMesh);
 		generators[meshIndex](fMesh);
 	}
 

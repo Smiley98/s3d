@@ -68,7 +68,7 @@ void DrawMeshNormals(Mesh mesh, Matrix mvp, Matrix world)
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
 {
 	Mesh mesh;
-	GenSquare(&mesh);
+	GenSquare(mesh);
 
 	Matrix world =
 		Scale(width, height, 1.0f) *
@@ -77,23 +77,23 @@ void DrawRectangle(Vector2 center, float width, float height, Vector3 color, flo
 	
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle)
 {
 	Mesh mesh;
-	GenTriangle(&mesh, v0, v1, v2);
+	GenTriangle(mesh, v0, v1, v2);
 
 	Matrix mvp = RotateZ(angle) * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 void DrawCircle(Vector2 center, float radius, Vector3 color, float angle)
 {
 	Mesh mesh;
-	GenCircle(&mesh);
+	GenCircle(mesh);
 
 	Matrix world =
 		Scale(radius, radius, 1.0f) *
@@ -102,14 +102,14 @@ void DrawCircle(Vector2 center, float radius, Vector3 color, float angle)
 
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 // GenSemicircle produces a vertical semicircle
 void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 {
 	Mesh mesh;
-	GenSemicircle(&mesh);
+	GenSemicircle(mesh);
 
 	Matrix world =
 		Scale(radius, radius, 1.0f) *
@@ -118,7 +118,7 @@ void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 void DrawSemicircleH(Vector2 center, float radius, Vector3 color, float angle)
@@ -154,7 +154,7 @@ void DrawCapsuleV(Vector2 center, float radius, float halfHeight, Vector3 color,
 void DrawCube(Vector3 center, float width, float height, float depth, Vector3 color, Matrix rotation)
 {
 	Mesh mesh;
-	GenCube(&mesh);
+	GenCube(mesh);
 
 	Matrix world =
 		Scale(width, height, depth) * 
@@ -163,13 +163,13 @@ void DrawCube(Vector3 center, float width, float height, float depth, Vector3 co
 
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 {
 	Mesh mesh;
-	GenSphere(&mesh);
+	GenSphere(mesh);
 
 	Matrix world =
 		Scale(radius, radius, radius) *
@@ -178,13 +178,13 @@ void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 void DrawHemisphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 {
 	Mesh mesh;
-	GenHemisphere(&mesh);
+	GenHemisphere(mesh);
 
 	Matrix world =
 		Scale(radius, radius, radius) *
@@ -193,13 +193,13 @@ void DrawHemisphere(Vector3 center, float radius, Vector3 color, Matrix rotation
 
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation)
 {
 	Mesh mesh;
-	GenCylinder(&mesh);
+	GenCylinder(mesh);
 
 	Matrix world =
 		Scale(radius, radius, halfHeight) *
@@ -208,7 +208,7 @@ void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color,
 
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation)
@@ -219,7 +219,7 @@ void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 
 void DrawPlaneXZ(Vector3 center, float width, float depth, Vector3 color, Matrix rotation)
 {
 	Mesh mesh;
-	GenPlaneXZ(&mesh);
+	GenPlaneXZ(mesh);
 
 	Matrix world =
 		Scale(width, 1.0f, depth) *
@@ -228,13 +228,13 @@ void DrawPlaneXZ(Vector3 center, float width, float depth, Vector3 color, Matrix
 
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 void DrawPlaneYZ(Vector3 center, float height, float depth, Vector3 color, Matrix rotation)
 {
 	Mesh mesh;
-	GenPlaneYZ(&mesh);
+	GenPlaneYZ(mesh);
 
 	Matrix world =
 		Scale(1.0f, height, depth) *
@@ -243,13 +243,13 @@ void DrawPlaneYZ(Vector3 center, float height, float depth, Vector3 color, Matri
 
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 void DrawPlaneXY(Vector3 center, float width, float height, Vector3 color, Matrix rotation)
 {
 	Mesh mesh;
-	GenPlaneXY(&mesh);
+	GenPlaneXY(mesh);
 
 	Matrix world =
 		Scale(width, height, 1.0f) *
@@ -258,13 +258,13 @@ void DrawPlaneXY(Vector3 center, float width, float height, Vector3 color, Matri
 
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
 
 void DrawDodecahedron(Vector3 center, Vector3 scale, Vector3 color, Matrix rotation)
 {
 	Mesh mesh;
-	GenDodecahedron(&mesh);
+	GenDodecahedron(mesh);
 
 	Matrix world =
 		Scale(scale) *
@@ -273,5 +273,5 @@ void DrawDodecahedron(Vector3 center, Vector3 scale, Vector3 color, Matrix rotat
 
 	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
-	DestroyMesh(&mesh);
+	DestroyMesh(mesh);
 }
