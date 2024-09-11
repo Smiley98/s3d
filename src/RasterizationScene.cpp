@@ -17,22 +17,20 @@ bool fRotate = false;
 bool fScale = false;
 
 Vector3 fColor = V3_ONE;
-
-void RasterizationScene::OnCreate()
-{
-}
-
-void RasterizationScene::OnDestroy()
-{
-}
+Vector3 fPosition = V3_ZERO;
 
 void RasterizationScene::OnDraw()
 {
 	float tt = TotalTime();
 
-	Matrix translation = fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity();
-	Matrix rotation = fRotate ? RotateY(TotalTime() * 100.0f * DEG2RAD) : MatrixIdentity();
-	Matrix scale = fScale ? Scale(cosf(tt), sinf(tt), 1.0f) : MatrixIdentity();
+	Matrix translation = Translate(fPosition) *
+		(fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());
+	
+	Matrix rotation =
+		fRotate ? RotateY(tt * 100.0f * DEG2RAD) : MatrixIdentity();
+	
+	Matrix scale =
+		fScale ? Scale(cosf(tt), sinf(tt), 1.0f) : MatrixIdentity();
 
 	Matrix world = scale * rotation * translation;
 	Matrix mvp = world * mView * mProj;
@@ -40,24 +38,6 @@ void RasterizationScene::OnDraw()
 	// Temporary hack to test primitive-rendering
 	SetView(mView);
 	SetProj(mProj);
-	
-	float angle = tt * 100.0f * DEG2RAD;
-	DrawTriangle({ 0.5f, -0.5f }, { 0.0f, 1.0f }, { -0.5f, -0.5f }, { 0.5f, 0.5f, 0.5f });
-	DrawRectangle({ -2.0f, 1.0f }, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, angle);
-	DrawRectangle({  2.0f, 1.0f }, 2.0f, 1.0f, { 1.0f, 0.5f, 0.0f }, angle);
-	DrawCapsuleH({ -2.0f, -1.0f }, 0.5f, 1.0f, { 0.5f, 0.0f, 1.0f }, angle);
-	DrawCapsuleV({  2.0f, -1.0f }, 0.5f, 1.0f, { 0.0f, 1.0f, 1.0f }, angle);
-
-	SetWireframes(true);
-	DrawCube({ 1.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 1.0f, { 0.0f, 1.0f, 0.0f }, rotation);
-	DrawSphere({ -1.0f, 0.0f, 0.0f }, 0.5f, { 1.0f, 1.0f, 0.0f }, rotation);
-	DrawCylinder({ -1.0f, -1.0f, 0.0f }, 1.0f, 1.0f, { 1.0f, 0.0f, 1.0f }, rotation);
-	DrawHemisphere({ 1.0f, 1.0f, 0.0f }, 1.0f, { 1.0f, 0.0f, 1.0f }, rotation);
-	SetWireframes(false);
-
-	DrawPlaneXZ({0.0f, 0.0f, 0.0f}, 1.0f, 3.0f, { 0.0f, 0.0f, 1.0f }, rotation);
-	DrawPlaneYZ({}, 3.0f, 1.0f, { 0.0f, 1.0f, 0.0f }, rotation);
-	DrawPlaneXY({}, 3.0f, 1.0f, { 1.0f, 0.0f, 0.0f }, rotation);
 
 	switch (fShader)
 	{
@@ -91,8 +71,14 @@ void RasterizationScene::OnDraw()
 	}
 }
 
+void GenHead(Mesh* mesh)
+{
+	CopyMesh(gMeshHead, mesh);
+}
+
 void RasterizationScene::OnDrawImGui()
 {
+
 	static const char* meshNames[] =
 	{
 		"Triangle",
@@ -104,6 +90,11 @@ void RasterizationScene::OnDrawImGui()
 		"Sphere",
 		"Hemisphere",
 		"Cylinder",
+
+		"Plane_XZ",
+		"Plane_YZ",
+		"Plane_XY",
+		"Dodecahedron",
 
 		"Head"
 	};
@@ -118,19 +109,25 @@ void RasterizationScene::OnDrawImGui()
 		"World-Space Normals"
 	};
 
-	static Mesh* meshes[] =
+	using MeshGenerator = void(*)(Mesh*);
+	MeshGenerator generators[] =
 	{
-		&gMeshTriangle,
-		&gMeshSquare,
-		&gMeshCircle,
-		&gMeshSemicircle,
+		GenEquilateral,
+		GenSquare,
+		GenCircle,
+		GenSemicircle,
 
-		&gMeshCube,
-		&gMeshSphere,
-		&gMeshHemisphere,
-		&gMeshCylinder,
+		GenCube,
+		GenSphere,
+		GenHemisphere,
+		GenCylinder,
 
-		&gMeshHead
+		GenPlaneXZ,
+		GenPlaneYZ,
+		GenPlaneXY,
+		GenDodecahedron,
+
+		GenHead
 	};
 
 	static Matrix projections[] =
@@ -148,16 +145,22 @@ void RasterizationScene::OnDrawImGui()
 	ImGui::Checkbox("Rotate", &fRotate); ImGui::SameLine();
 	ImGui::Checkbox("Scale", &fScale);
 
+	ImGui::SliderFloat3("Object Position", &fPosition.x, -10.0f, 10.0f);
+
 	static Vector3 camPos{ 0.0f, 0.0f, 5.0f };
 	ImGui::SliderFloat3("Camera Position", &camPos.x, -10.0f, 10.0f);
 	mView = LookAt(camPos, V3_ZERO, V3_UP);
-	
+
 	static int meshIndex = 0;
-	ImGui::Combo("Meshes", &meshIndex, meshNames, IM_ARRAYSIZE(meshNames));
-	mMesh = meshes[meshIndex];
+	int meshCount = IM_ARRAYSIZE(meshNames);
+	bool gen = ImGui::Combo("Meshes", &meshIndex, meshNames, meshCount);
+	if (gen)
+	{
+		DestroyMesh(mMesh);
+		generators[meshIndex](mMesh);
+	}
 
 	ImGui::Combo("Shaders", (int*)&fShader, shaderNames, IM_ARRAYSIZE(shaderNames));
-
 	ImGui::ColorPicker3("Colour", &fColor.x);
 	//ImGui::ShowDemoWindow();
 }
