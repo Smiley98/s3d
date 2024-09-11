@@ -1,8 +1,20 @@
 #include "Render.h"
 #include <par_shapes.h>
 
-Matrix gView = MatrixIdentity();
-Matrix gProj = MatrixIdentity();
+// File-scope cause we probably shouldn't make these global.
+// This is all most-likely temporary until we get some sort of camera system.
+Matrix fView = MatrixIdentity();
+Matrix fProj = MatrixIdentity();
+
+void SetView(Matrix view)
+{
+	fView = view;
+}
+
+void SetProj(Matrix proj)
+{
+	fProj = proj;
+}
 
 void SetWireframes(bool wireframes)
 {
@@ -56,7 +68,7 @@ void DrawMeshNormals(Mesh mesh, Matrix mvp, Matrix world)
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
 {
 	Mesh mesh;
-	GenPlane(&mesh);
+	GenSquare(&mesh);
 
 	Matrix world =
 		Translate(-0.5f, -0.5f, 0.0f) *
@@ -64,7 +76,7 @@ void DrawRectangle(Vector2 center, float width, float height, Vector3 color, flo
 		RotateZ(angle) *
 		Translate(center.x, center.y, 0.0f);
 	
-	Matrix mvp = world * gView * gProj;
+	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
 
 	DestroyMesh(&mesh);
@@ -75,7 +87,7 @@ void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color)
 	Mesh mesh;
 	GenTriangle(&mesh, v0, v1, v2);
 
-	Matrix mvp = MatrixIdentity() * gView * gProj;
+	Matrix mvp = MatrixIdentity() * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
 
 	DestroyMesh(&mesh);
@@ -90,7 +102,7 @@ void DrawCircle(Vector2 center, float radius, Vector3 color)
 		Scale(radius, radius, 1.0f) *
 		Translate(center.x, center.y, 0.0f);
 
-	Matrix mvp = world * gView * gProj;
+	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
 
 	DestroyMesh(&mesh);
@@ -107,7 +119,7 @@ void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 		RotateZ(angle) *
 		Translate(center.x, center.y, 0.0f);
 
-	Matrix mvp = world * gView * gProj;
+	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
 
 	DestroyMesh(&mesh);
@@ -154,7 +166,7 @@ void DrawCube(Vector3 center, float width, float height, float depth, Vector3 co
 		rotation * 
 		Translate(center.x, center.y, center.z);
 
-	Matrix mvp = world * gView * gProj;
+	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
 
 	DestroyMesh(&mesh);
@@ -170,7 +182,7 @@ void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 		rotation * 
 		Translate(center.x, center.y, center.z);
 
-	Matrix mvp = world * gView * gProj;
+	Matrix mvp = world * fView * fProj;
 	DrawMeshFlat(mesh, mvp, color);
 
 	DestroyMesh(&mesh);

@@ -6,7 +6,7 @@
 GLuint fVaoFsq = GL_NONE;
 
 Mesh gMeshTriangle;
-Mesh gMeshPlane;
+Mesh gMeshSquare;
 Mesh gMeshCube;
 Mesh gMeshCircle;
 Mesh gMeshSemicircle;
@@ -17,12 +17,17 @@ Mesh gMeshHead;
 
 enum PrimitiveShape
 {
-	//TRIANGLE,
-	PLANE,
-	CUBE,
+	TRIANGLE,
+	SQUARE,
 	CIRCLE,
 	SEMICIRCLE,
+	CUBE,
 	SPHERE,
+	HEMISPHERE,
+	CYLINDER,
+	PLANE_XZ,
+	PLANE_YZ,
+	PLANE_XY,
 	DODECAHEDRON
 };
 
@@ -47,28 +52,13 @@ void CreateMeshes()
 	// FSQ test
 	glGenVertexArrays(1, &fVaoFsq);
 
-	// Triangle test
-	float positions[]
-	{
-		1.0f, -1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f
-	};
-	float normals[]
-	{
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f
-	};
-	CreateMesh(&gMeshTriangle, 3, (Vector3*)positions, (Vector3*)normals, nullptr, nullptr, nullptr);
+	par_shapes_mesh* triangle = LoadPrimitive(TRIANGLE);
+	CreateMeshPar(&gMeshTriangle, triangle);
+	par_shapes_free_mesh(triangle);
 
-	par_shapes_mesh* plane = LoadPrimitive(PLANE);
-	CreateMeshPar(&gMeshPlane, plane);
-	par_shapes_free_mesh(plane);
-
-	par_shapes_mesh* cube = LoadPrimitive(CUBE);
-	CreateMeshPar(&gMeshCube, cube);
-	par_shapes_free_mesh(cube);
+	par_shapes_mesh* square = LoadPrimitive(SQUARE);
+	CreateMeshPar(&gMeshSquare, square);
+	par_shapes_free_mesh(square);
 
 	par_shapes_mesh* circle = LoadPrimitive(CIRCLE);
 	CreateMeshPar(&gMeshCircle, circle);
@@ -77,6 +67,10 @@ void CreateMeshes()
 	par_shapes_mesh* semicircle = LoadPrimitive(SEMICIRCLE);
 	CreateMeshPar(&gMeshSemicircle, semicircle);
 	par_shapes_free_mesh(semicircle);
+
+	par_shapes_mesh* cube = LoadPrimitive(CUBE);
+	CreateMeshPar(&gMeshCube, cube);
+	par_shapes_free_mesh(cube);
 
 	par_shapes_mesh* sphere = LoadPrimitive(SPHERE);
 	CreateMeshPar(&gMeshSphere, sphere);
@@ -92,10 +86,16 @@ void CreateMeshes()
 void DestroyMeshes()
 {
 	DestroyMesh(&gMeshHead);
+
 	DestroyMesh(&gMeshDodecahedron);
 	DestroyMesh(&gMeshSphere);
 	DestroyMesh(&gMeshCube);
+
+	DestroyMesh(&gMeshSemicircle);
+	DestroyMesh(&gMeshCircle);
+	DestroyMesh(&gMeshSquare);
 	DestroyMesh(&gMeshTriangle);
+
 	glDeleteVertexArrays(1, &fVaoFsq);
 }
 
@@ -171,9 +171,16 @@ void GenTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2)
 	CreateMesh(mesh, 3, positions, normals, nullptr, nullptr, nullptr);
 }
 
-void GenPlane(Mesh* mesh)
+void GenEquilateral(Mesh* mesh)
 {
-	par_shapes_mesh* shape = LoadPrimitive(PLANE);
+	par_shapes_mesh* shape = LoadPrimitive(TRIANGLE);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
+}
+
+void GenSquare(Mesh* mesh)
+{
+	par_shapes_mesh* shape = LoadPrimitive(SQUARE);
 	CreateMeshPar(mesh, shape);
 	par_shapes_free_mesh(shape);
 }
@@ -204,6 +211,18 @@ void GenSphere(Mesh* mesh)
 	par_shapes_mesh* shape = LoadPrimitive(SPHERE);
 	CreateMeshPar(mesh, shape);
 	par_shapes_free_mesh(shape);
+}
+
+void GenPlaneXZ(Mesh* mesh)
+{
+}
+
+void GenPlaneYZ(Mesh* mesh)
+{
+}
+
+void GenPlaneXY(Mesh* mesh)
+{
 }
 
 void CreateMeshCPU(Mesh* mesh, size_t vc,
@@ -350,7 +369,33 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 	Vector3 normal = V3_FORWARD;
 	switch (shape)
 	{
-	case PLANE:
+	case TRIANGLE:
+		mesh = par_shapes_create_empty();
+		
+		mesh->points = PAR_MALLOC(float, 9);
+		mesh->npoints = 3;
+
+		mesh->triangles = PAR_MALLOC(PAR_SHAPES_T, 3);
+		mesh->ntriangles = 1;
+
+		mesh->points[0] = 0.0f;
+		mesh->points[1] = 1.0f;
+		mesh->points[2] = 0.0f;
+
+		mesh->points[3] = -1.0f * sinf(PI / 3.0f);
+		mesh->points[4] = -1.0f * cosf(PI / 3.0f);
+		mesh->points[5] =  0.0f;
+
+		mesh->points[6] =  1.0f * sinf(PI / 3.0f);
+		mesh->points[7] = -1.0f * cosf(PI / 3.0f);
+		mesh->points[8] =  0.0f;
+
+		mesh->triangles[0] = 0;
+		mesh->triangles[1] = 1;
+		mesh->triangles[2] = 2;
+		break;
+
+	case SQUARE:
 		mesh = par_shapes_create_plane(1, 1);
 		//par_shapes_translate(mesh, -0.5f, -0.5f, 0.0f);
 		break;

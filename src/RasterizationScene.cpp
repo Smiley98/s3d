@@ -31,11 +31,12 @@ void RasterizationScene::OnDraw()
 	Matrix proj = mProj;
 	Matrix mvp = world * view * proj;
 
-	gView = view;
-	gProj = proj;
+	// Temporary hack to test primitive-rendering
+	SetView(view);
+	SetProj(proj);
 	
 	float angle = tt * 100.0f * DEG2RAD;
-	DrawTriangle({ 0.5f, 0.0f }, { 0.0f, 0.5f }, { -0.5f, 0.0f }, {1.0f, 0.0f, 0.0f});
+	DrawTriangle({ 0.5f, -0.5f }, { 0.0f, 1.0f }, { -0.5f, -0.5f }, {1.0f, 0.0f, 0.0f});
 	DrawRectangle({ -2.0f, 1.0f }, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, angle);
 	DrawRectangle({  2.0f, 1.0f }, 2.0f, 1.0f, { 1.0f, 0.5f, 0.0f }, angle);
 	DrawCapsuleH({ -2.0f, -1.0f }, 0.5f, 1.0f, { 0.5f, 0.0f, 1.0f }, angle);
@@ -104,7 +105,7 @@ void RasterizationScene::OnDrawImGui()
 	static Mesh* meshes[] =
 	{
 		&gMeshTriangle,
-		&gMeshPlane,
+		&gMeshSquare,
 		&gMeshCube,
 		&gMeshCircle,
 		&gMeshSemicircle,

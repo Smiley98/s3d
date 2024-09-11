@@ -45,7 +45,7 @@ struct Mesh
 
 // Generated meshes
 extern Mesh gMeshTriangle;
-extern Mesh gMeshPlane;
+extern Mesh gMeshSquare;
 extern Mesh gMeshCube;
 extern Mesh gMeshCircle;
 extern Mesh gMeshSemicircle;
@@ -76,8 +76,9 @@ void BindFsq();
 void DrawFsq();
 
 void GenTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2);
+void GenEquilateral(Mesh* mesh);
 
-void GenPlane(Mesh* mesh);
+void GenSquare(Mesh* mesh);
 void GenCircle(Mesh* mesh);
 void GenSemicircle(Mesh* mesh);
 

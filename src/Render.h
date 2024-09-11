@@ -4,9 +4,8 @@
 #include "Shader.h"
 #include "Texture.h"
 
-extern Matrix gView;
-extern Matrix gProj;
-
+void SetView(Matrix view);
+void SetProj(Matrix proj);
 void SetWireframes(bool wireframes);
 
 void DrawMeshFlat(Mesh mesh, Matrix mvp, Vector3 color);
