@@ -22,10 +22,10 @@ void DrawSemicircleH(Vector2 center, float radius, Vector3 color, float angle = 
 void DrawSemicircleV(Vector2 center, float radius, Vector3 color, float angle = 0.0f);
 void DrawCapsuleH(Vector2 center, float radius, float halfHeight, Vector3 color, float angle = 0.0f);
 void DrawCapsuleV(Vector2 center, float radius, float halfHeight, Vector3 color, float angle = 0.0f);
-//#define DrawCapsule DrawCapsuleH <-- stops mouse-over definition preview :(
 
 // 3d:
 void DrawCube(Vector3 center, float width, float height, float depth, Vector3 color, Matrix rotation = MatrixIdentity());
 void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation = MatrixIdentity());
-//void DrawHemisphere();
+void DrawHemisphere(Vector3 center, float radius, Vector3 color, Matrix rotation = MatrixIdentity());
+void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation = MatrixIdentity());
 //void DrawSpherocylinder(); // <-- "capsule" xD

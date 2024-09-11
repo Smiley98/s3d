@@ -187,3 +187,38 @@ void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 
 	DestroyMesh(&mesh);
 }
+
+void DrawHemisphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
+{
+	Mesh mesh;
+	GenHemisphere(&mesh);
+
+	Matrix world =
+		Scale(radius, radius, radius) *
+		rotation *
+		Translate(center.x, center.y, center.z);
+
+	Matrix mvp = world * fView * fProj;
+
+	DrawMeshFlat(mesh, mvp, color);
+
+	DestroyMesh(&mesh);
+}
+
+void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation)
+{
+	Mesh mesh;
+	GenCylinder(&mesh);
+
+	Matrix world =
+		Translate(0.0f, 0.0f, -0.5f) *
+		Scale(radius, radius, halfHeight) *
+		rotation *
+		Translate(center.x, center.y, center.z);
+
+	Matrix mvp = world * fView * fProj;
+
+	DrawMeshFlat(mesh, mvp, color);
+
+	DestroyMesh(&mesh);
+}

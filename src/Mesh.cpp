@@ -7,10 +7,17 @@ GLuint fVaoFsq = GL_NONE;
 
 Mesh gMeshTriangle;
 Mesh gMeshSquare;
-Mesh gMeshCube;
 Mesh gMeshCircle;
 Mesh gMeshSemicircle;
+
+Mesh gMeshCube;
 Mesh gMeshSphere;
+Mesh gMeshHemisphere;	// unimplemented
+Mesh gMeshCylinder;		// unimplemented
+
+Mesh gMeshPlaneXZ; // unimplemented
+Mesh gMeshPlaneYZ; // unimplemented
+Mesh gMeshPlaneXY; // unimplemented
 Mesh gMeshDodecahedron;
 
 Mesh gMeshHead;
@@ -21,10 +28,12 @@ enum PrimitiveShape
 	SQUARE,
 	CIRCLE,
 	SEMICIRCLE,
+
 	CUBE,
 	SPHERE,
 	HEMISPHERE,
 	CYLINDER,
+
 	PLANE_XZ,
 	PLANE_YZ,
 	PLANE_XY,
@@ -213,6 +222,20 @@ void GenSphere(Mesh* mesh)
 	par_shapes_free_mesh(shape);
 }
 
+void GenHemisphere(Mesh* mesh)
+{
+	par_shapes_mesh* shape = LoadPrimitive(HEMISPHERE);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
+}
+
+void GenCylinder(Mesh* mesh)
+{
+	par_shapes_mesh* shape = LoadPrimitive(CYLINDER);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
+}
+
 void GenPlaneXZ(Mesh* mesh)
 {
 }
@@ -223,6 +246,13 @@ void GenPlaneYZ(Mesh* mesh)
 
 void GenPlaneXY(Mesh* mesh)
 {
+}
+
+void GenDodecahedron(Mesh* mesh)
+{
+	par_shapes_mesh* shape = LoadPrimitive(DODECAHEDRON);
+	CreateMeshPar(mesh, shape);
+	par_shapes_free_mesh(shape);
 }
 
 void CreateMeshCPU(Mesh* mesh, size_t vc,
@@ -253,7 +283,6 @@ void CreateMeshCPU(Mesh* mesh, size_t vc,
 		memcpy(mesh->colors, colors, vc * sizeof(Vector3));
 	}
 
-	// Double-check whether index count ntriangles or npoints
 	if (indices != nullptr)
 	{
 		mesh->indices = new uint16_t[vc];
@@ -397,12 +426,6 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 
 	case SQUARE:
 		mesh = par_shapes_create_plane(1, 1);
-		//par_shapes_translate(mesh, -0.5f, -0.5f, 0.0f);
-		break;
-
-	case CUBE:
-		mesh = par_shapes_create_cube();
-		//par_shapes_translate(mesh, -0.5f, -0.5f, -0.5f);
 		break;
 
 	case CIRCLE:
@@ -413,8 +436,20 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 		mesh = mesh = par_shapes_create_half_disk(1.0f, 16, &position.x, &normal.x);
 		break;
 
+	case CUBE:
+		mesh = par_shapes_create_cube();
+		break;
+
 	case SPHERE:
 		mesh = par_shapes_create_subdivided_sphere(1);
+		break;
+
+	case HEMISPHERE:
+		mesh = par_shapes_create_hemisphere(8, 8);
+		break;
+
+	case CYLINDER:
+		mesh = par_shapes_create_cylinder(8, 8);
 		break;
 
 	case DODECAHEDRON:
@@ -423,6 +458,14 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 
 	default:
 		assert(false, "Invalid par_shapes Mesh Type");
+	}
+
+	// Hemisphere and Cylinder seem to have broken tcoords...
+	// These are just debug shapes so just delete no matter what xD
+	if (mesh->tcoords != nullptr)
+	{
+		PAR_FREE(mesh->tcoords);
+		mesh->tcoords = nullptr;
 	}
 
 	par_shapes_unweld(mesh, true);

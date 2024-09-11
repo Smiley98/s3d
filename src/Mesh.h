@@ -43,14 +43,19 @@ struct Mesh
 	GLuint ibo = GL_NONE;	// Vertex indices
 };
 
-// Generated meshes
 extern Mesh gMeshTriangle;
 extern Mesh gMeshSquare;
-extern Mesh gMeshCube;
 extern Mesh gMeshCircle;
 extern Mesh gMeshSemicircle;
+
+extern Mesh gMeshCube;
 extern Mesh gMeshSphere;
-// TODO -- hemisphere & cylinder
+extern Mesh gMeshHemisphere;	// unimplemented
+extern Mesh gMeshCylinder;		// unimplemented
+
+extern Mesh gMeshPlaneXZ; // unimplemented
+extern Mesh gMeshPlaneYZ; // unimplemented
+extern Mesh gMeshPlaneXY; // unimplemented
 extern Mesh gMeshDodecahedron;
 
 // Imported meshes
@@ -77,14 +82,16 @@ void DrawFsq();
 
 void GenTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2);
 void GenEquilateral(Mesh* mesh);
-
 void GenSquare(Mesh* mesh);
 void GenCircle(Mesh* mesh);
 void GenSemicircle(Mesh* mesh);
 
 void GenCube(Mesh* mesh);
 void GenSphere(Mesh* mesh);
+void GenHemisphere(Mesh* mesh);
+void GenCylinder(Mesh* mesh);
 
 void GenPlaneXZ(Mesh* mesh);
 void GenPlaneYZ(Mesh* mesh);
 void GenPlaneXY(Mesh* mesh);
+void GenDodecahedron(Mesh* mesh);
