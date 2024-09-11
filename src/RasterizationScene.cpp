@@ -42,7 +42,7 @@ void RasterizationScene::OnDraw()
 	SetProj(mProj);
 	
 	float angle = tt * 100.0f * DEG2RAD;
-	//DrawTriangle({ 0.5f, -0.5f }, { 0.0f, 1.0f }, { -0.5f, -0.5f }, {1.0f, 0.0f, 0.0f});
+	DrawTriangle({ 0.5f, -0.5f }, { 0.0f, 1.0f }, { -0.5f, -0.5f }, { 0.5f, 0.5f, 0.5f });
 	DrawRectangle({ -2.0f, 1.0f }, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, angle);
 	DrawRectangle({  2.0f, 1.0f }, 2.0f, 1.0f, { 1.0f, 0.5f, 0.0f }, angle);
 	DrawCapsuleH({ -2.0f, -1.0f }, 0.5f, 1.0f, { 0.5f, 0.0f, 1.0f }, angle);
@@ -55,9 +55,9 @@ void RasterizationScene::OnDraw()
 	DrawHemisphere({ 1.0f, 1.0f, 0.0f }, 1.0f, { 1.0f, 0.0f, 1.0f }, rotation);
 	SetWireframes(false);
 
-	DrawPlaneXZ({0.0f, -1.0f, 0.0f}, 2.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, rotation);
-	//DrawPlaneYZ({}, 2.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, rotation);
-	//DrawPlaneXY({}, 2.0f, 2.0f, { 1.0f, 0.0f, 0.0f }, rotation);
+	DrawPlaneXZ({0.0f, 0.0f, 0.0f}, 1.0f, 3.0f, { 0.0f, 0.0f, 1.0f }, rotation);
+	DrawPlaneYZ({}, 3.0f, 1.0f, { 0.0f, 1.0f, 0.0f }, rotation);
+	DrawPlaneXY({}, 3.0f, 1.0f, { 1.0f, 0.0f, 0.0f }, rotation);
 
 	switch (fShader)
 	{

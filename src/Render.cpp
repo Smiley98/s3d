@@ -216,13 +216,13 @@ void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 
 
 }
 
-void DrawPlaneXZ(Vector3 center, float width, float height, Vector3 color, Matrix rotation)
+void DrawPlaneXZ(Vector3 center, float width, float depth, Vector3 color, Matrix rotation)
 {
 	Mesh mesh;
 	GenPlaneXZ(&mesh);
 
 	Matrix world =
-		Scale(width, height, 1.0f) *
+		Scale(width, 1.0f, depth) *
 		rotation *
 		Translate(center.x, center.y, center.z);
 
@@ -231,13 +231,13 @@ void DrawPlaneXZ(Vector3 center, float width, float height, Vector3 color, Matri
 	DestroyMesh(&mesh);
 }
 
-void DrawPlaneYZ(Vector3 center, float width, float height, Vector3 color, Matrix rotation)
+void DrawPlaneYZ(Vector3 center, float height, float depth, Vector3 color, Matrix rotation)
 {
 	Mesh mesh;
 	GenPlaneYZ(&mesh);
 
 	Matrix world =
-		Scale(width, height, 1.0f) *
+		Scale(1.0f, height, depth) *
 		rotation *
 		Translate(center.x, center.y, center.z);
 
