@@ -213,7 +213,7 @@ void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color,
 
 void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation)
 {
-
+	// TODO -- complete this!
 }
 
 void DrawPlaneXZ(Vector3 center, float width, float depth, Vector3 color, Matrix rotation)
@@ -253,6 +253,21 @@ void DrawPlaneXY(Vector3 center, float width, float height, Vector3 color, Matri
 
 	Matrix world =
 		Scale(width, height, 1.0f) *
+		rotation *
+		Translate(center.x, center.y, center.z);
+
+	Matrix mvp = world * fView * fProj;
+	DrawMeshFlat(mesh, mvp, color);
+	DestroyMesh(&mesh);
+}
+
+void DrawDodecahedron(Vector3 center, Vector3 scale, Vector3 color, Matrix rotation)
+{
+	Mesh mesh;
+	GenDodecahedron(&mesh);
+
+	Matrix world =
+		Scale(scale) *
 		rotation *
 		Translate(center.x, center.y, center.z);
 

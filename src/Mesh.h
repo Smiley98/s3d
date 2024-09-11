@@ -43,21 +43,6 @@ struct Mesh
 	GLuint ibo = GL_NONE;	// Vertex indices
 };
 
-extern Mesh gMeshTriangle;
-extern Mesh gMeshSquare;
-extern Mesh gMeshCircle;
-extern Mesh gMeshSemicircle;
-
-extern Mesh gMeshCube;
-extern Mesh gMeshSphere;
-extern Mesh gMeshHemisphere;
-extern Mesh gMeshCylinder;
-
-extern Mesh gMeshPlaneXZ; // unimplemented
-extern Mesh gMeshPlaneYZ; // unimplemented
-extern Mesh gMeshPlaneXY; // unimplemented
-extern Mesh gMeshDodecahedron;
-
 // Imported meshes
 extern Mesh gMeshHead;
 
@@ -95,3 +80,19 @@ void GenPlaneXZ(Mesh* mesh);
 void GenPlaneYZ(Mesh* mesh);
 void GenPlaneXY(Mesh* mesh);
 void GenDodecahedron(Mesh* mesh);
+
+// Replaced with mesh generation
+//extern Mesh gMeshTriangle;
+//extern Mesh gMeshSquare;
+//extern Mesh gMeshCircle;
+//extern Mesh gMeshSemicircle;
+//
+//extern Mesh gMeshCube;
+//extern Mesh gMeshSphere;
+//extern Mesh gMeshHemisphere;
+//extern Mesh gMeshCylinder;
+//
+//extern Mesh gMeshPlaneXZ;
+//extern Mesh gMeshPlaneYZ;
+//extern Mesh gMeshPlaneXY;
+//extern Mesh gMeshDodecahedron;

@@ -110,7 +110,7 @@ void RasterizationScene::OnDrawImGui()
 	};
 
 	using MeshGenerator = void(*)(Mesh*);
-	MeshGenerator generators[] =
+	static MeshGenerator generators[] =
 	{
 		GenEquilateral,
 		GenSquare,

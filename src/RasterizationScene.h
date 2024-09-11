@@ -10,7 +10,7 @@ public:
 
 private:
 	Shader* mShader = nullptr;
-	Mesh* mMesh = &gMeshTriangle;
+	Mesh* mMesh = &gMeshHead;
 
 	Matrix mView;
 	Matrix mProj;

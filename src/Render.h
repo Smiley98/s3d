@@ -33,3 +33,4 @@ void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 
 void DrawPlaneXZ(Vector3 center, float width, float depth, Vector3 color, Matrix rotation = MatrixIdentity());
 void DrawPlaneYZ(Vector3 center, float height, float depth, Vector3 color, Matrix rotation = MatrixIdentity());
 void DrawPlaneXY(Vector3 center, float width, float height, Vector3 color, Matrix rotation = MatrixIdentity());
+void DrawDodecahedron(Vector3 center, Vector3 scale, Vector3 color, Matrix rotation = MatrixIdentity());

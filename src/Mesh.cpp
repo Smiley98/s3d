@@ -5,21 +5,6 @@
 
 GLuint fVaoFsq = GL_NONE;
 
-Mesh gMeshTriangle;
-Mesh gMeshSquare;
-Mesh gMeshCircle;
-Mesh gMeshSemicircle;
-
-Mesh gMeshCube;
-Mesh gMeshSphere;
-Mesh gMeshHemisphere;
-Mesh gMeshCylinder;
-
-Mesh gMeshPlaneXZ; // unimplemented
-Mesh gMeshPlaneYZ; // unimplemented
-Mesh gMeshPlaneXY; // unimplemented
-Mesh gMeshDodecahedron;
-
 Mesh gMeshHead;
 
 enum PrimitiveShape
@@ -58,67 +43,13 @@ size_t LoadObj(const char* path,
 
 void CreateMeshes()
 {
-	// FSQ test
 	glGenVertexArrays(1, &fVaoFsq);
-
-	par_shapes_mesh* triangle = LoadPrimitive(TRIANGLE);
-	CreateMeshPar(&gMeshTriangle, triangle);
-	par_shapes_free_mesh(triangle);
-
-	par_shapes_mesh* square = LoadPrimitive(SQUARE);
-	CreateMeshPar(&gMeshSquare, square);
-	par_shapes_free_mesh(square);
-
-	par_shapes_mesh* circle = LoadPrimitive(CIRCLE);
-	CreateMeshPar(&gMeshCircle, circle);
-	par_shapes_free_mesh(circle);
-
-	par_shapes_mesh* semicircle = LoadPrimitive(SEMICIRCLE);
-	CreateMeshPar(&gMeshSemicircle, semicircle);
-	par_shapes_free_mesh(semicircle);
-
-	par_shapes_mesh* cube = LoadPrimitive(CUBE);
-	CreateMeshPar(&gMeshCube, cube);
-	par_shapes_free_mesh(cube);
-
-	par_shapes_mesh* sphere = LoadPrimitive(SPHERE);
-	CreateMeshPar(&gMeshSphere, sphere);
-	par_shapes_free_mesh(sphere);
-
-	par_shapes_mesh* hemisphere = LoadPrimitive(HEMISPHERE);
-	CreateMeshPar(&gMeshHemisphere, hemisphere);
-	par_shapes_free_mesh(hemisphere);
-
-	par_shapes_mesh* cylinder = LoadPrimitive(CYLINDER);
-	CreateMeshPar(&gMeshCylinder, cylinder);
-	par_shapes_free_mesh(cylinder);
-
-	par_shapes_mesh* dodecahedron = LoadPrimitive(DODECAHEDRON);
-	CreateMeshPar(&gMeshDodecahedron, dodecahedron);
-	par_shapes_free_mesh(dodecahedron);
-
 	CreateMeshObj(&gMeshHead, "assets/meshes/head.obj");
 }
 
 void DestroyMeshes()
 {
 	DestroyMesh(&gMeshHead);
-
-	DestroyMesh(&gMeshDodecahedron);
-	//DestroyMesh(&gMeshPlaneXY);
-	//DestroyMesh(&gMeshPlaneYZ);
-	//DestroyMesh(&gMeshPlaneXZ);
-
-	DestroyMesh(&gMeshCylinder);
-	DestroyMesh(&gMeshHemisphere);
-	DestroyMesh(&gMeshSphere);
-	DestroyMesh(&gMeshCube);
-
-	DestroyMesh(&gMeshSemicircle);
-	DestroyMesh(&gMeshCircle);
-	DestroyMesh(&gMeshSquare);
-	DestroyMesh(&gMeshTriangle);
-
 	glDeleteVertexArrays(1, &fVaoFsq);
 }
 
@@ -600,3 +531,82 @@ size_t LoadObj(const char* path,
 
 	return vc;
 }
+
+// Replaced with mesh generation
+//Mesh gMeshTriangle;
+//Mesh gMeshSquare;
+//Mesh gMeshCircle;
+//Mesh gMeshSemicircle;
+//
+//Mesh gMeshCube;
+//Mesh gMeshSphere;
+//Mesh gMeshHemisphere;
+//Mesh gMeshCylinder;
+//
+//Mesh gMeshPlaneXZ;
+//Mesh gMeshPlaneYZ;
+//Mesh gMeshPlaneXY;
+//Mesh gMeshDodecahedron;
+//
+//par_shapes_mesh* triangle = LoadPrimitive(TRIANGLE);
+//CreateMeshPar(&gMeshTriangle, triangle);
+//par_shapes_free_mesh(triangle);
+//
+//par_shapes_mesh* square = LoadPrimitive(SQUARE);
+//CreateMeshPar(&gMeshSquare, square);
+//par_shapes_free_mesh(square);
+//
+//par_shapes_mesh* circle = LoadPrimitive(CIRCLE);
+//CreateMeshPar(&gMeshCircle, circle);
+//par_shapes_free_mesh(circle);
+//
+//par_shapes_mesh* semicircle = LoadPrimitive(SEMICIRCLE);
+//CreateMeshPar(&gMeshSemicircle, semicircle);
+//par_shapes_free_mesh(semicircle);
+//
+//par_shapes_mesh* cube = LoadPrimitive(CUBE);
+//CreateMeshPar(&gMeshCube, cube);
+//par_shapes_free_mesh(cube);
+//
+//par_shapes_mesh* sphere = LoadPrimitive(SPHERE);
+//CreateMeshPar(&gMeshSphere, sphere);
+//par_shapes_free_mesh(sphere);
+//
+//par_shapes_mesh* hemisphere = LoadPrimitive(HEMISPHERE);
+//CreateMeshPar(&gMeshHemisphere, hemisphere);
+//par_shapes_free_mesh(hemisphere);
+//
+//par_shapes_mesh* cylinder = LoadPrimitive(CYLINDER);
+//CreateMeshPar(&gMeshCylinder, cylinder);
+//par_shapes_free_mesh(cylinder);
+//
+//par_shapes_mesh* plane_xz = LoadPrimitive(PLANE_XZ);
+//CreateMeshPar(&gMeshPlaneXZ, plane_xz);
+//par_shapes_free_mesh(plane_xz);
+//
+//par_shapes_mesh* plane_yz = LoadPrimitive(PLANE_YZ);
+//CreateMeshPar(&gMeshPlaneYZ, plane_yz);
+//par_shapes_free_mesh(plane_yz);
+//
+//par_shapes_mesh* plane_xy = LoadPrimitive(PLANE_XY);
+//CreateMeshPar(&gMeshPlaneXY, plane_xy);
+//par_shapes_free_mesh(plane_xy);
+//
+//par_shapes_mesh* dodecahedron = LoadPrimitive(DODECAHEDRON);
+//CreateMeshPar(&gMeshDodecahedron, dodecahedron);
+//par_shapes_free_mesh(dodecahedron);
+// 
+//DestroyMesh(&gMeshDodecahedron);
+//DestroyMesh(&gMeshPlaneXY);
+//DestroyMesh(&gMeshPlaneYZ);
+//DestroyMesh(&gMeshPlaneXZ);
+//
+//DestroyMesh(&gMeshCylinder);
+//DestroyMesh(&gMeshHemisphere);
+//DestroyMesh(&gMeshSphere);
+//DestroyMesh(&gMeshCube);
+//
+//DestroyMesh(&gMeshSemicircle);
+//DestroyMesh(&gMeshCircle);
+//DestroyMesh(&gMeshSquare);
+//DestroyMesh(&gMeshTriangle);
