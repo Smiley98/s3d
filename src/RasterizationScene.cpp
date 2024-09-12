@@ -27,11 +27,6 @@ Vector3 fPosition = V3_ZERO;
 Vector3 fCamPos{ 0.0f, 0.0f, 5.0f };
 Quaternion fCamRot = QuaternionIdentity();
 
-// Improvement idea:
-// Calc pitch & yaw every frame
-// Append to quaternion
-// **cam pos & cam rot persist in camera-space**
-
 // View = inv(Camera)
 // Camera is same as world -- rotation (pitch-yaw) then position
 Matrix LookAtFps(Vector3 eye, Quaternion rot)
@@ -59,6 +54,11 @@ void RasterizationScene::OnDraw()
 {
 	float tt = TotalTime();
 
+	// Update camera
+	Vector2 delta = MouseDelta();
+	fCamRot = fCamRot * FromEuler(delta.y * 0.001f, delta.x * 0.001f, 0.0f);
+	fView = LookAtFps(fCamPos, fCamRot);
+
 	Matrix translation = Translate(fPosition) *
 		(fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());
 	
@@ -70,15 +70,6 @@ void RasterizationScene::OnDraw()
 
 	Matrix world = scale * rotation * translation;
 	Matrix mvp = world * fView * fProj;
-
-	//Vector2 delta = MouseDelta();
-	//float pitch = delta.x;
-	//float yaw = delta.y;
-	//fCamDir = fCamDir * FromEuler(pitch, yaw, 0.0f);
-
-	//float speed = Length(delta);
-
-	//printf("%f %f\n", delta.x, delta.y);
 
 	// Temporary hack to test primitive-rendering
 	SetView(fView);
@@ -166,14 +157,14 @@ void RasterizationScene::OnDrawImGui()
 
 	ImGui::SliderFloat3("Object Position", &fPosition.x, -10.0f, 10.0f);
 
-	static Vector3 camPos{ 0.0f, 0.0f, 5.0f };
-	static float pitch = 0.0f;
-	static float yaw = 0.0f;
-
-	ImGui::SliderFloat3("Camera Position", &camPos.x, -10.0f, 10.0f);
-	ImGui::SliderAngle("Pitch", &pitch);
-	ImGui::SliderAngle("Yaw", &yaw);
-	fView = LookAtFps(camPos, FromEuler(pitch, yaw, 0.0f));
+	// Legacy look-at & fps gui controls. Now using mouse delta for camera input!
+	//static Vector3 camPos{ 0.0f, 0.0f, 5.0f };
+	//static float pitch = 0.0f;
+	//static float yaw = 0.0f;
+	//ImGui::SliderFloat3("Camera Position", &camPos.x, -10.0f, 10.0f);
+	//ImGui::SliderAngle("Pitch", &pitch);
+	//ImGui::SliderAngle("Yaw", &yaw);
+	//fView = LookAtFps(camPos, FromEuler(pitch, yaw, 0.0f));
 	//fView = LookAt(camPos, V3_ZERO, V3_UP);
 
 	static int meshIndex = 0;
