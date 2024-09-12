@@ -3,8 +3,8 @@
 
 // File-scope cause we probably shouldn't make these global.
 // This is all most-likely temporary until we get some sort of camera system.
-Matrix fView = MatrixIdentity();
-Matrix fProj = MatrixIdentity();
+static Matrix fView = MatrixIdentity();
+static Matrix fProj = MatrixIdentity();
 
 void SetView(Matrix view)
 {
@@ -213,7 +213,7 @@ void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color,
 
 void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation)
 {
-	Vector3 forward{ rotation.m8, rotation.m9, rotation.m10 };
+	Vector3 forward = Forward(rotation);
 	Vector3 top = center + forward * halfHeight;
 	Vector3 bot = center - forward * halfHeight;
 	

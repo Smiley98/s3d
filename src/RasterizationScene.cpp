@@ -24,20 +24,6 @@ Mesh fMesh;
 Vector3 fColor = V3_ONE;
 Vector3 fPosition = V3_ZERO;
 
-Vector3 fCamPos{ 0.0f, 0.0f, 5.0f };
-Quaternion fCamRot = QuaternionIdentity();
-
-// View = inv(Camera)
-// Camera is same as world -- rotation (pitch-yaw) then position
-Matrix LookAtFps(Vector3 eye, Quaternion rot)
-{
-	//Matrix rotation = ToMatrix(rot);
-	//Matrix translation = Translate(eye);
-	//Matrix camera = rotation * translation;
-	//Matrix view = Invert(camera);
-	return Invert(ToMatrix(rot) * Translate(eye));
-}
-
 void SwitchShader(Matrix mvp, Matrix world);
 
 void RasterizationScene::OnCreate()
@@ -53,12 +39,64 @@ void RasterizationScene::OnDestroy()
 void RasterizationScene::OnDraw()
 {
 	float tt = TotalTime();
+	float dt = FrameTime();
 
-	// Update camera
-	Vector2 delta = MouseDelta();
-	fCamRot = fCamRot * FromEuler(delta.y * 0.001f, delta.x * 0.001f, 0.0f);
-	fView = LookAtFps(fCamPos, fCamRot);
-	SetMouseEnabled(!IsKeyDown(KEY_SPACE));
+	Vector2 md = MouseDelta() * 0.001f;
+
+	// Camera toggle
+	static bool updateCamera = false;
+	if (IsKeyPressed(KEY_C))
+	{
+		updateCamera = !updateCamera;
+		SetMouseEnabled(!updateCamera);
+	}
+	
+	static Vector3 camPos{ 0.0f, 0.0f, 5.0f };
+	static Quaternion camRot = QuaternionIdentity();
+	static Matrix camRotMat = MatrixIdentity();
+
+	// Camera update
+	if (updateCamera)
+	{
+		// Update rotation
+		camRot = camRot * FromEuler(md.y, md.x, 0.0f);
+		camRotMat = ToMatrix(camRot);
+		//camRotMat = RotateX(fCamPitch) * RotateY(fCamYaw);
+
+		// Update translation
+		Vector3 forward = Forward(camRotMat);
+		Vector3 right = Right(camRotMat);
+		Vector3 up = Up(camRotMat);
+		float dist = 10.0f * dt;
+		if (IsKeyDown(KEY_W))
+		{
+			camPos = camPos - forward * dist;
+		}
+		if (IsKeyDown(KEY_S))
+		{
+			camPos = camPos + forward * dist;
+		}
+		if (IsKeyDown(KEY_A))
+		{
+			camPos = camPos - right * dist;
+		}
+		if (IsKeyDown(KEY_D))
+		{
+			camPos = camPos + right * dist;
+		}
+		if (IsKeyDown(KEY_SPACE))
+		{
+			camPos = camPos + up * dist;
+		}
+		if (IsKeyDown(KEY_LEFT_SHIFT))
+		{
+			camPos = camPos - up * dist;
+		}
+	}
+
+	// TODO -- follow a FPS camera tutorial to verify my (nice) approach 
+	// raylib had some additional math for an FPS camera (not nice)
+	fView = Invert(camRotMat * Translate(camPos));
 
 	Matrix translation = Translate(fPosition) *
 		(fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());
@@ -77,8 +115,7 @@ void RasterizationScene::OnDraw()
 	SetProj(fProj);
 
 	// Capsule is oriented along +Z so you must rotate accordingly!
-	DrawSpherocylinder({}, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f },
-		ToMatrix(FromEuler(-PI * 0.25f, PI * 0.5f, 0.0f)));
+	//DrawSpherocylinder({}, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f });
 
 	SwitchShader(mvp, world);
 }
