@@ -175,7 +175,7 @@ void OnMouseMove(GLFWwindow* window, double xpos, double ypos)
 {
     fInput.mousePosCurr.x = xpos;
     fInput.mousePosCurr.y = ypos;
-    fInput.mousePosDelta = Normalize(fInput.mousePosCurr - fInput.mousePosPrev);
+    fInput.mousePosDelta = fInput.mousePosCurr - fInput.mousePosPrev;
     //printf("%f %f\n", xpos, ypos);
     //printf("%f %f\n", fInput.mouseDelta.x, fInput.mouseDelta.y);
 }
