@@ -3,16 +3,6 @@
 #include "Window.h"
 #include <imgui/imgui.h>
 
-enum ShaderType : int
-{
-	FLAT,
-	WIRE,
-	POSITIONS_WORLD,
-	POSITIONS_SCREEN,
-	NORMALS_OBJECT,
-	NORMALS_WORLD
-} fShader{};
-
 bool fTranslate = false;
 bool fRotate = false;
 bool fScale = false;
@@ -23,8 +13,6 @@ static Matrix fProj = MatrixIdentity();
 Mesh fMesh;
 Vector3 fColor = V3_ONE;
 Vector3 fPosition = V3_ZERO;
-
-void SwitchShader(Matrix mvp, Matrix world);
 
 void RasterizationScene::OnCreate()
 {
@@ -114,10 +102,7 @@ void RasterizationScene::OnDraw()
 	SetView(fView);
 	SetProj(fProj);
 
-	// Capsule is oriented along +Z so you must rotate accordingly!
-	//DrawSpherocylinder({}, 1.0f, 2.0f, { 1.0f, 0.0f, 0.0f });
-
-	SwitchShader(mvp, world);
+	DrawMeshDebug(fMesh, mvp, world, fColor);
 }
 
 void GenHead(Mesh& mesh)
@@ -168,16 +153,6 @@ void RasterizationScene::OnDrawImGui()
 		GenHead
 	};
 
-	static const char* shaderNames[] =
-	{
-		"Flat",
-		"Wireframe",
-		"World-Space Positions",
-		"Screen-Space Positions",
-		"Object-Space Normals",
-		"World-Space Normals"
-	};
-
 	static Matrix projections[] =
 	{
 		Ortho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f),
@@ -213,41 +188,21 @@ void RasterizationScene::OnDrawImGui()
 		generators[meshIndex](fMesh);
 	}
 
-	ImGui::Combo("Shaders", (int*)&fShader, shaderNames, IM_ARRAYSIZE(shaderNames));
+	static const char* shaderNames[] =
+	{
+		"Flat",
+		"Wireframe",
+		"World-Space Positions",
+		"Screen-Space Positions",
+		"Object-Space Normals",
+		"World-Space Normals"
+	};
+
+	static int shaderIndex = 0;
+	ImGui::Combo("Shaders", &shaderIndex, shaderNames, IM_ARRAYSIZE(shaderNames));
+	SetDebugShader((DebugShaderType)shaderIndex);
+	
 	ImGui::ColorPicker3("Colour", &fColor.x);
 	//ImGui::ShowDemoWindow();
 }
 
-void SwitchShader(Matrix mvp, Matrix world)
-{
-	switch (fShader)
-	{
-	case FLAT:
-		DrawMeshFlat(fMesh, mvp, fColor);
-		break;
-
-	case WIRE:
-		DrawMeshWireframes(fMesh, mvp, fColor);
-		break;
-
-	case POSITIONS_WORLD:
-		DrawMeshPositionsWorld(fMesh, mvp, world);
-		break;
-
-	case POSITIONS_SCREEN:
-		DrawMeshPositionsScreen(fMesh, mvp);
-		break;
-
-	case NORMALS_OBJECT:
-		DrawMeshNormals(fMesh, mvp, MatrixIdentity());
-		break;
-
-	case NORMALS_WORLD:
-		DrawMeshNormals(fMesh, mvp, world);
-		break;
-
-	default:
-		assert(false, "Invalid Shader");
-		break;
-	}
-}

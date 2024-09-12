@@ -6,6 +6,8 @@
 static Matrix fView = MatrixIdentity();
 static Matrix fProj = MatrixIdentity();
 
+DebugShaderType fShader = FLAT;
+
 void SetView(Matrix view)
 {
 	fView = view;
@@ -19,6 +21,11 @@ void SetProj(Matrix proj)
 void SetWireframes(bool wireframes)
 {
 	glPolygonMode(GL_FRONT_AND_BACK, wireframes ? GL_LINE : GL_FILL);
+}
+
+void SetDebugShader(DebugShaderType type)
+{
+	fShader = type;
 }
 
 void DrawMeshFlat(Mesh mesh, Matrix mvp, Vector3 color)
@@ -76,7 +83,7 @@ void DrawRectangle(Vector2 center, float width, float height, Vector3 color, flo
 		Translate(center.x, center.y, 0.0f);
 	
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
@@ -86,7 +93,7 @@ void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle
 	GenTriangle(mesh, v0, v1, v2);
 
 	Matrix mvp = RotateZ(angle) * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, MatrixIdentity(), color);
 	DestroyMesh(mesh);
 }
 
@@ -101,7 +108,7 @@ void DrawCircle(Vector2 center, float radius, Vector3 color, float angle)
 		Translate(center.x, center.y, 0.0f);
 
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
@@ -117,7 +124,7 @@ void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 		Translate(center.x, center.y, 0.0f);
 
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
@@ -162,7 +169,7 @@ void DrawCube(Vector3 center, float width, float height, float depth, Vector3 co
 		Translate(center.x, center.y, center.z);
 
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
@@ -177,7 +184,7 @@ void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 		Translate(center.x, center.y, center.z);
 
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
@@ -192,7 +199,7 @@ void DrawHemisphere(Vector3 center, float radius, Vector3 color, Matrix rotation
 		Translate(center.x, center.y, center.z);
 
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
@@ -207,7 +214,7 @@ void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color,
 		Translate(center.x, center.y, center.z);
 
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
@@ -233,7 +240,7 @@ void DrawPlaneXZ(Vector3 center, float width, float depth, Vector3 color, Matrix
 		Translate(center.x, center.y, center.z);
 
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
@@ -248,7 +255,7 @@ void DrawPlaneYZ(Vector3 center, float height, float depth, Vector3 color, Matri
 		Translate(center.x, center.y, center.z);
 
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
@@ -263,7 +270,7 @@ void DrawPlaneXY(Vector3 center, float width, float height, Vector3 color, Matri
 		Translate(center.x, center.y, center.z);
 
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
@@ -278,6 +285,40 @@ void DrawDodecahedron(Vector3 center, Vector3 scale, Vector3 color, Matrix rotat
 		Translate(center.x, center.y, center.z);
 
 	Matrix mvp = world * fView * fProj;
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
+}
+
+void DrawMeshDebug(Mesh mesh, Matrix mvp, Matrix world, Vector3 color)
+{
+	switch (fShader)
+	{
+	case FLAT:
+		DrawMeshFlat(mesh, mvp, color);
+		break;
+
+	case WIRE:
+		DrawMeshWireframes(mesh, mvp, color);
+		break;
+
+	case POSITIONS_WORLD:
+		DrawMeshPositionsWorld(mesh, mvp, world);
+		break;
+
+	case POSITIONS_SCREEN:
+		DrawMeshPositionsScreen(mesh, mvp);
+		break;
+
+	case NORMALS_OBJECT:
+		DrawMeshNormals(mesh, mvp, MatrixIdentity());
+		break;
+
+	case NORMALS_WORLD:
+		DrawMeshNormals(mesh, mvp, world);
+		break;
+
+	default:
+		assert(false, "Invalid Shader");
+		break;
+	}
 }
