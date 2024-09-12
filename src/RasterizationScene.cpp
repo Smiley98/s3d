@@ -58,6 +58,7 @@ void RasterizationScene::OnDraw()
 	Vector2 delta = MouseDelta();
 	fCamRot = fCamRot * FromEuler(delta.y * 0.001f, delta.x * 0.001f, 0.0f);
 	fView = LookAtFps(fCamPos, fCamRot);
+	SetMouseEnabled(!IsKeyDown(KEY_SPACE));
 
 	Matrix translation = Translate(fPosition) *
 		(fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());

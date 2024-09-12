@@ -29,6 +29,7 @@ struct Input
     Vector2 mousePosPrev{};
     Vector2 mousePosCurr{};
     Vector2 mousePosDelta{};
+    bool mouseEnabled = true;
 } fInput;
 
 void CreateWindow()
@@ -152,6 +153,25 @@ Vector2 MousePosition()
 Vector2 MouseDelta()
 {
     return fInput.mousePosDelta;
+}
+
+bool MouseEnabled()
+{
+    return fInput.mouseEnabled;
+}
+
+void SetMousePosition(Vector2 screen)
+{
+    glfwSetCursorPos(fWindow, screen.x, screen.y);
+}
+
+void SetMouseEnabled(bool enabled)
+{
+    if (enabled != fInput.mouseEnabled)
+    {
+        glfwSetInputMode(fWindow, GLFW_CURSOR, enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+        fInput.mouseEnabled = enabled;
+    }
 }
 
 void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods)

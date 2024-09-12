@@ -20,6 +20,10 @@ bool IsMouseClicked(int button);
 
 Vector2 MousePosition();
 Vector2 MouseDelta();
+bool MouseEnabled();
+
+void SetMousePosition(Vector2 screen);
+void SetMouseEnabled(bool enabled);
 
 #define MOUSE_BUTTON_1         0
 #define MOUSE_BUTTON_2         1
