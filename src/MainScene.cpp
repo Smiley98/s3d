@@ -29,9 +29,9 @@ void MainScene::OnUpdate(float dt)
 	float nsin = sinf(tt) * 0.5f + 0.5f;
 	float ncos = cosf(tt) * 0.5f + 0.5f;
 
-	Matrix translation = Translate(cos(tt), 0.0f, 0.0f);
+	Matrix translation = MatrixIdentity();//Translate(cos(tt), 0.0f, 0.0f);
 	Matrix rotation = RotateY(tt * 100.0f * DEG2RAD);
-	Matrix scale = Scale(cos(tt) * 0.4f + 0.6f, sin(tt) * 0.4f + 0.6f, 1.0f);
+	Matrix scale = MatrixIdentity();//Scale(cos(tt) * 0.4f + 0.6f, sin(tt) * 0.4f + 0.6f, 1.0f);
 
 	Matrix model = scale * rotation * translation;
 	Matrix view = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
@@ -52,7 +52,7 @@ void MainScene::OnUpdate(float dt)
 	Vector3 c{ 1.0f, 1.0f, 1.0f };
 	Vector3 d{ 0.263f, 0.416f, 0.557f };
 
-	data.lightColor = Palette(a, b, c, d, cosf(tt) * 0.5f + 0.5f);
+	data.lightColor = V3_ONE;//Palette(a, b, c, d, cosf(tt) * 0.5f + 0.5f);
 	data.ambient = 0.25f;
 	data.diffuse = 0.75f;
 	data.specular = 32.0f;

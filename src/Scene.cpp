@@ -4,6 +4,7 @@
 #include "DDAScene.h"
 #include "RasterizationScene.h"
 #include "RaycastingScene.h"
+#include "CollisionScene.h"
 
 Scene* Scene::sScenes[Scene::COUNT]{};
 Scene* Scene::sScene = nullptr;
@@ -16,6 +17,7 @@ void Scene::Create(Scene::Type scene)
 	sScenes[DDA_TEST] = new DDAScene;
 	sScenes[RASTER] = new RasterizationScene;
 	sScenes[RAYCAST] = new RaycastingScene;
+	sScenes[COLLISION] = new CollisionScene;
 
 	for (size_t i = 0; i < COUNT; i++)
 		sScenes[i]->OnCreate();

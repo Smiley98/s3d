@@ -25,6 +25,9 @@
     <Filter Include="Render">
       <UniqueIdentifier>{b13a314b-0975-4b45-8644-d4719818a80b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{b0e46dae-414f-45fd-84f8-404b36b9e57c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\imgui\imgui.cpp">
@@ -96,6 +99,7 @@
     <ClCompile Include="src\Render.cpp">
       <Filter>Render</Filter>
     </ClCompile>
+    <ClCompile Include="src\CollisionScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h">
@@ -182,14 +186,18 @@
     <ClInclude Include="src\Log.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="src\Math.h">
-      <Filter>Application</Filter>
-    </ClInclude>
     <ClInclude Include="src\Render.h">
       <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="src\Time.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="src\Math.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Collision.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CollisionScene.h" />
   </ItemGroup>
 </Project>

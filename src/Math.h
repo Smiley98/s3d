@@ -57,7 +57,7 @@ struct Vector2 {
     RMAPI Vector2 operator*=(float f);
     RMAPI Vector2 operator/=(float f);
 
-    RMAPI operator Vector3();
+    RMAPI operator Vector3() const;
 };
 
 RMAPI Vector2 operator+(Vector2 a, Vector2 b);
@@ -85,7 +85,8 @@ struct Vector3 {
     RMAPI Vector3 operator*=(float f);
     RMAPI Vector3 operator/=(float f);
 
-    RMAPI operator Vector4();
+    RMAPI operator Vector2() const;
+    RMAPI operator Vector4() const;
 };
 
 RMAPI Vector3 operator+(Vector3 a, Vector3 b);
@@ -114,7 +115,7 @@ struct Vector4 {
     RMAPI Vector4 operator*=(float f);
     RMAPI Vector4 operator/=(float f);
 
-    RMAPI operator Vector3();
+    RMAPI operator Vector3() const;
 };
 
 RMAPI Vector4 operator+(Vector4 a, Vector4 b);
@@ -2653,17 +2654,22 @@ RMAPI Vector4 Vector4::operator/=(float f)
     return *this;
 }
 
-RMAPI Vector2::operator Vector3()
+RMAPI Vector2::operator Vector3() const
 {
     return { x, y, 0.0f };
 }
 
-RMAPI Vector3::operator Vector4()
+RMAPI Vector3::operator Vector2() const
+{
+    return { x, y };
+}
+
+RMAPI Vector3::operator Vector4() const
 {
     return { x, y, z, 1.0f };
 }
 
-RMAPI Vector4::operator Vector3()
+RMAPI Vector4::operator Vector3() const
 {
     return { x, y, z };
 }

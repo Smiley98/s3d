@@ -13,6 +13,7 @@ public:
 		DDA_TEST,
 		RASTER,
 		RAYCAST,
+		COLLISION,
 		COUNT
 	};
 
