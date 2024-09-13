@@ -1,6 +1,7 @@
 #include "CollisionScene.h"
 #include "Collision.h"
 #include "Render.h"
+#include "Window.h"
 #include <imgui/imgui.h>
 
 // Use to change cursor-object & test-object
@@ -27,6 +28,7 @@ constexpr float hh = 75.0f;
 constexpr float w = 60;
 constexpr float h = 40;
 
+Vector2 ScreenToWorld(Vector2 screen); // ortho shortcut, look into Unproject
 void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color);
 
 void CollisionScene::OnCreate()
@@ -37,6 +39,7 @@ void CollisionScene::OnCreate()
 
 void CollisionScene::OnDestroy()
 {
+
 }
 
 void CollisionScene::OnUpdate(float dt)
@@ -46,15 +49,13 @@ void CollisionScene::OnUpdate(float dt)
 
 void CollisionScene::OnDraw()
 {
-	DrawShape(fShape1, fPosition1, 0.0f, fColor1);
+	Vector2 mouse = MousePosition();
+	DrawShape(fShape1, ScreenToWorld(mouse), 0.0f, fColor1);
 	DrawShape(fShape2, fPosition2, 0.0f, fColor2);
 }
 
 void CollisionScene::OnDrawImGui()
 {
-	// TODO change shape 1 & 2 positions via sliderfloat2
-
-
 	ImGui::RadioButton("Circle 1", (int*)&fShape1, CIRCLE); ImGui::SameLine();
 	ImGui::RadioButton("Capsule 1", (int*)&fShape1, CAPSULE); ImGui::SameLine();
 	ImGui::RadioButton("Rectangle 1", (int*)&fShape1, RECTANGLE); ImGui::Separator();
@@ -88,4 +89,11 @@ void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color)
 		DrawRectangle(pos, w, h, color);
 		break;
 	}
+}
+
+Vector2 ScreenToWorld(Vector2 screen)
+{
+	float x = Remap(screen.x, 0.0f, SCREEN_WIDTH,  -fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT);
+	float y = Remap(SCREEN_HEIGHT - screen.y, 0.0f, SCREEN_HEIGHT, -fSize, fSize);
+	return { x, y };
 }
