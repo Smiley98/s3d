@@ -99,7 +99,9 @@
     <ClCompile Include="src\Render.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="src\CollisionScene.cpp" />
+    <ClCompile Include="src\CollisionScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h">
@@ -198,6 +200,8 @@
     <ClInclude Include="src\Collision.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\CollisionScene.h" />
+    <ClInclude Include="src\CollisionScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
