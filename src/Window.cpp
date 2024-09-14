@@ -174,6 +174,23 @@ void SetMouseEnabled(bool enabled)
     }
 }
 
+Vector2 ScreenToNDC(Vector2 coord)
+{
+    coord.x = (coord.x / SCREEN_WIDTH) * 2.0f - 1.0f;
+    coord.y = (coord.y / SCREEN_HEIGHT) * 2.0f - 1.0f;
+    coord.y *= -1.0f;
+    return coord;
+}
+
+Vector2 NDCToScreen(Vector2 coord)
+{
+    coord.y *= -1.0f;
+    coord = coord * 0.5f + 0.5f;
+    coord.x *= SCREEN_WIDTH;
+    coord.y *= SCREEN_HEIGHT;
+    return coord;
+}
+
 void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     // Discard GLFW_REPEAT so action is either GLFW_PRESS or GLFW_RELEASE.

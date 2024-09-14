@@ -25,6 +25,9 @@ bool MouseEnabled();
 void SetMousePosition(Vector2 screen);
 void SetMouseEnabled(bool enabled);
 
+Vector2 ScreenToNDC(Vector2 coord);
+Vector2 NDCToScreen(Vector2 coord);
+
 #define MOUSE_BUTTON_1         0
 #define MOUSE_BUTTON_2         1
 #define MOUSE_BUTTON_3         2

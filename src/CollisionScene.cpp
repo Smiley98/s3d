@@ -44,7 +44,10 @@ void CollisionScene::OnDestroy()
 
 void CollisionScene::OnUpdate(float dt)
 {
-
+	Vector2 mouse = MousePosition();
+	mouse = ScreenToNDC(mouse);
+	mouse = NDCToScreen(mouse);
+	printf("%f %f\n", mouse.x, mouse.y);
 }
 
 void CollisionScene::OnDraw()
