@@ -21,14 +21,13 @@ ShapeType fShape2 = CIRCLE;
 
 constexpr float fSize = 1000.0f;
 static Matrix fView = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
-static Matrix fProj = Ortho(-fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT, -fSize, fSize, -10.0f, 10.0f);
+static Matrix fProj = Ortho(-fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT, -fSize, fSize, 0.01f, 10.0f);
 
 constexpr float r = 25.0f;
 constexpr float hh = 75.0f;
 constexpr float w = 60;
 constexpr float h = 40;
 
-Vector2 ScreenToWorld(Vector2 screen); // ortho shortcut, look into Unproject
 void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color);
 
 void CollisionScene::OnCreate()
@@ -39,21 +38,23 @@ void CollisionScene::OnCreate()
 
 void CollisionScene::OnDestroy()
 {
-
 }
 
 void CollisionScene::OnUpdate(float dt)
 {
-	Vector2 mouse = MousePosition();
-	mouse = ScreenToNDC(mouse);
-	mouse = NDCToScreen(mouse);
-	printf("%f %f\n", mouse.x, mouse.y);
+	// SUCCESS!!!
+	//Vector3 world = { 0.0f, 0.0f, -4.5f };
+	//Vector3 screen = WorldToScreen(world, fView, fProj);
+	//world = ScreenToWorld(screen, fProj, fView);
+	//printf("%f %f %f\n", world.x, world.y, world.z);
 }
 
 void CollisionScene::OnDraw()
 {
-	Vector2 mouse = MousePosition();
-	DrawShape(fShape1, ScreenToWorld(mouse), 0.0f, fColor1);
+	// Mouse-z = 0.0 means we're *VERY CLOSE* to the near plane!
+	// [0.0 = near, 1.0 = far] in screen-space. Be careful xD
+	Vector3 world = ScreenToWorld(MousePosition(), fProj, fView);
+	DrawShape(fShape1, world, 0.0f, fColor1);
 	DrawShape(fShape2, fPosition2, 0.0f, fColor2);
 }
 
@@ -92,11 +93,4 @@ void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color)
 		DrawRectangle(pos, w, h, color);
 		break;
 	}
-}
-
-Vector2 ScreenToWorld(Vector2 screen)
-{
-	float x = Remap(screen.x, 0.0f, SCREEN_WIDTH,  -fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT);
-	float y = Remap(SCREEN_HEIGHT - screen.y, 0.0f, SCREEN_HEIGHT, -fSize, fSize);
-	return { x, y };
 }

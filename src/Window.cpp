@@ -1,5 +1,4 @@
 #include "Window.h"
-#include "Config.h"
 #include <iostream>
 #include <array>
 
@@ -172,23 +171,6 @@ void SetMouseEnabled(bool enabled)
         glfwSetInputMode(fWindow, GLFW_CURSOR, enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
         fInput.mouseEnabled = enabled;
     }
-}
-
-Vector2 ScreenToNDC(Vector2 coord)
-{
-    coord.x = (coord.x / SCREEN_WIDTH) * 2.0f - 1.0f;
-    coord.y = (coord.y / SCREEN_HEIGHT) * 2.0f - 1.0f;
-    coord.y *= -1.0f;
-    return coord;
-}
-
-Vector2 NDCToScreen(Vector2 coord)
-{
-    coord.y *= -1.0f;
-    coord = coord * 0.5f + 0.5f;
-    coord.x *= SCREEN_WIDTH;
-    coord.y *= SCREEN_HEIGHT;
-    return coord;
 }
 
 void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods)

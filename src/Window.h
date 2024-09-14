@@ -1,4 +1,5 @@
 #pragma once
+#include "Config.h"
 #include "Math.h"
 
 void CreateWindow();
@@ -25,8 +26,42 @@ bool MouseEnabled();
 void SetMousePosition(Vector2 screen);
 void SetMouseEnabled(bool enabled);
 
-Vector2 ScreenToNDC(Vector2 coord);
-Vector2 NDCToScreen(Vector2 coord);
+// Convert from screen-space to normalized device coordinates. z = 0.0
+inline Vector3 ScreenToNDC(Vector3 screen)
+{
+    Vector3 ndc = screen;
+    ndc.x = ndc.x / SCREEN_WIDTH;
+    ndc.y = ndc.y / SCREEN_HEIGHT;
+    ndc = ndc * 2.0f - 1.0f;
+    ndc.y *= -1.0f;
+    return ndc;
+}
+
+// Convert from normalized device coordinates to screen-space. z = 0.0
+inline Vector3 NDCToScreen(Vector3 ndc)
+{
+    Vector3 screen = ndc;
+    screen.y *= -1.0f;
+    screen = screen * 0.5f + 0.5f;
+    screen.x *= SCREEN_WIDTH;
+    screen.y *= SCREEN_HEIGHT;
+    return screen;
+}
+
+// Convert from screen-space to world-space. z = camera.z
+inline Vector3 ScreenToWorld(Vector3 screen, Matrix proj, Matrix view)
+{
+    return Unproject(ScreenToNDC(screen), proj, view);
+}
+
+// Convert from world-space to screen-space.
+inline Vector3 WorldToScreen(Vector3 world, Matrix view, Matrix proj)
+{
+    Vector4 clip = { world.x, world.y, world.z, 1.0f };
+    clip = Multiply(clip, view * proj);
+    clip /= clip.w;
+    return NDCToScreen(clip);
+}
 
 #define MOUSE_BUTTON_1         0
 #define MOUSE_BUTTON_2         1
