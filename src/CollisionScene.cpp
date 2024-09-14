@@ -46,7 +46,9 @@ void CollisionScene::OnUpdate(float dt)
 	float tt = TotalTime();
 	float ncos = cosf(tt) * 0.5f + 0.5f;
 	fPosition2 = Lerp(V2_RIGHT * -500.0f, V2_RIGHT * 500.0f, ncos);
-	//printf("%f\n", dt);
+	printf("%f\n", dt);
+	// dt is consistently 1/60.
+	// if lag happens, still better to have a variable dt vs out-of-sync
 }
 
 void CollisionScene::OnDraw()

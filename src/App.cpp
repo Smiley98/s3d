@@ -16,10 +16,11 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
-#define LIMIT_FPS false
+#define LIMIT_FPS true
 #define LOG_FPS true
 
-constexpr float UPDATE_FREQ = 1.0f / 5.0f;
+// Best lock fps at 60 to avoid screen-tear & precision issues.
+constexpr float UPDATE_FREQ = 1.0f / 50.0f;
 constexpr double FRAME_TIME = 1.0f / 60.0f;
 double fFrameDelta;
 
