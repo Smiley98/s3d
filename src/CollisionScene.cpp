@@ -10,7 +10,8 @@ enum ShapeType : int
 {
 	CIRCLE,
 	CAPSULE,
-	RECTANGLE
+	RECTANGLE,
+	PLANE
 };
 
 Vector2 fPosition1 = { 0.0f,  500.0f };
@@ -26,8 +27,8 @@ static Matrix fProj = Ortho(-fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT, -fSiz
 
 constexpr float r = 25.0f;
 constexpr float hh = 75.0f;
-constexpr float w = 60;
-constexpr float h = 40;
+constexpr float w = 150;
+constexpr float h = 50;
 
 void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color);
 
@@ -43,18 +44,73 @@ void CollisionScene::OnDestroy()
 
 void CollisionScene::OnUpdate(float dt)
 {
-	float tt = TotalTime();
-	float ncos = cosf(tt) * 0.5f + 0.5f;
-	fPosition2 = Lerp(V2_RIGHT * -500.0f, V2_RIGHT * 500.0f, ncos);
-	printf("%f\n", dt);
-	// dt is consistently 1/60.
-	// if lag happens, still better to have a variable dt vs out-of-sync
 }
 
 void CollisionScene::OnDraw()
 {
-	Vector3 world = ScreenToWorld(MousePosition(), fProj, fView);
-	DrawShape(fShape1, world, 0.0f, fColor1);
+	fPosition2 = ScreenToWorld(MousePosition(), fProj, fView);
+
+	Vector2 mtv = V2_ZERO;
+	switch (fShape1)
+	{
+	case CIRCLE:
+		switch (fShape2)
+		{
+		case CIRCLE:
+			CircleCircle(fPosition1, r, fPosition2, r, &mtv);
+			break;
+
+		case CAPSULE:
+			CircleCapsule(fPosition1, r, fPosition2, V2_RIGHT, r, hh, &mtv);
+			break;
+
+		case RECTANGLE:
+			CircleRectangle(fPosition1, r, fPosition2, { hh, r }, &mtv);
+			break;
+
+		case PLANE:
+			CirclePlane(fPosition1, r, fPosition2, V2_UP, &mtv);
+			break;
+		}
+		break;
+
+	case CAPSULE:
+		switch (fShape2)
+		{
+		case CIRCLE:
+			break;
+
+		case CAPSULE:
+			break;
+
+		case RECTANGLE:
+			break;
+
+		case PLANE:
+			break;
+		}
+		break;
+
+	case RECTANGLE:
+		switch (fShape2)
+		{
+		case CIRCLE:
+			break;
+
+		case CAPSULE:
+			break;
+
+		case RECTANGLE:
+			break;
+
+		case PLANE:
+			break;
+		}
+		break;
+	}
+	fPosition1 += mtv;
+
+	DrawShape(fShape1, fPosition1, 0.0f, fColor1);
 	DrawShape(fShape2, fPosition2, 0.0f, fColor2);
 }
 
