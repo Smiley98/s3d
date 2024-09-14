@@ -2,6 +2,7 @@
 #include "Collision.h"
 #include "Render.h"
 #include "Window.h"
+#include "Time.h"
 #include <imgui/imgui.h>
 
 // Use to change cursor-object & test-object
@@ -42,17 +43,14 @@ void CollisionScene::OnDestroy()
 
 void CollisionScene::OnUpdate(float dt)
 {
-	// SUCCESS!!!
-	//Vector3 world = { 0.0f, 0.0f, -4.5f };
-	//Vector3 screen = WorldToScreen(world, fView, fProj);
-	//world = ScreenToWorld(screen, fProj, fView);
-	//printf("%f %f %f\n", world.x, world.y, world.z);
+	float tt = TotalTime();
+	float ncos = cosf(tt) * 0.5f + 0.5f;
+	fPosition2 = Lerp(V2_RIGHT * -500.0f, V2_RIGHT * 500.0f, ncos);
+	//printf("%f\n", dt);
 }
 
 void CollisionScene::OnDraw()
 {
-	// Mouse-z = 0.0 means we're *VERY CLOSE* to the near plane!
-	// [0.0 = near, 1.0 = far] in screen-space. Be careful xD
 	Vector3 world = ScreenToWorld(MousePosition(), fProj, fView);
 	DrawShape(fShape1, world, 0.0f, fColor1);
 	DrawShape(fShape2, fPosition2, 0.0f, fColor2);

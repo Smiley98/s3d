@@ -203,5 +203,8 @@
     <ClInclude Include="src\CollisionScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Timer.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

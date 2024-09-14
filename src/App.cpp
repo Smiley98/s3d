@@ -2,6 +2,7 @@
 #include "Window.h"
 #include "Scene.h"
 #include "Time.h"
+#include "Timer.h"
 
 #include "Shader.h"
 #include "Mesh.h"
@@ -15,9 +16,12 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
-constexpr bool LOG_FPS = true;
+#define LIMIT_FPS false
+#define LOG_FPS true
+
+constexpr float UPDATE_FREQ = 1.0f / 5.0f;
 constexpr double FRAME_TIME = 1.0f / 60.0f;
-double fFrameDelta = FRAME_TIME;
+double fFrameDelta;
 
 void Update(float dt);
 void Draw();
@@ -36,22 +40,36 @@ void Init()
 
 void Loop()
 {
-	double logCurrent = 0.0;
-	double logTotal = 1.0;
-
 	double frameStart;
 	double frameEnd;
-	double fps = FRAME_TIME;
+	double fps = 0.0;
 	size_t frameCount = 0;
 	std::array<double, 16> frameSamples;
+
+#if !LIMIT_FPS
+	Timer updateTimer;
+	updateTimer.total = UPDATE_FREQ;
+	updateTimer.current = UPDATE_FREQ + FLT_EPSILON;
+	fFrameDelta = 0.0;
+#else
+	fFrameDelta = FRAME_TIME;
+#endif
+
 	while (!ShouldClose())
 	{
 		frameStart = glfwGetTime();
+#if !LIMIT_FPS
+		updateTimer.Tick(fFrameDelta);
+		if (updateTimer.Expired())
+		{
+			updateTimer.Reset();
+			Update(UPDATE_FREQ);
+		}
+#else
 		Update(fFrameDelta);
+#endif
 		Draw();
 		DrawGui();
-		// Not sure if a game gui callback makes sense.
-		// Is it better to render GUI at the end of Draw instead?
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -63,14 +81,16 @@ void Loop()
 		// Swap back-buffer
 		Swap();
 
-		// Limit frame rate
 		frameEnd = glfwGetTime();
 		fFrameDelta = frameEnd - frameStart;
+
+#if LIMIT_FPS
 		while (fFrameDelta < FRAME_TIME)
 		{
 			frameEnd = glfwGetTime();
 			fFrameDelta = frameEnd - frameStart;
 		}
+#endif
 
 		// Determine frame-rate (average across 16 frames)
 		frameSamples[frameCount] = fFrameDelta;
@@ -88,13 +108,16 @@ void Loop()
 			fps = ceil(1.0 / fps);
 		}
 
-		// Log fps
-		logCurrent += fFrameDelta;
-		if (LOG_FPS && logCurrent >= logTotal)
+#if LOG_FPS
+		static Timer logTimer;
+		logTimer.total = 1.0f;
+		logTimer.Tick(fFrameDelta);
+		if (logTimer.Expired())
 		{
-			logCurrent = 0.0;
+			logTimer.Reset();
 			printf("Fps:  %f\n", fps);
 		}
+#endif
 
 		// Poll events
 		Poll();
