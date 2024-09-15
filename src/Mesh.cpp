@@ -1,9 +1,8 @@
 #define PAR_SHAPES_IMPLEMENTATION
 #include "Mesh.h"
+#include "PipelineState.h"
 #include <cstdio>
 #include <vector>
-
-GLuint fVaoFsq = GL_NONE;
 
 Mesh gMeshHead;
 
@@ -43,14 +42,18 @@ size_t LoadObj(const char* path,
 
 void CreateMeshes()
 {
-	glGenVertexArrays(1, &fVaoFsq);
 	CreateMeshObj(gMeshHead, "assets/meshes/head.obj");
 }
 
 void DestroyMeshes()
 {
 	DestroyMesh(gMeshHead);
-	glDeleteVertexArrays(1, &fVaoFsq);
+}
+
+void DestroyMesh(Mesh& mesh)
+{
+	DestroyMeshGPU(mesh);
+	DestroyMeshCPU(mesh);
 }
 
 void CreateMesh(Mesh& mesh, size_t vc, Vector3* positions, Vector3* normals, Vector2* tcoords, Vector3* colors, uint16_t* indices)
@@ -85,36 +88,10 @@ void CreateMeshPar(Mesh& mesh, par_shapes_mesh* par_mesh)
 	CreateMeshGPU(mesh);
 }
 
-void DestroyMesh(Mesh& mesh)
-{
-	DestroyMeshGPU(mesh);
-	DestroyMeshCPU(mesh);
-}
-
 void CopyMesh(Mesh src, Mesh& dst)
 {
 	CreateMeshCPU(dst, src.vertexCount, src.positions, src.normals, src.tcoords, src.colors, src.indices);
 	CreateMeshGPU(dst);
-}
-
-void DrawMesh(Mesh mesh)
-{
-	glBindVertexArray(mesh.vao);
-	glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
-	glBindVertexArray(GL_NONE);
-}
-
-void BindFsq()
-{
-	glBindVertexArray(fVaoFsq);
-}
-
-void DrawFsq()
-{
-	glDisable(GL_DEPTH_TEST);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(GL_NONE);
-	glEnable(GL_DEPTH_TEST);
 }
 
 void GenTriangle(Mesh& mesh, Vector3 v0, Vector3 v1, Vector3 v2)

@@ -1,9 +1,10 @@
 #include "MainScene.h"
-#include "Shader.h"
 #include "App.h"
+#include "Time.h"
+#include "Shader.h"
+#include "Render.h"
 #include "Rasterization.h"
 #include "ImageUtils.h"
-#include "Time.h"
 
 constexpr int IMAGE_SIZE = 512;
 
@@ -81,7 +82,7 @@ void MainScene::OnDraw()
 	BindTexture(mTexture);
 	BindShader(&gShaderFSQ);
 	SendInt("u_tex", 0);
-	BindFsq();
+	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
 	UnbindTexture(mTexture);

@@ -1,9 +1,9 @@
 #include "TestScene.h"
+#include "Time.h"
 #include "Shader.h"
 #include "Mesh.h"
-#include "App.h"
+#include "Render.h"
 #include "ImageUtils.h"
-#include "Time.h"
 
 float Fract(float f)
 {
@@ -72,7 +72,7 @@ void TestScene::OnDraw()
 	BindTexture(mTexture);
 	BindShader(&gShaderFSQ);
 	SendInt("u_tex", 0);
-	BindFsq();
+	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
 	UnbindTexture(mTexture);

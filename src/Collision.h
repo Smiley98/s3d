@@ -175,16 +175,15 @@ RMAPI void NearestCirclePoints(
 // Perhaps this is a good thing -- no AABBs = no harsh seams!
 // Still, much more intuitive to represent buildings with AABBs..
 
-// CapsuleRectangle not supported because it's essentially SAT...
-// Would essentially be 4 calls to the following:
-// Project capsule onto line and line onto capsule. Resolve as point-circle collision.
-//bool LineCapsule(Vector2 lineStart, Vector2 lineEnd, Capsule capsule, Vector2* mtv = nullptr)
-//{
-//    Vector2 top = capsule.position + capsule.direction * capsule.halfLength;
-//    Vector2 bot = capsule.position - capsule.direction * capsule.halfLength;
-//    Vector2 projTop = ProjectPointLine(lineStart, lineEnd, top);
-//    Vector2 projBot = ProjectPointLine(lineStart, lineEnd, bot);
-//    Vector2 projCapsuleLine = DistanceSqr(top, projTop) < DistanceSqr(bot, projBot) ? projTop : projBot;
-//    Vector2 projLineCapsule = ProjectPointLine(top, bot, projCapsuleLine);
-//    return PointCircle(projCapsuleLine, projLineCapsule, capsule.radius, mtv);
-//}
+// mtv resolves capsule from line
+// I feel like this needs 4 points (nearest-circles) instead of 2...
+RMAPI bool LineCapsule(Vector2 p0, Vector2 p1, Vector2 cap, Vector2 dir, float rad, float hh, Vector2* mtv = nullptr)
+{
+    Vector2 top = cap + dir * hh;
+    Vector2 bot = cap - dir * hh;
+    Vector2 projTop = ProjectPointLine(p0, p1, top);
+    Vector2 projBot = ProjectPointLine(p0, p1, bot);
+    Vector2 projCapsuleLine = DistanceSqr(top, projTop) < DistanceSqr(bot, projBot) ? projTop : projBot;
+    Vector2 projLineCapsule = ProjectPointLine(top, bot, projCapsuleLine);
+    return CircleCircle(projCapsuleLine, 1.0f, projLineCapsule, rad, mtv);
+}

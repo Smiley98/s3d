@@ -1,10 +1,11 @@
 #include "DDAScene.h"
-#include "Shader.h"
-#include "Mesh.h"
 #include "Window.h"
+#include "Time.h"
+#include "Mesh.h"
+#include "Shader.h"
+#include "Render.h"
 #include "Rasterization.h"
 #include "ImageUtils.h"
-#include "Time.h"
 
 constexpr size_t IMAGE_SIZE = 512;
 
@@ -67,7 +68,7 @@ void DDAScene::OnDraw()
 	BindTexture(mTexture);
 	BindShader(&gShaderFSQ);
 	SendInt("u_tex", 0);
-	BindFsq();
+	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
 	UnbindTexture(mTexture);

@@ -49,9 +49,11 @@ extern Mesh gMeshHead;
 void CreateMeshes();
 void DestroyMeshes();
 
+// Deallocate all of mesh's memory on CPU & GPU
+void DestroyMesh(Mesh& mesh);
+
 // Create mesh from data
 void CreateMesh(Mesh& mesh, size_t vc, Vector3* positions, Vector3* normals, Vector2* tcoords, Vector3* colors, uint16_t* indices);
-void DestroyMesh(Mesh& mesh);
 
 // Create mesh from obj file
 void CreateMeshObj(Mesh& mesh, const char* file);
@@ -59,11 +61,8 @@ void CreateMeshObj(Mesh& mesh, const char* file);
 // Create mesh from par_shapes
 void CreateMeshPar(Mesh& mesh, par_shapes_mesh* par_mesh);
 
+// Copy mesh from source to destination
 void CopyMesh(Mesh src, Mesh& dst);
-void DrawMesh(Mesh mesh);
-
-void BindFsq();
-void DrawFsq();
 
 void GenTriangle(Mesh& mesh, Vector3 v0, Vector3 v1, Vector3 v2);
 void GenEquilateral(Mesh& mesh);

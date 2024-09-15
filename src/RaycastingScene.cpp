@@ -1,8 +1,8 @@
 #include "RaycastingScene.h"
-#include "Mesh.h"
-#include "Shader.h"
 #include "Window.h"
-#include "App.h"
+#include "Shader.h"
+#include "Mesh.h"
+#include "Render.h"
 #include "Rasterization.h"
 
 constexpr size_t MAP_SIZE = 16;
@@ -168,7 +168,7 @@ void RaycastingScene::OnDraw()
 	BindTexture(mTexture);
 	BindShader(&gShaderFSQ);
 	SendInt("u_tex", 0);
-	BindFsq();
+	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
 	UnbindTexture(mTexture);

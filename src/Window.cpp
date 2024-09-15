@@ -9,6 +9,8 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
+#include "PipelineState.h"
+
 void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
 void OnResize(GLFWwindow* window, int width, int height);
 void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -69,16 +71,19 @@ void CreateWindow()
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(glDebugOutput, nullptr);
 #endif
-    glEnable(GL_DEPTH_TEST);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui_ImplGlfw_InitForOpenGL(fWindow, true);
     ImGui_ImplOpenGL3_Init();
+
+    InitPipelineState();
 }
 
 void DestroyWindow()
 {
+    QuitPipelineState();
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

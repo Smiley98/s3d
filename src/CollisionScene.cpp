@@ -22,8 +22,6 @@ ShapeType fShape1 = CIRCLE;
 ShapeType fShape2 = CIRCLE;
 
 constexpr float fSize = 1000.0f;
-static Matrix fView = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
-static Matrix fProj = Ortho(-fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT, -fSize, fSize, 0.01f, 10.0f);
 
 constexpr float r = 25.0f;
 constexpr float hh = 75.0f;
@@ -34,8 +32,8 @@ void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color);
 
 void CollisionScene::OnCreate()
 {
-	SetView(fView);
-	SetProj(fProj);
+	gView = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
+	gProj = Ortho(-fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT, -fSize, fSize, 0.01f, 10.0f);
 }
 
 void CollisionScene::OnDestroy()
@@ -54,7 +52,7 @@ void CollisionScene::OnDraw()
 	if (IsKeyDown(KEY_D))
 		angle -= 100.0f * DEG2RAD * FrameTime();
 
-	fPosition2 = ScreenToWorld(MousePosition(), fProj, fView);
+	fPosition2 = ScreenToWorld(MousePosition(), gProj, gView);
 	Vector2 right2 = Direction(angle);
 	Vector2 up2 = Direction(angle + PI * 0.5f);
 	Vector2 extents = { w * 0.5f, h * 0.5f };
@@ -133,14 +131,17 @@ void CollisionScene::OnDraw()
 	DrawShape(fShape1, fPosition1, 0.0f, fColor1);
 	DrawShape(fShape2, fPosition2, angle, fColor2);
 
+	// Line test!
+	DrawLine({ -500.0f, 0.0f, 0.0f }, fPosition2, V3_RIGHT, 10.0f);
+
+	//SetDepthTest(false);
 	//Vector2 top = fPosition2 + right2 * hh;
 	//Vector2 bot = fPosition2 - right2 * hh;
 	//Vector2 proj = ProjectPointLine(top, bot, fPosition1);
-	//glDisable(GL_DEPTH_TEST);
 	//DrawCircle(top, 15.0f, { 1.0f, 0.0f, 0.0f });
 	//DrawCircle(bot, 15.0f, { 1.0f, 0.0f, 1.0f });
 	//DrawCircle(proj, 15.0f, { 0.5f, 0.0f, 1.0f });
-	//glEnable(GL_DEPTH_TEST);
+	//SetDepthTest(true);
 }
 
 void CollisionScene::OnDrawImGui()

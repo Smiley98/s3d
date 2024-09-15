@@ -7,9 +7,6 @@ bool fTranslate = false;
 bool fRotate = false;
 bool fScale = false;
 
-static Matrix fView = MatrixIdentity();
-static Matrix fProj = MatrixIdentity();
-
 Mesh fMesh;
 Vector3 fColor = V3_ONE;
 Vector3 fPosition = V3_ZERO;
@@ -31,7 +28,7 @@ void RasterizationScene::OnDraw()
 	float tt = TotalTime();
 	float dt = FrameTime();
 
-	fView = UpdateCamera(dt);
+	gView = UpdateCamera(dt);
 
 	Matrix translation = Translate(fPosition) *
 		(fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());
@@ -43,14 +40,20 @@ void RasterizationScene::OnDraw()
 		fScale ? Scale(cosf(tt), sinf(tt), 1.0f) : MatrixIdentity();
 
 	Matrix world = scale * rotation * translation;
-	Matrix mvp = world * fView * fProj;
-
-	// Temporary hack to test primitive-rendering
-	SetView(fView);
-	SetProj(fProj);
+	Matrix mvp = world * gView * gProj;
 
 	// Render object
 	DrawMeshDebug(fMesh, mvp, world, fColor);
+
+	// Render 1x1 quad for reference
+	DebugShaderType type = gDebugShader;
+	gDebugShader = WIRE;
+	SetDepthTest(false);
+	SetWireframes(true);
+	DrawPlaneXY({}, 1.0f, 1.0f, V3_ONE);
+	SetWireframes(false);
+	SetDepthTest(true);
+	gDebugShader = type;
 }
 
 void GenHead(Mesh& mesh)
@@ -103,14 +106,14 @@ void RasterizationScene::OnDrawImGui()
 
 	static Matrix projections[] =
 	{
-		Ortho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f),
+		Ortho(-1.0f * SCREEN_ASPECT, 1.0f * SCREEN_ASPECT, -1.0f, 1.0f, 0.01f, 10.0f),
 		Perspective(75.0f * DEG2RAD, 1.0f, 0.001f, 100.0f)
 	};
 
 	static int projIndex = 1;
 	ImGui::RadioButton("Orthographic", &projIndex, 0); ImGui::SameLine();
 	ImGui::RadioButton("Perspective", &projIndex, 1);
-	fProj = projections[projIndex];
+	gProj = projections[projIndex];
 
 	ImGui::Checkbox("Translate", &fTranslate); ImGui::SameLine();
 	ImGui::Checkbox("Rotate", &fRotate); ImGui::SameLine();
@@ -148,7 +151,7 @@ void RasterizationScene::OnDrawImGui()
 
 	static int shaderIndex = 0;
 	ImGui::Combo("Shaders", &shaderIndex, shaderNames, IM_ARRAYSIZE(shaderNames));
-	SetDebugShader((DebugShaderType)shaderIndex);
+	gDebugShader = (DebugShaderType)shaderIndex;
 	
 	ImGui::ColorPicker3("Colour", &fColor.x);
 	//ImGui::ShowDemoWindow();

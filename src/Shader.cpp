@@ -11,6 +11,7 @@ std::vector<GLuint> fShaders;
 std::vector<GLuint> fPrograms;
 
 Shader gShaderFSQ;
+Shader gShaderLine;
 Shader gShaderColor;
 Shader gShaderNormals;
 Shader gShaderPositionsWorld;
@@ -23,6 +24,7 @@ GLint GetUniform(const char* name);
 void CreateShaders()
 {
     GLuint vsFSQ = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
+    GLuint vsLine = CreateShader(GL_VERTEX_SHADER, "assets/shaders/line.vert");
     GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
 
     GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
@@ -32,6 +34,7 @@ void CreateShaders()
     GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
     
     CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
+    CreateProgram(&gShaderLine, vsLine, fsColor);
     CreateProgram(&gShaderColor, vsMVP, fsColor);
     CreateProgram(&gShaderNormals, vsMVP, fsNormals);
     CreateProgram(&gShaderPositionsWorld, vsMVP, fsPositionsWorld);

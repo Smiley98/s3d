@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "PipelineState.h"
 
 enum DebugShaderType : int
 {
@@ -14,10 +15,9 @@ enum DebugShaderType : int
 	NORMALS_WORLD
 };
 
-void SetView(Matrix view);
-void SetProj(Matrix proj);
-void SetWireframes(bool wireframes);
-void SetDebugShader(DebugShaderType type);
+extern DebugShaderType gDebugShader;
+extern Matrix gView;
+extern Matrix gProj;
 
 void DrawMeshFlat(Mesh mesh, Matrix mvp, Vector3 color);
 void DrawMeshWireframes(Mesh mesh, Matrix mvp, Vector3 color);
@@ -46,5 +46,14 @@ void DrawPlaneYZ(Vector3 center, float height, float depth, Vector3 color, Matri
 void DrawPlaneXY(Vector3 center, float width, float height, Vector3 color, Matrix rotation = MatrixIdentity());
 void DrawDodecahedron(Vector3 center, Vector3 scale, Vector3 color, Matrix rotation = MatrixIdentity());
 
-// Renders mesh based on selected shader (DebugShaderType)
+// Renders mesh based on gDebugShader
 void DrawMeshDebug(Mesh mesh, Matrix mvp, Matrix world, Vector3 color);
+
+// Renders mesh as triangles based on bound pipeline state
+void DrawMesh(Mesh mesh);
+
+// Renders a full-screen quad (no depth test or depth write)
+void DrawFsq();
+
+// Renders a line (no depth test or depth write)
+void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness = 1.0f);

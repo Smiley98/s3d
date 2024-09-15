@@ -102,6 +102,9 @@
     <ClCompile Include="src\CollisionScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\PipelineState.cpp">
+      <Filter>Pipeline</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h">
@@ -205,6 +208,9 @@
     </ClInclude>
     <ClInclude Include="src\Timer.h">
       <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PipelineState.h">
+      <Filter>Pipeline</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

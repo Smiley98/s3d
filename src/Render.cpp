@@ -1,31 +1,13 @@
 #include "Render.h"
 #include <par_shapes.h>
 
-// File-scope cause we probably shouldn't make these global.
-// This is all most-likely temporary until we get some sort of camera system.
-static Matrix fView = MatrixIdentity();
-static Matrix fProj = MatrixIdentity();
-
-DebugShaderType fShader = FLAT;
-
-void SetView(Matrix view)
-{
-	fView = view;
-}
-
-void SetProj(Matrix proj)
-{
-	fProj = proj;
-}
-
-void SetWireframes(bool wireframes)
-{
-	glPolygonMode(GL_FRONT_AND_BACK, wireframes ? GL_LINE : GL_FILL);
-}
+DebugShaderType gDebugShader = FLAT;
+Matrix gView = MatrixIdentity();
+Matrix gProj = MatrixIdentity();
 
 void SetDebugShader(DebugShaderType type)
 {
-	fShader = type;
+	gDebugShader = type;
 }
 
 void DrawMeshFlat(Mesh mesh, Matrix mvp, Vector3 color)
@@ -82,7 +64,7 @@ void DrawRectangle(Vector2 center, float width, float height, Vector3 color, flo
 		RotateZ(angle) *
 		Translate(center.x, center.y, 0.0f);
 	
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
@@ -92,7 +74,7 @@ void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle
 	Mesh mesh;
 	GenTriangle(mesh, v0, v1, v2);
 
-	Matrix mvp = RotateZ(angle) * fView * fProj;
+	Matrix mvp = RotateZ(angle) * gView * gProj;
 	DrawMeshDebug(mesh, mvp, MatrixIdentity(), color);
 	DestroyMesh(mesh);
 }
@@ -107,7 +89,7 @@ void DrawCircle(Vector2 center, float radius, Vector3 color, float angle)
 		RotateZ(angle) * 
 		Translate(center.x, center.y, 0.0f);
 
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
@@ -123,7 +105,7 @@ void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 		RotateZ(angle) *
 		Translate(center.x, center.y, 0.0f);
 
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
@@ -168,7 +150,7 @@ void DrawCube(Vector3 center, float width, float height, float depth, Vector3 co
 		rotation * 
 		Translate(center.x, center.y, center.z);
 
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
@@ -183,7 +165,7 @@ void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 		rotation * 
 		Translate(center.x, center.y, center.z);
 
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
@@ -198,7 +180,7 @@ void DrawHemisphere(Vector3 center, float radius, Vector3 color, Matrix rotation
 		rotation *
 		Translate(center.x, center.y, center.z);
 
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
@@ -213,7 +195,7 @@ void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color,
 		rotation *
 		Translate(center.x, center.y, center.z);
 
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
@@ -239,7 +221,7 @@ void DrawPlaneXZ(Vector3 center, float width, float depth, Vector3 color, Matrix
 		rotation *
 		Translate(center.x, center.y, center.z);
 
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
@@ -254,7 +236,7 @@ void DrawPlaneYZ(Vector3 center, float height, float depth, Vector3 color, Matri
 		rotation *
 		Translate(center.x, center.y, center.z);
 
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
@@ -269,7 +251,7 @@ void DrawPlaneXY(Vector3 center, float width, float height, Vector3 color, Matri
 		rotation *
 		Translate(center.x, center.y, center.z);
 
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
@@ -284,14 +266,14 @@ void DrawDodecahedron(Vector3 center, Vector3 scale, Vector3 color, Matrix rotat
 		rotation *
 		Translate(center.x, center.y, center.z);
 
-	Matrix mvp = world * fView * fProj;
+	Matrix mvp = world * gView * gProj;
 	DrawMeshDebug(mesh, mvp, world, color);
 	DestroyMesh(mesh);
 }
 
 void DrawMeshDebug(Mesh mesh, Matrix mvp, Matrix world, Vector3 color)
 {
-	switch (fShader)
+	switch (gDebugShader)
 	{
 	case FLAT:
 		DrawMeshFlat(mesh, mvp, color);
@@ -318,7 +300,53 @@ void DrawMeshDebug(Mesh mesh, Matrix mvp, Matrix world, Vector3 color)
 		break;
 
 	default:
-		assert(false, "Invalid Shader");
+		assert(false, "Invalid Debug Shader");
 		break;
 	}
+}
+
+void DrawMesh(Mesh mesh)
+{
+	glBindVertexArray(mesh.vao);
+	glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
+	glBindVertexArray(GL_NONE);
+}
+
+void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness)
+{
+	bool depthTest = DepthTest();
+	bool depthWrite = DepthWrite();
+	SetDepthTest(false);
+	SetDepthWrite(false);
+
+	Matrix mvp = gView * gProj;
+	BindShader(&gShaderLine);
+	SendMat4("u_mvp", &mvp);
+	SendVec3("u_pos0", p0);
+	SendVec3("u_pos1", p1);
+	SendVec3("u_color", color);
+	BindEmptyVao();
+	glLineWidth(thickness);
+	glDrawArrays(GL_LINES, 0, 2);
+	glLineWidth(1.0f);
+	BindNullVao();
+	UnbindShader();
+
+	SetDepthWrite(depthWrite);
+	SetDepthTest(depthTest);
+}
+
+void DrawFsq()
+{
+	bool depthTest = DepthTest();
+	bool depthWrite = DepthWrite();
+	SetDepthTest(false);
+	SetDepthWrite(false);
+
+	BindEmptyVao();
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	BindNullVao();
+
+	SetDepthWrite(depthWrite);
+	SetDepthTest(depthTest);
 }
