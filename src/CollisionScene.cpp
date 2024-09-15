@@ -48,7 +48,14 @@ void CollisionScene::OnUpdate(float dt)
 
 void CollisionScene::OnDraw()
 {
+	static float angle = 0.0f;
+	static bool rotate = false;
+	if (IsKeyPressed(KEY_R)) rotate = !rotate;
+	if (rotate)
+		angle += 100.0f * DEG2RAD * FrameTime();
 	fPosition2 = ScreenToWorld(MousePosition(), fProj, fView);
+	Vector2 right2 = Direction(angle);
+	Vector2 up2 = Direction(angle + PI * 0.5f);
 
 	Vector2 mtv = V2_ZERO;
 	switch (fShape1)
@@ -61,7 +68,7 @@ void CollisionScene::OnDraw()
 			break;
 
 		case CAPSULE:
-			CircleCapsule(fPosition1, r, fPosition2, V2_RIGHT, r, hh, &mtv);
+			CircleCapsule(fPosition1, r, fPosition2, right2, r, hh, &mtv);
 			break;
 
 		case RECTANGLE:
@@ -69,7 +76,7 @@ void CollisionScene::OnDraw()
 			break;
 
 		case PLANE:
-			CirclePlane(fPosition1, r, fPosition2, V2_UP, &mtv);
+			CirclePlane(fPosition1, r, fPosition2, up2, &mtv);
 			break;
 		}
 		break;
@@ -111,7 +118,7 @@ void CollisionScene::OnDraw()
 	fPosition1 += mtv;
 
 	DrawShape(fShape1, fPosition1, 0.0f, fColor1);
-	DrawShape(fShape2, fPosition2, 0.0f, fColor2);
+	DrawShape(fShape2, fPosition2, angle, fColor2);
 }
 
 void CollisionScene::OnDrawImGui()
@@ -122,7 +129,8 @@ void CollisionScene::OnDrawImGui()
 
 	ImGui::RadioButton("Circle 2", (int*)&fShape2, CIRCLE); ImGui::SameLine();
 	ImGui::RadioButton("Capsule 2", (int*)&fShape2, CAPSULE); ImGui::SameLine();
-	ImGui::RadioButton("Rectangle 2", (int*)&fShape2, RECTANGLE); ImGui::Separator();
+	ImGui::RadioButton("Rectangle 2", (int*)&fShape2, RECTANGLE); ImGui::SameLine();
+	ImGui::RadioButton("Plane 2", (int*)&fShape2, PLANE); ImGui::Separator();
 
 	float limit = 2000.0f;
 	Vector2 min = { -fSize * SCREEN_ASPECT, -fSize };
@@ -135,6 +143,8 @@ void CollisionScene::OnDrawImGui()
 
 void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color)
 {
+	Vector2 right = Direction(rot);
+	Vector2 up = Direction(rot + PI * 0.5f);
 	switch (type)
 	{
 	case CIRCLE:
@@ -147,6 +157,11 @@ void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color)
 
 	case RECTANGLE:
 		DrawRectangle(pos, w, h, color);
+		break;
+
+	case PLANE:
+		DrawRectangle(pos, 500.0f, 5.0f, color, rot);
+		DrawRectangle(pos + up * 50.0f, 100.0f, 5.0f, V3_RIGHT, rot + PI * 0.5f);
 		break;
 	}
 }
