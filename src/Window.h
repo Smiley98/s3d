@@ -22,9 +22,12 @@ bool IsMouseClicked(int button);
 Vector2 MousePosition();
 Vector2 MouseDelta();
 bool MouseEnabled();
+bool MouseVisible();
 
 void SetMousePosition(Vector2 screen);
 void SetMouseEnabled(bool enabled);
+// Imgui update sets mouse cursor to normal. Surprised this works...
+// This is only for FPS camera which isn't needed, so don't stress ;)
 
 // Convert from screen-space to normalized device coordinates. z = 0.0
 inline Vector3 ScreenToNDC(Vector3 screen)

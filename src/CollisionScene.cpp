@@ -49,13 +49,15 @@ void CollisionScene::OnUpdate(float dt)
 void CollisionScene::OnDraw()
 {
 	static float angle = 0.0f;
-	static bool rotate = false;
-	if (IsKeyPressed(KEY_R)) rotate = !rotate;
-	if (rotate)
+	if (IsKeyDown(KEY_A))
 		angle += 100.0f * DEG2RAD * FrameTime();
+	if (IsKeyDown(KEY_D))
+		angle -= 100.0f * DEG2RAD * FrameTime();
+
 	fPosition2 = ScreenToWorld(MousePosition(), fProj, fView);
 	Vector2 right2 = Direction(angle);
 	Vector2 up2 = Direction(angle + PI * 0.5f);
+	Vector2 extents = { w * 0.5f, h * 0.5f };
 
 	Vector2 mtv = V2_ZERO;
 	switch (fShape1)
@@ -72,7 +74,7 @@ void CollisionScene::OnDraw()
 			break;
 
 		case RECTANGLE:
-			CircleRectangle(fPosition1, r, fPosition2, { hh, r }, &mtv);
+			CircleRectangle(fPosition1, r, fPosition2, extents, &mtv);
 			break;
 
 		case PLANE:
@@ -85,15 +87,21 @@ void CollisionScene::OnDraw()
 		switch (fShape2)
 		{
 		case CIRCLE:
+			CircleCapsule(fPosition2, r, fPosition1, V2_RIGHT, r, hh, &mtv);
+			mtv *= -1.0f;
 			break;
 
 		case CAPSULE:
+			CapsuleCapsule(fPosition1, V2_RIGHT, r, hh, fPosition2, right2, r, hh, &mtv);
 			break;
 
 		case RECTANGLE:
+			// Capsule-Rectangle not supported.
+			//CapsuleRectangle(fPosition1, V2_RIGHT, r, hh, fPosition2, extents, &mtv);
 			break;
 
 		case PLANE:
+			// TODO -- make this?
 			break;
 		}
 		break;
@@ -102,15 +110,20 @@ void CollisionScene::OnDraw()
 		switch (fShape2)
 		{
 		case CIRCLE:
+			CircleRectangle(fPosition1, r, fPosition2, extents, &mtv);
 			break;
 
 		case CAPSULE:
+			// Capsule-Rectangle not supported.
+			//CapsuleRectangle(fPosition1, V2_RIGHT, r, hh, fPosition2, extents, &mtv);
 			break;
 
 		case RECTANGLE:
+			RectangleRectangle(fPosition1, extents, fPosition2, extents, &mtv);
 			break;
 
 		case PLANE:
+			RectanglePlane(fPosition1, extents, fPosition2, up2, &mtv);
 			break;
 		}
 		break;
@@ -119,6 +132,15 @@ void CollisionScene::OnDraw()
 
 	DrawShape(fShape1, fPosition1, 0.0f, fColor1);
 	DrawShape(fShape2, fPosition2, angle, fColor2);
+
+	//Vector2 top = fPosition2 + right2 * hh;
+	//Vector2 bot = fPosition2 - right2 * hh;
+	//Vector2 proj = ProjectPointLine(top, bot, fPosition1);
+	//glDisable(GL_DEPTH_TEST);
+	//DrawCircle(top, 15.0f, { 1.0f, 0.0f, 0.0f });
+	//DrawCircle(bot, 15.0f, { 1.0f, 0.0f, 1.0f });
+	//DrawCircle(proj, 15.0f, { 0.5f, 0.0f, 1.0f });
+	//glEnable(GL_DEPTH_TEST);
 }
 
 void CollisionScene::OnDrawImGui()
