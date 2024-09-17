@@ -369,7 +369,7 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 		break;
 
 	case SEMICIRCLE:
-		mesh = mesh = par_shapes_create_half_disk(1.0f, 16, &position.x, &normal.x);
+		mesh = par_shapes_create_half_disk(1.0f, 16, &position.x, &normal.x);
 		break;
 
 	case CUBE:

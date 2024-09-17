@@ -52,7 +52,12 @@ void CollisionScene::OnDraw()
 	if (IsKeyDown(KEY_D))
 		angle -= 100.0f * DEG2RAD * FrameTime();
 
-	fPosition2 = ScreenToWorld(MousePosition(), gProj, gView);
+	static bool mouse = true;
+	if (IsKeyPressed(KEY_C))
+		mouse = !mouse;
+	if (mouse)
+		fPosition2 = ScreenToWorld(MousePosition(), gProj, gView);
+
 	Vector2 right2 = Direction(angle);
 	Vector2 up2 = Direction(angle + PI * 0.5f);
 	Vector2 extents = { w * 0.5f, h * 0.5f };
@@ -94,8 +99,7 @@ void CollisionScene::OnDraw()
 			break;
 
 		case RECTANGLE:
-			// Capsule-Rectangle not supported.
-			//CapsuleRectangle(fPosition1, V2_RIGHT, r, hh, fPosition2, extents, &mtv);
+			CapsuleRectangle(fPosition1, V2_RIGHT, r, hh, fPosition2, extents, &mtv);
 			break;
 
 		case PLANE:
@@ -112,8 +116,8 @@ void CollisionScene::OnDraw()
 			break;
 
 		case CAPSULE:
-			// Capsule-Rectangle not supported.
-			//CapsuleRectangle(fPosition1, V2_RIGHT, r, hh, fPosition2, extents, &mtv);
+			CapsuleRectangle(fPosition2, right2, r, hh, fPosition1, extents, &mtv);
+			mtv *= -1.0f;
 			break;
 
 		case RECTANGLE:
@@ -131,17 +135,20 @@ void CollisionScene::OnDraw()
 	DrawShape(fShape1, fPosition1, 0.0f, fColor1);
 	DrawShape(fShape2, fPosition2, angle, fColor2);
 
-	// Line test!
-	DrawLine({ -500.0f, 0.0f, 0.0f }, fPosition2, V3_RIGHT, 10.0f);
-
+	// Capsule-Rectangle debugging
 	//SetDepthTest(false);
 	//Vector2 top = fPosition2 + right2 * hh;
 	//Vector2 bot = fPosition2 - right2 * hh;
 	//Vector2 proj = ProjectPointLine(top, bot, fPosition1);
-	//DrawCircle(top, 15.0f, { 1.0f, 0.0f, 0.0f });
-	//DrawCircle(bot, 15.0f, { 1.0f, 0.0f, 1.0f });
-	//DrawCircle(proj, 15.0f, { 0.5f, 0.0f, 1.0f });
+	//Vector2 near = Clamp(proj, fPosition1 - extents, fPosition1 + extents);
+	//DrawCircle(top, r, { 1.0f, 0.0f, 0.0f });
+	//DrawCircle(bot, r, { 1.0f, 0.5f, 0.0f });
+	//DrawCircle(proj, r, { 0.0f, 0.5f, 1.0f });		// Proj = teal
+	//DrawCircle(near, 5.0f, { 0.0f, 0.0f, 1.0f });	// Near = blue
 	//SetDepthTest(true);
+
+	// Line test!
+	//DrawLine({ -500.0f, 0.0f, 0.0f }, fPosition2, V3_RIGHT, 10.0f);
 }
 
 void CollisionScene::OnDrawImGui()
