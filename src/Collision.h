@@ -70,7 +70,7 @@ RMAPI bool CirclePlane(
     return collision;
 }
 
-// mtv resolves capsule from plane ***unimplemented***
+// mtv resolves capsule from plane
 RMAPI bool CapsulePlane(
     Vector2 cap, Vector2 dir, float radius, float hh,
     Vector2 plane, Vector2 normal,
@@ -80,14 +80,11 @@ RMAPI bool CapsulePlane(
     Vector2 bot = cap - dir * hh;
     float d1 = Dot(top - plane, normal);
     float d2 = Dot(bot - plane, normal);
-    Vector2 near = d1 < d2 ? top : bot;
-    return CirclePlane(near, radius, plane, normal, mtv);
-
-    // Idea: project the capsule direction along the plane normal
-    // Get the t-value, use it to resolve capsule from plane
-    // Too burnt to try it xD
-
-    return false;
+    float d = d1 < d2 ? d1 : d2;
+    bool collision = d <= radius;
+    if (collision && mtv != nullptr)
+        *mtv = normal * (radius - d);
+    return collision;
 }
 
 // mtv resolves rectangle from plane
