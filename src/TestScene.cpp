@@ -68,12 +68,5 @@ void TestScene::OnUpdate(float dt)
 void TestScene::OnDraw()
 {
 	UpdateTexture(mTexture, mImage);
-
-	BindTexture(mTexture);
-	BindShader(&gShaderFSQ);
-	SendInt("u_tex", 0);
-	BindEmptyVao();
-	DrawFsq();
-	UnbindShader();
-	UnbindTexture(mTexture);
+	DrawFsqTexture(mTexture);
 }

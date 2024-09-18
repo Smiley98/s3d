@@ -78,14 +78,7 @@ void MainScene::OnUpdate(float dt)
 void MainScene::OnDraw() 
 {
 	UpdateTexture(mTexture, mImage);
-
-	BindTexture(mTexture);
-	BindShader(&gShaderFSQ);
-	SendInt("u_tex", 0);
-	BindEmptyVao();
-	DrawFsq();
-	UnbindShader();
-	UnbindTexture(mTexture);
+	DrawFsqTexture(mTexture);
 }
 
 void MainScene::OnDrawGui()

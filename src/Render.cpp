@@ -382,4 +382,11 @@ void DrawFsq()
 
 void DrawFsqTexture(Texture texture)
 {
+	BindTexture(texture);
+	BindShader(&gShaderFSQ);
+	SendInt("u_tex", 0);
+	BindEmptyVao();
+	DrawFsq();
+	UnbindShader();
+	UnbindTexture(texture);
 }
