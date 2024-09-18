@@ -10,10 +10,10 @@ struct Texture
     int height = 0;
 };
 
-void LoadTexture(Texture* texture, int width, int height);
-void UnloadTexture(Texture* texture);
+void CreateTexture(Texture* texture, int width, int height);
+void DestroyTexture(Texture* texture);
 
-// If you want a texture from file ie PNG, load it as an image then copy to texture!
+void CreateTextureFromImage(Texture* texture, const Image& image);
 void UpdateTexture(Texture texture, const Image& image);
 
 inline void BindTexture(Texture texture, GLuint slot = 0)

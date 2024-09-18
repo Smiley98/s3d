@@ -1,6 +1,7 @@
 #include "RasterizationScene.h"
-#include "Time.h"
 #include "Window.h"
+#include "Time.h"
+#include "Image.h"
 #include <imgui/imgui.h>
 
 bool fTranslate = false;
@@ -8,6 +9,7 @@ bool fRotate = false;
 bool fScale = false;
 
 Mesh fMesh;
+Texture fTexture;
 Vector3 fColor = V3_ONE;
 Vector3 fPosition = V3_ZERO;
 
@@ -15,11 +17,13 @@ Matrix UpdateCamera(float dt);
 
 void RasterizationScene::OnCreate()
 {
+	CreateTextureFromImage(&fTexture, gImageDiffuse);
 	GenEquilateral(fMesh);
 }
 
 void RasterizationScene::OnDestroy()
 {
+	DestroyTexture(&fTexture);
 	DestroyMesh(fMesh);
 }
 
@@ -44,6 +48,9 @@ void RasterizationScene::OnDraw()
 
 	// Render object
 	DrawMeshDebug(fMesh, mvp, world, fColor);
+
+	// Successful texture render!
+	//DrawMeshTexture(gMeshHead, mvp, world, fTexture);
 
 	// Render 1x1 quad for reference
 	//DebugShaderType type = gDebugShader;

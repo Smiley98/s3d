@@ -13,12 +13,12 @@ float Fract(float f)
 void TestScene::OnLoad()
 {
 	LoadImage(&mImage, 512, 512);
-	LoadTexture(&mTexture, 512, 512);
+	CreateTexture(&mTexture, 512, 512);
 }
 
 void TestScene::OnUnload()
 {
-	UnloadTexture(&mTexture);
+	DestroyTexture(&mTexture);
 	UnloadImage(&mImage);
 }
 

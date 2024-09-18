@@ -14,7 +14,7 @@ inline GLuint GenTextureId()
     return id;
 }
 
-void LoadTexture(Texture* texture, int width, int height)
+void CreateTexture(Texture* texture, int width, int height)
 {
     assert(texture->id == GL_NONE);
 
@@ -27,7 +27,7 @@ void LoadTexture(Texture* texture, int width, int height)
     UnbindTexture(*texture);
 }
 
-void UnloadTexture(Texture* texture)
+void DestroyTexture(Texture* texture)
 {
     GLint current;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &current);
@@ -38,6 +38,12 @@ void UnloadTexture(Texture* texture)
     texture->width = 0;
     texture->height = 0;
     texture->id = GL_NONE;
+}
+
+void CreateTextureFromImage(Texture* texture, const Image& image)
+{
+    CreateTexture(texture, image.width, image.height);
+    UpdateTexture(*texture, image);
 }
 
 void UpdateTexture(Texture texture, const Image& image)

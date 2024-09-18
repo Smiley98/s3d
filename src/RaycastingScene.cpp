@@ -94,7 +94,7 @@ RaycastingScene::RayHit RaycastingScene::Raycast(Vector2 position, Vector2 direc
 void RaycastingScene::OnLoad()
 {
 	LoadImage(&mImage, IMAGE_SIZE, IMAGE_SIZE);
-	LoadTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
+	CreateTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
 
 	mHits.resize(mImage.width);
 	mPosition = CENTER;
@@ -102,7 +102,7 @@ void RaycastingScene::OnLoad()
 
 void RaycastingScene::OnUnload()
 {
-	UnloadTexture(&mTexture);
+	DestroyTexture(&mTexture);
 	UnloadImage(&mImage);
 }
 

@@ -26,6 +26,9 @@ void DrawMeshPositionsWorld(Mesh mesh, Matrix mvp, Matrix world);
 void DrawMeshPositionsScreen(Mesh mesh, Matrix mvp, Vector2 resolution = { SCREEN_WIDTH, SCREEN_HEIGHT });
 void DrawMeshNormals(Mesh mesh, Matrix mvp, Matrix world/*identity for object-space*/);
 void DrawMeshTcoords(Mesh mesh, Matrix mvp/*object-space*/);
+void DrawMeshTexture(Mesh mesh, Matrix mvp, Matrix world, Texture texture);
+//void DrawMeshTextureTint(Mesh mesh, Matrix mvp, Matrix world, Texture texture, Vector3 color);
+// This needs a new shader and isn't immediately useful.
 
 // 2d:
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle = 0.0f);
@@ -56,6 +59,7 @@ void DrawMesh(Mesh mesh);
 
 // Renders a full-screen quad (no depth test or depth write)
 void DrawFsq();
+void DrawFsqTexture(Texture texture);
 
 // Renders a line (no depth test or depth write)
 void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness = 1.0f);

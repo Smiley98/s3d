@@ -65,6 +65,20 @@ void DrawMeshTcoords(Mesh mesh, Matrix mvp)
 	}
 }
 
+void DrawMeshTexture(Mesh mesh, Matrix mvp, Matrix world, Texture texture)
+{
+	assert(mesh.tcoords != nullptr);
+	Matrix normal = NormalMatrix(world);
+	BindTexture(texture);
+	BindShader(&gShaderTexture);
+	SendMat4("u_mvp", &mvp);
+	SendMat3("u_normal", &normal);
+	SendInt("u_tex", 0);
+	DrawMesh(mesh);
+	UnbindShader();
+	UnbindTexture(texture);
+}
+
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
 {
 	Mesh mesh;
@@ -364,4 +378,8 @@ void DrawFsq()
 
 	SetDepthWrite(depthWrite);
 	SetDepthTest(depthTest);
+}
+
+void DrawFsqTexture(Texture texture)
+{
 }

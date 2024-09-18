@@ -11,13 +11,13 @@ constexpr int IMAGE_SIZE = 512;
 void MainScene::OnLoad()
 {
 	LoadImage(&mImage, IMAGE_SIZE, IMAGE_SIZE);
-	LoadTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
+	CreateTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
 	mMesh = gMeshHead;
 }
 
 void MainScene::OnUnload()
 {
-	UnloadTexture(&mTexture);
+	DestroyTexture(&mTexture);
 	UnloadImage(&mImage);
 }
 
