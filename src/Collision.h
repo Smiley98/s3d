@@ -72,7 +72,7 @@ RMAPI bool CirclePlane(
 
 // mtv resolves capsule from plane ***unimplemented***
 RMAPI bool CapsulePlane(
-    Vector2 cap, Vector2 dir, float rad, float hh,
+    Vector2 cap, Vector2 dir, float radius, float hh,
     Vector2 plane, Vector2 normal,
     Vector2* mtv = nullptr)
 {
@@ -128,7 +128,9 @@ RMAPI bool RectangleRectangle(
     float yMin2 = rect2.y - extents2.y;
     float yMax2 = rect2.y + extents2.y;
 
-    bool collision = Overlaps(xMin1, xMax1, xMin2, xMax2) && Overlaps(yMin1, yMax1, yMin2, yMax2);
+    bool collision =
+        Overlaps(xMin1, xMax1, xMin2, xMax2) &&
+        Overlaps(yMin1, yMax1, yMin2, yMax2);
     if (collision && mtv != nullptr)
     {
         // Overlapping area (rectangle)
@@ -165,27 +167,17 @@ RMAPI void NearestPoints(
     Vector2 top2, Vector2 bot2,
     Vector2& near1, Vector2& near2)
 {
-    Vector2 lines[4]
-    {
-        top2 - top1,
-        bot2 - top1,
-        top2 - bot1,
-        bot2 - bot1,
-    };
+    Vector2 A = ProjectPointLine(top2, bot2, top1);
+    Vector2 B = ProjectPointLine(top2, bot2, bot1);
+    Vector2 C = ProjectPointLine(top1, bot1, A);
+    Vector2 D = ProjectPointLine(top1, bot1, B);
+    near1 = LengthSqr(A - C) < LengthSqr(B - D) ? C : D;
 
-    size_t min = 0;
-    for (size_t i = 1; i < 4; i++)
-    {
-        if (LengthSqr(lines[i]) < LengthSqr(lines[min]))
-            min = i;
-    }
-
-    // Let AB = line(top1, bot1)
-    // Let CD = line(top2, bot2)
-    // top1 closer to line CD if min < 2, else bot1 closer to line CD
-    near1 = min < 2 ? top1 : bot1;
-    near2 = ProjectPointLine(bot2, top2, near1); // Project 1 onto 2
-    near1 = ProjectPointLine(bot1, top1, near2); // Project 2 onto 1
+    Vector2 E = ProjectPointLine(top1, bot1, top2);
+    Vector2 F = ProjectPointLine(top1, bot1, bot2);
+    Vector2 G = ProjectPointLine(top2, bot2, E);
+    Vector2 H = ProjectPointLine(top2, bot2, F);
+    near2 = LengthSqr(E - G) < LengthSqr(F - H) ? G : H;
 }
 
 // mtv resolves capsule from line

@@ -23,7 +23,7 @@ ShapeType fShape2 = CIRCLE;
 
 constexpr float fSize = 1000.0f;
 
-constexpr float r = 25.0f;
+constexpr float r = 15.0f;
 constexpr float hh = 75.0f;
 constexpr float w = 150;
 constexpr float h = 50;
