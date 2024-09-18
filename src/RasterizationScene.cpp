@@ -46,14 +46,14 @@ void RasterizationScene::OnDraw()
 	DrawMeshDebug(fMesh, mvp, world, fColor);
 
 	// Render 1x1 quad for reference
-	DebugShaderType type = gDebugShader;
-	gDebugShader = WIRE;
-	SetDepthTest(false);
-	SetWireframes(true);
-	DrawPlaneXY({}, 1.0f, 1.0f, V3_ONE);
-	SetWireframes(false);
-	SetDepthTest(true);
-	gDebugShader = type;
+	//DebugShaderType type = gDebugShader;
+	//gDebugShader = WIRE;
+	//SetDepthTest(false);
+	//SetWireframes(true);
+	//DrawPlaneXY({}, 1.0f, 1.0f, V3_ONE);
+	//SetWireframes(false);
+	//SetDepthTest(true);
+	//gDebugShader = type;
 }
 
 void GenHead(Mesh& mesh)
@@ -146,7 +146,8 @@ void RasterizationScene::OnDrawImGui()
 		"World-Space Positions",
 		"Screen-Space Positions",
 		"Object-Space Normals",
-		"World-Space Normals"
+		"World-Space Normals",
+		"Texture Coordinates"
 	};
 
 	static int shaderIndex = 0;

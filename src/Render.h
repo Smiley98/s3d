@@ -12,7 +12,8 @@ enum DebugShaderType : int
 	POSITIONS_WORLD,
 	POSITIONS_SCREEN,
 	NORMALS_OBJECT,
-	NORMALS_WORLD
+	NORMALS_WORLD,
+	TCOORDS
 };
 
 extern DebugShaderType gDebugShader;
@@ -21,9 +22,10 @@ extern Matrix gProj;
 
 void DrawMeshFlat(Mesh mesh, Matrix mvp, Vector3 color);
 void DrawMeshWireframes(Mesh mesh, Matrix mvp, Vector3 color);
-void DrawMeshNormals(Mesh mesh, Matrix mvp, Matrix world/*identity for object-space*/);
 void DrawMeshPositionsWorld(Mesh mesh, Matrix mvp, Matrix world);
 void DrawMeshPositionsScreen(Mesh mesh, Matrix mvp, Vector2 resolution = { SCREEN_WIDTH, SCREEN_HEIGHT });
+void DrawMeshNormals(Mesh mesh, Matrix mvp, Matrix world/*identity for object-space*/);
+void DrawMeshTcoords(Mesh mesh, Matrix mvp/*object-space*/);
 
 // 2d:
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle = 0.0f);

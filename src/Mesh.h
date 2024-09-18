@@ -42,6 +42,9 @@ struct Mesh
 	GLuint cbo = GL_NONE;	// Vertex colors
 	GLuint ibo = GL_NONE;	// Vertex indices
 };
+// TODO -- use par_shapes_weld to optimize meshes, then render using indices!
+// (This might be a lot of work and is just an optimization, so chill on this).
+// (Would also give me an excuse to store CPU values in stl vector for visibility).
 
 // Imported meshes
 extern Mesh gMeshHead;

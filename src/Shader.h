@@ -13,6 +13,7 @@ extern Shader gShaderFSQ;
 extern Shader gShaderLine;
 extern Shader gShaderColor;
 extern Shader gShaderNormals;
+extern Shader gShaderTcoords;
 extern Shader gShaderPositionsWorld;
 extern Shader gShaderPositionsScreen;
 

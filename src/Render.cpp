@@ -54,6 +54,17 @@ void DrawMeshNormals(Mesh mesh, Matrix mvp, Matrix world)
 	UnbindShader();
 }
 
+void DrawMeshTcoords(Mesh mesh, Matrix mvp)
+{
+	if (mesh.tcoords != nullptr)
+	{
+		BindShader(&gShaderTcoords);
+		SendMat4("u_mvp", &mvp);
+		DrawMesh(mesh);
+		UnbindShader();
+	}
+}
+
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
 {
 	Mesh mesh;
@@ -297,6 +308,10 @@ void DrawMeshDebug(Mesh mesh, Matrix mvp, Matrix world, Vector3 color)
 
 	case NORMALS_WORLD:
 		DrawMeshNormals(mesh, mvp, world);
+		break;
+
+	case TCOORDS:
+		DrawMeshTcoords(mesh, mvp);
 		break;
 
 	default:

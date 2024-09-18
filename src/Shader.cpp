@@ -14,6 +14,7 @@ Shader gShaderFSQ;
 Shader gShaderLine;
 Shader gShaderColor;
 Shader gShaderNormals;
+Shader gShaderTcoords;
 Shader gShaderPositionsWorld;
 Shader gShaderPositionsScreen;
 
@@ -30,6 +31,7 @@ void CreateShaders()
     GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
     GLuint fsColor = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
     GLuint fsNormals = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/normals.frag");
+    GLuint fsTcoords = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/tcoords.frag");
     GLuint fsPositionsWorld = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_world.frag");
     GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
     
@@ -37,6 +39,7 @@ void CreateShaders()
     CreateProgram(&gShaderLine, vsLine, fsColor);
     CreateProgram(&gShaderColor, vsMVP, fsColor);
     CreateProgram(&gShaderNormals, vsMVP, fsNormals);
+    CreateProgram(&gShaderTcoords, vsMVP, fsTcoords);
     CreateProgram(&gShaderPositionsWorld, vsMVP, fsPositionsWorld);
     CreateProgram(&gShaderPositionsScreen, vsMVP, fsPositionsScreen);
 }

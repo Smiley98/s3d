@@ -36,7 +36,7 @@ void Init()
 	CreateMeshes();
 	CreateImages();
 
-	Scene::Create(Scene::COLLISION);
+	Scene::Create(Scene::RASTER);
 }
 
 void Loop()

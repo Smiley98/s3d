@@ -360,6 +360,7 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 		break;
 
 	case SQUARE:
+	case PLANE_XY:
 		mesh = par_shapes_create_plane(1, 1);
 		par_shapes_translate(mesh, -0.5f, -0.5f, 0.0f);
 		break;
@@ -412,11 +413,6 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 		}
 		break;
 
-	case PLANE_XY:
-		mesh = par_shapes_create_plane(1, 1);
-		par_shapes_translate(mesh, -0.5f, -0.5f, 0.0f);
-		break;
-
 	case DODECAHEDRON:
 		mesh = par_shapes_create_dodecahedron();
 		break;
@@ -425,16 +421,26 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 		assert(false, "Invalid par_shapes Mesh Type");
 	}
 
-	// Hemisphere and Cylinder seem to have broken tcoords...
-	// These are just debug shapes so just delete no matter what xD
+	par_shapes_unweld(mesh, false);
+	par_shapes_compute_normals(mesh);
+
+	// Only meshes generated via parametric equations have tcoords
+	// (Plane, Hemisphere, and Cylinder)
 	if (mesh->tcoords != nullptr)
 	{
+		float* tcoords = PAR_MALLOC(float, 2 * mesh->npoints);
+		for (int i = 0; i < mesh->npoints; i++)
+		{
+			PAR_SHAPES_T index = mesh->triangles[i];
+			float u = mesh->tcoords[index * 2 + 0];
+			float v = mesh->tcoords[index * 2 + 1];
+			tcoords[i * 2 + 0] = u;
+			tcoords[i * 2 + 1] = v;
+		}
 		PAR_FREE(mesh->tcoords);
-		mesh->tcoords = nullptr;
+		mesh->tcoords = tcoords;
 	}
-
-	par_shapes_unweld(mesh, true);
-	par_shapes_compute_normals(mesh);
+	
 	return mesh;
 }
 
