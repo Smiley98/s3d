@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <cstdlib>
+#include <cfloat>
 
 //----------------------------------------------------------------------------------
 // Defines and Macros

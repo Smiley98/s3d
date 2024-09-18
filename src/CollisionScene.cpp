@@ -134,21 +134,6 @@ void CollisionScene::OnDraw()
 
 	DrawShape(fShape1, fPosition1, 0.0f, fColor1);
 	DrawShape(fShape2, fPosition2, angle, fColor2);
-
-	// Capsule-Rectangle debugging
-	//SetDepthTest(false);
-	//Vector2 top = fPosition2 + right2 * hh;
-	//Vector2 bot = fPosition2 - right2 * hh;
-	//Vector2 proj = ProjectPointLine(top, bot, fPosition1);
-	//Vector2 near = Clamp(proj, fPosition1 - extents, fPosition1 + extents);
-	//DrawCircle(top, r, { 1.0f, 0.0f, 0.0f });
-	//DrawCircle(bot, r, { 1.0f, 0.5f, 0.0f });
-	//DrawCircle(proj, r, { 0.0f, 0.5f, 1.0f });		// Proj = teal
-	//DrawCircle(near, 5.0f, { 0.0f, 0.0f, 1.0f });	// Near = blue
-	//SetDepthTest(true);
-
-	// Line test!
-	//DrawLine({ -500.0f, 0.0f, 0.0f }, fPosition2, V3_RIGHT, 10.0f);
 }
 
 void CollisionScene::OnDrawImGui()

@@ -107,9 +107,45 @@ RMAPI bool CapsuleRectangle(
 {
     Vector2 top = cap + dir * hh;
     Vector2 bot = cap - dir * hh;
-    Vector2 proj = ProjectPointLine(top, bot, rect);
-    Vector2 near = Clamp(proj, rect - extents, rect + extents);
-    return CircleCircle(proj, radius, near, 1.0f, mtv);
+    Vector2 min = rect - extents;
+    Vector2 max = rect + extents;
+
+    Vector2 topLeft = rect + Vector2{ -extents.x, extents.y };
+    Vector2 topRight = rect + Vector2{ extents.x, extents.y };
+    Vector2 botLeft = rect + Vector2{ -extents.x, -extents.y };
+    Vector2 botRight = rect + Vector2{ extents.x, -extents.y };
+
+    Vector2 projections[4]
+    {
+        ProjectPointLine(top, bot, topLeft),
+        ProjectPointLine(top, bot, topRight),
+        ProjectPointLine(top, bot, botLeft),
+        ProjectPointLine(top, bot, botRight)
+    };
+
+    Vector2 clamps[4]
+    {
+        Clamp(projections[0], min, max),
+        Clamp(projections[1], min, max),
+        Clamp(projections[2], min, max),
+        Clamp(projections[3], min, max)
+    };
+
+    int index = 0;
+    float d0 = LengthSqr(projections[0] - clamps[0]);
+    for (int i = 1; i < 4; i++)
+    {
+        float d = LengthSqr(projections[i] - clamps[i]);
+        if (d < d0)
+        {
+            d0 = d;
+            index = i;
+        }
+    }
+
+    Vector2 proj = projections[index];
+    Vector2 point = clamps[index];
+    return CircleCircle(proj, radius, point, 1.0f, mtv);
 }
 
 // mtv resolves 1 from 2
@@ -179,16 +215,3 @@ RMAPI void NearestPoints(
     Vector2 H = ProjectPointLine(top2, bot2, F);
     near2 = LengthSqr(E - G) < LengthSqr(F - H) ? G : H;
 }
-
-// mtv resolves capsule from line
-// I feel like this needs 4 points (nearest-circles) instead of 2...
-//RMAPI bool LineCapsule(Vector2 p0, Vector2 p1, Vector2 cap, Vector2 dir, float rad, float hh, Vector2* mtv = nullptr)
-//{
-//    Vector2 top = cap + dir * hh;
-//    Vector2 bot = cap - dir * hh;
-//    Vector2 projTop = ProjectPointLine(p0, p1, top);
-//    Vector2 projBot = ProjectPointLine(p0, p1, bot);
-//    Vector2 projCapsuleLine = DistanceSqr(top, projTop) < DistanceSqr(bot, projBot) ? projTop : projBot;
-//    Vector2 projLineCapsule = ProjectPointLine(top, bot, projCapsuleLine);
-//    return CircleCircle(projCapsuleLine, 1.0f, projLineCapsule, rad, mtv);
-//}
