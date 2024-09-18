@@ -32,6 +32,9 @@ void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color);
 
 void CollisionScene::OnCreate()
 {
+	Vector2 test{ 100.0f, 500.0f };
+	Vector2 axis = Normalize(V2_UP + V2_RIGHT);
+	Vector2 proj = Project(test, axis);
 	gView = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
 	gProj = Ortho(-fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT, -fSize, fSize, 0.01f, 10.0f);
 }
@@ -46,11 +49,16 @@ void CollisionScene::OnUpdate(float dt)
 
 void CollisionScene::OnDraw()
 {
-	static float angle = 0.0f;
+	static float angle1 = 0.0f;
+	static float angle2 = 0.0f;
+	if (IsKeyDown(KEY_Q))
+		angle1 += 100.0f * DEG2RAD * FrameTime();
+	if (IsKeyDown(KEY_E))
+		angle1 -= 100.0f * DEG2RAD * FrameTime();
 	if (IsKeyDown(KEY_A))
-		angle += 100.0f * DEG2RAD * FrameTime();
+		angle2 += 100.0f * DEG2RAD * FrameTime();
 	if (IsKeyDown(KEY_D))
-		angle -= 100.0f * DEG2RAD * FrameTime();
+		angle2 -= 100.0f * DEG2RAD * FrameTime();
 
 	static bool mouse = true;
 	if (IsKeyPressed(KEY_C))
@@ -58,8 +66,10 @@ void CollisionScene::OnDraw()
 	if (mouse)
 		fPosition2 = ScreenToWorld(MousePosition(), gProj, gView);
 
-	Vector2 right2 = Direction(angle);
-	Vector2 up2 = Direction(angle + PI * 0.5f);
+	Vector2 right1 = Direction(angle1);
+	Vector2 right2 = Direction(angle2);
+	Vector2 up1 = Direction(angle1 + PI * 0.5f);
+	Vector2 up2 = Direction(angle2 + PI * 0.5f);
 	Vector2 extents = { w * 0.5f, h * 0.5f };
 
 	Vector2 mtv = V2_ZERO;
@@ -90,20 +100,20 @@ void CollisionScene::OnDraw()
 		switch (fShape2)
 		{
 		case CIRCLE:
-			CircleCapsule(fPosition2, r, fPosition1, V2_RIGHT, r, hh, &mtv);
+			CircleCapsule(fPosition2, r, fPosition1, right1, r, hh, &mtv);
 			mtv *= -1.0f;
 			break;
 
 		case CAPSULE:
-			CapsuleCapsule(fPosition1, V2_RIGHT, r, hh, fPosition2, right2, r, hh, &mtv);
+			CapsuleCapsule(fPosition1, right1, r, hh, fPosition2, right2, r, hh, &mtv);
 			break;
 
 		case RECTANGLE:
-			CapsuleRectangle(fPosition1, V2_RIGHT, r, hh, fPosition2, extents, &mtv);
+			CapsuleRectangle(fPosition1, right1, r, hh, fPosition2, extents, &mtv);
 			break;
 
 		case PLANE:
-			// TODO -- make this?
+			CapsulePlane(fPosition1, right1, r, hh, fPosition2, up2, &mtv);
 			break;
 		}
 		break;
@@ -132,8 +142,8 @@ void CollisionScene::OnDraw()
 	}
 	fPosition1 += mtv;
 
-	DrawShape(fShape1, fPosition1, 0.0f, fColor1);
-	DrawShape(fShape2, fPosition2, angle, fColor2);
+	DrawShape(fShape1, fPosition1, angle1, fColor1);
+	DrawShape(fShape2, fPosition2, angle2, fColor2);
 }
 
 void CollisionScene::OnDrawImGui()

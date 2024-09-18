@@ -76,6 +76,17 @@ RMAPI bool CapsulePlane(
     Vector2 plane, Vector2 normal,
     Vector2* mtv = nullptr)
 {
+    Vector2 top = cap + dir * hh;
+    Vector2 bot = cap - dir * hh;
+    float d1 = Dot(top - plane, normal);
+    float d2 = Dot(bot - plane, normal);
+    Vector2 near = d1 < d2 ? top : bot;
+    return CirclePlane(near, radius, plane, normal, mtv);
+
+    // Idea: project the capsule direction along the plane normal
+    // Get the t-value, use it to resolve capsule from plane
+    // Too burnt to try it xD
+
     return false;
 }
 
