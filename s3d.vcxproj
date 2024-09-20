@@ -101,6 +101,7 @@
     <ClCompile Include="src\Materials.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\PipelineState.cpp" />
+    <ClCompile Include="src\PostprocessingScene.cpp" />
     <ClCompile Include="src\RasterizationScene.cpp" />
     <ClCompile Include="src\RaycastingScene.cpp" />
     <ClCompile Include="src\Render.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="src\Math.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\PipelineState.h" />
+    <ClInclude Include="src\PostprocessingScene.h" />
     <ClInclude Include="src\Rasterization.h" />
     <ClInclude Include="src\RasterizationScene.h" />
     <ClInclude Include="src\RaycastingScene.h" />

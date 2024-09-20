@@ -14,6 +14,7 @@ public:
 		RASTER,
 		RAYCAST,
 		COLLISION,
+		POST_PROCESSING,
 		COUNT
 	};
 

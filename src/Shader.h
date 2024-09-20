@@ -10,6 +10,8 @@ struct Shader
 };
 
 extern Shader gShaderFSQ;
+extern Shader gShaderFractal2D;
+extern Shader gShaderFractal3D;
 extern Shader gShaderLine;
 extern Shader gShaderColor;
 extern Shader gShaderNormals;

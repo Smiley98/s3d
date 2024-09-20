@@ -5,6 +5,7 @@
 #include "RasterizationScene.h"
 #include "RaycastingScene.h"
 #include "CollisionScene.h"
+#include "PostprocessingScene.h"
 
 Scene* Scene::sScenes[Scene::COUNT]{};
 Scene* Scene::sScene = nullptr;
@@ -18,6 +19,7 @@ void Scene::Create(Scene::Type scene)
 	sScenes[RASTER] = new RasterizationScene;
 	sScenes[RAYCAST] = new RaycastingScene;
 	sScenes[COLLISION] = new CollisionScene;
+	sScenes[POST_PROCESSING] = new PostprocessingScene;
 
 	for (size_t i = 0; i < COUNT; i++)
 		sScenes[i]->OnCreate();
