@@ -5,6 +5,7 @@ in vec2 uv;
 
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform vec2 u_mouse;
 
 vec3 palette( float t ) {
     vec3 a = vec3(0.5, 0.5, 0.5);
@@ -67,7 +68,7 @@ void main()
 {
     // [0, 1] --> [-1, 1]
     vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution) / u_resolution.y;
-    vec2 mouse = vec2(0.0, 0.0);//(iMouse.xy * 2.0 - u_resolution) / u_resolution.y;
+    vec2 mouse = u_mouse;//vec2(0.0, 0.0);//(iMouse.xy * 2.0 - u_resolution) / u_resolution.y;
     
     // Ray origin
     vec3 ro = vec3(0.0, 0.0, -3.0);
