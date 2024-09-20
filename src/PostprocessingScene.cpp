@@ -14,7 +14,7 @@ void PostprocessingScene::OnDraw()
 {
 	float time = TotalTime();
 	Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
-	BindShader(&gShaderFractal2D);
+	BindShader(&gShaderFractal3D);
 	SendVec2("u_resolution", resolution);
 	SendFloat("u_time", time);
 	DrawFsq();
