@@ -13,16 +13,17 @@ void PostprocessingScene::OnDestroy()
 
 void PostprocessingScene::OnDraw()
 {
-	// TODO -- make FPS camera and send as matrix to GPU instead!
-	Vector2 mouse = MouseDelta() * DEG2RAD;
-	//printf("%f %f\n", mouse.x, mouse.y);
+	// Rotate based on direction from screen centre to mouse cursor
+	Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
+	Vector2 mouse = MousePosition() / resolution;
+	mouse.y = 1.0f - mouse.y;
+	mouse = mouse * 2.0f - 1.0f;
 
 	static bool f2d = true;
 	if (IsKeyPressed(KEY_SPACE))
 		f2d = !f2d;
 
 	float time = TotalTime();
-	Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
 	BindShader(f2d ? &gShaderFractal2D : &gShaderFractal3D);
 	SendVec2("u_resolution", resolution);
 	SendVec2("u_mouse", mouse);
