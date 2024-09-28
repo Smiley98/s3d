@@ -218,5 +218,8 @@
     <ClInclude Include="src\PostprocessingScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Camera.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

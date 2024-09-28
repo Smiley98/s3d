@@ -2,6 +2,7 @@
 #include "Window.h"
 #include "Time.h"
 #include "Image.h"
+#include "Camera.h"
 #include <imgui/imgui.h>
 
 bool fTranslate = false;
@@ -11,14 +12,17 @@ bool fScale = false;
 Mesh fMesh;
 Texture fTexture;
 Vector3 fColor = V3_ONE;
-Vector3 fPosition = V3_ZERO;
+Vector3 fPosition = V3_RIGHT;
 
-Matrix UpdateCamera(float dt);
+Camera fCamera;
 
 void RasterizationScene::OnCreate()
 {
 	CreateTextureFromImage(&fTexture, gImageDiffuse);
 	GenEquilateral(fMesh);
+
+	fCamera.position = { 0.0f, 0.0f, 5.0f };
+	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 }
 
 void RasterizationScene::OnDestroy()
@@ -32,7 +36,38 @@ void RasterizationScene::OnDraw()
 	float tt = TotalTime();
 	float dt = FrameTime();
 
-	gView = UpdateCamera(dt);
+	CameraDelta cameraDelta;
+	float cameraLinearSpeed = 10.0f * dt;
+	float cameraAngularSpeed = 0.05f * dt;
+	cameraDelta.yaw = MouseDelta().x * cameraAngularSpeed;
+	cameraDelta.pitch = MouseDelta().y * cameraAngularSpeed;
+	if (IsKeyDown(KEY_W))
+	{
+		cameraDelta.forward = -cameraLinearSpeed;
+	}
+	if (IsKeyDown(KEY_S))
+	{
+		cameraDelta.forward = cameraLinearSpeed;
+	}
+	if (IsKeyDown(KEY_A))
+	{
+		cameraDelta.right = -cameraLinearSpeed;
+	}
+	if (IsKeyDown(KEY_D))
+	{
+		cameraDelta.right = cameraLinearSpeed;
+	}
+	if (IsKeyDown(KEY_LEFT_SHIFT))
+	{
+		cameraDelta.up = -cameraLinearSpeed;
+	}
+	if (IsKeyDown(KEY_SPACE))
+	{
+		cameraDelta.up = cameraLinearSpeed;
+	}
+
+	UpdateCamera(fCamera, cameraDelta);
+	gView = fCamera.view;
 
 	Matrix translation = Translate(fPosition) *
 		(fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());
@@ -163,64 +198,4 @@ void RasterizationScene::OnDrawImGui()
 	
 	ImGui::ColorPicker3("Colour", &fColor.x);
 	//ImGui::ShowDemoWindow();
-}
-
-// TODO -- follow a FPS camera tutorial to verify my (nice) approach 
-// raylib had some additional math for an FPS camera (not nice)
-Matrix UpdateCamera(float dt)
-{
-	// Camera toggle
-	static bool updateCamera = false;
-	if (IsKeyPressed(KEY_C))
-	{
-		updateCamera = !updateCamera;
-		SetMouseEnabled(!updateCamera);
-	}
-
-	static Vector3 camPos{ 0.0f, 0.0f, 5.0f };
-	static Quaternion camRot = QuaternionIdentity();
-	static Matrix camRotMat = MatrixIdentity();
-
-	// Camera update
-	if (updateCamera)
-	{
-		// Update rotation
-		Vector2 md = MouseDelta() * 0.001f;
-		camRot = camRot * FromEuler(md.y, md.x, 0.0f);
-		camRotMat = ToMatrix(camRot);
-		//camRotMat = RotateX(fCamPitch) * RotateY(fCamYaw);
-
-		// Update translation
-		Vector3 forward = Forward(camRotMat);
-		Vector3 right = Right(camRotMat);
-		Vector3 up = Up(camRotMat);
-		float dist = 10.0f * dt;
-		if (IsKeyDown(KEY_W))
-		{
-			camPos = camPos - forward * dist;
-		}
-		if (IsKeyDown(KEY_S))
-		{
-			camPos = camPos + forward * dist;
-		}
-		if (IsKeyDown(KEY_A))
-		{
-			camPos = camPos - right * dist;
-		}
-		if (IsKeyDown(KEY_D))
-		{
-			camPos = camPos + right * dist;
-		}
-		if (IsKeyDown(KEY_SPACE))
-		{
-			camPos = camPos + up * dist;
-		}
-		if (IsKeyDown(KEY_LEFT_SHIFT))
-		{
-			camPos = camPos - up * dist;
-		}
-	}
-
-	// view = inv(camera)
-	return Invert(camRotMat * Translate(camPos));
 }

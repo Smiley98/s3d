@@ -122,6 +122,7 @@
     <ClInclude Include="inc\imgui\imstb_textedit.h" />
     <ClInclude Include="inc\imgui\imstb_truetype.h" />
     <ClInclude Include="src\App.h" />
+    <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Collision.h" />
     <ClInclude Include="src\CollisionScene.h" />
     <ClInclude Include="src\Color.h" />

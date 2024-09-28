@@ -141,6 +141,14 @@ typedef struct Matrix {
     float m3, m7, m11, m15;     // Matrix fourth row (4 components)
 } Matrix;
 
+typedef struct DebugMatrix
+{
+    Vector4 col0;
+    Vector4 col1;
+    Vector4 col2;
+    Vector4 col3;
+};
+
 RMAPI Matrix operator+(Matrix a, Matrix b);
 RMAPI Matrix operator-(Matrix a, Matrix b);
 RMAPI Matrix operator*(Matrix a, Matrix b);
@@ -231,6 +239,16 @@ RMAPI float16 ToFloat16(Matrix mat)
     result.v[15] = mat.m15;
 
     return result;
+}
+
+RMAPI DebugMatrix ToDebug(Matrix mat)
+{
+    DebugMatrix dbg;
+    dbg.col0 = { mat.m0, mat.m1, mat.m2, mat.m3 };
+    dbg.col1 = { mat.m4, mat.m5, mat.m6, mat.m7 };
+    dbg.col2 = { mat.m8, mat.m9, mat.m10, mat.m11 };
+    dbg.col3 = { mat.m12, mat.m13, mat.m14, mat.m15 };
+    return dbg;
 }
 
 //----------------------------------------------------------------------------------
