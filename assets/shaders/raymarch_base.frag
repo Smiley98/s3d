@@ -1,0 +1,56 @@
+#version 460
+
+out vec4 FragColor;
+in vec2 uv;
+
+uniform float u_time;
+uniform vec2 u_resolution;
+
+float sdSphere(vec3 p, vec3 t, float r)
+{
+  return length(p - t) - r;
+}
+
+// See if we can keep camera +z and objects -z otherwise if camera has -z then things behave as if +x is left (since camera-right now points along world-left)
+// I think we just got lucky with ro = -5 and sphere = 5 because there's no camera rotation.
+// Test by adding actual camera movement to 3d fractal!
+float map(vec3 p)
+{
+  float sphere = sdSphere(p, vec3(1.0, 0.0, -1.0), 1.0);
+  return sphere;
+}
+
+void main()
+{
+  // [0, 1] --> [-1, 1]
+  vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution) / u_resolution.y;
+
+  // Ray origin
+  vec3 ro = vec3(0.0, 0.0, 5.0);
+  
+  // FoV of 90 degrees
+  float fov = tan(45.0 * 3.14 / 180.0);
+  
+  // Ray direction
+  vec3 rd = normalize(vec3(uv * fov, -1.0));
+  
+  // Distance along ray
+  float t = 0.0;
+  
+  int i;
+  for (i = 0; i < 80; i++)
+  {
+    // Position in scene
+    vec3 p = ro + rd * t;
+    
+    float d = map(p);
+    t += d;
+    
+    if (t < 0.001) break; // Near plane
+    if (t > 100.0) break; // Far plane
+  }
+  
+  // Colour based on ray distance
+  vec3 color = vec3(1.0, 1.0, 1.0) * t * 0.1; // range from camera (-5) to sphere (5) = 10 so / by 10 to normalize
+  FragColor = vec4(color, 1.0);
+}

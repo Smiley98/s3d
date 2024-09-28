@@ -5,6 +5,8 @@
 
 void PostprocessingScene::OnCreate()
 {
+	// Gives 3d fractal infinite rotation!
+	SetMouseEnabled(false);
 }
 
 void PostprocessingScene::OnDestroy()
@@ -25,6 +27,12 @@ void PostprocessingScene::OnDraw()
 
 	float time = TotalTime();
 	BindShader(f2d ? &gShaderFractal2D : &gShaderFractal3D);
+
+	// TODO -- recreate hybrid rendered planet scene!!!
+	//BindShader(&gShaderRaymarchBase);
+	//SendMat3("u_camRot", &invView);
+	//SendVec3("u_camPos", cameraPosition);
+
 	SendVec2("u_resolution", resolution);
 	SendVec2("u_mouse", mouse);
 	SendFloat("u_time", time);

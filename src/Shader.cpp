@@ -11,6 +11,7 @@ std::vector<GLuint> fShaders;
 std::vector<GLuint> fPrograms;
 
 Shader gShaderFSQ;
+Shader gShaderRaymarchBase;
 Shader gShaderFractal2D;
 Shader gShaderFractal3D;
 Shader gShaderLine;
@@ -31,6 +32,7 @@ void CreateShaders()
     GLuint vsLine = CreateShader(GL_VERTEX_SHADER, "assets/shaders/line.vert");
     GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
 
+    GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
     GLuint fsFractal2D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_2D.frag");
     GLuint fsFractal3D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_3D.frag");
     GLuint fsColor = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
@@ -41,6 +43,7 @@ void CreateShaders()
     GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
     
     CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
+    CreateProgram(&gShaderRaymarchBase, vsFSQ, fsRaymarchBase);
     CreateProgram(&gShaderFractal2D, vsFSQ, fsFractal2D);
     CreateProgram(&gShaderFractal3D, vsFSQ, fsFractal3D);
     CreateProgram(&gShaderLine, vsLine, fsColor);
