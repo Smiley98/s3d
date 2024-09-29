@@ -37,7 +37,7 @@ void Init()
 	CreateMeshes();
 	CreateImages();
 
-	Scene::Create(Scene::RASTER);
+	Scene::Create(Scene::POST_PROCESSING);
 
 	// Code that should run before loop goes here (to minimize delay after resource loading)
 	// (Should probably modify mouse within scene instead of app, but this is convenient)

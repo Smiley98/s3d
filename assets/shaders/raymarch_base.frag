@@ -6,6 +6,10 @@ in vec2 uv;
 uniform float u_time;
 uniform vec2 u_resolution;
 
+uniform mat3 u_camRot;
+uniform vec3 u_camPos;
+uniform float u_fov;
+
 float sdSphere(vec3 p, vec3 t, float r)
 {
   return length(p - t) - r;
@@ -16,7 +20,7 @@ float sdSphere(vec3 p, vec3 t, float r)
 // Test by adding actual camera movement to 3d fractal!
 float map(vec3 p)
 {
-  float sphere = sdSphere(p, vec3(1.0, 0.0, -1.0), 1.0);
+  float sphere = sdSphere(p, vec3(3.0, 0.0, -1.0), 1.0);
   return sphere;
 }
 
@@ -26,13 +30,10 @@ void main()
   vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution) / u_resolution.y;
 
   // Ray origin
-  vec3 ro = vec3(0.0, 0.0, 5.0);
-  
-  // FoV of 90 degrees
-  float fov = tan(45.0 * 3.14 / 180.0);
+  vec3 ro = u_camPos;
   
   // Ray direction
-  vec3 rd = normalize(vec3(uv * fov, -1.0));
+  vec3 rd = u_camRot * normalize(vec3(uv * u_fov, -1.0));
   
   // Distance along ray
   float t = 0.0;

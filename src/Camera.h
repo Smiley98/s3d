@@ -7,6 +7,9 @@ struct FpsTransform
 	Vector3 position = V3_ZERO;
 	float pitch = 0.0f;
 	float yaw = 0.0f;
+
+	// Read-only, updated internally
+	Matrix orientation = MatrixIdentity();
 };
 
 // Camera update assumes delta-time has been applied to CameraDelta's values 
@@ -29,6 +32,7 @@ RMAPI Matrix UpdateFpsCamera(FpsTransform& camera, FpsDelta delta)
 	camera.position += Right(orientation) * delta.right;
 	camera.position += Up(orientation) * delta.up;
 	camera.position += Forward(orientation) * delta.forward;
+	camera.orientation = orientation;
 
 	Matrix view = Invert(orientation * Translate(camera.position));
 	return view;
