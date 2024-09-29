@@ -4,8 +4,8 @@
 struct Camera
 {
 	Vector3 position = V3_ZERO;
-	Quaternion yaw = QuaternionIdentity();
-	Quaternion pitch = QuaternionIdentity();
+	float pitch = 0.0f;
+	float yaw = 0.0f;
 
 	// Read-only, updated internally
 	Matrix view = MatrixIdentity();
@@ -21,18 +21,15 @@ struct CameraDelta
 	float forward = 0.0f;
 };
 
-inline void UpdateCamera(Camera& camera, CameraDelta delta)
+RMAPI void UpdateCamera(Camera& camera, CameraDelta delta)
 {
-	camera.yaw = camera.yaw * FromEuler(0.0f, delta.yaw, 0.0f);
-	camera.pitch = camera.pitch * FromEuler(delta.pitch, 0.0f, 0.0f);
-	Quaternion rotation = camera.yaw * camera.pitch;
+	camera.yaw += delta.yaw;
+	camera.pitch += delta.pitch;
 
-	Matrix orientation = ToMatrix(rotation);
-	camera.position = camera.position + Right(orientation) * delta.right;
-	camera.position = camera.position + Up(orientation) * delta.up;
-	camera.position = camera.position + Forward(orientation) * delta.forward;
-
-	DebugMatrix dbg = ToDebug(orientation);
+	Matrix orientation = ToMatrix(FromEuler(camera.pitch, camera.yaw, 0.0f));
+	camera.position += Right(orientation) * delta.right;
+	camera.position += Up(orientation) * delta.up;
+	camera.position += Forward(orientation) * delta.forward;
 
 	camera.view = Invert(orientation * Translate(camera.position));
 }

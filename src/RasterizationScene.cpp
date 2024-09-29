@@ -18,17 +18,6 @@ Camera fCamera;
 
 void RasterizationScene::OnCreate()
 {
-	Matrix r = RotateZ(PI * 0.25f);
-	Matrix t = Translate(V3_RIGHT * 5.0f);
-	Matrix m1 = Multiply(r, t);
-	Matrix m2 = r * t;
-	Matrix m3 = Multiply(t, r);
-	Matrix m4 = t * r;
-	DebugMatrix dbg1 = ToDebug(m1);
-	DebugMatrix dbg2 = ToDebug(m2);
-	DebugMatrix dbg3 = ToDebug(m3);
-	DebugMatrix dbg4 = ToDebug(m4);
-
 	CreateTextureFromImage(&fTexture, gImageDiffuse);
 	GenEquilateral(fMesh);
 
