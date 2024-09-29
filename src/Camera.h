@@ -35,3 +35,6 @@ RMAPI void UpdateCamera(Camera& camera, CameraDelta delta)
 
 	camera.view = Invert(orientation * Translate(camera.position));
 }
+
+// So I don't need to copy-paste key-input everywhere xD
+void UpdateCameraAuto(Camera& camera, float dt);

@@ -92,6 +92,7 @@
     <ClCompile Include="inc\imgui\imgui_tables.cpp" />
     <ClCompile Include="inc\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\CollisionScene.cpp" />
     <ClCompile Include="src\DDAScene.cpp" />
     <ClCompile Include="src\glad.c" />
