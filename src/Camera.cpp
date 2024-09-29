@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include "Window.h"
 
-void UpdateCameraAuto(Camera& camera, float dt)
+void UpdateCameraDefault(Camera& camera, float dt)
 {
 	CameraDelta cameraDelta;
 	float cameraLinearSpeed = 10.0f * dt;

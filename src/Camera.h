@@ -37,4 +37,4 @@ RMAPI void UpdateCamera(Camera& camera, CameraDelta delta)
 }
 
 // So I don't need to copy-paste key-input everywhere xD
-void UpdateCameraAuto(Camera& camera, float dt);
+void UpdateCameraDefault(Camera& camera, float dt);

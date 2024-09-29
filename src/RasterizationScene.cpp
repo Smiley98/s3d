@@ -9,12 +9,16 @@ bool fTranslate = false;
 bool fRotate = false;
 bool fScale = false;
 
-Mesh fMesh;
+Camera fCamera;
+Matrix fWorld;
+Matrix fMvp;
+
 Texture fTexture;
 Vector3 fColor = V3_ONE;
 Vector3 fPosition = V3_ZERO;
 
-Camera fCamera;
+Mesh fMesh;
+void GenHead(Mesh& mesh);
 
 void RasterizationScene::OnCreate()
 {
@@ -31,46 +35,28 @@ void RasterizationScene::OnDestroy()
 	DestroyMesh(fMesh);
 }
 
-void RasterizationScene::OnDraw()
+void RasterizationScene::OnUpdate(float dt)
 {
 	float tt = TotalTime();
-	float dt = FrameTime();
-
-	UpdateCameraAuto(fCamera, dt);
+	UpdateCameraDefault(fCamera, dt);
 	gView = fCamera.view;
 
 	Matrix translation = Translate(fPosition) *
 		(fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());
-	
+
 	Matrix rotation =
 		fRotate ? RotateY(tt * 100.0f * DEG2RAD) : MatrixIdentity();
-	
+
 	Matrix scale =
 		fScale ? Scale(cosf(tt), sinf(tt), 1.0f) : MatrixIdentity();
 
-	Matrix world = scale * rotation * translation;
-	Matrix mvp = world * gView * gProj;
-
-	// Render object
-	DrawMeshDebug(fMesh, mvp, world, fColor);
-
-	// Successful texture render!
-	//DrawMeshTexture(gMeshHead, mvp, world, fTexture);
-
-	// Render 1x1 quad for reference
-	//DebugShaderType type = gDebugShader;
-	//gDebugShader = WIRE;
-	//SetDepthTest(false);
-	//SetWireframes(true);
-	//DrawPlaneXY({}, 1.0f, 1.0f, V3_ONE);
-	//SetWireframes(false);
-	//SetDepthTest(true);
-	//gDebugShader = type;
+	fWorld = scale * rotation * translation;
+	fMvp = fWorld * gView * gProj;
 }
 
-void GenHead(Mesh& mesh)
+void RasterizationScene::OnDraw()
 {
-	CopyMesh(gMeshHead, mesh);
+	DrawMeshDebug(fMesh, fMvp, fWorld, fColor);
 }
 
 void RasterizationScene::OnDrawImGui()
@@ -133,16 +119,6 @@ void RasterizationScene::OnDrawImGui()
 
 	ImGui::SliderFloat3("Object Position", &fPosition.x, -10.0f, 10.0f);
 
-	// Legacy look-at & fps gui controls. Now using mouse delta for camera input!
-	//static Vector3 camPos{ 0.0f, 0.0f, 5.0f };
-	//static float pitch = 0.0f;
-	//static float yaw = 0.0f;
-	//ImGui::SliderFloat3("Camera Position", &camPos.x, -10.0f, 10.0f);
-	//ImGui::SliderAngle("Pitch", &pitch);
-	//ImGui::SliderAngle("Yaw", &yaw);
-	//fView = LookAtFps(camPos, FromEuler(pitch, yaw, 0.0f));
-	//fView = LookAt(camPos, V3_ZERO, V3_UP);
-
 	static int meshIndex = 0;
 	bool gen = ImGui::Combo("Meshes", &meshIndex, meshNames, IM_ARRAYSIZE(meshNames));
 	if (gen)
@@ -169,3 +145,18 @@ void RasterizationScene::OnDrawImGui()
 	ImGui::ColorPicker3("Colour", &fColor.x);
 	//ImGui::ShowDemoWindow();
 }
+
+void GenHead(Mesh& mesh)
+{
+	CopyMesh(gMeshHead, mesh);
+}
+
+// Render 1x1 quad for reference
+//DebugShaderType type = gDebugShader;
+//gDebugShader = WIRE;
+//SetDepthTest(false);
+//SetWireframes(true);
+//DrawPlaneXY({}, 1.0f, 1.0f, V3_ONE);
+//SetWireframes(false);
+//SetDepthTest(true);
+//gDebugShader = type;
