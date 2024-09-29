@@ -101,16 +101,16 @@ void RasterizationScene::OnDrawImGui()
 		GenHead
 	};
 
-	static Matrix projections[] =
+	static Camera* projections[] =
 	{
-		Ortho(-1.0f * SCREEN_ASPECT, 1.0f * SCREEN_ASPECT, -1.0f, 1.0f, 0.01f, 10.0f),
-		Perspective(75.0f * DEG2RAD, 1.0f, 0.001f, 100.0f)
+		&gCameraOrtho10,
+		&gCameraPersp75
 	};
 
 	static int projIndex = 1;
 	ImGui::RadioButton("Orthographic", &projIndex, 0); ImGui::SameLine();
 	ImGui::RadioButton("Perspective", &projIndex, 1);
-	gProj = projections[projIndex];
+	gProj = projections[projIndex]->proj;
 
 	ImGui::Checkbox("Translate", &fTranslate); ImGui::SameLine();
 	ImGui::Checkbox("Rotate", &fRotate); ImGui::SameLine();
