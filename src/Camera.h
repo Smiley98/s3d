@@ -4,7 +4,8 @@
 struct Camera
 {
 	Vector3 position = V3_ZERO;
-	Quaternion rotation = QuaternionIdentity();
+	Quaternion yaw = QuaternionIdentity();
+	Quaternion pitch = QuaternionIdentity();
 
 	// Read-only, updated internally
 	Matrix view = MatrixIdentity();
@@ -22,11 +23,11 @@ struct CameraDelta
 
 inline void UpdateCamera(Camera& camera, CameraDelta delta)
 {
-	camera.rotation = camera.rotation * 
-		FromEuler(0.0f, delta.yaw, 0.0f) *
-		FromEuler(delta.pitch, 0.0f, 0.0f);
+	camera.yaw = camera.yaw * FromEuler(0.0f, delta.yaw, 0.0f);
+	camera.pitch = camera.pitch * FromEuler(delta.pitch, 0.0f, 0.0f);
+	Quaternion rotation = camera.yaw * camera.pitch;
 
-	Matrix orientation = ToMatrix(camera.rotation);
+	Matrix orientation = ToMatrix(rotation);
 	camera.position = camera.position + Right(orientation) * delta.right;
 	camera.position = camera.position + Up(orientation) * delta.up;
 	camera.position = camera.position + Forward(orientation) * delta.forward;
