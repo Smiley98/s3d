@@ -2,21 +2,15 @@
 #include "Math.h"
 
 // FPS camera representation
-struct Camera
+struct FpsTransform
 {
 	Vector3 position = V3_ZERO;
 	float pitch = 0.0f;
 	float yaw = 0.0f;
-
-	// Read-only, updated internally
-	Matrix view = MatrixIdentity();
-
-	// Read-only, updated internally
-	Matrix proj = MatrixIdentity();
 };
 
 // Camera update assumes delta-time has been applied to CameraDelta's values 
-struct CameraDelta
+struct FpsDelta
 {
 	float pitch = 0.0f;
 	float yaw = 0.0f;
@@ -25,24 +19,8 @@ struct CameraDelta
 	float forward = 0.0f;
 };
 
-void CreateCameras();
-void DestroyCameras();
-
-extern Camera gCamera;
-extern Camera gCameraNdc;
-
-extern Camera gCameraOrtho1;
-extern Camera gCameraOrtho10;
-extern Camera gCameraOrtho100;
-extern Camera gCameraOrtho1000;
-
-extern Camera gCameraPersp30;
-extern Camera gCameraPersp60;
-extern Camera gCameraPersp75;
-extern Camera gCameraPersp90;
-
 // FPS camera update
-RMAPI void UpdateCamera(Camera& camera, CameraDelta delta)
+RMAPI Matrix UpdateFpsCamera(FpsTransform& camera, FpsDelta delta)
 {
 	camera.yaw += delta.yaw;
 	camera.pitch += delta.pitch;
@@ -52,8 +30,11 @@ RMAPI void UpdateCamera(Camera& camera, CameraDelta delta)
 	camera.position += Up(orientation) * delta.up;
 	camera.position += Forward(orientation) * delta.forward;
 
-	camera.view = Invert(orientation * Translate(camera.position));
+	Matrix view = Invert(orientation * Translate(camera.position));
+	return view;
 }
 
 // So I don't need to copy-paste key-input everywhere xD
-void UpdateCameraDefault(Camera& camera, float dt);
+Matrix UpdateFpsCameraDefault(FpsTransform& camera, float dt);
+
+extern FpsTransform gCamera;

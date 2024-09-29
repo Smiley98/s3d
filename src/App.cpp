@@ -32,7 +32,6 @@ void DrawImGui();
 
 void Init()
 {
-	CreateCameras();
 	CreateWindow();
 	CreateShaders();
 	CreateMeshes();
@@ -141,7 +140,6 @@ void Quit()
 	DestroyMeshes();
 	DestroyShaders();
 	DestroyWindow();
-	DestroyCameras();
 }
 
 void Update(float dt)

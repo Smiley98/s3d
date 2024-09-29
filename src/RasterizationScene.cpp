@@ -19,12 +19,18 @@ Vector3 fPosition = V3_ZERO;
 Mesh fMesh;
 void GenHead(Mesh& mesh);
 
+int fProjIndex = 1;
+Matrix fProjections[] =
+{
+	Ortho(-10.0f * SCREEN_ASPECT, 10.0f * SCREEN_ASPECT, -10.0f, 10.0f, 0.1f, 10.0f),
+	Perspective(75.0f * DEG2RAD, SCREEN_ASPECT, 0.1f, 10.0f)
+};
+
 void RasterizationScene::OnLoad()
 {
 	GenEquilateral(fMesh);
 	CreateTextureFromImage(&fTexture, gImageDiffuse);
-	gCamera = gCameraPersp75;
-	gProj = gCamera.proj;
+	gCamera.position = { 0.0f, 0.0f, 5.0f };
 }
 
 void RasterizationScene::OnUnload()
@@ -36,9 +42,8 @@ void RasterizationScene::OnUnload()
 void RasterizationScene::OnUpdate(float dt)
 {
 	float tt = TotalTime();
-	UpdateCameraDefault(gCamera, dt);
-	gView = gCamera.view;
-	// TODO -- Make some sort of certralized world-view-projection update
+	gView = UpdateFpsCameraDefault(gCamera, dt);
+	gProj = fProjections[fProjIndex];
 
 	Matrix translation = Translate(fPosition) *
 		(fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());
@@ -101,16 +106,8 @@ void RasterizationScene::OnDrawImGui()
 		GenHead
 	};
 
-	static Camera* projections[] =
-	{
-		&gCameraOrtho10,
-		&gCameraPersp75
-	};
-
-	static int projIndex = 1;
-	ImGui::RadioButton("Orthographic", &projIndex, 0); ImGui::SameLine();
-	ImGui::RadioButton("Perspective", &projIndex, 1);
-	gProj = projections[projIndex]->proj;
+	ImGui::RadioButton("Orthographic", &fProjIndex, 0); ImGui::SameLine();
+	ImGui::RadioButton("Perspective", &fProjIndex, 1);
 
 	ImGui::Checkbox("Translate", &fTranslate); ImGui::SameLine();
 	ImGui::Checkbox("Rotate", &fRotate); ImGui::SameLine();

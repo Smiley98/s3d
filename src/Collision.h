@@ -123,7 +123,7 @@ RMAPI bool CapsuleRectangle(
     Vector2 botLeft = rect + Vector2{ -extents.x, -extents.y };
     Vector2 botRight = rect + Vector2{ extents.x, -extents.y };
 
-    Vector2 projections[4]
+    Vector2 fProjections[4]
     {
         ProjectPointLine(top, bot, topLeft),
         ProjectPointLine(top, bot, topRight),
@@ -133,17 +133,17 @@ RMAPI bool CapsuleRectangle(
 
     Vector2 clamps[4]
     {
-        Clamp(projections[0], min, max),
-        Clamp(projections[1], min, max),
-        Clamp(projections[2], min, max),
-        Clamp(projections[3], min, max)
+        Clamp(fProjections[0], min, max),
+        Clamp(fProjections[1], min, max),
+        Clamp(fProjections[2], min, max),
+        Clamp(fProjections[3], min, max)
     };
 
     int index = 0;
-    float d0 = LengthSqr(projections[0] - clamps[0]);
+    float d0 = LengthSqr(fProjections[0] - clamps[0]);
     for (int i = 1; i < 4; i++)
     {
-        float d = LengthSqr(projections[i] - clamps[i]);
+        float d = LengthSqr(fProjections[i] - clamps[i]);
         if (d < d0)
         {
             d0 = d;
@@ -151,7 +151,7 @@ RMAPI bool CapsuleRectangle(
         }
     }
 
-    Vector2 proj = projections[index];
+    Vector2 proj = fProjections[index];
     Vector2 point = clamps[index];
     return CircleCircle(proj, radius, point, 1.0f, mtv);
 }
