@@ -1,6 +1,7 @@
 #pragma once
 #include "Math.h"
 
+// FPS camera representation
 struct Camera
 {
 	Vector3 position = V3_ZERO;
@@ -21,6 +22,7 @@ struct CameraDelta
 	float forward = 0.0f;
 };
 
+// FPS camera update
 RMAPI void UpdateCamera(Camera& camera, CameraDelta delta)
 {
 	camera.yaw += delta.yaw;

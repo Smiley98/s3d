@@ -24,7 +24,7 @@ Vector2 MouseDelta();
 bool MouseEnabled();
 bool MouseVisible();
 
-void SetMousePosition(Vector2 screen);
+void SetMousePosition(Vector2 screen, bool updateDelta = true);
 void SetMouseEnabled(bool enabled);
 // Imgui update sets mouse cursor to normal. Surprised this works...
 // This is only for FPS camera which isn't needed, so don't stress ;)

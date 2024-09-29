@@ -12,7 +12,7 @@ bool fScale = false;
 Mesh fMesh;
 Texture fTexture;
 Vector3 fColor = V3_ONE;
-Vector3 fPosition = V3_RIGHT;
+Vector3 fPosition = V3_ZERO;
 
 Camera fCamera;
 

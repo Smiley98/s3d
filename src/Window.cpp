@@ -170,9 +170,11 @@ bool MouseVisible()
     return mode != GLFW_CURSOR_HIDDEN && mode != GLFW_CURSOR_DISABLED;
 }
 
-void SetMousePosition(Vector2 screen)
+void SetMousePosition(Vector2 screen, bool updateDelta)
 {
     glfwSetCursorPos(fWindow, screen.x, screen.y);
+    if (updateDelta)
+        fInput.mousePosPrev = fInput.mousePosCurr = screen;
 }
 
 void SetMouseEnabled(bool enabled)
