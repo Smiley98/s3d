@@ -5,8 +5,8 @@
 class RasterizationScene : public Scene
 {
 public:
-	void OnCreate() final;
-	void OnDestroy() final;
+	void OnLoad() final;
+	void OnUnload() final;
 
 	void OnUpdate(float dt) final;
 

@@ -30,6 +30,8 @@ struct Input
     Vector2 mousePosPrev{};
     Vector2 mousePosCurr{};
     Vector2 mousePosDelta{};
+
+    MouseState mouseState =  MOUSE_STATE_NORMAL;
 } fInput;
 
 void CreateWindow()
@@ -148,26 +150,14 @@ bool IsMouseClicked(int button)
         fInput.mouseButtonsCurr[button] == GLFW_RELEASE;
 }
 
-Vector2 MousePosition()
+Vector2 GetMousePosition()
 {
     return fInput.mousePosCurr;
 }
 
-Vector2 MouseDelta()
+Vector2 GetMouseDelta()
 {
     return fInput.mousePosDelta;
-}
-
-bool MouseEnabled()
-{
-    int mode = glfwGetInputMode(fWindow, GLFW_CURSOR);
-    return mode != GLFW_CURSOR_DISABLED;
-}
-
-bool MouseVisible()
-{
-    int mode = glfwGetInputMode(fWindow, GLFW_CURSOR);
-    return mode != GLFW_CURSOR_HIDDEN && mode != GLFW_CURSOR_DISABLED;
 }
 
 void SetMousePosition(Vector2 screen, bool updateDelta)
@@ -177,10 +167,16 @@ void SetMousePosition(Vector2 screen, bool updateDelta)
         fInput.mousePosPrev = fInput.mousePosCurr = screen;
 }
 
-void SetMouseEnabled(bool enabled)
+void SetMouseState(MouseState state)
 {
-    int value = enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED;
-    glfwSetInputMode(fWindow, GLFW_CURSOR, value);
+    int modes[]{ GLFW_CURSOR_NORMAL, GLFW_CURSOR_HIDDEN, GLFW_CURSOR_DISABLED };
+    glfwSetInputMode(fWindow, GLFW_CURSOR, modes[state]);
+    fInput.mouseState = state;
+}
+
+MouseState GetMouseState()
+{
+    return fInput.mouseState;
 }
 
 void OnKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods)

@@ -30,13 +30,13 @@ constexpr float h = 50;
 
 void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color);
 
-void CollisionScene::OnCreate()
+void CollisionScene::OnLoad()
 {
 	gView = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
 	gProj = Ortho(-fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT, -fSize, fSize, 0.01f, 10.0f);
 }
 
-void CollisionScene::OnDestroy()
+void CollisionScene::OnUnload()
 {
 }
 
@@ -61,7 +61,7 @@ void CollisionScene::OnDraw()
 	if (IsKeyPressed(KEY_C))
 		mouse = !mouse;
 	if (mouse)
-		fPosition2 = ScreenToWorld(MousePosition(), gProj, gView);
+		fPosition2 = ScreenToWorld(GetMousePosition(), gProj, gView);
 
 	Vector2 right1 = Direction(angle1);
 	Vector2 right2 = Direction(angle2);

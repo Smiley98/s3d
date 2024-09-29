@@ -3434,8 +3434,8 @@ static void ShowDemoWindowLayout()
             ImGui::InvisibleButton("##canvas", size);
             if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
             {
-                offset.x += ImGui::GetIO().MouseDelta.x;
-                offset.y += ImGui::GetIO().MouseDelta.y;
+                offset.x += ImGui::GetIO().GetMouseDelta.x;
+                offset.y += ImGui::GetIO().GetMouseDelta.y;
             }
             ImGui::PopID();
             if (!ImGui::IsItemVisible()) // Skip rendering as ImDrawList elements are not clipped.
@@ -6027,7 +6027,7 @@ static void ShowDemoWindowInputs()
                 ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y);
             else
                 ImGui::Text("Mouse pos: <INVALID>");
-            ImGui::Text("Mouse delta: (%g, %g)", io.MouseDelta.x, io.MouseDelta.y);
+            ImGui::Text("Mouse delta: (%g, %g)", io.GetMouseDelta.x, io.GetMouseDelta.y);
             ImGui::Text("Mouse down:");
             for (int i = 0; i < IM_ARRAYSIZE(io.MouseDown); i++) if (ImGui::IsMouseDown(i)) { ImGui::SameLine(); ImGui::Text("b%d (%.02f secs)", i, io.MouseDownDuration[i]); }
             ImGui::Text("Mouse wheel: %.1f", io.MouseWheel);
@@ -6200,7 +6200,7 @@ static void ShowDemoWindowInputs()
             // threshold using the second parameter of IsMouseDragging() and GetMouseDragDelta().
             ImVec2 value_raw = ImGui::GetMouseDragDelta(0, 0.0f);
             ImVec2 value_with_lock_threshold = ImGui::GetMouseDragDelta(0);
-            ImVec2 mouse_delta = io.MouseDelta;
+            ImVec2 mouse_delta = io.GetMouseDelta;
             ImGui::Text("GetMouseDragDelta(0):");
             ImGui::Text("  w/ default threshold: (%.1f, %.1f)", value_with_lock_threshold.x, value_with_lock_threshold.y);
             ImGui::Text("  w/ zero threshold: (%.1f, %.1f)", value_raw.x, value_raw.y);
@@ -8000,8 +8000,8 @@ static void ShowExampleAppCustomRendering(bool* p_open)
             const float mouse_threshold_for_pan = opt_enable_context_menu ? -1.0f : 0.0f;
             if (is_active && ImGui::IsMouseDragging(ImGuiMouseButton_Right, mouse_threshold_for_pan))
             {
-                scrolling.x += io.MouseDelta.x;
-                scrolling.y += io.MouseDelta.y;
+                scrolling.x += io.GetMouseDelta.x;
+                scrolling.y += io.GetMouseDelta.y;
             }
 
             // Context menu (under default mouse threshold)

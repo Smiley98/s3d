@@ -3072,12 +3072,12 @@ void ImGui::TableHeader(const char* label)
         table->InstanceInteracted = table->InstanceCurrent;
 
         // We don't reorder: through the frozen<>unfrozen line, or through a column that is marked with ImGuiTableColumnFlags_NoReorder.
-        if (g.IO.MouseDelta.x < 0.0f && g.IO.MousePos.x < cell_r.Min.x)
+        if (g.IO.GetMouseDelta.x < 0.0f && g.IO.MousePos.x < cell_r.Min.x)
             if (ImGuiTableColumn* prev_column = (column->PrevEnabledColumn != -1) ? &table->Columns[column->PrevEnabledColumn] : NULL)
                 if (!((column->Flags | prev_column->Flags) & ImGuiTableColumnFlags_NoReorder))
                     if ((column->IndexWithinEnabledSet < table->FreezeColumnsRequest) == (prev_column->IndexWithinEnabledSet < table->FreezeColumnsRequest))
                         table->ReorderColumnDir = -1;
-        if (g.IO.MouseDelta.x > 0.0f && g.IO.MousePos.x > cell_r.Max.x)
+        if (g.IO.GetMouseDelta.x > 0.0f && g.IO.MousePos.x > cell_r.Max.x)
             if (ImGuiTableColumn* next_column = (column->NextEnabledColumn != -1) ? &table->Columns[column->NextEnabledColumn] : NULL)
                 if (!((column->Flags | next_column->Flags) & ImGuiTableColumnFlags_NoReorder))
                     if ((column->IndexWithinEnabledSet < table->FreezeColumnsRequest) == (next_column->IndexWithinEnabledSet < table->FreezeColumnsRequest))

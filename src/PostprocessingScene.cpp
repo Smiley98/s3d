@@ -3,13 +3,11 @@
 #include "Render.h"
 #include "Time.h"
 
-void PostprocessingScene::OnCreate()
+void PostprocessingScene::OnLoad()
 {
-	// Gives 3d fractal infinite rotation!
-	SetMouseEnabled(false);
 }
 
-void PostprocessingScene::OnDestroy()
+void PostprocessingScene::OnUnload()
 {
 }
 
@@ -17,7 +15,7 @@ void PostprocessingScene::OnDraw()
 {
 	// Rotate based on direction from screen centre to mouse cursor
 	Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
-	Vector2 mouse = MousePosition() / resolution;
+	Vector2 mouse = GetMousePosition() / resolution;
 	mouse.y = 1.0f - mouse.y;
 	mouse = mouse * 2.0f - 1.0f;
 

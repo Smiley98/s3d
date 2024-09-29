@@ -2267,7 +2267,7 @@ bool ImGui::DragBehaviorT(ImGuiDataType data_type, TYPE* v, float v_speed, const
     float adjust_delta = 0.0f;
     if (g.ActiveIdSource == ImGuiInputSource_Mouse && IsMousePosValid() && IsMouseDragPastThreshold(0, g.IO.MouseDragThreshold * DRAG_MOUSE_THRESHOLD_FACTOR))
     {
-        adjust_delta = g.IO.MouseDelta[axis];
+        adjust_delta = g.IO.GetMouseDelta[axis];
         if (g.IO.KeyAlt)
             adjust_delta *= 1.0f / 100.0f;
         if (g.IO.KeyShift)
@@ -4399,7 +4399,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
                 state->CursorAnimReset();
             }
         }
-        else if (io.MouseDown[0] && !state->SelectedAllMouseLock && (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f))
+        else if (io.MouseDown[0] && !state->SelectedAllMouseLock && (io.GetMouseDelta.x != 0.0f || io.GetMouseDelta.y != 0.0f))
         {
             stb_textedit_drag(state, &state->Stb, mouse_x, mouse_y);
             state->CursorAnimReset();
@@ -7508,7 +7508,7 @@ bool ImGui::BeginMenuEx(const char* label, const char* icon, bool enabled)
             float ref_unit = g.FontSize; // FIXME-DPI
             float child_dir = (window->Pos.x < child_menu_window->Pos.x) ? 1.0f : -1.0f;
             ImRect next_window_rect = child_menu_window->Rect();
-            ImVec2 ta = (g.IO.MousePos - g.IO.MouseDelta);
+            ImVec2 ta = (g.IO.MousePos - g.IO.GetMouseDelta);
             ImVec2 tb = (child_dir > 0.0f) ? next_window_rect.GetTL() : next_window_rect.GetTR();
             ImVec2 tc = (child_dir > 0.0f) ? next_window_rect.GetBL() : next_window_rect.GetBR();
             float extra = ImClamp(ImFabs(ta.x - tb.x) * 0.30f, ref_unit * 0.5f, ref_unit * 2.5f);   // add a bit of extra slack.
@@ -8708,11 +8708,11 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
         if (!g.DragDropActive && (tab_bar->Flags & ImGuiTabBarFlags_Reorderable))
         {
             // While moving a tab it will jump on the other side of the mouse, so we also test for MouseDelta.x
-            if (g.IO.MouseDelta.x < 0.0f && g.IO.MousePos.x < bb.Min.x)
+            if (g.IO.GetMouseDelta.x < 0.0f && g.IO.MousePos.x < bb.Min.x)
             {
                 TabBarQueueReorderFromMousePos(tab_bar, tab, g.IO.MousePos);
             }
-            else if (g.IO.MouseDelta.x > 0.0f && g.IO.MousePos.x > bb.Max.x)
+            else if (g.IO.GetMouseDelta.x > 0.0f && g.IO.MousePos.x > bb.Max.x)
             {
                 TabBarQueueReorderFromMousePos(tab_bar, tab, g.IO.MousePos);
             }

@@ -10,6 +10,9 @@ struct Camera
 
 	// Read-only, updated internally
 	Matrix view = MatrixIdentity();
+
+	// Read-only, updated internally
+	Matrix proj = MatrixIdentity();
 };
 
 // Camera update assumes delta-time has been applied to CameraDelta's values 
@@ -21,6 +24,22 @@ struct CameraDelta
 	float up = 0.0f;
 	float forward = 0.0f;
 };
+
+void CreateCameras();
+void DestroyCameras();
+
+extern Camera gCamera;
+extern Camera gCameraNdc;
+
+extern Camera gCameraOrtho1;
+extern Camera gCameraOrtho10;
+extern Camera gCameraOrtho100;
+extern Camera gCameraOrtho1000;
+
+extern Camera gCameraPersp30;
+extern Camera gCameraPersp60;
+extern Camera gCameraPersp75;
+extern Camera gCameraPersp90;
 
 // FPS camera update
 RMAPI void UpdateCamera(Camera& camera, CameraDelta delta)

@@ -36,7 +36,7 @@ void DDAScene::OnUpdate(float dt)
 	}
 	Flip(&mImage);
 
-	Vector2 mouse = MousePosition();
+	Vector2 mouse = GetMousePosition();
 	mouse = ScreenToImage(mImage, mouse);
 	int r = 3;
 	int x0 = mImage.width * 0.5;

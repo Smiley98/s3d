@@ -2,6 +2,13 @@
 #include "Config.h"
 #include "Math.h"
 
+enum MouseState : int
+{
+    MOUSE_STATE_NORMAL, // Always visible
+    MOUSE_STATE_HIDDEN, // Invisible inside window, visible outside window
+    MOUSE_STATE_DISABLED// Always invisible, infinite scroll
+};
+
 void CreateWindow();
 void DestroyWindow();
 
@@ -19,15 +26,12 @@ bool IsMouseDown(int button);
 bool IsMouseUp(int button);
 bool IsMouseClicked(int button);
 
-Vector2 MousePosition();
-Vector2 MouseDelta();
-bool MouseEnabled();
-bool MouseVisible();
+Vector2 GetMouseDelta();
+Vector2 GetMousePosition();
+MouseState GetMouseState();
 
 void SetMousePosition(Vector2 screen, bool updateDelta = true);
-void SetMouseEnabled(bool enabled);
-// Imgui update sets mouse cursor to normal. Surprised this works...
-// This is only for FPS camera which isn't needed, so don't stress ;)
+void SetMouseState(MouseState state);
 
 // Convert from screen-space to normalized device coordinates. z = 0.0
 inline Vector3 ScreenToNDC(Vector3 screen)

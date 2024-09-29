@@ -9,7 +9,6 @@ bool fTranslate = false;
 bool fRotate = false;
 bool fScale = false;
 
-Camera fCamera;
 Matrix fWorld;
 Matrix fMvp;
 
@@ -20,16 +19,15 @@ Vector3 fPosition = V3_ZERO;
 Mesh fMesh;
 void GenHead(Mesh& mesh);
 
-void RasterizationScene::OnCreate()
+void RasterizationScene::OnLoad()
 {
-	CreateTextureFromImage(&fTexture, gImageDiffuse);
 	GenEquilateral(fMesh);
-
-	fCamera.position = { 0.0f, 0.0f, 5.0f };
-	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
+	CreateTextureFromImage(&fTexture, gImageDiffuse);
+	gCamera = gCameraPersp75;
+	gProj = gCamera.proj;
 }
 
-void RasterizationScene::OnDestroy()
+void RasterizationScene::OnUnload()
 {
 	DestroyTexture(&fTexture);
 	DestroyMesh(fMesh);
@@ -38,8 +36,9 @@ void RasterizationScene::OnDestroy()
 void RasterizationScene::OnUpdate(float dt)
 {
 	float tt = TotalTime();
-	UpdateCameraDefault(fCamera, dt);
-	gView = fCamera.view;
+	UpdateCameraDefault(gCamera, dt);
+	gView = gCamera.view;
+	// TODO -- Make some sort of certralized world-view-projection update
 
 	Matrix translation = Translate(fPosition) *
 		(fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());

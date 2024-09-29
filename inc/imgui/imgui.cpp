@@ -8439,7 +8439,7 @@ void ImGui::TeleportMousePos(const ImVec2& pos)
 {
     ImGuiContext& g = *GImGui;
     g.IO.MousePos = g.IO.MousePosPrev = pos;
-    g.IO.MouseDelta = ImVec2(0.0f, 0.0f);
+    g.IO.GetMouseDelta = ImVec2(0.0f, 0.0f);
     g.IO.WantSetMousePos = true;
     //IMGUI_DEBUG_LOG_IO("TeleportMousePos: (%.1f,%.1f)\n", io.MousePos.x, io.MousePos.y);
 }
@@ -8669,19 +8669,19 @@ static void ImGui::UpdateMouseInputs()
 
     // If mouse just appeared or disappeared (usually denoted by -FLT_MAX components) we cancel out movement in MouseDelta
     if (IsMousePosValid(&io.MousePos) && IsMousePosValid(&io.MousePosPrev))
-        io.MouseDelta = io.MousePos - io.MousePosPrev;
+        io.GetMouseDelta = io.MousePos - io.MousePosPrev;
     else
-        io.MouseDelta = ImVec2(0.0f, 0.0f);
+        io.GetMouseDelta = ImVec2(0.0f, 0.0f);
 
     // Update stationary timer.
     // FIXME: May need to rework again to have some tolerance for occasional small movement, while being functional on high-framerates.
     const float mouse_stationary_threshold = (io.MouseSource == ImGuiMouseSource_Mouse) ? 2.0f : 3.0f; // Slightly higher threshold for ImGuiMouseSource_TouchScreen/ImGuiMouseSource_Pen, may need rework.
-    const bool mouse_stationary = (ImLengthSqr(io.MouseDelta) <= mouse_stationary_threshold * mouse_stationary_threshold);
+    const bool mouse_stationary = (ImLengthSqr(io.GetMouseDelta) <= mouse_stationary_threshold * mouse_stationary_threshold);
     g.MouseStationaryTimer = mouse_stationary ? (g.MouseStationaryTimer + io.DeltaTime) : 0.0f;
     //IMGUI_DEBUG_LOG("%.4f\n", g.MouseStationaryTimer);
 
     // If mouse moved we re-enable mouse hovering in case it was disabled by gamepad/keyboard. In theory should use a >0.0f threshold but would need to reset in everywhere we set this to true.
-    if (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f)
+    if (io.GetMouseDelta.x != 0.0f || io.GetMouseDelta.y != 0.0f)
         g.NavDisableMouseHover = false;
 
     for (int i = 0; i < IM_ARRAYSIZE(io.MouseDown); i++)
@@ -14119,7 +14119,7 @@ void ImGui::ShowMetricsWindow(bool* p_open)
                 Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y);
             else
                 Text("Mouse pos: <INVALID>");
-            Text("Mouse delta: (%g, %g)", io.MouseDelta.x, io.MouseDelta.y);
+            Text("Mouse delta: (%g, %g)", io.GetMouseDelta.x, io.GetMouseDelta.y);
             int count = IM_ARRAYSIZE(io.MouseDown);
             Text("Mouse down:");     for (int i = 0; i < count; i++) if (IsMouseDown(i)) { SameLine(); Text("b%d (%.02f secs)", i, io.MouseDownDuration[i]); }
             Text("Mouse clicked:");  for (int i = 0; i < count; i++) if (IsMouseClicked(i)) { SameLine(); Text("b%d (%d)", i, io.MouseClickedCount[i]); }

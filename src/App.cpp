@@ -1,5 +1,6 @@
 #include "App.h"
 #include "Window.h"
+#include "Camera.h"
 #include "Scene.h"
 #include "Time.h"
 #include "Timer.h"
@@ -31,12 +32,18 @@ void DrawImGui();
 
 void Init()
 {
+	CreateCameras();
 	CreateWindow();
 	CreateShaders();
 	CreateMeshes();
 	CreateImages();
 
 	Scene::Create(Scene::RASTER);
+
+	// Code that should run before loop goes here (to minimize delay after resource loading)
+	// (Should probably modify mouse within scene instead of app, but this is convenient)
+	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
+	SetMouseState(MOUSE_STATE_DISABLED);
 }
 
 void Loop()
@@ -134,6 +141,7 @@ void Quit()
 	DestroyMeshes();
 	DestroyShaders();
 	DestroyWindow();
+	DestroyCameras();
 }
 
 void Update(float dt)
