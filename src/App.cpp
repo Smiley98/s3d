@@ -37,7 +37,7 @@ void Init()
 	CreateMeshes();
 	CreateImages();
 
-	Scene::Create(Scene::POST_PROCESSING);
+	Scene::Create(Scene::SOLAR_SYSTEM);
 
 	// Code that should run before loop goes here (to minimize delay after resource loading)
 	// (Should probably modify mouse within scene instead of app, but this is convenient)

@@ -111,6 +111,9 @@
     <ClCompile Include="src\Camera.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="src\SolarSystemScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h">
@@ -223,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="src\Camera.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SolarSystemScene.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

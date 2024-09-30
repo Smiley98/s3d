@@ -15,6 +15,7 @@ public:
 		RAYCAST,
 		COLLISION,
 		POST_PROCESSING,
+		SOLAR_SYSTEM,
 		COUNT
 	};
 

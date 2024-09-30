@@ -6,6 +6,7 @@
 #include "RaycastingScene.h"
 #include "CollisionScene.h"
 #include "PostprocessingScene.h"
+#include "SolarSystemScene.h"
 
 Scene* Scene::sScenes[Scene::COUNT]{};
 Scene* Scene::sScene = nullptr;
@@ -20,6 +21,7 @@ void Scene::Create(Scene::Type scene)
 	sScenes[RAYCAST] = new RaycastingScene;
 	sScenes[COLLISION] = new CollisionScene;
 	sScenes[POST_PROCESSING] = new PostprocessingScene;
+	sScenes[SOLAR_SYSTEM] = new SolarSystemScene;
 
 	for (size_t i = 0; i < COUNT; i++)
 		sScenes[i]->OnCreate();
