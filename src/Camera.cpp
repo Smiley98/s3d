@@ -11,8 +11,8 @@ Matrix UpdateFpsCameraDefault(FpsTransform& camera, float dt)
 
 	Vector2 mouseDelta = GetMouseState() != MOUSE_STATE_NORMAL ? GetMouseDelta() : V2_ZERO;
 	FpsDelta cameraDelta;
-	float cameraLinearSpeed = 10.0f * dt;
-	float cameraAngularSpeed = 0.05f * dt;
+	float cameraLinearSpeed = dt * 10.0f; //2.5f;
+	float cameraAngularSpeed = -0.05f * dt;
 	cameraDelta.yaw = mouseDelta.x * cameraAngularSpeed;
 	cameraDelta.pitch = mouseDelta.y * cameraAngularSpeed;
 	if (IsKeyDown(KEY_W))

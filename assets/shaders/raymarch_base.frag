@@ -15,9 +15,6 @@ float sdSphere(vec3 p, vec3 t, float r)
   return length(p - t) - r;
 }
 
-// See if we can keep camera +z and objects -z otherwise if camera has -z then things behave as if +x is left (since camera-right now points along world-left)
-// I think we just got lucky with ro = -5 and sphere = 5 because there's no camera rotation.
-// Test by adding actual camera movement to 3d fractal!
 float map(vec3 p)
 {
   float sphere = sdSphere(p, vec3(3.0, 0.0, -1.0), 1.0);

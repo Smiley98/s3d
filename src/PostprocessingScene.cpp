@@ -20,23 +20,21 @@ void PostprocessingScene::OnUpdate(float dt)
 	gView = UpdateFpsCameraDefault(gCamera, dt);
 }
 
+// TODO -- recreate hybrid rendered planet scene!!!
 void PostprocessingScene::OnDraw()
 {
-	// TODO -- recreate hybrid rendered planet scene!!!
-	static bool f2d = true;
-	if (IsKeyPressed(KEY_SPACE))
-		f2d = !f2d;
-
 	float time = TotalTime();
 	Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
 	Vector2 mouse = GetMousePosition() / resolution;
 	mouse.y = 1.0f - mouse.y;
 	mouse = mouse * 2.0f - 1.0f;
 
-	// TODO -- Make 3d fractal use fps camera, or implement arcball!!
-	//BindShader(f2d ? &gShaderFractal2D : &gShaderFractal3D);
+	Shader* shaders[]{ &gShaderRaymarchBase, &gShaderFractal2D, &gShaderFractal3D };
+	static int shader = 0;
+	if (IsKeyPressed(KEY_TAB))
+		++shader %= 3;
 
-	BindShader(&gShaderRaymarchBase);
+	BindShader(shaders[shader]);
 	SendMat3("u_camRot", &gCamera.orientation);
 	SendVec3("u_camPos", gCamera.position);
 	SendFloat("u_fov", tanf(90.0f * 0.5f * DEG2RAD));
