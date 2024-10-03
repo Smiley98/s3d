@@ -38,11 +38,6 @@ void Init()
 	CreateImages();
 
 	Scene::Create(Scene::SOLAR_SYSTEM);
-
-	// Code that should run before loop goes here (to minimize delay after resource loading)
-	// (Should probably modify mouse within scene instead of app, but this is convenient)
-	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
-	SetMouseState(MOUSE_STATE_DISABLED);
 }
 
 void Loop()

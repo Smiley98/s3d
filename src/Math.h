@@ -2313,6 +2313,21 @@ RMAPI Matrix Scale(Vector3 v)
     return Scale(v.x, v.y, v.z);
 }
 
+RMAPI void CopyRotation(Matrix src, Matrix* dst)
+{
+    dst->m0 = src.m0;
+    dst->m1 = src.m1;
+    dst->m2 = src.m2;
+
+    dst->m4 = src.m4;
+    dst->m5 = src.m5;
+    dst->m6 = src.m6;
+
+    dst->m8 = src.m8;
+    dst->m9 = src.m9;
+    dst->m10 = src.m10;
+}
+
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Global operator overloads
 //----------------------------------------------------------------------------------

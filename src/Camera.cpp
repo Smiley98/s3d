@@ -40,5 +40,6 @@ Matrix UpdateFpsCameraDefault(FpsTransform& camera, float dt)
 		cameraDelta.up = cameraLinearSpeed;
 	}
 
-	return UpdateFpsCamera(camera, cameraDelta);
+	UpdateFpsCamera(camera, cameraDelta);
+	return ToView(camera);
 }
