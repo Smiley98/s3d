@@ -128,10 +128,23 @@ void SolarSystemScene::OnDraw()
 	for (Planet& planet : planets)
 	{
 		Matrix mvp = planet.world * gView * gProj;
-		Mesh sphere;
-		GenSphere(sphere);
-		DrawMeshFlat(sphere, mvp, planet.color);
-		DestroyMesh(sphere);
+		Matrix normal = MatrixIdentity();//NormalMatrix(planet.world);
+
+		Mesh mesh;
+		//GenSphere(mesh);
+		GenCube(mesh);
+
+		BindShader(&gShaderPlanetsRaster);
+		SendMat4("u_mvp", &mvp);
+		SendMat4("u_world", &planet.world);
+		SendMat3("u_normal", &normal);
+		SendVec3("u_camPos", gCamera.position);
+		SendVec3("u_sunPos", planets[0].position);
+		SendVec3("u_planetColor", planet.color);
+
+		DrawMesh(mesh);
+		DestroyMesh(mesh);
+		//DrawMeshFlat(mesh, mvp, planet.color);
 	}
 }
 

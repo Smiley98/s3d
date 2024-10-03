@@ -21,6 +21,8 @@ Shader gShaderTcoords;
 Shader gShaderTexture;
 Shader gShaderPositionsWorld;
 Shader gShaderPositionsScreen;
+Shader gShaderPlanetsRaster;
+Shader gShaderPlanetsRaymarch;
 
 GLuint CreateShader(GLint type, const char* path);
 void CreateProgram(Shader* shader, GLuint vs, GLuint fs);
@@ -31,6 +33,7 @@ void CreateShaders()
     GLuint vsFSQ = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
     GLuint vsLine = CreateShader(GL_VERTEX_SHADER, "assets/shaders/line.vert");
     GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
+    GLuint vsPlanetsRaster = CreateShader(GL_VERTEX_SHADER, "assets/shaders/planets_raster.vert");
 
     GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
     GLuint fsFractal2D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_2D.frag");
@@ -41,6 +44,7 @@ void CreateShaders()
     GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
     GLuint fsPositionsWorld = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_world.frag");
     GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
+    GLuint fsPlanetsRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raster.frag");
     
     CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
     CreateProgram(&gShaderRaymarchBase, vsFSQ, fsRaymarchBase);
@@ -53,6 +57,7 @@ void CreateShaders()
     CreateProgram(&gShaderTexture, vsMVP, fsTexture);
     CreateProgram(&gShaderPositionsWorld, vsMVP, fsPositionsWorld);
     CreateProgram(&gShaderPositionsScreen, vsMVP, fsPositionsScreen);
+    CreateProgram(&gShaderPlanetsRaster, vsPlanetsRaster, fsPlanetsRaster);
 }
 
 void DestroyShaders()

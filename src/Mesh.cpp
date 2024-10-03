@@ -421,7 +421,9 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 		assert(false, "Invalid par_shapes Mesh Type");
 	}
 
-	par_shapes_unweld(mesh, false);
+	// Need "indices" flag set to true otherwise normals break
+	// Time to learn how to do indexed rendering xD
+	par_shapes_unweld(mesh, true);
 	par_shapes_compute_normals(mesh);
 
 	// Only meshes generated via parametric equations have tcoords

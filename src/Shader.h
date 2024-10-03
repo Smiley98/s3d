@@ -20,6 +20,8 @@ extern Shader gShaderTcoords;
 extern Shader gShaderTexture;
 extern Shader gShaderPositionsWorld;
 extern Shader gShaderPositionsScreen;
+extern Shader gShaderPlanetsRaster;
+extern Shader gShaderPlanetsRaymarch;
 
 void CreateShaders();
 void DestroyShaders();
