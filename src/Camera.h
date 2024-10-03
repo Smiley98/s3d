@@ -21,7 +21,7 @@ struct FpsDelta
 	float forward = 0.0f;
 };
 
-// Get camera rotation matrix from pitch and yaw (rotation about Y, then rotation about X)
+// Get camera rotation matrix from pitch and yaw (rotate about y, then rotate about x)
 inline Matrix FpsRotation(FpsTransform camera)
 {
 	return ToMatrix(FromEuler(camera.pitch, camera.yaw, 0.0f));
@@ -39,8 +39,8 @@ inline void UpdateFpsCamera(FpsTransform& camera, FpsDelta delta)
 	camera.position += Forward(rotation) * delta.forward;
 }
 
-// So I don't need to copy-paste key-input everywhere xD
-Matrix UpdateFpsCameraDefault(FpsTransform& camera, float dt);
+// FPS camera update based on defualt logic
+void UpdateFpsCameraDefault(FpsTransform& camera, float dt);
 
 // From camera matrix to view matrix
 inline Matrix ToView(FpsTransform camera)
@@ -63,6 +63,3 @@ inline FpsTransform FromView(Matrix view)
 	transform.position = Translation(camera);
 	return transform;
 }
-
-// I still feel like I could make update by continuously appending to a camera matrix.
-// Then just invert when view is needed!

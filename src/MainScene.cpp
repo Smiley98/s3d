@@ -35,9 +35,10 @@ void MainScene::OnUpdate(float dt)
 	Matrix translation = MatrixIdentity();//Translate(cos(tt), 0.0f, 0.0f);
 	Matrix rotation = RotateY(tt * 100.0f * DEG2RAD);
 	Matrix scale = MatrixIdentity();//Scale(cos(tt) * 0.4f + 0.6f, sin(tt) * 0.4f + 0.6f, 1.0f);
+	UpdateFpsCameraDefault(gCamera, dt);
 
 	Matrix model = scale * rotation * translation;
-	Matrix view = UpdateFpsCameraDefault(gCamera, dt);
+	Matrix view = ToView(gCamera);
 	//Matrix view = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
 	Matrix proj = Perspective(75.0f * DEG2RAD, 1.0f, 0.001f, 100.0f);
 	Matrix mvp = model * view * proj;

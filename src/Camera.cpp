@@ -4,7 +4,7 @@
 
 FpsTransform gCamera;
 
-Matrix UpdateFpsCameraDefault(FpsTransform& camera, float dt)
+void UpdateFpsCameraDefault(FpsTransform& camera, float dt)
 {
 	if (IsKeyPressed(KEY_C))
 		SetMouseState(GetMouseState() != MOUSE_STATE_NORMAL ? MOUSE_STATE_NORMAL : MOUSE_STATE_DISABLED);
@@ -41,5 +41,4 @@ Matrix UpdateFpsCameraDefault(FpsTransform& camera, float dt)
 	}
 
 	UpdateFpsCamera(camera, cameraDelta);
-	return ToView(camera);
 }

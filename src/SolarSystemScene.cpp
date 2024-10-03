@@ -29,6 +29,7 @@ void SolarSystemScene::OnLoad()
 	gCamera.pitch = -42.0f * DEG2RAD;
 	gCamera.yaw = 67.0f * DEG2RAD;
 
+	// Note that fps camera needs yaw then pitch, so whether they're 2 matrices or 2 eulers, they need to persist separately!
 	//gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
 	//float pitch = gCamera.pitch * RAD2DEG;
 	//float yaw = gCamera.yaw * RAD2DEG;
@@ -104,6 +105,7 @@ void SolarSystemScene::OnUnload()
 void SolarSystemScene::OnUpdate(float dt)
 {
 	float tt = TotalTime();
+	UpdateFpsCameraDefault(gCamera, dt);
 	
 	const float rotSelfScale = 0.0004f * 1000.0f;
 	const float rotOrbitYScale = 0.001f * 1000.0f;
@@ -117,7 +119,7 @@ void SolarSystemScene::OnUpdate(float dt)
 		planet.world = s * rotSelf * t * rotOrbit;
 	}
 
-	gView = UpdateFpsCameraDefault(gCamera, dt);
+	gView = ToView(gCamera);
 	gProj = Perspective(PI * 0.5f, SCREEN_ASPECT, 0.1f, 1000.0f);
 }
 

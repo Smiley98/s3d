@@ -17,7 +17,8 @@ void PostprocessingScene::OnUpdate(float dt)
 {
 	// Note that raymarching doesn' use the view matrix!
 	// This is being done mainly to update camera position and orientation.
-	gView = UpdateFpsCameraDefault(gCamera, dt);
+	UpdateFpsCameraDefault(gCamera, dt);
+	gView = ToView(gCamera);
 }
 
 // TODO -- recreate hybrid rendered planet scene!!!

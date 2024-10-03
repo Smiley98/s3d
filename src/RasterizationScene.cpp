@@ -42,8 +42,7 @@ void RasterizationScene::OnUnload()
 void RasterizationScene::OnUpdate(float dt)
 {
 	float tt = TotalTime();
-	gView = UpdateFpsCameraDefault(gCamera, dt);
-	gProj = fProjections[fProjIndex];
+	UpdateFpsCameraDefault(gCamera, dt);
 
 	Matrix translation = Translate(fPosition) *
 		(fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());
@@ -55,6 +54,8 @@ void RasterizationScene::OnUpdate(float dt)
 		fScale ? Scale(cosf(tt), sinf(tt), 1.0f) : MatrixIdentity();
 
 	fWorld = scale * rotation * translation;
+	gView = ToView(gCamera);
+	gProj = fProjections[fProjIndex];
 	fMvp = fWorld * gView * gProj;
 }
 
