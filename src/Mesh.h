@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <par_shapes.h>
+#include <fast_obj.h>
 #include <array>
 #include <vector>
 #include "Math.h"
@@ -83,9 +84,10 @@ struct MeshElements
 	GLuint ebo = GL_NONE;	// Vertex indices
 };
 
-struct EBO
+struct TestMesh
 {
-	par_shapes_mesh* mesh;
+	par_shapes_mesh* par;
+	fastObjMesh* fast;
 	GLuint vao = GL_NONE;
 	GLuint vbo = GL_NONE;
 	GLuint ebo = GL_NONE;
@@ -97,8 +99,8 @@ extern Mesh gMeshHead;
 void CreateMeshes();
 void DestroyMeshes();
 
-void EboTest(EBO* ebo);
-void EboDraw(EBO ebo);
+void EboTest(TestMesh* ebo);
+void EboDraw(TestMesh ebo);
 
 // Deallocate all of mesh's memory on CPU & GPU
 void DestroyMesh(Mesh& mesh);

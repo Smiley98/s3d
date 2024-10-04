@@ -1,4 +1,5 @@
 #define PAR_SHAPES_IMPLEMENTATION
+#define FAST_OBJ_IMPLEMENTATION
 #include "Mesh.h"
 #include "PipelineState.h"
 #include <cstdio>
@@ -50,34 +51,59 @@ void DestroyMeshes()
 	DestroyMesh(gMeshHead);
 }
 
-void EboTest(EBO* ebo)
+void EboTest(TestMesh* mesh)
 {
-	// index count is 6! -- 2 triangles * 3 floats per triangle = 6
-	ebo->mesh = par_shapes_create_plane(1, 1);
-	glGenVertexArrays(1, &ebo->vao);
-	glBindVertexArray(ebo->vao);
+	// index count is 6! -- 2 triangles * 3 floats per triangle = 6'
+	par_shapes_mesh* par = par_shapes_create_plane(1, 1);
+	fastObjMesh* fast = fast_obj_read("assets/meshes/head.obj");
 
-	glGenBuffers(1, &ebo->vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, ebo->vbo);
-	glBufferData(GL_ARRAY_BUFFER, ebo->mesh->npoints * sizeof(Vector3), ebo->mesh->points, GL_STATIC_DRAW);
+	GLuint vao, vbo, ebo;
+
+	// par_shapes test
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, par->npoints * sizeof(Vector3), par->points, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
 	glEnableVertexAttribArray(0);
-
-	glGenBuffers(1, &ebo->ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo->ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, ebo->mesh->ntriangles * 3 * sizeof(PAR_SHAPES_T), ebo->mesh->triangles, GL_STATIC_DRAW);
+	
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, par->ntriangles * 3 * sizeof(PAR_SHAPES_T), par->triangles, GL_STATIC_DRAW);
+	
+	// fast_obj test
+	//glGenVertexArrays(1, &vao);
+	//glBindVertexArray(vao);
+	//
+	//glGenBuffers(1, &vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//glBufferData(GL_ARRAY_BUFFER, par->npoints * sizeof(Vector3), par->points, GL_STATIC_DRAW);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	//glEnableVertexAttribArray(0);
+	//
+	//glGenBuffers(1, &ebo);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, par->ntriangles * 3 * sizeof(PAR_SHAPES_T), par->triangles, GL_STATIC_DRAW);
 
 	// Note that ebo is associated with vao,
 	// so binding the vao will bind the ebo and you simply have to call draw elements instead of draw arrays!
 	glBindVertexArray(GL_NONE);
 	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
+
+	mesh->par = par;
+	mesh->fast = fast;
+	mesh->vao = vao;
+	mesh->vbo = vbo;
+	mesh->ebo = ebo;
 }
 
-void EboDraw(EBO ebo)
+void EboDraw(TestMesh ebo)
 {
 	glBindVertexArray(ebo.vao);
-	glDrawElements(GL_TRIANGLES, ebo.mesh->ntriangles * 3, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, ebo.par->ntriangles * 3, GL_UNSIGNED_SHORT, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 }
 

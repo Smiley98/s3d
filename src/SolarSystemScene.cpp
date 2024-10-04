@@ -17,7 +17,7 @@ struct Planet
 	Matrix world;
 };
 
-EBO fEbo;
+TestMesh fEbo;
 
 std::array<Planet, 9> planets;
 
