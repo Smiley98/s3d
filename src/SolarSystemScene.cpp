@@ -17,6 +17,8 @@ struct Planet
 	Matrix world;
 };
 
+EBO fEbo;
+
 std::array<Planet, 9> planets;
 
 void SolarSystemScene::OnLoad()
@@ -96,6 +98,8 @@ void SolarSystemScene::OnLoad()
 	planets[8].orbitSpeed = 164.81f;
 	planets[8].position = V3_RIGHT * 80.0f;
 	planets[8].color = { 0.21f, 0.028f, 0.79f };
+
+	EboTest(&fEbo);
 }
 
 void SolarSystemScene::OnUnload()
@@ -125,27 +129,40 @@ void SolarSystemScene::OnUpdate(float dt)
 
 void SolarSystemScene::OnDraw()
 {
-	for (Planet& planet : planets)
-	{
-		Matrix mvp = planet.world * gView * gProj;
-		Matrix normal = MatrixIdentity();//NormalMatrix(planet.world);
+	//BindShader(&gShaderPlanetsRaster);
+	//for (Planet& planet : planets)
+	//{
+	//	Matrix mvp = planet.world * gView * gProj;
+	//	Matrix normal = NormalMatrix(planet.world);
+	//
+	//	Mesh mesh;
+	//	GenSphere(mesh);
+	//	//GenCube(mesh);
+	//
+	//	SendMat4("u_mvp", &mvp);
+	//	SendMat4("u_world", &planet.world);
+	//	SendMat3("u_normal", &normal);
+	//	SendVec3("u_camPos", gCamera.position);
+	//	SendVec3("u_sunPos", planets[0].position);
+	//	SendVec3("u_planetColor", planet.color);
+	//
+	//	DrawMesh(mesh);
+	//	DestroyMesh(mesh);
+	//
+	//	//DrawMeshFlat(mesh, mvp, planet.color);
+	//}
+	//UnbindShader();
 
-		Mesh mesh;
-		//GenSphere(mesh);
-		GenCube(mesh);
+	BindShader(&gShaderPassThrough);
+	EboDraw(fEbo);
+	UnbindShader();
 
-		BindShader(&gShaderPlanetsRaster);
-		SendMat4("u_mvp", &mvp);
-		SendMat4("u_world", &planet.world);
-		SendMat3("u_normal", &normal);
-		SendVec3("u_camPos", gCamera.position);
-		SendVec3("u_sunPos", planets[0].position);
-		SendVec3("u_planetColor", planet.color);
-
-		DrawMesh(mesh);
-		DestroyMesh(mesh);
-		//DrawMeshFlat(mesh, mvp, planet.color);
-	}
+	// Works:
+	//BindShader(&gShaderPassThrough);
+	//Mesh mesh;
+	//GenPlaneXY(mesh);
+	//DrawMesh(mesh);
+	//UnbindShader();
 }
 
 void SolarSystemScene::OnDrawImGui()

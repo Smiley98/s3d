@@ -46,11 +46,22 @@ struct Mesh
 // (This might be a lot of work and is just an optimization, so chill on this).
 // (Would also give me an excuse to store CPU values in stl vector for visibility).
 
+struct EBO
+{
+	par_shapes_mesh* mesh;
+	GLuint vao = GL_NONE;
+	GLuint vbo = GL_NONE;
+	GLuint ebo = GL_NONE;
+};
+
 // Imported meshes
 extern Mesh gMeshHead;
 
 void CreateMeshes();
 void DestroyMeshes();
+
+void EboTest(EBO* ebo);
+void EboDraw(EBO ebo);
 
 // Deallocate all of mesh's memory on CPU & GPU
 void DestroyMesh(Mesh& mesh);

@@ -50,6 +50,37 @@ void DestroyMeshes()
 	DestroyMesh(gMeshHead);
 }
 
+void EboTest(EBO* ebo)
+{
+	// index count is 6! -- 2 triangles * 3 floats per triangle = 6
+	ebo->mesh = par_shapes_create_plane(1, 1);
+	glGenVertexArrays(1, &ebo->vao);
+	glBindVertexArray(ebo->vao);
+
+	glGenBuffers(1, &ebo->vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, ebo->vbo);
+	glBufferData(GL_ARRAY_BUFFER, ebo->mesh->npoints * sizeof(Vector3), ebo->mesh->points, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(0);
+
+	glGenBuffers(1, &ebo->ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo->ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, ebo->mesh->ntriangles * 3 * sizeof(PAR_SHAPES_T), ebo->mesh->triangles, GL_STATIC_DRAW);
+
+	glBindVertexArray(GL_NONE);
+	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
+}
+
+void EboDraw(EBO ebo)
+{
+	glBindVertexArray(ebo.vao);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo.ebo);
+	glDrawElements(GL_TRIANGLES, ebo.mesh->ntriangles * 3, GL_UNSIGNED_SHORT, 0);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
+	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+}
+
 void DestroyMesh(Mesh& mesh)
 {
 	DestroyMeshGPU(mesh);

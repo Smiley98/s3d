@@ -9,6 +9,7 @@ struct Shader
 	std::unordered_map<const char*, GLint> locs;
 };
 
+extern Shader gShaderPassThrough;
 extern Shader gShaderFSQ;
 extern Shader gShaderRaymarchBase;
 extern Shader gShaderFractal2D;

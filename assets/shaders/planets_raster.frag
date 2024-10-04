@@ -23,11 +23,11 @@ void main()
     
     vec3 lighting = vec3(0.0);
     lighting += ambient * u_planetColor;
-    //lighting += diffuse * u_planetColor;
+    lighting += diffuse * u_planetColor;
     //lighting += specular * u_planetColor;
     //lighting *= attenuation;
 
-    FragColor = vec4(normal, 1.0);
+    //FragColor = vec4(normal, 1.0);
 
-    //FragColor = vec4(lighting, 1.0);
+    FragColor = vec4(lighting, 1.0);
 }
