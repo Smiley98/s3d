@@ -1,6 +1,8 @@
 #pragma once
 #include <glad/glad.h>
 #include <par_shapes.h>
+#include <array>
+#include <vector>
 #include "Math.h"
 // Mesh notes:
 // 
@@ -40,11 +42,46 @@ struct Mesh
 	GLuint nbo = GL_NONE;	// Vertex normals
 	GLuint tbo = GL_NONE;	// Vertex texture coordinates
 	GLuint cbo = GL_NONE;	// Vertex colors
-	GLuint ibo = GL_NONE;	// Vertex indices
+	GLuint ebo = GL_NONE;	// Vertex indices
 };
 // TODO -- use par_shapes_weld to optimize meshes, then render using indices!
 // (This might be a lot of work and is just an optimization, so chill on this).
 // (Would also give me an excuse to store CPU values in stl vector for visibility).
+
+// Unoptimized mesh - plane has 6 vertices
+struct MeshArrays
+{
+	std::vector<Vector3> positions;
+	std::vector<Vector3> normals;
+	std::vector<Vector2> tcoords;
+	std::vector<Vector3> colours;
+
+	GLuint vao = GL_NONE;	// Vertex array object
+	GLuint pbo = GL_NONE;	// Vertex positions
+	GLuint nbo = GL_NONE;	// Vertex normals
+	GLuint tbo = GL_NONE;	// Vertex texture coordinates
+	GLuint cbo = GL_NONE;	// Vertex colors
+};
+
+// Optimized mesh - plane has 4 vertices described with 6 indices
+struct MeshElements
+{
+	std::vector<Vector3> positions;
+	std::vector<Vector3> normals;
+	std::vector<Vector2> tcoords;
+	std::vector<Vector3> colours;
+	std::vector<uint32_t> indices;
+
+	size_t pointCount = 0;
+	size_t triCount = 0;
+
+	GLuint vao = GL_NONE;	// Vertex array object
+	GLuint pbo = GL_NONE;	// Vertex positions
+	GLuint nbo = GL_NONE;	// Vertex normals
+	GLuint tbo = GL_NONE;	// Vertex texture coordinates
+	GLuint cbo = GL_NONE;	// Vertex colors
+	GLuint ebo = GL_NONE;	// Vertex indices
+};
 
 struct EBO
 {
@@ -77,6 +114,9 @@ void CreateMeshPar(Mesh& mesh, par_shapes_mesh* par_mesh);
 
 // Copy mesh from source to destination
 void CopyMesh(Mesh src, Mesh& dst);
+
+// Play with optimized vs non-optimized meshes, see what tinyobj provides
+// CreateMesh
 
 void GenTriangle(Mesh& mesh, Vector3 v0, Vector3 v1, Vector3 v2);
 void GenEquilateral(Mesh& mesh);

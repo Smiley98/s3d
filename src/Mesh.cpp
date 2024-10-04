@@ -67,6 +67,8 @@ void EboTest(EBO* ebo)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo->ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, ebo->mesh->ntriangles * 3 * sizeof(PAR_SHAPES_T), ebo->mesh->triangles, GL_STATIC_DRAW);
 
+	// Note that ebo is associated with vao,
+	// so binding the vao will bind the ebo and you simply have to call draw elements instead of draw arrays!
 	glBindVertexArray(GL_NONE);
 	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
@@ -75,9 +77,7 @@ void EboTest(EBO* ebo)
 void EboDraw(EBO ebo)
 {
 	glBindVertexArray(ebo.vao);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo.ebo);
 	glDrawElements(GL_TRIANGLES, ebo.mesh->ntriangles * 3, GL_UNSIGNED_SHORT, 0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
 	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 }
 
@@ -291,15 +291,16 @@ void CreateMeshGPU(Mesh& mesh)
 		glEnableVertexAttribArray(3);
 	}
 
-	// Double-check if ebo is associated with vao. Unbind if not!
 	if (mesh.indices != nullptr)
 	{
-		glGenBuffers(1, &mesh.ibo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
+		glGenBuffers(1, &mesh.ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, vc * sizeof(uint16_t), mesh.indices, GL_STATIC_DRAW);
 	}
 
 	glBindVertexArray(GL_NONE);
+	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
 }
 
 void DestroyMeshCPU(Mesh& mesh)
@@ -342,8 +343,8 @@ void DestroyMeshGPU(Mesh& mesh)
 	if (mesh.cbo != GL_NONE)
 		glDeleteBuffers(1, &mesh.cbo);
 
-	if (mesh.ibo != GL_NONE)
-		glDeleteBuffers(1, &mesh.ibo);
+	if (mesh.ebo != GL_NONE)
+		glDeleteBuffers(1, &mesh.ebo);
 	
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteVertexArrays(1, &mesh.vao);
@@ -353,7 +354,7 @@ void DestroyMeshGPU(Mesh& mesh)
 	mesh.nbo = GL_NONE;
 	mesh.tbo = GL_NONE;
 	mesh.cbo = GL_NONE;
-	mesh.ibo = GL_NONE;
+	mesh.ebo = GL_NONE;
 }
 
 par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
