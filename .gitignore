@@ -17,6 +17,7 @@
 mono_crash.*
 
 .exe
+s3d.exe
 
 # Build results
 [Dd]ebug/
