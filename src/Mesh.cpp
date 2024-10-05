@@ -55,25 +55,11 @@ void EboTest(TestMesh* mesh)
 {
 	// index count is 6! -- 2 triangles * 3 floats per triangle = 6'
 	par_shapes_mesh* par = par_shapes_create_plane(1, 1);
-	fastObjMesh* fast = fast_obj_read("assets/meshes/head.obj");
-
-	GLuint vao, vbo, ebo;
+	fastObjMesh* fast = fast_obj_read("assets/meshes/plane.obj");
+	// 4 positions, 1 normal (so 5 positions, 2 normals for fastobj)
+	GLuint vao, vbo, nbo, tbo, ebo;
 
 	// par_shapes test
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, par->npoints * sizeof(Vector3), par->points, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	glEnableVertexAttribArray(0);
-	
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, par->ntriangles * 3 * sizeof(PAR_SHAPES_T), par->triangles, GL_STATIC_DRAW);
-	
-	// fast_obj test
 	//glGenVertexArrays(1, &vao);
 	//glBindVertexArray(vao);
 	//
@@ -86,6 +72,34 @@ void EboTest(TestMesh* mesh)
 	//glGenBuffers(1, &ebo);
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, par->ntriangles * 3 * sizeof(PAR_SHAPES_T), par->triangles, GL_STATIC_DRAW);
+	
+	// fast_obj test
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, fast->position_count * sizeof(Vector3), fast->positions, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(0);
+
+	glGenBuffers(1, &nbo);
+	glBindBuffer(GL_ARRAY_BUFFER, nbo);
+	glBufferData(GL_ARRAY_BUFFER, fast->normal_count * sizeof(Vector3), fast->normals, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(1);
+
+	glGenBuffers(1, &tbo);
+	glBindBuffer(GL_ARRAY_BUFFER, tbo);
+	glBufferData(GL_ARRAY_BUFFER, fast->texcoord_count * sizeof(Vector2), fast->texcoords, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
+	glEnableVertexAttribArray(2);
+
+	// I think I need to use the index buffer to copy memory.
+	// We only get 1 index buffer, so if we have 4 positions but 1 normal, then that normal needs to be copied 4 times!
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, fast->index_count * sizeof(fastObjIndex), fast->indices, GL_STATIC_DRAW);
 
 	// Note that ebo is associated with vao,
 	// so binding the vao will bind the ebo and you simply have to call draw elements instead of draw arrays!
@@ -103,7 +117,8 @@ void EboTest(TestMesh* mesh)
 void EboDraw(TestMesh ebo)
 {
 	glBindVertexArray(ebo.vao);
-	glDrawElements(GL_TRIANGLES, ebo.par->ntriangles * 3, GL_UNSIGNED_SHORT, 0);
+	//glDrawElements(GL_TRIANGLES, ebo.par->ntriangles * 3, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, ebo.fast->index_count, GL_UNSIGNED_INT, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 }
 

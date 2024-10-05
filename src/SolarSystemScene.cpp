@@ -18,6 +18,7 @@ struct Planet
 };
 
 TestMesh fEbo;
+static Mesh fMesh;
 
 std::array<Planet, 9> planets;
 
@@ -100,11 +101,13 @@ void SolarSystemScene::OnLoad()
 	planets[8].color = { 0.21f, 0.028f, 0.79f };
 
 	EboTest(&fEbo);
+	CreateMeshObj(fMesh, "assets/meshes/plane.obj");
 }
 
 void SolarSystemScene::OnUnload()
 {
 }
+
 
 void SolarSystemScene::OnUpdate(float dt)
 {
@@ -153,7 +156,16 @@ void SolarSystemScene::OnDraw()
 	//}
 	//UnbindShader();
 
-	BindShader(&gShaderPassThrough);
+
+	BindShader(&gShaderColor);
+	Matrix world = MatrixIdentity();
+	Matrix mvp = MatrixIdentity();
+	Matrix normal = MatrixIdentity();
+	SendMat3("u_normal", &normal);
+	SendMat4("u_world", &world);
+	SendMat4("u_mvp", &mvp);
+	SendVec3("u_color", V3_RIGHT);
+	//DrawMesh(fMesh);
 	EboDraw(fEbo);
 	UnbindShader();
 
