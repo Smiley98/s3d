@@ -7,7 +7,7 @@
 
 enum PrimitiveShape2
 {
-	//TRIANGLE,
+	TRIANGLE2,
 	SQUARE2,
 	CIRCLE2,
 	SEMICIRCLE2,
@@ -23,18 +23,13 @@ enum PrimitiveShape2
 	DODECAHEDRON2
 };
 
-// Loading into a centralized mesh may be a bad idea.
-// There's no *actual* reason to keep CPU-side mesh data.
-// I don't have any dynamic vertex uploading system, so why even bother?
-// Perhaps just have options to load from par, and load from obj
-
 struct Mesh2
 {
+	int count = 0;
 	std::vector<Vector3> positions;
 	std::vector<Vector3> normals;
 	std::vector<Vector2> tcoords;
 	std::vector<uint16_t> indices;
-	int count = 0;
 
 	GLuint vao = GL_NONE;	// Vertex array object
 	GLuint pbo = GL_NONE;	// Vertex positions

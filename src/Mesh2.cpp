@@ -4,10 +4,9 @@
 #include <cstdio>
 #include <cassert>
 
-Mesh2 UploadPar(par_shapes_mesh* par);
 void Upload(Mesh2& mesh);
 
-// Not worth trying to figure out how to render objs with indexing xD
+// TODO long-term -- Implement a mesh optimizer (build an index buffer for objs).
 Mesh2 CreateMesh(const char* path)
 {
 	Mesh2 mesh;
@@ -61,31 +60,31 @@ Mesh2 CreateMesh(PrimitiveShape2 shape)
 	Vector3 normal = V3_FORWARD;
 	switch (shape)
 	{
-	//case TRIANGLE:
-	//	par = par_shapes_create_empty();
-	//
-	//	par->points = PAR_MALLOC(float, 9);
-	//	par->npoints = 3;
-	//
-	//	par->triangles = PAR_MALLOC(PAR_SHAPES_T, 3);
-	//	par->ntriangles = 1;
-	//
-	//	par->points[0] = 0.0f;
-	//	par->points[1] = 1.0f;
-	//	par->points[2] = 0.0f;
-	//
-	//	par->points[3] = -1.0f * sinf(PI / 3.0f);
-	//	par->points[4] = -1.0f * cosf(PI / 3.0f);
-	//	par->points[5] = 0.0f;
-	//
-	//	par->points[6] = 1.0f * sinf(PI / 3.0f);
-	//	par->points[7] = -1.0f * cosf(PI / 3.0f);
-	//	par->points[8] = 0.0f;
-	//
-	//	par->triangles[0] = 0;
-	//	par->triangles[1] = 1;
-	//	par->triangles[2] = 2;
-	//	break;
+	case TRIANGLE2:
+		par = par_shapes_create_empty();
+	
+		par->points = PAR_MALLOC(float, 9);
+		par->npoints = 3;
+	
+		par->triangles = PAR_MALLOC(PAR_SHAPES_T, 3);
+		par->ntriangles = 1;
+	
+		par->points[0] = 0.0f;
+		par->points[1] = 1.0f;
+		par->points[2] = 0.0f;
+	
+		par->points[3] = -1.0f * sinf(PI / 3.0f);
+		par->points[4] = -1.0f * cosf(PI / 3.0f);
+		par->points[5] = 0.0f;
+	
+		par->points[6] = 1.0f * sinf(PI / 3.0f);
+		par->points[7] = -1.0f * cosf(PI / 3.0f);
+		par->points[8] = 0.0f;
+	
+		par->triangles[0] = 0;
+		par->triangles[1] = 1;
+		par->triangles[2] = 2;
+		break;
 
 	case SQUARE2:
 	case PLANE_XY2:
@@ -148,51 +147,24 @@ Mesh2 CreateMesh(PrimitiveShape2 shape)
 	default:
 		assert(false, "Invalid par_shapes Mesh Type");
 	}
-
-	Mesh2 mesh = UploadPar(par);
-	par_shapes_free_mesh(par);
-	return mesh;
-}
-
-Mesh2 UploadPar(par_shapes_mesh* par)
-{
-	int indexCount = 3 * par->ntriangles;
-	GLuint vao, pbo, nbo, tbo, ebo;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glGenBuffers(1, &pbo);
-	glGenBuffers(1, &nbo);
-	glGenBuffers(1, &tbo);
-	glGenBuffers(1, &ebo);
-
-	glBindBuffer(GL_ARRAY_BUFFER, pbo);
-	glBufferData(GL_ARRAY_BUFFER, indexCount * sizeof(Vector3), par->points, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, nbo);
-	glBufferData(GL_ARRAY_BUFFER, indexCount * sizeof(Vector3), par->normals, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	glEnableVertexAttribArray(1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, tbo);
-	glBufferData(GL_ARRAY_BUFFER, indexCount * sizeof(Vector2), par->tcoords, GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
-	glEnableVertexAttribArray(2);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(PAR_SHAPES_T), par->triangles, GL_STATIC_DRAW);
-
-	glBindVertexArray(GL_NONE);
-	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
-
+	par_shapes_compute_normals(par);
+	
 	Mesh2 mesh;
-	mesh.vao = vao;
-	mesh.pbo = pbo;
-	mesh.nbo = nbo;
-	mesh.tbo = tbo;
-	mesh.ebo = ebo;
-	mesh.count = indexCount;
+	mesh.count = 3 * par->ntriangles;
+	mesh.indices.resize(mesh.count);
+	mesh.positions.resize(par->npoints);
+	mesh.normals.resize(par->npoints);
+	memcpy(mesh.indices.data(), par->triangles, mesh.count * sizeof(uint16_t));
+	memcpy(mesh.positions.data(), par->points, par->npoints * sizeof(Vector3));
+	memcpy(mesh.normals.data(), par->normals, par->npoints * sizeof(Vector3));
+	if (par->tcoords != nullptr)
+	{
+		mesh.tcoords.resize(par->npoints);
+		memcpy(mesh.tcoords.data(), par->tcoords, par->npoints * sizeof(Vector2));
+	}
+
+	par_shapes_free_mesh(par);
+	Upload(mesh);
 	return mesh;
 }
 
@@ -205,13 +177,13 @@ void Upload(Mesh2& mesh)
 
 	glGenBuffers(1, &pbo);
 	glBindBuffer(GL_ARRAY_BUFFER, pbo);
-	glBufferData(GL_ARRAY_BUFFER, mesh.count * sizeof(Vector3), mesh.positions.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mesh.positions.size() * sizeof(Vector3), mesh.positions.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
 	glEnableVertexAttribArray(0);
 
 	glGenBuffers(1, &nbo);
 	glBindBuffer(GL_ARRAY_BUFFER, nbo);
-	glBufferData(GL_ARRAY_BUFFER, mesh.count * sizeof(Vector3), mesh.normals.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mesh.normals.size() * sizeof(Vector3), mesh.normals.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
 	glEnableVertexAttribArray(1);
 
@@ -219,7 +191,7 @@ void Upload(Mesh2& mesh)
 	{
 		glGenBuffers(1, &tbo);
 		glBindBuffer(GL_ARRAY_BUFFER, tbo);
-		glBufferData(GL_ARRAY_BUFFER, mesh.count * sizeof(Vector2), mesh.tcoords.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, mesh.tcoords.size() * sizeof(Vector2), mesh.tcoords.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
 		glEnableVertexAttribArray(2);
 	}
@@ -228,7 +200,7 @@ void Upload(Mesh2& mesh)
 	{
 		glGenBuffers(1, &ebo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.count * sizeof(uint16_t), mesh.indices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(uint16_t), mesh.indices.data(), GL_STATIC_DRAW);
 	}
 
 	glBindVertexArray(GL_NONE);

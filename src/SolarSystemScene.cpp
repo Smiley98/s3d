@@ -99,8 +99,8 @@ void SolarSystemScene::OnLoad()
 	planets[8].position = V3_RIGHT * 80.0f;
 	planets[8].color = { 0.21f, 0.028f, 0.79f };
 
-	//fMesh = CreateMesh(CYLINDER2);
-	fMesh = CreateMesh("assets/meshes/head.obj");
+	fMesh = CreateMesh(TRIANGLE2);
+	//fMesh = CreateMesh("assets/meshes/head.obj");
 	gCamera.position = { 0.0f, 0.0f, 5.0f };
 }
 
