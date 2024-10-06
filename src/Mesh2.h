@@ -5,6 +5,24 @@
 #include <vector>
 #include "Math.h"
 
+enum PrimitiveShape2
+{
+	//TRIANGLE,
+	SQUARE2,
+	CIRCLE2,
+	SEMICIRCLE2,
+
+	CUBE2,
+	SPHERE2,
+	HEMISPHERE2,
+	CYLINDER2,
+
+	PLANE_XZ2,
+	PLANE_YZ2,
+	PLANE_XY2,
+	DODECAHEDRON2
+};
+
 // Loading into a centralized mesh may be a bad idea.
 // There's no *actual* reason to keep CPU-side mesh data.
 // I don't have any dynamic vertex uploading system, so why even bother?
@@ -29,3 +47,5 @@ struct Mesh2
 
 Mesh2 LoadFromObj(const fastObjMesh* const obj);
 Mesh2 LoadFromPar(const par_shapes_mesh* const par);
+
+Mesh2 LoadPrimitive2(PrimitiveShape2 shape);

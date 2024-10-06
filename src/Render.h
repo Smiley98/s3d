@@ -61,6 +61,11 @@ void DrawMesh(Mesh mesh);
 // Renders mesh as triangles using indexed rendering
 void DrawMesh2(Mesh2 mesh);
 
+void DrawMesh2Flat(Mesh2 mesh, Matrix world, Vector3 color = V3_ONE);
+void DrawMesh2Normals(Mesh2 mesh, Matrix world);
+void DrawMesh2Tcoords(Mesh2 mesh, Matrix world);
+
+
 // Renders a full-screen quad (no depth test or depth write)
 void DrawFsq();
 void DrawFsqTexture(Texture texture);

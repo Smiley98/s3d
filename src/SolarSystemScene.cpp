@@ -27,9 +27,9 @@ void SolarSystemScene::OnLoad()
 	SetMouseState(MOUSE_STATE_NORMAL);
 
 	// Fps same as look-at -- success!!!
-	gCamera.position = { 48.0f, 48.0f, 20.0f };
-	gCamera.pitch = -42.0f * DEG2RAD;
-	gCamera.yaw = 67.0f * DEG2RAD;
+	//gCamera.position = { 48.0f, 48.0f, 20.0f };
+	//gCamera.pitch = -42.0f * DEG2RAD;
+	//gCamera.yaw = 67.0f * DEG2RAD;
 
 	// Note that fps camera needs yaw then pitch, so whether they're 2 matrices or 2 eulers, they need to persist separately!
 	//gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
@@ -99,16 +99,16 @@ void SolarSystemScene::OnLoad()
 	planets[8].position = V3_RIGHT * 80.0f;
 	planets[8].color = { 0.21f, 0.028f, 0.79f };
 
-
-	par_shapes_mesh* par = par_shapes_create_plane(1, 1);
-	fMesh = LoadFromPar(par);
-	par_shapes_free_mesh(par);
+	//par_shapes_mesh* par = par_shapes_create_plane(1, 1);
+	//fMesh = LoadFromPar(par);
+	//par_shapes_free_mesh(par);
+	fMesh = LoadPrimitive2(CYLINDER2);
+	gCamera.position = { 0.0f, 0.0f, 5.0f };
 }
 
 void SolarSystemScene::OnUnload()
 {
 }
-
 
 void SolarSystemScene::OnUpdate(float dt)
 {
@@ -157,7 +157,6 @@ void SolarSystemScene::OnDraw()
 	//}
 	//UnbindShader();
 
-
 	//BindShader(&gShaderColor);
 	//Matrix world = MatrixIdentity();
 	//Matrix mvp = MatrixIdentity();
@@ -169,10 +168,15 @@ void SolarSystemScene::OnDraw()
 	//DrawMesh(fMesh);
 	//UnbindShader();
 
-	// Works:
-	BindShader(&gShaderPassThrough);
-	DrawMesh2(fMesh);
-	UnbindShader();
+	//BindShader(&gShaderPassThrough);
+	//SetWireframes(true);
+	//DrawMesh2(fMesh);
+	//SetWireframes(false);
+	//UnbindShader();
+
+	Matrix r = RotateY(100.0f * TotalTime() * DEG2RAD);
+	DrawMesh2Tcoords(fMesh, r);
+	//DrawMesh2Normals(fMesh, r);
 }
 
 void SolarSystemScene::OnDrawImGui()

@@ -420,26 +420,23 @@ par_shapes_mesh* LoadPrimitive(PrimitiveShape shape)
 		assert(false, "Invalid par_shapes Mesh Type");
 	}
 
-	// Going to attempt indexed rendering
-	//par_shapes_unweld(mesh, true);
-	//par_shapes_compute_normals(mesh);
+	par_shapes_unweld(mesh, true);
+	par_shapes_compute_normals(mesh);
 
-	// Removing tcoords for now until index rendering works
-	// Only meshes generated via parametric equations have tcoords (Plane, Hemisphere, and Cylinder)
-	//if (mesh->tcoords != nullptr)
-	//{
-	//	float* tcoords = PAR_MALLOC(float, 2 * mesh->npoints);
-	//	for (int i = 0; i < mesh->npoints; i++)
-	//	{
-	//		PAR_SHAPES_T index = mesh->triangles[i];
-	//		float u = mesh->tcoords[index * 2 + 0];
-	//		float v = mesh->tcoords[index * 2 + 1];
-	//		tcoords[i * 2 + 0] = u;
-	//		tcoords[i * 2 + 1] = v;
-	//	}
-	//	PAR_FREE(mesh->tcoords);
-	//	mesh->tcoords = tcoords;
-	//}
+	if (mesh->tcoords != nullptr)
+	{
+		float* tcoords = PAR_MALLOC(float, 2 * mesh->npoints);
+		for (int i = 0; i < mesh->npoints; i++)
+		{
+			PAR_SHAPES_T index = mesh->triangles[i];
+			float u = mesh->tcoords[index * 2 + 0];
+			float v = mesh->tcoords[index * 2 + 1];
+			tcoords[i * 2 + 0] = u;
+			tcoords[i * 2 + 1] = v;
+		}
+		PAR_FREE(mesh->tcoords);
+		mesh->tcoords = tcoords;
+	}
 	
 	return mesh;
 }

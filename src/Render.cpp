@@ -348,6 +348,36 @@ void DrawMesh2(Mesh2 mesh)
 	glBindVertexArray(GL_NONE);
 }
 
+void DrawMesh2Flat(Mesh2 mesh, Matrix world, Vector3 color)
+{
+	Matrix mvp = world * gView * gProj;
+	BindShader(&gShaderColor);
+	SendMat4("u_mvp", &mvp);
+	SendVec3("u_color", color);
+	DrawMesh2(mesh);
+	UnbindShader();
+}
+
+void DrawMesh2Normals(Mesh2 mesh, Matrix world)
+{
+	Matrix mvp = world * gView * gProj;
+	Matrix normal = NormalMatrix(world);
+	BindShader(&gShaderNormals);
+	SendMat4("u_mvp", &mvp);
+	SendMat3("u_normal", &normal);
+	DrawMesh2(mesh);
+	UnbindShader();
+}
+
+void DrawMesh2Tcoords(Mesh2 mesh, Matrix world)
+{
+	Matrix mvp = world * gView * gProj;
+	BindShader(&gShaderTcoords);
+	SendMat4("u_mvp", &mvp);
+	DrawMesh2(mesh);
+	UnbindShader();
+}
+
 void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness)
 {
 	bool depthTest = DepthTest();
