@@ -30,19 +30,17 @@ enum PrimitiveShape2
 
 struct Mesh2
 {
-	//std::vector<Vector3> positions;
-	//std::vector<Vector3> normals;
-	//std::vector<Vector2> tcoords;
-	//std::vector<uint32_t> indices;
-	// indices.size() is all we need to draw!
+	std::vector<Vector3> positions;
+	std::vector<Vector3> normals;
+	std::vector<Vector2> tcoords;
+	std::vector<uint16_t> indices;
+	int count = 0;
 
 	GLuint vao = GL_NONE;	// Vertex array object
 	GLuint pbo = GL_NONE;	// Vertex positions
 	GLuint nbo = GL_NONE;	// Vertex normals
 	GLuint tbo = GL_NONE;	// Vertex texture coordinates
 	GLuint ebo = GL_NONE;	// Vertex indices
-
-	int indexCount = 0;
 };
 
 Mesh2 CreateMesh(const char* path);

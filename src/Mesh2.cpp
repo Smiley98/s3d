@@ -4,52 +4,52 @@
 #include <cstdio>
 #include <cassert>
 
-// pnt is temporary
-Mesh2 UploadObj(fastObjMesh* obj, std::vector<Vector3>& positions, std::vector<Vector3>& normals, std::vector<Vector2>& tcoords);
 Mesh2 UploadPar(par_shapes_mesh* par);
+void Upload(Mesh2& mesh);
 
 // Not worth trying to figure out how to render objs with indexing xD
 Mesh2 CreateMesh(const char* path)
 {
+	Mesh2 mesh;
 	fastObjMesh* obj = fast_obj_read(path);
-
-	std::vector<Vector3> positions(obj->index_count);
-	std::vector<Vector3> normals(obj->index_count);
-	std::vector<Vector2> tcoords;
+	int count = obj->index_count;
+	mesh.positions.resize(count);
+	mesh.normals.resize(count);
 
 	assert(obj->position_count > 1);
-	for (int i = 0; i < obj->index_count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		fastObjIndex idx = obj->indices[i];
 		Vector3 position = *((Vector3*)obj->positions + idx.p);
-		positions[i] = position;
+		mesh.positions[i] = position;
 	}
 
 	assert(obj->normal_count > 1);
-	for (int i = 0; i < obj->index_count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		fastObjIndex idx = obj->indices[i];
 		Vector3 normal = *((Vector3*)obj->normals + idx.n);
-		normals[i] = normal;
+		mesh.normals[i] = normal;
 	}
 
 	if (obj->texcoord_count > 1)
 	{
-		tcoords.resize(obj->index_count);
-		for (int i = 0; i < obj->index_count; i++)
+		mesh.tcoords.resize(count);
+		for (int i = 0; i < count; i++)
 		{
 			fastObjIndex idx = obj->indices[i];
 			Vector2 tcoord = *((Vector2*)obj->texcoords + idx.t);
-			tcoords[i] = tcoord;
+			mesh.tcoords[i] = tcoord;
 		}
 	}
 	else
 	{
 		printf("**Warning: mesh %s loaded without texture coordinates**\n", path);
 	}
-	
-	Mesh2 mesh = UploadObj(obj, positions, normals, tcoords);
 	fast_obj_destroy(obj);
+	
+	mesh.count = count;
+	Upload(mesh);
 	return mesh;
 }
 
@@ -154,50 +154,6 @@ Mesh2 CreateMesh(PrimitiveShape2 shape)
 	return mesh;
 }
 
-// TODO -- get rendering working, then convert to centralized load from CPU
-// That way, I can support the software renderer without maintaining different mesh implementations xD
-Mesh2 UploadObj(fastObjMesh* obj, std::vector<Vector3>& positions, std::vector<Vector3>& normals, std::vector<Vector2>& tcoords)
-{
-	int indexCount = obj->index_count;
-	GLuint vao, pbo, nbo, tbo;//, ebo;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glGenBuffers(1, &pbo);
-	glGenBuffers(1, &nbo);
-	glGenBuffers(1, &tbo);
-	//glGenBuffers(1, &ebo);
-
-	glBindBuffer(GL_ARRAY_BUFFER, pbo);
-	glBufferData(GL_ARRAY_BUFFER, indexCount * sizeof(Vector3), positions.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, nbo);
-	glBufferData(GL_ARRAY_BUFFER, indexCount * sizeof(Vector3), normals.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	glEnableVertexAttribArray(1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, tbo);
-	glBufferData(GL_ARRAY_BUFFER, indexCount * sizeof(Vector2), tcoords.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
-	glEnableVertexAttribArray(2);
-
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(PAR_SHAPES_T), par->triangles, GL_STATIC_DRAW);
-
-	glBindVertexArray(GL_NONE);
-	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
-
-	Mesh2 mesh;
-	mesh.vao = vao;
-	mesh.pbo = pbo;
-	mesh.nbo = nbo;
-	mesh.tbo = tbo;
-	//mesh.ebo = ebo;
-	mesh.indexCount = indexCount;
-	return mesh;
-}
-
 Mesh2 UploadPar(par_shapes_mesh* par)
 {
 	int indexCount = 3 * par->ntriangles;
@@ -236,6 +192,51 @@ Mesh2 UploadPar(par_shapes_mesh* par)
 	mesh.nbo = nbo;
 	mesh.tbo = tbo;
 	mesh.ebo = ebo;
-	mesh.indexCount = indexCount;
+	mesh.count = indexCount;
 	return mesh;
+}
+
+void Upload(Mesh2& mesh)
+{
+	GLuint vao, pbo, nbo, tbo, ebo;
+	vao = pbo = nbo = tbo = ebo = GL_NONE;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	glGenBuffers(1, &pbo);
+	glBindBuffer(GL_ARRAY_BUFFER, pbo);
+	glBufferData(GL_ARRAY_BUFFER, mesh.count * sizeof(Vector3), mesh.positions.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(0);
+
+	glGenBuffers(1, &nbo);
+	glBindBuffer(GL_ARRAY_BUFFER, nbo);
+	glBufferData(GL_ARRAY_BUFFER, mesh.count * sizeof(Vector3), mesh.normals.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(1);
+
+	if (!mesh.tcoords.empty())
+	{
+		glGenBuffers(1, &tbo);
+		glBindBuffer(GL_ARRAY_BUFFER, tbo);
+		glBufferData(GL_ARRAY_BUFFER, mesh.count * sizeof(Vector2), mesh.tcoords.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
+		glEnableVertexAttribArray(2);
+	}
+
+	if (!mesh.indices.empty())
+	{
+		glGenBuffers(1, &ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.count * sizeof(uint16_t), mesh.indices.data(), GL_STATIC_DRAW);
+	}
+
+	glBindVertexArray(GL_NONE);
+	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+
+	mesh.vao = vao;
+	mesh.pbo = pbo;
+	mesh.nbo = nbo;
+	mesh.tbo = tbo;
+	mesh.ebo = ebo;
 }
