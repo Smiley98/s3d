@@ -52,7 +52,6 @@ Mesh2 CreateMesh(const char* path)
 	return mesh;
 }
 
-// TODO -- Improve rasterization scene by storing a Primitive enum instead of entire functions
 Mesh2 CreateMesh(PrimitiveShape2 shape)
 {
 	par_shapes_mesh* par = nullptr;
@@ -166,6 +165,22 @@ Mesh2 CreateMesh(PrimitiveShape2 shape)
 	par_shapes_free_mesh(par);
 	Upload(mesh);
 	return mesh;
+}
+
+void DestroyMesh(Mesh2& mesh)
+{
+	glDeleteBuffers(1, &mesh.ebo);
+	glDeleteBuffers(1, &mesh.tbo);
+	glDeleteBuffers(1, &mesh.nbo);
+	glDeleteBuffers(1, &mesh.pbo);
+	glDeleteVertexArrays(1, &mesh.vao);
+	mesh.ebo = mesh.tbo = mesh.nbo = mesh.pbo = mesh.vao = GL_NONE;
+
+	mesh.positions.resize(0);
+	mesh.normals.resize(0);
+	mesh.tcoords.resize(0);
+	mesh.indices.resize(0);
+	mesh.count = 0;
 }
 
 void Upload(Mesh2& mesh)
