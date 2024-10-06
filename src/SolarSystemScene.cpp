@@ -99,10 +99,8 @@ void SolarSystemScene::OnLoad()
 	planets[8].position = V3_RIGHT * 80.0f;
 	planets[8].color = { 0.21f, 0.028f, 0.79f };
 
-	//par_shapes_mesh* par = par_shapes_create_plane(1, 1);
-	//fMesh = LoadFromPar(par);
-	//par_shapes_free_mesh(par);
-	fMesh = LoadPrimitive2(CYLINDER2);
+	//fMesh = CreateMesh(CYLINDER2);
+	fMesh = CreateMesh("assets/meshes/head.obj");
 	gCamera.position = { 0.0f, 0.0f, 5.0f };
 }
 
@@ -175,8 +173,8 @@ void SolarSystemScene::OnDraw()
 	//UnbindShader();
 
 	Matrix r = RotateY(100.0f * TotalTime() * DEG2RAD);
-	DrawMesh2Tcoords(fMesh, r);
-	//DrawMesh2Normals(fMesh, r);
+	//DrawMesh2Tcoords(fMesh, r);
+	DrawMesh2Normals(fMesh, r);
 }
 
 void SolarSystemScene::OnDrawImGui()

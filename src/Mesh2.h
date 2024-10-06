@@ -45,7 +45,7 @@ struct Mesh2
 	int indexCount = 0;
 };
 
-Mesh2 LoadFromObj(const fastObjMesh* const obj);
-Mesh2 LoadFromPar(const par_shapes_mesh* const par);
+Mesh2 CreateMesh(const char* path);
+Mesh2 CreateMesh(PrimitiveShape2 shape);
 
-Mesh2 LoadPrimitive2(PrimitiveShape2 shape);
+void DestroyMesh(Mesh2& mesh);

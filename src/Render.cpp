@@ -344,7 +344,10 @@ void DrawMesh(Mesh mesh)
 void DrawMesh2(Mesh2 mesh)
 {
 	glBindVertexArray(mesh.vao);
-	glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, nullptr);
+	if (mesh.ebo != GL_NONE)
+		glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, nullptr);
+	else
+		glDrawArrays(GL_TRIANGLES, 0, mesh.indexCount);
 	glBindVertexArray(GL_NONE);
 }
 
