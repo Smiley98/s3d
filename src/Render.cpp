@@ -341,6 +341,13 @@ void DrawMesh(Mesh mesh)
 	glBindVertexArray(GL_NONE);
 }
 
+void DrawMesh2(Mesh2 mesh)
+{
+	glBindVertexArray(mesh.vao);
+	glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, nullptr);
+	glBindVertexArray(GL_NONE);
+}
+
 void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness)
 {
 	bool depthTest = DepthTest();

@@ -1,6 +1,7 @@
 #pragma once
 #include "Config.h"
 #include "Mesh.h"
+#include "Mesh2.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "PipelineState.h"
@@ -56,6 +57,9 @@ void DrawMeshDebug(Mesh mesh, Matrix mvp, Matrix world, Vector3 color);
 
 // Renders mesh as triangles based on bound pipeline state
 void DrawMesh(Mesh mesh);
+
+// Renders mesh as triangles using indexed rendering
+void DrawMesh2(Mesh2 mesh);
 
 // Renders a full-screen quad (no depth test or depth write)
 void DrawFsq();
