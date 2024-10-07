@@ -62,8 +62,9 @@ Mesh2 CreateMesh(PrimitiveShape2 shape)
 	case TRIANGLE2:
 		par = par_shapes_create_empty();
 	
-		par->points = PAR_MALLOC(float, 9);
 		par->npoints = 3;
+		par->points = PAR_MALLOC(float, 9);
+		par->tcoords = PAR_MALLOC(float, 6);
 	
 		par->triangles = PAR_MALLOC(PAR_SHAPES_T, 3);
 		par->ntriangles = 1;
@@ -79,6 +80,13 @@ Mesh2 CreateMesh(PrimitiveShape2 shape)
 		par->points[6] = 1.0f * sinf(PI / 3.0f);
 		par->points[7] = -1.0f * cosf(PI / 3.0f);
 		par->points[8] = 0.0f;
+
+		par->tcoords[0] = 0.0f;
+		par->tcoords[1] = 0.0f;
+		par->tcoords[2] = 1.0f;
+		par->tcoords[3] = 0.0f;
+		par->tcoords[4] = 0.5f;
+		par->tcoords[5] = 1.0f;
 	
 		par->triangles[0] = 0;
 		par->triangles[1] = 1;

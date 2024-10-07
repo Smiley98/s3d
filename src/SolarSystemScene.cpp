@@ -173,8 +173,8 @@ void SolarSystemScene::OnDraw()
 	//UnbindShader();
 
 	Matrix r = RotateY(100.0f * TotalTime() * DEG2RAD);
-	//DrawMesh2Tcoords(fMesh, r);
-	DrawMesh2Normals(fMesh, r);
+	DrawMesh2Tcoords(fMesh, r);
+	//DrawMesh2Normals(fMesh, r);
 }
 
 void SolarSystemScene::OnDrawImGui()
