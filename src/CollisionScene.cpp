@@ -174,7 +174,7 @@ void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color)
 		break;
 
 	case CAPSULE:
-		DrawCapsuleH(pos, r, hh, color, rot);
+		DrawCapsuleX(pos, r, hh, color, rot);
 		break;
 
 	case RECTANGLE:

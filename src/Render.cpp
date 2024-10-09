@@ -5,13 +5,16 @@ DebugShaderType gDebugShader = FLAT;
 Matrix gView = MatrixIdentity();
 Matrix gProj = MatrixIdentity();
 
+void DrawMeshType(MeshType type, Matrix world, Vector3 color);
+
 void SetDebugShader(DebugShaderType type)
 {
 	gDebugShader = type;
 }
 
-void DrawMeshFlat(Mesh mesh, Matrix mvp, Vector3 color)
+void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color)
 {
+	Matrix mvp = world * gView * gProj;
 	BindShader(&gShaderColor);
 	SendMat4("u_mvp", &mvp);
 	SendVec3("u_color", color);
@@ -19,15 +22,16 @@ void DrawMeshFlat(Mesh mesh, Matrix mvp, Vector3 color)
 	UnbindShader();
 }
 
-void DrawMeshWireframes(Mesh mesh, Matrix mvp, Vector3 color)
+void DrawMeshWireframes(const Mesh& mesh, Matrix world, Vector3 color)
 {
 	SetWireframes(true);
-	DrawMeshFlat(mesh, mvp, color);
+	DrawMeshFlat(mesh, world, color);
 	SetWireframes(false);
 }
 
-void DrawMeshPositionsWorld(Mesh mesh, Matrix mvp, Matrix world)
+void DrawMeshPositionsWorld(const Mesh& mesh, Matrix world)
 {
+	Matrix mvp = world * gView * gProj;
 	BindShader(&gShaderPositionsWorld);
 	SendMat4("u_mvp", &mvp);
 	SendMat4("u_world", &world);
@@ -35,8 +39,9 @@ void DrawMeshPositionsWorld(Mesh mesh, Matrix mvp, Matrix world)
 	UnbindShader();
 }
 
-void DrawMeshPositionsScreen(Mesh mesh, Matrix mvp, Vector2 resolution)
+void DrawMeshPositionsScreen(const Mesh& mesh, Matrix world, Vector2 resolution)
 {
+	Matrix mvp = world * gView * gProj;
 	BindShader(&gShaderPositionsScreen);
 	SendMat4("u_mvp", &mvp);
 	SendVec2("u_resolution", resolution);
@@ -44,20 +49,22 @@ void DrawMeshPositionsScreen(Mesh mesh, Matrix mvp, Vector2 resolution)
 	UnbindShader();
 }
 
-void DrawMeshNormals(Mesh mesh, Matrix mvp, Matrix world)
+void DrawMeshNormals(const Mesh& mesh, Matrix world, Matrix normal)
 {
-	Matrix normal = NormalMatrix(world);
+	Matrix mvp = world * gView * gProj;
 	BindShader(&gShaderNormals);
 	SendMat4("u_mvp", &mvp);
+	SendMat4("u_world", &world);
 	SendMat3("u_normal", &normal);
 	DrawMesh(mesh);
 	UnbindShader();
 }
 
-void DrawMeshTcoords(Mesh mesh, Matrix mvp)
+void DrawMeshTcoords(const Mesh& mesh, Matrix world)
 {
-	if (mesh.tcoords != nullptr)
+	if (!mesh.tcoords.empty())
 	{
+		Matrix mvp = world * gView * gProj;
 		BindShader(&gShaderTcoords);
 		SendMat4("u_mvp", &mvp);
 		DrawMesh(mesh);
@@ -65,10 +72,11 @@ void DrawMeshTcoords(Mesh mesh, Matrix mvp)
 	}
 }
 
-void DrawMeshTexture(Mesh mesh, Matrix mvp, Matrix world, Texture texture)
+void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture)
 {
-	assert(mesh.tcoords != nullptr);
+	assert(!mesh.tcoords.empty());
 	Matrix normal = NormalMatrix(world);
+	Matrix mvp = world * gView * gProj;
 	BindTexture(texture);
 	BindShader(&gShaderTexture);
 	SendMat4("u_mvp", &mvp);
@@ -81,148 +89,82 @@ void DrawMeshTexture(Mesh mesh, Matrix mvp, Matrix world, Texture texture)
 
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
 {
-	Mesh mesh;
-	GenSquare(mesh);
-
-	Matrix world =
-		Scale(width, height, 1.0f) *
-		RotateZ(angle) *
-		Translate(center.x, center.y, 0.0f);
-	
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(width, height, 1.0f) * RotateZ(angle) * Translate(center.x, center.y, 0.0f);
+	DrawMeshType(MESH_SQUARE, world, color);
 }
 
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle)
 {
-	Mesh mesh;
-	GenTriangle(mesh, v0, v1, v2);
-
-	Matrix mvp = RotateZ(angle) * gView * gProj;
-	DrawMeshDebug(mesh, mvp, MatrixIdentity(), color);
-	DestroyMesh(mesh);
+	// TODO -- add passed-in triangle vertices
+	//GenTriangle(mesh, v0, v1, v2);
+	DrawMeshType(MESH_TRIANGLE, RotateZ(angle), color);
 }
 
 void DrawCircle(Vector2 center, float radius, Vector3 color, float angle)
 {
-	Mesh mesh;
-	GenCircle(mesh);
-
-	Matrix world =
-		Scale(radius, radius, 1.0f) *
-		RotateZ(angle) * 
-		Translate(center.x, center.y, 0.0f);
-
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(radius, radius, 1.0f) * RotateZ(angle) *  Translate(center.x, center.y, 0.0f);
+	DrawMeshType(MESH_CIRCLE, world, color);
 }
 
 // GenSemicircle produces a vertical semicircle
 void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 {
-	Mesh mesh;
-	GenSemicircle(mesh);
-
-	Matrix world =
-		Scale(radius, radius, 1.0f) *
-		RotateZ(angle) *
-		Translate(center.x, center.y, 0.0f);
-
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(radius, radius, 1.0f) * RotateZ(angle) * Translate(center.x, center.y, 0.0f);
+	DrawMeshType(MESH_SEMICIRCLE, world, color);
 }
 
-void DrawSemicircleH(Vector2 center, float radius, Vector3 color, float angle)
+void DrawSemicircleX(Vector2 center, float radius, Vector3 color, float angle)
 {
 	DrawSemicircle(center, radius, color, angle - PI * 0.5f);
 }
 
-void DrawSemicircleV(Vector2 center, float radius, Vector3 color, float angle)
+void DrawSemicircleY(Vector2 center, float radius, Vector3 color, float angle)
 {
 	DrawSemicircle(center, radius, color, angle);
 }
 
-void DrawCapsuleH(Vector2 center, float radius, float halfHeight, Vector3 color, float angle)
+void DrawCapsuleX(Vector2 center, float radius, float halfHeight, Vector3 color, float angle)
 {
 	Vector2 direction = Rotate(V2_RIGHT, angle);
 	Vector2 top = center + direction * halfHeight;
 	Vector2 bot = center - direction * halfHeight;
-	DrawSemicircleH(top, radius, color, angle);
-	DrawSemicircleH(bot, radius, color, angle + PI);
+	DrawSemicircleX(top, radius, color, angle);
+	DrawSemicircleX(bot, radius, color, angle + PI);
 	DrawRectangle(center, halfHeight * 2.0f, radius * 2.0f, color, angle);
 }
 
-void DrawCapsuleV(Vector2 center, float radius, float halfHeight, Vector3 color, float angle)
+void DrawCapsuleY(Vector2 center, float radius, float halfHeight, Vector3 color, float angle)
 {
 	Vector2 direction = Rotate(V2_UP, angle);
 	Vector2 top = center + direction * halfHeight;
 	Vector2 bot = center - direction * halfHeight;
-	DrawSemicircleV(top, radius, color, angle);
-	DrawSemicircleV(bot, radius, color, angle + PI);
+	DrawSemicircleY(top, radius, color, angle);
+	DrawSemicircleY(bot, radius, color, angle + PI);
 	DrawRectangle(center, radius * 2.0f, halfHeight * 2.0f, color, angle);
 }
 
 void DrawCube(Vector3 center, float width, float height, float depth, Vector3 color, Matrix rotation)
 {
-	Mesh mesh;
-	GenCube(mesh);
-
-	Matrix world =
-		Scale(width, height, depth) * 
-		rotation * 
-		Translate(center.x, center.y, center.z);
-
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(width, height, depth) * rotation * Translate(center.x, center.y, center.z);
+	DrawMeshType(MESH_CUBE, world, color);
 }
 
 void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 {
-	Mesh mesh;
-	GenSphere(mesh);
-
-	Matrix world =
-		Scale(radius, radius, radius) *
-		rotation * 
-		Translate(center.x, center.y, center.z);
-
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(radius, radius, radius) * rotation *  Translate(center.x, center.y, center.z);
+	DrawMeshType(MESH_SPHERE, world, color);
 }
 
 void DrawHemisphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 {
-	Mesh mesh;
-	GenHemisphere(mesh);
-
-	Matrix world =
-		Scale(radius, radius, radius) *
-		rotation *
-		Translate(center.x, center.y, center.z);
-
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(radius, radius, radius) * rotation * Translate(center.x, center.y, center.z);
+	DrawMeshType(MESH_HEMISPHERE, world, color);
 }
 
 void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation)
 {
-	Mesh mesh;
-	GenCylinder(mesh);
-
-	Matrix world =
-		Scale(radius, radius, halfHeight * 2.0f) *
-		rotation *
-		Translate(center.x, center.y, center.z);
-
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(radius, radius, halfHeight * 2.0f) * rotation * Translate(center.x, center.y, center.z);
+	DrawMeshType(MESH_CYLINDER, world, color);
 }
 
 void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation)
@@ -236,96 +178,63 @@ void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 
 	DrawHemisphere(bot, radius, color, RotateX(PI) * rotation);
 }
 
-void DrawPlaneXZ(Vector3 center, float width, float depth, Vector3 color, Matrix rotation)
+// Draw a plane who's normal is +Z
+void DrawPlaneZ(Vector3 center, float width, float height, Vector3 color, Matrix rotation)
 {
-	Mesh mesh;
-	GenPlaneXZ(mesh);
-
-	Matrix world =
-		Scale(width, 1.0f, depth) *
-		rotation *
-		Translate(center.x, center.y, center.z);
-
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(width, height, 1.0f) * rotation * Translate(center.x, center.y, center.z);
+	DrawMeshType(MESH_PLANE_Z, world, color);
 }
 
-void DrawPlaneYZ(Vector3 center, float height, float depth, Vector3 color, Matrix rotation)
+// Draw a plane who's normal is +Y
+void DrawPlaneY(Vector3 center, float width, float depth, Vector3 color, Matrix rotation)
 {
-	Mesh mesh;
-	GenPlaneYZ(mesh);
-
-	Matrix world =
-		Scale(1.0f, height, depth) *
-		rotation *
-		Translate(center.x, center.y, center.z);
-
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(width, 1.0f, depth) * rotation * Translate(center.x, center.y, center.z);
+	DrawMeshType(MESH_PLANE_Y, world, color);
 }
 
-void DrawPlaneXY(Vector3 center, float width, float height, Vector3 color, Matrix rotation)
+// Draw a plane who's normal is +X
+void DrawPlaneX(Vector3 center, float height, float depth, Vector3 color, Matrix rotation)
 {
-	Mesh mesh;
-	GenPlaneXY(mesh);
-
-	Matrix world =
-		Scale(width, height, 1.0f) *
-		rotation *
-		Translate(center.x, center.y, center.z);
-
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(1.0f, height, depth) * rotation * Translate(center.x, center.y, center.z);
+	DrawMeshType(MESH_PLANE_X, world, color);
 }
 
 void DrawDodecahedron(Vector3 center, Vector3 scale, Vector3 color, Matrix rotation)
 {
-	Mesh mesh;
-	GenDodecahedron(mesh);
-
-	Matrix world =
-		Scale(scale) *
-		rotation *
-		Translate(center.x, center.y, center.z);
-
-	Matrix mvp = world * gView * gProj;
-	DrawMeshDebug(mesh, mvp, world, color);
-	DestroyMesh(mesh);
+	Matrix world = Scale(scale) * rotation * Translate(center.x, center.y, center.z);
+	DrawMeshType(MESH_DODECAHEDRON, world, color);
 }
 
-void DrawMeshDebug(Mesh mesh, Matrix mvp, Matrix world, Vector3 color)
+void DrawMeshDebug(const Mesh& mesh, Matrix world, Vector3 color)
 {
 	switch (gDebugShader)
 	{
 	case FLAT:
-		DrawMeshFlat(mesh, mvp, color);
+		DrawMeshFlat(mesh, world, color);
 		break;
 
 	case WIRE:
-		DrawMeshWireframes(mesh, mvp, color);
+		DrawMeshWireframes(mesh, world, color);
 		break;
 
 	case POSITIONS_WORLD:
-		DrawMeshPositionsWorld(mesh, mvp, world);
+		DrawMeshPositionsWorld(mesh, world);
 		break;
 
 	case POSITIONS_SCREEN:
-		DrawMeshPositionsScreen(mesh, mvp);
+		DrawMeshPositionsScreen(mesh, world);
 		break;
 
 	case NORMALS_OBJECT:
-		DrawMeshNormals(mesh, mvp, MatrixIdentity());
+		DrawMeshNormals(mesh, world, MatrixIdentity());
 		break;
 
 	case NORMALS_WORLD:
-		DrawMeshNormals(mesh, mvp, world);
+		DrawMeshNormals(mesh, world, NormalMatrix(world));
 		break;
 
 	case TCOORDS:
-		DrawMeshTcoords(mesh, mvp);
+		DrawMeshTcoords(mesh, world);
 		break;
 
 	default:
@@ -334,14 +243,15 @@ void DrawMeshDebug(Mesh mesh, Matrix mvp, Matrix world, Vector3 color)
 	}
 }
 
-void DrawMesh(Mesh mesh)
+void DrawMeshType(MeshType type, Matrix world, Vector3 color)
 {
-	glBindVertexArray(mesh.vao);
-	glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
-	glBindVertexArray(GL_NONE);
+	Mesh mesh;
+	CreateMesh(&mesh, type);
+	DrawMeshDebug(mesh, world, color);
+	DestroyMesh(&mesh);
 }
 
-void DrawMesh2(Mesh2 mesh)
+void DrawMesh(const Mesh& mesh)
 {
 	glBindVertexArray(mesh.vao);
 	if (mesh.ebo != GL_NONE)
@@ -349,36 +259,6 @@ void DrawMesh2(Mesh2 mesh)
 	else
 		glDrawArrays(GL_TRIANGLES, 0, mesh.count);
 	glBindVertexArray(GL_NONE);
-}
-
-void DrawMesh2Flat(Mesh2 mesh, Matrix world, Vector3 color)
-{
-	Matrix mvp = world * gView * gProj;
-	BindShader(&gShaderColor);
-	SendMat4("u_mvp", &mvp);
-	SendVec3("u_color", color);
-	DrawMesh2(mesh);
-	UnbindShader();
-}
-
-void DrawMesh2Normals(Mesh2 mesh, Matrix world)
-{
-	Matrix mvp = world * gView * gProj;
-	Matrix normal = NormalMatrix(world);
-	BindShader(&gShaderNormals);
-	SendMat4("u_mvp", &mvp);
-	SendMat3("u_normal", &normal);
-	DrawMesh2(mesh);
-	UnbindShader();
-}
-
-void DrawMesh2Tcoords(Mesh2 mesh, Matrix world)
-{
-	Matrix mvp = world * gView * gProj;
-	BindShader(&gShaderTcoords);
-	SendMat4("u_mvp", &mvp);
-	DrawMesh2(mesh);
-	UnbindShader();
 }
 
 void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness)

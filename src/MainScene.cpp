@@ -62,20 +62,6 @@ void MainScene::OnUpdate(float dt)
 	data.diffuse = 0.75f;
 	data.specular = 32.0f;
 
-	// This doesn't seem to work...
-	// Regardless of rasterization vs wireframes, the object still renders when behind the camera
-	// This is probably due to incorrect clipping & no perspective attribute interpolation...
-	//Mesh sphere;
-	//CopyMesh(gMeshSphere, &sphere);
-	//
-	//for (size_t i = 0; i < sphere.vertexCount; i++)
-	//	sphere.positions[i] = Clip(sphere.positions[i], lt * view * proj);
-	//
-	//for (size_t i = 0; i < sphere.faceCount; i++)
-	//	DrawFaceWireframes(&mImage, sphere.positions, i, Float3ToColor(&data.lightColor.x));
-	//
-	//DestroyMesh(&sphere);
-
 	DrawMesh(&mImage, mMesh, data);
 }
 

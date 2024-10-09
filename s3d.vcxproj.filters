@@ -90,9 +90,6 @@
     <ClCompile Include="src\Materials.cpp">
       <Filter>Lighting</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
-      <Filter>Pipeline</Filter>
-    </ClCompile>
     <ClCompile Include="src\Shader.cpp">
       <Filter>Pipeline</Filter>
     </ClCompile>
@@ -114,7 +111,7 @@
     <ClCompile Include="src\SolarSystemScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mesh2.cpp">
+    <ClCompile Include="src\Mesh.cpp">
       <Filter>Pipeline</Filter>
     </ClCompile>
   </ItemGroup>
@@ -191,9 +188,6 @@
     <ClInclude Include="src\ImageUtils.h">
       <Filter>Image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Mesh.h">
-      <Filter>Pipeline</Filter>
-    </ClInclude>
     <ClInclude Include="src\Shader.h">
       <Filter>Pipeline</Filter>
     </ClInclude>
@@ -233,7 +227,7 @@
     <ClInclude Include="src\SolarSystemScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Mesh2.h">
+    <ClInclude Include="src\Mesh.h">
       <Filter>Pipeline</Filter>
     </ClInclude>
   </ItemGroup>

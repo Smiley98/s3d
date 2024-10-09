@@ -19,7 +19,7 @@ struct Planet
 
 std::array<Planet, 9> planets;
 
-static Mesh2 fMesh;
+static Mesh fMesh;
 
 void SolarSystemScene::OnLoad()
 {
@@ -32,9 +32,9 @@ void SolarSystemScene::OnLoad()
 	//gCamera.yaw = 67.0f * DEG2RAD;
 
 	// Note that fps camera needs yaw then pitch, so whether they're 2 matrices or 2 eulers, they need to persist separately!
-	//gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
-	//float pitch = gCamera.pitch * RAD2DEG;
-	//float yaw = gCamera.yaw * RAD2DEG;
+	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
+	float pitch = gCamera.pitch * RAD2DEG;
+	float yaw = gCamera.yaw * RAD2DEG;
 
 	// Sun
 	planets[0].scale = V3_ONE * 10.0f;
@@ -54,14 +54,14 @@ void SolarSystemScene::OnLoad()
 	planets[2].scale = V3_ONE * 2.0f;
 	planets[2].rotationSpeed = 243.0f;
 	planets[2].orbitSpeed = 0.8f;
-	planets[2].position = { 20.0f, 0.0f, 5.0f };
+	planets[2].position = V3_RIGHT * 20.0f;
 	planets[2].color = { 0.6f, 0.32f, 0.006f };
 	
 	// Earth
 	planets[3].scale = V3_ONE * 4.0f;
 	planets[3].rotationSpeed = 1.0f;
 	planets[3].orbitSpeed = 1.0f;
-	planets[3].position = V3_RIGHT * 10.0f;
+	planets[3].position = V3_RIGHT * 30.0f;
 	planets[3].color = { 0.07f, 0.028f, 0.61f };
 
 	// Mars
@@ -98,10 +98,6 @@ void SolarSystemScene::OnLoad()
 	planets[8].orbitSpeed = 164.81f;
 	planets[8].position = V3_RIGHT * 80.0f;
 	planets[8].color = { 0.21f, 0.028f, 0.79f };
-
-	fMesh = CreateMesh(TRIANGLE2);
-	//fMesh = CreateMesh("assets/meshes/head.obj");
-	gCamera.position = { 0.0f, 0.0f, 5.0f };
 }
 
 void SolarSystemScene::OnUnload()
@@ -131,50 +127,25 @@ void SolarSystemScene::OnUpdate(float dt)
 
 void SolarSystemScene::OnDraw()
 {
-	//BindShader(&gShaderPlanetsRaster);
-	//for (Planet& planet : planets)
-	//{
-	//	Matrix mvp = planet.world * gView * gProj;
-	//	Matrix normal = NormalMatrix(planet.world);
-	//
-	//	Mesh mesh;
-	//	GenSphere(mesh);
-	//	//GenCube(mesh);
-	//
-	//	SendMat4("u_mvp", &mvp);
-	//	SendMat4("u_world", &planet.world);
-	//	SendMat3("u_normal", &normal);
-	//	SendVec3("u_camPos", gCamera.position);
-	//	SendVec3("u_sunPos", planets[0].position);
-	//	SendVec3("u_planetColor", planet.color);
-	//
-	//	DrawMesh(mesh);
-	//	DestroyMesh(mesh);
-	//
-	//	//DrawMeshFlat(mesh, mvp, planet.color);
-	//}
-	//UnbindShader();
+	BindShader(&gShaderPlanetsRaster);
+	for (Planet& planet : planets)
+	{
+		Mesh mesh;
+		CreateMesh(&mesh, MESH_SPHERE);
 
-	//BindShader(&gShaderColor);
-	//Matrix world = MatrixIdentity();
-	//Matrix mvp = MatrixIdentity();
-	//Matrix normal = MatrixIdentity();
-	//SendMat3("u_normal", &normal);
-	//SendMat4("u_world", &world);
-	//SendMat4("u_mvp", &mvp);
-	//SendVec3("u_color", V3_RIGHT);
-	//DrawMesh(fMesh);
-	//UnbindShader();
-
-	//BindShader(&gShaderPassThrough);
-	//SetWireframes(true);
-	//DrawMesh2(fMesh);
-	//SetWireframes(false);
-	//UnbindShader();
-
-	Matrix r = RotateY(100.0f * TotalTime() * DEG2RAD);
-	DrawMesh2Tcoords(fMesh, r);
-	//DrawMesh2Normals(fMesh, r);
+		Matrix mvp = planet.world * gView * gProj;
+		Matrix normal = NormalMatrix(planet.world);
+		SendMat4("u_mvp", &mvp);
+		SendMat4("u_world", &planet.world);
+		SendMat3("u_normal", &normal);
+		SendVec3("u_camPos", gCamera.position);
+		SendVec3("u_sunPos", planets[0].position);
+		SendVec3("u_planetColor", planet.color);
+		
+		DrawMesh(mesh);
+		DestroyMesh(&mesh);
+	}
+	UnbindShader();
 }
 
 void SolarSystemScene::OnDrawImGui()

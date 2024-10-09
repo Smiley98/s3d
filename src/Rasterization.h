@@ -185,20 +185,21 @@ inline Vector3 Phong(Vector3 position, Vector3 normal, Vector3 camera, Vector3 l
 	return phong;
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
+inline void DrawMesh(Image* image, const Mesh& mesh, UniformData uniform)
 {
 	// Vertex input begin
-	Vector3* vertices = new Vector3[mesh.vertexCount];
-	Vector3* ndcs = new Vector3[mesh.vertexCount];
-	Vector3* positions = new Vector3[mesh.vertexCount];
-	Vector3* normals = new Vector3[mesh.vertexCount];
-	Vector2* tcoords = new Vector2[mesh.vertexCount];
+	Vector3* vertices = new Vector3[mesh.count];
+	Vector3* ndcs = new Vector3[mesh.count];
+	Vector3* positions = new Vector3[mesh.count];
+	Vector3* normals = new Vector3[mesh.count];
+	Vector2* tcoords = new Vector2[mesh.count];
 	// Vertex input end
 
 	Matrix normalMatrix = NormalMatrix(uniform.world);
+	int faceCount = mesh.count / 3;
 
 	// Vertex shader begin
-	for (size_t i = 0; i < mesh.vertexCount; i++)
+	for (size_t i = 0; i < mesh.count; i++)
 	{
 		Vector3 ndc = Clip(uniform.mvp, mesh.positions[i]);
 		Vector3 screen = ndc;
@@ -214,8 +215,8 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 	// Vertex shader end
 
 	// Triangle AABBs
-	Rect* rects = new Rect[mesh.faceCount];
-	for (size_t face = 0; face < mesh.faceCount; face++)
+	Rect* rects = new Rect[faceCount];
+	for (size_t face = 0; face < faceCount; face++)
 	{
 		// Ensure min & max get overwritten
 		int xMin = image->width - 1;
@@ -257,7 +258,7 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData uniform)
 		}
 	}
 
-	for (size_t face = 0; face < mesh.faceCount; face++)
+	for (size_t face = 0; face < faceCount; face++)
 	{
 		for (int x = rects[face].xMin; x <= rects[face].xMax; x++)
 		{
