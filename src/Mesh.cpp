@@ -22,37 +22,30 @@ void DestroyMeshes()
 void CreateMesh(Mesh* mesh, const char* path)
 {
 	fastObjMesh* obj = fast_obj_read(path);
-	int count = obj->index_count;
-	mesh->positions.resize(count);
-	mesh->normals.resize(count);
+	const int count = obj->index_count;
 
-	assert(obj->position_count > 1 && obj->normal_count > 1);
+	assert(obj->position_count > 1);
+	mesh->positions.resize(count);
 	for (int i = 0; i < count; i++)
-	{
-		fastObjIndex idx = obj->indices[i];
-		//Vector3 position = ((Vector3*)obj->positions)[idx.p];
-		Vector3 position = *((Vector3*)obj->positions + idx.p);
-		Vector3 normal = *((Vector3*)obj->normals + idx.n);
-		mesh->positions[i] = position;
-		mesh->normals[i] = normal;
-	}
+		mesh->positions[i] = ((Vector3*)obj->positions)[obj->indices[i].p];
+
+	assert(obj->normal_count > 1);
+	mesh->normals.resize(count);
+	for (int i = 0; i < count; i++)
+		mesh->normals[i] = ((Vector3*)obj->normals)[obj->indices[i].n];
 
 	if (obj->texcoord_count > 1)
 	{
 		mesh->tcoords.resize(count);
 		for (int i = 0; i < count; i++)
-		{
-			fastObjIndex idx = obj->indices[i];
-			Vector2 tcoord = *((Vector2*)obj->texcoords + idx.t);
-			mesh->tcoords[i] = tcoord;
-		}
+			mesh->tcoords[i] = ((Vector2*)obj->texcoords)[obj->indices[i].t];
 	}
 	else
 	{
 		printf("**Warning: mesh %s loaded without texture coordinates**\n", path);
 	}
-	fast_obj_destroy(obj);
 	
+	fast_obj_destroy(obj);
 	mesh->count = count;
 	Upload(mesh);
 }

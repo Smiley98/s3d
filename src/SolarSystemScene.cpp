@@ -19,8 +19,6 @@ struct Planet
 
 std::array<Planet, 9> planets;
 
-static Mesh fMesh;
-
 void SolarSystemScene::OnLoad()
 {
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
@@ -132,7 +130,7 @@ void SolarSystemScene::OnDraw()
 	{
 		Mesh mesh;
 		CreateMesh(&mesh, MESH_SPHERE);
-
+		
 		Matrix mvp = planet.world * gView * gProj;
 		Matrix normal = NormalMatrix(planet.world);
 		SendMat4("u_mvp", &mvp);
