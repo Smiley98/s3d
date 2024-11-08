@@ -6,7 +6,7 @@
 #include <imgui/imgui.h>
 
 bool fTranslate = false;
-bool fRotate = false;
+bool fRotate = true;
 bool fScale = false;
 
 Matrix fWorld;
@@ -17,7 +17,7 @@ Vector3 fPosition = V3_ZERO;
 
 Mesh fMesh;
 
-int fMeshIndex = MESH_SQUARE;
+int fMeshIndex = MESH_SPHERE;
 int fProjIndex = 1;
 Matrix fProjections[] =
 {
@@ -103,7 +103,7 @@ void RasterizationScene::OnDrawImGui()
 		"Texture Coordinates"
 	};
 
-	static int shaderIndex = 0;
+	static int shaderIndex = 5;
 	ImGui::Combo("Shaders", &shaderIndex, shaderNames, IM_ARRAYSIZE(shaderNames));
 	gDebugShader = (DebugShaderType)shaderIndex;
 	

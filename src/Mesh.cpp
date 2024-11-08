@@ -7,11 +7,14 @@
 #include <cstdio>
 #include <cassert>
 
+#define PLATONIC true
+
 Mesh gMeshHead;
 
 void Upload(Mesh* mesh);
 
-// TODO -- Add more platonic solid generation functions as needed.
+void GenPlatonic(Mesh* mesh, MeshType type);
+void GenParametric(Mesh* mesh, MeshType type);
 void GenCube(Mesh* mesh, float width, float height, float length);
 
 void CreateMeshes()
@@ -57,123 +60,15 @@ void CreateMesh(Mesh* mesh, const char* path)
 
 void CreateMesh(Mesh* mesh, MeshType type)
 {
-	par_shapes_mesh* par = nullptr;
-	Vector3 position = V3_ZERO;
-	Vector3 normal = V3_FORWARD;
-	switch (type)
-	{
-	case MESH_TRIANGLE:
-		par = par_shapes_create_empty();
-	
-		par->npoints = 3;
-		par->points = PAR_MALLOC(float, 9);
-		par->tcoords = PAR_MALLOC(float, 6);
-	
-		par->triangles = PAR_MALLOC(PAR_SHAPES_T, 3);
-		par->ntriangles = 1;
-	
-		par->points[0] = 0.0f;
-		par->points[1] = 1.0f;
-		par->points[2] = 0.0f;
-	
-		par->points[3] = -1.0f * sinf(PI / 3.0f);
-		par->points[4] = -1.0f * cosf(PI / 3.0f);
-		par->points[5] = 0.0f;
-	
-		par->points[6] = 1.0f * sinf(PI / 3.0f);
-		par->points[7] = -1.0f * cosf(PI / 3.0f);
-		par->points[8] = 0.0f;
-
-		par->tcoords[0] = 0.0f;
-		par->tcoords[1] = 0.0f;
-		par->tcoords[2] = 1.0f;
-		par->tcoords[3] = 0.0f;
-		par->tcoords[4] = 0.5f;
-		par->tcoords[5] = 1.0f;
-	
-		par->triangles[0] = 0;
-		par->triangles[1] = 1;
-		par->triangles[2] = 2;
-		break;
-
-	case MESH_SQUARE:
-	case MESH_PLANE_Z:
-		par = par_shapes_create_plane(1, 1);
-		par_shapes_translate(par, -0.5f, -0.5f, 0.0f);
-		break;
-
-	case MESH_CIRCLE:
-		par = par_shapes_create_disk(1.0f, 32, &position.x, &normal.x);
-		break;
-
-	case MESH_SEMICIRCLE:
-		par = par_shapes_create_half_disk(1.0f, 16, &position.x, &normal.x);
-		break;
-
-	case MESH_SPHERE:
-		par = par_shapes_create_parametric_sphere(8, 8);
-		break;
-
-	case MESH_HEMISPHERE:
-		par = par_shapes_create_hemisphere(4, 4);
-		{
-			Vector3 axis = V3_RIGHT;
-			par_shapes_rotate(par, PI * 0.5f, &axis.x);
-		}
-		break;
-
-	case MESH_CYLINDER:
-		par = par_shapes_create_cylinder(8, 1);
-		par_shapes_translate(par, 0.0f, 0.0f, -0.5f);
-		break;
-
-	case MESH_PLANE_Y:
-		par = par_shapes_create_plane(1, 1);
-		par_shapes_translate(par, -0.5f, -0.5f, 0.0f);
-		{
-			Vector3 axis = V3_RIGHT;
-			par_shapes_rotate(par, -PI * 0.5f, &axis.x);
-		}
-		break;
-
-	case MESH_PLANE_X:
-		par = par_shapes_create_plane(1, 1);
-		par_shapes_translate(par, -0.5f, -0.5f, 0.0f);
-		{
-			Vector3 axis = V3_UP;
-			par_shapes_rotate(par, PI * 0.5f, &axis.x);
-		}
-		break;
-	}
-
-	if (par != nullptr)
-	{
-		par_shapes_compute_normals(par);
-
-		mesh->count = 3 * par->ntriangles;
-		mesh->indices.resize(mesh->count);
-		mesh->positions.resize(par->npoints);
-		mesh->normals.resize(par->npoints);
-
-		memcpy(mesh->indices.data(), par->triangles, mesh->count * sizeof(uint16_t));
-		memcpy(mesh->positions.data(), par->points, par->npoints * sizeof(Vector3));
-		memcpy(mesh->normals.data(), par->normals, par->npoints * sizeof(Vector3));
-
-		if (par->tcoords != nullptr)
-		{
-			mesh->tcoords.resize(par->npoints);
-			memcpy(mesh->tcoords.data(), par->tcoords, par->npoints * sizeof(Vector2));
-		}
-
-		par_shapes_free_mesh(par);
-	}
-	else
-	{
-		// par_shapes parametrics supported, par_shapes platonic solids not supported.
-		// (Parametrics have tcoords & normals, whereas platonic solids only have positions).
-		assert(type == MESH_CUBE);
+#if PLATONIC
+	if (type == MESH_CUBE || type == MESH_SPHERE)
+		GenPlatonic(mesh, type);
+#else
+	if (type == MESH_CUBE)
 		GenCube(mesh, 1.0f, 1.0f, 1.0f);
-	}
+#endif
+	else
+		GenParametric(mesh, type);
 
 	Upload(mesh);
 }
@@ -237,6 +132,167 @@ void Upload(Mesh* mesh)
 	mesh->nbo = nbo;
 	mesh->tbo = tbo;
 	mesh->ebo = ebo;
+}
+
+void GenPlatonic(Mesh* mesh, MeshType type)
+{
+	par_shapes_mesh* par = nullptr;
+	switch (type)
+	{
+	case MESH_CUBE:
+		par = par_shapes_create_cube();
+		par_shapes_translate(par, -0.5f, -0.5f, -0.5f);
+		break;
+
+	case MESH_SPHERE:
+		par = par_shapes_create_subdivided_sphere(1);
+		break;
+
+	default:
+		assert(false, "Unsupported platonic solid");
+		break;
+	}
+
+	par_shapes_unweld(par, true);
+	par_shapes_compute_normals(par);
+
+	mesh->count = par->npoints;
+	mesh->positions.resize(par->npoints);
+	mesh->normals.resize(par->npoints);
+	for (int i = 0; i < par->npoints; i++)
+	{
+		mesh->positions[i] = ((Vector3*)par->points)[i];
+		mesh->normals[i] = ((Vector3*)par->normals)[i];
+	}
+
+	par_shapes_free_mesh(par);
+}
+
+void GenParametric(Mesh* mesh, MeshType type)
+{
+	par_shapes_mesh* par = nullptr;
+	Vector3 position = V3_ZERO;
+	Vector3 normal = V3_FORWARD;
+	switch (type)
+	{
+	case MESH_TRIANGLE:
+		par = par_shapes_create_empty();
+
+		par->npoints = 3;
+		par->points = PAR_MALLOC(float, 9);
+		par->normals = PAR_MALLOC(float, 9);
+		par->tcoords = PAR_MALLOC(float, 6);
+
+		par->triangles = PAR_MALLOC(PAR_SHAPES_T, 3);
+		par->ntriangles = 1;
+
+		par->points[0] = 0.0f;
+		par->points[1] = 1.0f;
+		par->points[2] = 0.0f;
+		par->points[3] = -1.0f * sinf(PI / 3.0f);
+		par->points[4] = -1.0f * cosf(PI / 3.0f);
+		par->points[5] = 0.0f;
+		par->points[6] = 1.0f * sinf(PI / 3.0f);
+		par->points[7] = -1.0f * cosf(PI / 3.0f);
+		par->points[8] = 0.0f;
+
+		par->normals[0] = 0.0f;
+		par->normals[1] = 0.0f;
+		par->normals[2] = 1.0f;
+		par->normals[3] = 0.0f;
+		par->normals[4] = 0.0f;
+		par->normals[5] = 1.0f;
+		par->normals[6] = 0.0f;
+		par->normals[7] = 0.0f;
+		par->normals[8] = 1.0f;
+
+		par->tcoords[0] = 0.0f;
+		par->tcoords[1] = 0.0f;
+		par->tcoords[2] = 1.0f;
+		par->tcoords[3] = 0.0f;
+		par->tcoords[4] = 0.5f;
+		par->tcoords[5] = 1.0f;
+
+		par->triangles[0] = 0;
+		par->triangles[1] = 1;
+		par->triangles[2] = 2;
+		break;
+
+	case MESH_SQUARE:
+	case MESH_PLANE_Z:
+		par = par_shapes_create_plane(1, 1);
+		par_shapes_translate(par, -0.5f, -0.5f, 0.0f);
+		break;
+
+	case MESH_CIRCLE:
+		par = par_shapes_create_disk(1.0f, 32, &position.x, &normal.x);
+		break;
+
+	case MESH_SEMICIRCLE:
+		par = par_shapes_create_half_disk(1.0f, 16, &position.x, &normal.x);
+		break;
+
+	case MESH_SPHERE:
+		par = par_shapes_create_parametric_sphere(8, 8);
+		break;
+
+	case MESH_HEMISPHERE:
+		par = par_shapes_create_hemisphere(4, 4);
+		{
+			Vector3 axis = V3_RIGHT;
+			par_shapes_rotate(par, PI * 0.5f, &axis.x);
+		}
+		break;
+
+	case MESH_CYLINDER:
+		par = par_shapes_create_cylinder(8, 1);
+		par_shapes_translate(par, 0.0f, 0.0f, -0.5f);
+		break;
+
+	case MESH_PLANE_Y:
+		par = par_shapes_create_plane(1, 1);
+		par_shapes_translate(par, -0.5f, -0.5f, 0.0f);
+		{
+			Vector3 axis = V3_RIGHT;
+			par_shapes_rotate(par, -PI * 0.5f, &axis.x);
+		}
+		break;
+
+	case MESH_PLANE_X:
+		par = par_shapes_create_plane(1, 1);
+		par_shapes_translate(par, -0.5f, -0.5f, 0.0f);
+		{
+			Vector3 axis = V3_UP;
+			par_shapes_rotate(par, PI * 0.5f, &axis.x);
+		}
+		break;
+
+	default:
+		assert(false, "Unsupported parametric surface");
+		break;
+	}
+
+	mesh->count = 3 * par->ntriangles;
+	mesh->indices.resize(mesh->count);
+	for (int i = 0; i < mesh->count; i++)
+		mesh->indices[i] = par->triangles[i];
+
+	mesh->positions.resize(par->npoints);
+	mesh->normals.resize(par->npoints);
+	mesh->tcoords.resize(par->npoints);
+	for (int i = 0; i < par->npoints; i++)
+	{
+		mesh->positions[i] = ((Vector3*)par->points)[i];
+		mesh->normals[i] = ((Vector3*)par->normals)[i];
+	}
+
+	if (par->tcoords != nullptr)
+	{
+		for (int i = 0; i < par->npoints; i++)
+			mesh->tcoords[i] = ((Vector2*)par->tcoords)[i];
+	}
+
+	par_shapes_free_mesh(par);
 }
 
 void GenCube(Mesh* mesh, float width, float height, float length)
