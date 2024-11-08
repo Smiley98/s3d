@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cassert>
 
-#define PLATONIC true
+#define PLATONIC false
 
 Mesh gMeshHead;
 
