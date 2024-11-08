@@ -199,12 +199,6 @@ void DrawPlaneX(Vector3 center, float height, float depth, Vector3 color, Matrix
 	DrawMeshType(MESH_PLANE_X, world, color);
 }
 
-void DrawDodecahedron(Vector3 center, Vector3 scale, Vector3 color, Matrix rotation)
-{
-	Matrix world = Scale(scale) * rotation * Translate(center.x, center.y, center.z);
-	DrawMeshType(MESH_DODECAHEDRON, world, color);
-}
-
 void DrawMeshDebug(const Mesh& mesh, Matrix world, Vector3 color)
 {
 	switch (gDebugShader)
@@ -255,9 +249,13 @@ void DrawMesh(const Mesh& mesh)
 {
 	glBindVertexArray(mesh.vao);
 	if (mesh.ebo != GL_NONE)
+	{
 		glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr);
+	}
 	else
+	{
 		glDrawArrays(GL_TRIANGLES, 0, mesh.count);
+	}
 	glBindVertexArray(GL_NONE);
 }
 

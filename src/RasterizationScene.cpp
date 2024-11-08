@@ -17,6 +17,7 @@ Vector3 fPosition = V3_ZERO;
 
 Mesh fMesh;
 
+int fMeshIndex = MESH_SQUARE;
 int fProjIndex = 1;
 Matrix fProjections[] =
 {
@@ -26,7 +27,7 @@ Matrix fProjections[] =
 
 void RasterizationScene::OnLoad()
 {
-	CreateMesh(&fMesh, MESH_TRIANGLE);
+	CreateMesh(&fMesh, (MeshType)fMeshIndex);
 	CreateTextureFromImage(&fTexture, gImageDiffuse);
 	gCamera.position = { 0.0f, 0.0f, 5.0f };
 }
@@ -72,8 +73,7 @@ void RasterizationScene::OnDrawImGui()
 
 		"Plane_Z",
 		"Plane_Y",
-		"Plane_X",
-		"Dodecahedron"
+		"Plane_X"
 	};
 
 	ImGui::RadioButton("Orthographic", &fProjIndex, 0); ImGui::SameLine();
@@ -85,12 +85,11 @@ void RasterizationScene::OnDrawImGui()
 
 	ImGui::SliderFloat3("Object Position", &fPosition.x, -10.0f, 10.0f);
 
-	static int meshIndex = 0;
-	bool gen = ImGui::Combo("Meshes", &meshIndex, meshNames, IM_ARRAYSIZE(meshNames));
+	bool gen = ImGui::Combo("Meshes", &fMeshIndex, meshNames, IM_ARRAYSIZE(meshNames));
 	if (gen)
 	{
 		DestroyMesh(&fMesh);
-		CreateMesh(&fMesh, (MeshType)meshIndex);
+		CreateMesh(&fMesh, (MeshType)fMeshIndex);
 	}
 
 	static const char* shaderNames[] =

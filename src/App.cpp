@@ -37,7 +37,7 @@ void Init()
 	CreateMeshes();
 	CreateImages();
 
-	Scene::Create(Scene::SOLAR_SYSTEM);
+	Scene::Create(Scene::RASTER);
 }
 
 void Loop()

@@ -49,7 +49,6 @@ void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 
 void DrawPlaneZ(Vector3 center, float width, float height, Vector3 color, Matrix rotation = MatrixIdentity());
 void DrawPlaneY(Vector3 center, float width, float depth, Vector3 color, Matrix rotation = MatrixIdentity());
 void DrawPlaneX(Vector3 center, float height, float depth, Vector3 color, Matrix rotation = MatrixIdentity());
-void DrawDodecahedron(Vector3 center, Vector3 scale, Vector3 color, Matrix rotation = MatrixIdentity());
 
 // Renders mesh based on gDebugShader
 void DrawMeshDebug(const Mesh& mesh, Matrix world, Vector3 color);

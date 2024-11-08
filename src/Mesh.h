@@ -1,7 +1,5 @@
 #pragma once
 #include <glad/glad.h>
-#include <par_shapes.h>
-#include <fast_obj.h>
 #include <vector>
 #include "Math.h"
 
@@ -20,7 +18,6 @@ enum MeshType
 	MESH_PLANE_Z, // Faces +Z
 	MESH_PLANE_Y, // Faces +Y
 	MESH_PLANE_X, // Faces +X
-	MESH_DODECAHEDRON
 };
 
 struct Mesh
@@ -46,3 +43,10 @@ void DestroyMeshes();
 void CreateMesh(Mesh* mesh, const char* path);
 void CreateMesh(Mesh* mesh, MeshType type);
 void DestroyMesh(Mesh* mesh);
+
+// par meshes:
+// Optimized. Using par for parametric meshes, using custom algorithms for platonic solids.
+// 
+// obj meshes:
+// Unoptimized. Not worth optimizing given the scope of this project.
+// Potential optimizations include 1) generate index buffer and 2) load from binary.
