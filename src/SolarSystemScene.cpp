@@ -5,6 +5,8 @@
 #include "Camera.h"
 #include <array>
 
+Texture fTex;
+
 struct Planet
 {
 	Vector3 scale;
@@ -21,6 +23,8 @@ std::array<Planet, 9> planets;
 
 void SolarSystemScene::OnLoad()
 {
+	CreateTextureFromFile(&fTex, "./assets/textures/sky_y+.png");
+
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 
@@ -144,6 +148,8 @@ void SolarSystemScene::OnDraw()
 		DestroyMesh(&mesh);
 	}
 	UnbindShader();
+
+	DrawFsqTexture(fTex);
 }
 
 void SolarSystemScene::OnDrawImGui()

@@ -13,6 +13,7 @@ struct Texture
 void CreateTexture(Texture* texture, int width, int height);
 void DestroyTexture(Texture* texture);
 
+void CreateTextureFromFile(Texture* texture, const char* path, bool flip = false);
 void CreateTextureFromImage(Texture* texture, const Image& image);
 void UpdateTexture(Texture texture, const Image& image);
 

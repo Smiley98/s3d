@@ -1,5 +1,6 @@
 #include "Texture.h"
 #include "Image.h"
+#include <stb_image.h>
 
 inline GLuint GenTextureId()
 {
@@ -38,6 +39,33 @@ void DestroyTexture(Texture* texture)
     texture->width = 0;
     texture->height = 0;
     texture->id = GL_NONE;
+}
+
+void CreateTextureFromFile(Texture* texture, const char* path, bool flip)
+{
+    // Doesn't work unless image has 4 channels (needed for software rendering)
+    //Image image;
+    //LoadImage(&image, path, flip);
+    //CreateTextureFromImage(texture, image);
+
+    int width, height, channels;
+    stbi_uc* pixels = stbi_load(path, &width, &height, &channels, 0);
+    assert(channels == 3 || channels == 4);
+    GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
+
+    GLuint id;
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
+    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+
+    texture->id = id;
+    texture->width = width;
+    texture->height = height;
 }
 
 void CreateTextureFromImage(Texture* texture, const Image& image)
