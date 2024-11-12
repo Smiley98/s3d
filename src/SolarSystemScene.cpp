@@ -4,8 +4,7 @@
 #include "Render.h"
 #include "Camera.h"
 #include <array>
-
-Texture fTex;
+#include <stb_image.h>
 
 struct Planet
 {
@@ -21,10 +20,30 @@ struct Planet
 
 std::array<Planet, 9> planets;
 
+GLuint fCubemap;
+
+void CreateCubemap(const char* path[6])
+{
+	glGenTextures(1, &fCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, fCubemap);
+
+	int width, height, channels;
+	for (int i = 0; i < 6; i++)
+	{
+		stbi_uc* pixels = stbi_load(path[i], &width, &height, &channels, 0);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		stbi_image_free(pixels);
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+}
+
 void SolarSystemScene::OnLoad()
 {
-	CreateTextureFromFile(&fTex, "./assets/textures/sky_y+.png");
-
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 
@@ -37,6 +56,20 @@ void SolarSystemScene::OnLoad()
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
 	float pitch = gCamera.pitch * RAD2DEG;
 	float yaw = gCamera.yaw * RAD2DEG;
+
+	const char* skyboxFiles[] =
+	{
+		"./assets/textures/sky_x+.png",
+		"./assets/textures/sky_x-.png",
+		"./assets/textures/sky_y+.png",
+		"./assets/textures/sky_y-.png",
+		"./assets/textures/sky_z+.png",
+		"./assets/textures/sky_z-.png",
+	};
+	CreateCubemap(skyboxFiles);
+
+	// TODO -- Make skybox shader.
+	// Bind cube, only use position attributes.
 
 	// Sun
 	planets[0].scale = V3_ONE * 10.0f;
@@ -129,12 +162,18 @@ void SolarSystemScene::OnUpdate(float dt)
 
 void SolarSystemScene::OnDraw()
 {
+	Matrix mvpSkybox = NormalMatrix(gView) * gProj;
+	glBindTexture(GL_TEXTURE_CUBE_MAP, fCubemap);
+	BindShader(&gShaderSkybox);
+	SendMat4("u_mvp", &mvpSkybox);
+	SetDepthTest(false);
+	DrawMesh(gMeshCube);
+	SetDepthTest(true);
+	UnbindShader();
+
 	BindShader(&gShaderPlanetsRaster);
 	for (Planet& planet : planets)
 	{
-		Mesh mesh;
-		CreateMesh(&mesh, MESH_SPHERE);
-		
 		Matrix mvp = planet.world * gView * gProj;
 		Matrix normal = NormalMatrix(planet.world);
 		SendMat4("u_mvp", &mvp);
@@ -143,13 +182,9 @@ void SolarSystemScene::OnDraw()
 		SendVec3("u_camPos", gCamera.position);
 		SendVec3("u_sunPos", planets[0].position);
 		SendVec3("u_planetColor", planet.color);
-		
-		DrawMesh(mesh);
-		DestroyMesh(&mesh);
+		DrawMesh(gMeshSphere);
 	}
 	UnbindShader();
-
-	DrawFsqTexture(fTex);
 }
 
 void SolarSystemScene::OnDrawImGui()

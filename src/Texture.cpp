@@ -62,6 +62,7 @@ void CreateTextureFromFile(Texture* texture, const char* path, bool flip)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
+    stbi_image_free(pixels);
 
     texture->id = id;
     texture->width = width;

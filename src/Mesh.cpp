@@ -9,6 +9,8 @@
 
 #define PLATONIC false
 
+Mesh gMeshSphere;
+Mesh gMeshCube;
 Mesh gMeshHead;
 
 void Upload(Mesh* mesh);
@@ -19,12 +21,20 @@ void GenCube(Mesh* mesh, float width, float height, float length);
 
 void CreateMeshes()
 {
+	GenParametric(&gMeshSphere, MESH_SPHERE);
+	Upload(&gMeshSphere);
+
+	GenCube(&gMeshCube, 1.0f, 1.0f, 1.0f);
+	Upload(&gMeshCube);
+
 	CreateMesh(&gMeshHead, "assets/meshes/head.obj");
 }
 
 void DestroyMeshes()
 {
 	DestroyMesh(&gMeshHead);
+	DestroyMesh(&gMeshCube);
+	DestroyMesh(&gMeshSphere);
 }
 
 void CreateMesh(Mesh* mesh, const char* path)

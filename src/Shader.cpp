@@ -12,6 +12,7 @@ std::vector<GLuint> fPrograms;
 
 Shader gShaderPassThrough;
 Shader gShaderFSQ;
+Shader gShaderSkybox;
 Shader gShaderRaymarchBase;
 Shader gShaderFractal2D;
 Shader gShaderFractal3D;
@@ -33,11 +34,13 @@ void CreateShaders()
 {
     GLuint vsPassThrough = CreateShader(GL_VERTEX_SHADER, "assets/shaders/pass-through.vert");
     GLuint vsFSQ = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
+    GLuint vsSkybox = CreateShader(GL_VERTEX_SHADER, "assets/shaders/skybox.vert");
     GLuint vsLine = CreateShader(GL_VERTEX_SHADER, "assets/shaders/line.vert");
     GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
     GLuint vsPlanetsRaster = CreateShader(GL_VERTEX_SHADER, "assets/shaders/planets_raster.vert");
 
     GLuint fsPassThrough = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/pass-through.frag");
+    GLuint fsSkybox = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/skybox.frag");
     GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
     GLuint fsFractal2D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_2D.frag");
     GLuint fsFractal3D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_3D.frag");
@@ -51,6 +54,7 @@ void CreateShaders()
     
     CreateProgram(&gShaderPassThrough, vsPassThrough, fsPassThrough);
     CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
+    CreateProgram(&gShaderSkybox, vsSkybox, fsSkybox);
     CreateProgram(&gShaderRaymarchBase, vsFSQ, fsRaymarchBase);
     CreateProgram(&gShaderFractal2D, vsFSQ, fsFractal2D);
     CreateProgram(&gShaderFractal3D, vsFSQ, fsFractal3D);
