@@ -41,13 +41,9 @@ void DestroyTexture(Texture* texture)
     texture->id = GL_NONE;
 }
 
+// Made this because texture-from-image is 1) slow and 2) forces 4 channels & nearest sampling
 void CreateTextureFromFile(Texture* texture, const char* path, bool flip)
 {
-    // Doesn't work unless image has 4 channels (needed for software rendering)
-    //Image image;
-    //LoadImage(&image, path, flip);
-    //CreateTextureFromImage(texture, image);
-
     int width, height, channels;
     stbi_uc* pixels = stbi_load(path, &width, &height, &channels, 0);
     assert(channels == 3 || channels == 4);
@@ -83,4 +79,36 @@ void UpdateTexture(Texture texture, const Image& image)
     BindTexture(texture);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image.width, image.height, GL_RGBA, GL_UNSIGNED_BYTE, image.pixels.data());
     UnbindTexture(texture);
+}
+
+void CreateCubemap(Cubemap* cubemap, const char* path[6])
+{
+    glGenTextures(1, &cubemap->id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->id);
+
+    int width, height, channels;
+    for (int i = 0; i < 6; i++)
+    {
+        stbi_uc* pixels = stbi_load(path[i], &width, &height, &channels, 0);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        stbi_image_free(pixels);
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
+}
+
+void DestroyCubemap(Cubemap* cubemap)
+{
+    GLint current;
+    glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &current);
+    assert(cubemap->id != current, "Can't delete a bound texture");
+    assert(cubemap->id != GL_NONE, "Invalid texture handle");
+
+    glDeleteTextures(1, &cubemap->id);
 }

@@ -20,27 +20,7 @@ struct Planet
 
 std::array<Planet, 9> planets;
 
-GLuint fCubemap;
-
-void CreateCubemap(const char* path[6])
-{
-	glGenTextures(1, &fCubemap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, fCubemap);
-
-	int width, height, channels;
-	for (int i = 0; i < 6; i++)
-	{
-		stbi_uc* pixels = stbi_load(path[i], &width, &height, &channels, 0);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-		stbi_image_free(pixels);
-	}
-
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-}
+Cubemap fCubemap;
 
 void SolarSystemScene::OnLoad()
 {
@@ -66,10 +46,7 @@ void SolarSystemScene::OnLoad()
 		"./assets/textures/sky_z+.png",
 		"./assets/textures/sky_z-.png",
 	};
-	CreateCubemap(skyboxFiles);
-
-	// TODO -- Make skybox shader.
-	// Bind cube, only use position attributes.
+	CreateCubemap(&fCubemap, skyboxFiles);
 
 	// Sun
 	planets[0].scale = V3_ONE * 10.0f;
@@ -137,6 +114,7 @@ void SolarSystemScene::OnLoad()
 
 void SolarSystemScene::OnUnload()
 {
+	DestroyCubemap(&fCubemap);
 }
 
 void SolarSystemScene::OnUpdate(float dt)
@@ -163,13 +141,14 @@ void SolarSystemScene::OnUpdate(float dt)
 void SolarSystemScene::OnDraw()
 {
 	Matrix mvpSkybox = NormalMatrix(gView) * gProj;
-	glBindTexture(GL_TEXTURE_CUBE_MAP, fCubemap);
+	BindCubemap(fCubemap);
 	BindShader(&gShaderSkybox);
 	SendMat4("u_mvp", &mvpSkybox);
 	SetDepthTest(false);
 	DrawMesh(gMeshCube);
 	SetDepthTest(true);
 	UnbindShader();
+	UnbindCubemap(fCubemap);
 
 	BindShader(&gShaderPlanetsRaster);
 	for (Planet& planet : planets)

@@ -29,3 +29,24 @@ inline void UnbindTexture(Texture texture)
     assert(texture.id != GL_NONE);
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
 }
+
+// Just a type-safe wrapper for a GL handle (consider moving bind & unbind for texture & cubemap to Pipeline.h)
+struct Cubemap
+{
+    GLuint id = GL_NONE;
+};
+
+void CreateCubemap(Cubemap* cubemap, const char* path[6]);
+void DestroyCubemap(Cubemap* cubemap);
+
+inline void BindCubemap(Cubemap cubemap)
+{
+    assert(cubemap.id != GL_NONE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.id);
+}
+
+inline void UnbindCubemap(Cubemap cubemap)
+{
+    assert(cubemap.id != GL_NONE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
+}
