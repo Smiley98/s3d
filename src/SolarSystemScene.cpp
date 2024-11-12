@@ -20,7 +20,7 @@ struct Planet
 
 std::array<Planet, 9> planets;
 
-Cubemap fCubemap;
+Cubemap fSkybox;
 
 void SolarSystemScene::OnLoad()
 {
@@ -46,7 +46,7 @@ void SolarSystemScene::OnLoad()
 		"./assets/textures/sky_z+.png",
 		"./assets/textures/sky_z-.png",
 	};
-	CreateCubemap(&fCubemap, skyboxFiles);
+	CreateCubemap(&fSkybox, skyboxFiles);
 
 	// Sun
 	planets[0].scale = V3_ONE * 10.0f;
@@ -114,7 +114,7 @@ void SolarSystemScene::OnLoad()
 
 void SolarSystemScene::OnUnload()
 {
-	DestroyCubemap(&fCubemap);
+	DestroyCubemap(&fSkybox);
 }
 
 void SolarSystemScene::OnUpdate(float dt)
@@ -140,15 +140,7 @@ void SolarSystemScene::OnUpdate(float dt)
 
 void SolarSystemScene::OnDraw()
 {
-	Matrix mvpSkybox = NormalMatrix(gView) * gProj;
-	BindCubemap(fCubemap);
-	BindShader(&gShaderSkybox);
-	SendMat4("u_mvp", &mvpSkybox);
-	SetDepthTest(false);
-	DrawMesh(gMeshCube);
-	SetDepthTest(true);
-	UnbindShader();
-	UnbindCubemap(fCubemap);
+	DrawSkybox(fSkybox);
 
 	BindShader(&gShaderPlanetsRaster);
 	for (Planet& planet : planets)

@@ -60,5 +60,8 @@ void DrawMesh(const Mesh& mesh);
 void DrawFsq();
 void DrawFsqTexture(Texture texture);
 
+// Renders a skybox (unoptimized, must be rendered before all objects)
+void DrawSkybox(Cubemap cubemap);
+
 // Renders a line (no depth test or depth write)
 void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness = 1.0f);

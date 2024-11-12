@@ -308,3 +308,16 @@ void DrawFsqTexture(Texture texture)
 	UnbindShader();
 	UnbindTexture(texture);
 }
+
+void DrawSkybox(Cubemap cubemap)
+{
+	Matrix mvpSkybox = NormalMatrix(gView) * gProj;
+	BindCubemap(cubemap);
+	BindShader(&gShaderSkybox);
+	SendMat4("u_mvp", &mvpSkybox);
+	SetDepthTest(false);
+	DrawMesh(gMeshCube);
+	SetDepthTest(true);
+	UnbindShader();
+	UnbindCubemap(cubemap);
+}
