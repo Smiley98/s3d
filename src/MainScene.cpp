@@ -1,7 +1,5 @@
 #include "MainScene.h"
-#include "App.h"
 #include "Time.h"
-#include "Shader.h"
 #include "Render.h"
 #include "Rasterization.h"
 #include "ImageUtils.h"
@@ -9,18 +7,22 @@
 
 constexpr int IMAGE_SIZE = 512;
 
+Image fDiffuseMap;
+
 void MainScene::OnLoad()
 {
-	LoadImage(&mImage, IMAGE_SIZE, IMAGE_SIZE);
-	CreateTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
+	CreateImageFromMemory(&mImage, IMAGE_SIZE, IMAGE_SIZE);
+	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
+	CreateImageFromFile(&fDiffuseMap, "assets/textures/african_head_diffuse.png", true);
 	mMesh = gMeshHead;
 	gCamera.position = { 0.0f, 0.0f, 5.0f };
 }
 
 void MainScene::OnUnload()
 {
+	DestroyImage(&fDiffuseMap);
 	DestroyTexture(&mTexture);
-	UnloadImage(&mImage);
+	DestroyImage(&mImage);
 }
 
 void MainScene::OnUpdate(float dt)
@@ -62,15 +64,11 @@ void MainScene::OnUpdate(float dt)
 	data.diffuse = 0.75f;
 	data.specular = 32.0f;
 
-	DrawMesh(&mImage, mMesh, data);
+	DrawMesh(&mImage, mMesh, data, &fDiffuseMap);
 }
 
 void MainScene::OnDraw() 
 {
-	UpdateTexture(mTexture, mImage);
+	UpdateTexture(mTexture, (unsigned char*)mImage.pixels.data());
 	DrawFsqTexture(mTexture);
-}
-
-void MainScene::OnDrawGui()
-{
 }

@@ -1,44 +1,44 @@
 #include "Texture.h"
-#include "Image.h"
-#include <stb_image.h>
+#include "stb.h"
 
-inline GLuint GenTextureId()
+#include <cassert>
+#include <unordered_map>
+
+static std::unordered_map<GLuint, char[64]> fTextureNames;
+static GLuint fTexture = GL_NONE;
+static GLuint fCubemap = GL_NONE;
+
+inline void AddName(GLuint id, const char* name = nullptr)
 {
-    GLuint id;
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+#if _DEBUG
+    assert(fTextureNames.find(id) == fTextureNames.end());
+    if (name != nullptr)
+        strcpy(fTextureNames[id], name);
+    else
+        sprintf(fTextureNames[id], "Unnamed texture %i", id);
+#endif
+}
+
+inline void RemoveName(GLuint id)
+{
+#if _DEBUG
+    assert(fTextureNames.find(id) != fTextureNames.end());
+    fTextureNames.erase(id);
+#endif
+}
+
+inline GLint QueryTexture()
+{
+    GLint id;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &id);
     return id;
 }
 
-void CreateTexture(Texture* texture, int width, int height)
+inline GLint QueryCubemap()
 {
-    assert(texture->id == GL_NONE);
-
-    texture->id = GenTextureId();
-    texture->width = width;
-    texture->height = height;
-
-    BindTexture(*texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    UnbindTexture(*texture);
-}
-
-void DestroyTexture(Texture* texture)
-{
-    GLint current;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &current);
-    assert(texture->id != current, "Can't delete a bound texture");
-    assert(texture->id != GL_NONE, "Invalid texture handle");
-
-    glDeleteTextures(1, &texture->id);
-    texture->width = 0;
-    texture->height = 0;
-    texture->id = GL_NONE;
+    GLint id;
+    glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &id);
+    return id;
 }
 
 // Made this because texture-from-image is 1) slow and 2) forces 4 channels & nearest sampling
@@ -48,6 +48,8 @@ void CreateTextureFromFile(Texture* texture, const char* path, bool flip)
     stbi_uc* pixels = stbi_load(path, &width, &height, &channels, 0);
     assert(channels == 3 || channels == 4);
     GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
+    if (flip)
+        FlipVertically(pixels, width, height, channels);
 
     GLuint id;
     glGenTextures(1, &id);
@@ -63,22 +65,72 @@ void CreateTextureFromFile(Texture* texture, const char* path, bool flip)
     texture->id = id;
     texture->width = width;
     texture->height = height;
+    AddName(texture->id, path);
 }
 
-void CreateTextureFromImage(Texture* texture, const Image& image)
+void CreateTextureFromMemory(Texture* texture, int width, int height, unsigned char* pixels)
 {
-    CreateTexture(texture, image.width, image.height);
-    UpdateTexture(*texture, image);
+    GLuint id = GL_NONE;
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+
+    texture->id = id;
+    texture->width = width;
+    texture->height = height;
+    AddName(id);
 }
 
-void UpdateTexture(Texture texture, const Image& image)
+void UpdateTexture(Texture texture, unsigned char* pixels)
 {
-    assert(!image.pixels.empty());
-    assert(texture.id != GL_NONE);
-
+    assert(pixels != nullptr);
     BindTexture(texture);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image.width, image.height, GL_RGBA, GL_UNSIGNED_BYTE, image.pixels.data());
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.width, texture.height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
     UnbindTexture(texture);
+}
+
+void DestroyTexture(Texture* texture)
+{
+    assert(texture->id != QueryTexture(), "Can't delete a bound texture");
+    assert(texture->id != GL_NONE, "Invalid texture handle");
+
+    RemoveName(texture->id);
+    glDeleteTextures(1, &texture->id);
+
+    texture->width = 0;
+    texture->height = 0;
+    texture->id = GL_NONE;
+}
+
+void BindTexture(Texture texture, GLuint slot)
+{
+    assert(texture.id != GL_NONE, "Can't bind null texture");
+    assert(texture.id != QueryTexture(), "Texture already bound");
+
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, texture.id);
+    fTexture = texture.id;
+}
+
+void UnbindTexture(Texture texture)
+{
+    assert(texture.id != GL_NONE, "Current texture is null");
+    assert(QueryTexture() != GL_NONE, "No texture currently bound (nothing to unbind)");
+
+    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+    fTexture = GL_NONE;
+}
+
+GLuint BoundTexture()
+{
+    assert(fTexture == QueryTexture());
+    return fTexture;
 }
 
 void CreateCubemap(Cubemap* cubemap, const char* path[6])
@@ -101,14 +153,62 @@ void CreateCubemap(Cubemap* cubemap, const char* path[6])
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
+    AddName(cubemap->id, path[0]);
 }
 
 void DestroyCubemap(Cubemap* cubemap)
 {
-    GLint current;
-    glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &current);
-    assert(cubemap->id != current, "Can't delete a bound texture");
-    assert(cubemap->id != GL_NONE, "Invalid texture handle");
+    assert(cubemap->id != QueryCubemap(), "Can't delete a bound cubemap");
+    assert(cubemap->id != GL_NONE, "Invalid cubemap handle");
 
+    RemoveName(cubemap->id);
     glDeleteTextures(1, &cubemap->id);
+    cubemap->id = GL_NONE;
+}
+
+void BindCubemap(Cubemap cubemap)
+{
+    assert(cubemap.id != GL_NONE, "Can't bind null cubemap");
+    assert(cubemap.id != QueryCubemap(), "Cubemap already bound");
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.id);
+    fCubemap = fCubemap;
+}
+
+void UnbindCubemap(Cubemap cubemap)
+{
+    assert(cubemap.id != GL_NONE);
+    assert(QueryCubemap() != GL_NONE, "No cubemap currently bound (nothing to unbind)");
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
+    fCubemap = GL_NONE;
+}
+
+GLuint BoundCubemap()
+{
+    return fCubemap;
+}
+
+Texture gTexHead;
+Cubemap gSkybox;
+
+void CreateTextures()
+{
+    const char* skyboxFiles[] =
+    {
+        "./assets/textures/sky_x+.png",
+        "./assets/textures/sky_x-.png",
+        "./assets/textures/sky_y+.png",
+        "./assets/textures/sky_y-.png",
+        "./assets/textures/sky_z+.png",
+        "./assets/textures/sky_z-.png",
+    };
+    CreateCubemap(&gSkybox, skyboxFiles);
+    CreateTextureFromFile(&gTexHead, "assets/textures/african_head_diffuse.png", true);
+}
+
+void DestroyTextures()
+{
+    DestroyTexture(&gTexHead);
+    DestroyCubemap(&gSkybox);
 }

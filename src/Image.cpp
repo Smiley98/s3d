@@ -1,36 +1,41 @@
 #include "Image.h"
+#include "stb.h"
+#include <cassert>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
-void Flip(Image* image)
-{
-    stbi__vertical_flip(image->pixels.data(), image->width, image->height, sizeof(Color));
-}
-
-void LoadImage(Image* image, const char* path, bool flip)
+void CreateImageFromFile(Image* image, const char* path, bool flip)
 {
     int width, height, channels;
     stbi_uc* pixels = stbi_load(path, &width, &height, &channels, 4);
-    
-    LoadImage(image, width, height);
-    memcpy(image->pixels.data(), pixels, width * height * sizeof(Color));
-
     assert(pixels != nullptr && channels == 4);
+    CreateImageFromMemory(image, width, height, (Color*)pixels);
     stbi_image_free(pixels);
 
     if (flip)
         Flip(image);
 }
 
-Image gImageDiffuse;
-
-void CreateImages()
+void CreateImageFromMemory(Image* image, int width, int height, Color* pixels)
 {
-    LoadImage(&gImageDiffuse, "assets/textures/african_head_diffuse.png", true);
+    image->pixels.resize(width * height);
+    image->depth.resize(width * height);
+    image->width = width;
+    image->height = height;
+
+    if (pixels != nullptr)
+    {
+        memcpy(image->pixels.data(), pixels, width * height * sizeof(Color));
+    }
 }
 
-void DestroyImages()
+void DestroyImage(Image* image)
 {
-    UnloadImage(&gImageDiffuse);
+    image->pixels.resize(0);
+    image->depth.resize(0);
+    image->width = 0;
+    image->height = 0;
+}
+
+void Flip(Image* image)
+{
+    FlipVertically(image->pixels.data(), image->width, image->height, sizeof(Color));
 }

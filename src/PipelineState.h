@@ -19,3 +19,6 @@ void BindNullVao(); // GL_NONE
 
 // Faster to type if left as state machine,
 // but more robust if we set all gl state before each draw call.
+
+// Shader and Texture currently manage their own state. Might be better to move them here.
+// At the same time, Shader & Texture have file-scope, so perhaps best left as is.

@@ -11,23 +11,10 @@ struct Image
     int height = 0;
 };
 
+void CreateImageFromFile(Image* image, const char* path, bool flip = false);
+void CreateImageFromMemory(Image* image, int width, int height, Color* pixels = nullptr);
+void DestroyImage(Image* image);
 void Flip(Image* image);
-void LoadImage(Image* image, const char* path, bool flip = false);
-inline void LoadImage(Image* image, int width, int height)
-{
-    image->pixels.resize(width * height);
-    image->depth.resize(width * height);
-    image->width = width;
-    image->height = height;
-}
-
-inline void UnloadImage(Image* image)
-{
-    image->pixels.clear();
-    image->depth.clear();
-    image->width = 0;
-    image->height = 0;
-}
 
 inline void ClearColor(Image* image, Color color)
 {
@@ -70,8 +57,3 @@ inline void SetCol(Image* image, int col, Color color)
     for (size_t i = 0; i < image->height; i++)
         SetPixel(image, col, i, color);
 }
-
-void CreateImages();
-void DestroyImages();
-
-extern Image gImageDiffuse;

@@ -185,7 +185,7 @@ inline Vector3 Phong(Vector3 position, Vector3 normal, Vector3 camera, Vector3 l
 	return phong;
 }
 
-inline void DrawMesh(Image* image, const Mesh& mesh, UniformData uniform)
+inline void DrawMesh(Image* image, const Mesh& mesh, UniformData uniform, Image* diffuseMap)
 {
 	// Vertex input begin
 	Vector3* vertices = new Vector3[mesh.count];
@@ -301,9 +301,9 @@ inline void DrawMesh(Image* image, const Mesh& mesh, UniformData uniform)
 				Vector2 tc2 = tcoords[vertex + 2];
 				Vector2 tc = Terp(tc0, tc1, tc2, uvw);
 
-				float tw = gImageDiffuse.width;
-				float th = gImageDiffuse.height;
-				Color textureColor = GetPixel(gImageDiffuse, tc.x * tw, tc.y * th);
+				float tw = diffuseMap->width;
+				float th = diffuseMap->height;
+				Color textureColor = GetPixel(*diffuseMap, tc.x * tw, tc.y * th);
 
 				Vector3 baseColor = Phong(p, n, uniform.cameraPosition, uniform.lightPosition,
 					uniform.lightColor, uniform.ambient, uniform.diffuse, uniform.specular);

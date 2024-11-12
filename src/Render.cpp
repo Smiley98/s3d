@@ -1,5 +1,5 @@
 #include "Render.h"
-#include <par_shapes.h>
+#include <cassert>
 
 DebugShaderType gDebugShader = FLAT;
 Matrix gView = MatrixIdentity();

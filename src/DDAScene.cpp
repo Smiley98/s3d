@@ -1,8 +1,6 @@
 #include "DDAScene.h"
 #include "Window.h"
 #include "Time.h"
-#include "Mesh.h"
-#include "Shader.h"
 #include "Render.h"
 #include "Rasterization.h"
 #include "ImageUtils.h"
@@ -11,14 +9,14 @@ constexpr size_t IMAGE_SIZE = 512;
 
 void DDAScene::OnLoad()
 {
-	LoadImage(&mImage, IMAGE_SIZE, IMAGE_SIZE);
-	CreateTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
+	CreateImageFromMemory(&mImage, IMAGE_SIZE, IMAGE_SIZE);
+	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
 }
 
 void DDAScene::OnUnload()
 {
 	DestroyTexture(&mTexture);
-	UnloadImage(&mImage);
+	DestroyImage(&mImage);
 }
 
 void DDAScene::OnUpdate(float dt)
@@ -63,6 +61,6 @@ void DDAScene::OnUpdate(float dt)
 
 void DDAScene::OnDraw()
 {
-	UpdateTexture(mTexture, mImage);
+	UpdateTexture(mTexture, (unsigned char*)mImage.pixels.data());
 	DrawFsqTexture(mTexture);
 }

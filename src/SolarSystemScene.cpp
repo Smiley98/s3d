@@ -4,7 +4,6 @@
 #include "Render.h"
 #include "Camera.h"
 #include <array>
-#include <stb_image.h>
 
 struct Planet
 {
@@ -20,8 +19,6 @@ struct Planet
 
 std::array<Planet, 9> planets;
 
-Cubemap fSkybox;
-
 void SolarSystemScene::OnLoad()
 {
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
@@ -36,17 +33,6 @@ void SolarSystemScene::OnLoad()
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
 	float pitch = gCamera.pitch * RAD2DEG;
 	float yaw = gCamera.yaw * RAD2DEG;
-
-	const char* skyboxFiles[] =
-	{
-		"./assets/textures/sky_x+.png",
-		"./assets/textures/sky_x-.png",
-		"./assets/textures/sky_y+.png",
-		"./assets/textures/sky_y-.png",
-		"./assets/textures/sky_z+.png",
-		"./assets/textures/sky_z-.png",
-	};
-	CreateCubemap(&fSkybox, skyboxFiles);
 
 	// Sun
 	planets[0].scale = V3_ONE * 10.0f;
@@ -114,7 +100,6 @@ void SolarSystemScene::OnLoad()
 
 void SolarSystemScene::OnUnload()
 {
-	DestroyCubemap(&fSkybox);
 }
 
 void SolarSystemScene::OnUpdate(float dt)
@@ -140,7 +125,7 @@ void SolarSystemScene::OnUpdate(float dt)
 
 void SolarSystemScene::OnDraw()
 {
-	DrawSkybox(fSkybox);
+	DrawSkybox(gSkybox);
 
 	BindShader(&gShaderPlanetsRaster);
 	for (Planet& planet : planets)

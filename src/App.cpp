@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "Image.h"
+#include "Texture.h"
 
 #include <array>
 #include <iostream>
@@ -35,8 +36,7 @@ void Init()
 	CreateWindow();
 	CreateShaders();
 	CreateMeshes();
-	CreateImages();
-
+	CreateTextures();
 	Scene::Create(Scene::SOLAR_SYSTEM);
 }
 
@@ -131,7 +131,7 @@ void Loop()
 void Quit()
 {
 	Scene::Destroy();
-	DestroyImages();
+	DestroyTextures();
 	DestroyMeshes();
 	DestroyShaders();
 	DestroyWindow();

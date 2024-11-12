@@ -1,8 +1,6 @@
 #pragma once
 #include <glad/glad.h>
-#include <cassert>
 
-struct Image;
 struct Texture
 {
     GLuint id = GL_NONE;
@@ -10,27 +8,17 @@ struct Texture
     int height = 0;
 };
 
-void CreateTexture(Texture* texture, int width, int height);
+void CreateTextureFromFile(Texture* texture, const char* path, bool flip = false);
+void CreateTextureFromMemory(Texture* texture, int width, int height, unsigned char* pixels = nullptr/*RGBA, 32-bits per pixel*/);
+
+void UpdateTexture(Texture texture, unsigned char* pixels);
 void DestroyTexture(Texture* texture);
 
-void CreateTextureFromFile(Texture* texture, const char* path, bool flip = false);
-void CreateTextureFromImage(Texture* texture, const Image& image);
-void UpdateTexture(Texture texture, const Image& image);
+void BindTexture(Texture texture, GLuint slot = 0);
+void UnbindTexture(Texture texture);
 
-inline void BindTexture(Texture texture, GLuint slot = 0)
-{
-    assert(texture.id != GL_NONE);
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, texture.id);
-}
+GLuint BoundTexture();
 
-inline void UnbindTexture(Texture texture)
-{
-    assert(texture.id != GL_NONE);
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
-}
-
-// Just a type-safe wrapper for a GL handle (consider moving bind & unbind for texture & cubemap to Pipeline.h)
 struct Cubemap
 {
     GLuint id = GL_NONE;
@@ -39,14 +27,13 @@ struct Cubemap
 void CreateCubemap(Cubemap* cubemap, const char* path[6]);
 void DestroyCubemap(Cubemap* cubemap);
 
-inline void BindCubemap(Cubemap cubemap)
-{
-    assert(cubemap.id != GL_NONE);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.id);
-}
+void BindCubemap(Cubemap cubemap);
+void UnbindCubemap(Cubemap cubemap);
 
-inline void UnbindCubemap(Cubemap cubemap)
-{
-    assert(cubemap.id != GL_NONE);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
-}
+GLuint BoundCubemap();
+
+extern Texture gTexHead;
+extern Cubemap gSkybox;
+
+void CreateTextures();
+void DestroyTextures();

@@ -1,7 +1,5 @@
 #include "RaycastingScene.h"
 #include "Window.h"
-#include "Shader.h"
-#include "Mesh.h"
 #include "Render.h"
 #include "Rasterization.h"
 
@@ -93,8 +91,8 @@ RaycastingScene::RayHit RaycastingScene::Raycast(Vector2 position, Vector2 direc
 
 void RaycastingScene::OnLoad()
 {
-	LoadImage(&mImage, IMAGE_SIZE, IMAGE_SIZE);
-	CreateTexture(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
+	CreateImageFromMemory(&mImage, IMAGE_SIZE, IMAGE_SIZE);
+	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
 
 	mHits.resize(mImage.width);
 	mPosition = CENTER;
@@ -103,7 +101,7 @@ void RaycastingScene::OnLoad()
 void RaycastingScene::OnUnload()
 {
 	DestroyTexture(&mTexture);
-	UnloadImage(&mImage);
+	DestroyImage(&mImage);
 }
 
 void RaycastingScene::OnUpdate(float dt)
@@ -163,6 +161,6 @@ void RaycastingScene::OnUpdate(float dt)
 
 void RaycastingScene::OnDraw()
 {
-	UpdateTexture(mTexture, mImage);
+	UpdateTexture(mTexture, (unsigned char*)mImage.pixels.data());
 	DrawFsqTexture(mTexture);
 }

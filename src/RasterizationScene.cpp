@@ -1,7 +1,7 @@
 #include "RasterizationScene.h"
 #include "Window.h"
 #include "Time.h"
-#include "Image.h"
+#include "Render.h"
 #include "Camera.h"
 #include <imgui/imgui.h>
 
@@ -9,12 +9,10 @@ bool fTranslate = false;
 bool fRotate = false;
 bool fScale = false;
 
-Matrix fWorld;
-
-Texture fTexture;
 Vector3 fColor = V3_ONE;
 Vector3 fPosition = V3_ZERO;
 
+Matrix fWorld;
 Mesh fMesh;
 
 int fMeshIndex = 0;
@@ -28,13 +26,11 @@ Matrix fProjections[] =
 void RasterizationScene::OnLoad()
 {
 	CreateMesh(&fMesh, (MeshType)fMeshIndex);
-	CreateTextureFromImage(&fTexture, gImageDiffuse);
 	gCamera.position = { 0.0f, 0.0f, 5.0f };
 }
 
 void RasterizationScene::OnUnload()
 {
-	DestroyTexture(&fTexture);
 	DestroyMesh(&fMesh);
 }
 
@@ -110,13 +106,3 @@ void RasterizationScene::OnDrawImGui()
 	ImGui::ColorPicker3("Colour", &fColor.x);
 	//ImGui::ShowDemoWindow();
 }
-
-// Render 1x1 quad for reference
-//DebugShaderType type = gDebugShader;
-//gDebugShader = WIRE;
-//SetDepthTest(false);
-//SetWireframes(true);
-//DrawPlaneXY({}, 1.0f, 1.0f, V3_ONE);
-//SetWireframes(false);
-//SetDepthTest(true);
-//gDebugShader = type;

@@ -1,9 +1,9 @@
 #include "TestScene.h"
 #include "Time.h"
-#include "Shader.h"
-#include "Mesh.h"
 #include "Render.h"
 #include "ImageUtils.h"
+
+constexpr size_t IMAGE_SIZE = 512;
 
 float Fract(float f)
 {
@@ -12,14 +12,14 @@ float Fract(float f)
 
 void TestScene::OnLoad()
 {
-	LoadImage(&mImage, 512, 512);
-	CreateTexture(&mTexture, 512, 512);
+	CreateImageFromMemory(&mImage, IMAGE_SIZE, IMAGE_SIZE);
+	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
 }
 
 void TestScene::OnUnload()
 {
 	DestroyTexture(&mTexture);
-	UnloadImage(&mImage);
+	DestroyImage(&mImage);
 }
 
 void TestScene::OnUpdate(float dt)
@@ -67,6 +67,6 @@ void TestScene::OnUpdate(float dt)
 
 void TestScene::OnDraw()
 {
-	UpdateTexture(mTexture, mImage);
+	UpdateTexture(mTexture, (unsigned char*)mImage.pixels.data());
 	DrawFsqTexture(mTexture);
 }
