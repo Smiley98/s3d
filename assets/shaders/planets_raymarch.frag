@@ -10,8 +10,6 @@ uniform mat3 u_camRot;
 uniform vec3 u_camPos;
 uniform float u_fov;
 
-uniform mat4 u_test;
-
 uniform mat4 u_planetMatrices[9];
 uniform vec3 u_planetColors[9];
 uniform float u_planetRadii[9];
@@ -21,24 +19,6 @@ struct object
   float dist;   // distance
   int idx;      // material index
 };
-
-mat2 rotate(float angle)
-{
-  float s = sin(angle);
-  float c = cos(angle);
-  return mat2(c, -s, s, c);
-}
-
-float opU(float a, float b)
-{
-    return min(a, b);
-}
-
-float sdBox(vec3 p, vec3 b)
-{
-  vec3 q = abs(p) - b;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
-}
 
 float sdSphere(vec3 p, float r)
 {

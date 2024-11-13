@@ -31,19 +31,9 @@ void SolarSystemScene::OnLoad()
 {
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
-
-	// Fps same as look-at -- success!!!
-	//gCamera.position = { 48.0f, 48.0f, 20.0f };
-	//gCamera.pitch = -42.0f * DEG2RAD;
-	//gCamera.yaw = 67.0f * DEG2RAD;
-
-	// Note that fps camera needs yaw then pitch, so whether they're 2 matrices or 2 eulers, they need to persist separately!
-	//float pitch = gCamera.pitch * RAD2DEG;
-	//float yaw = gCamera.yaw * RAD2DEG;
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
 
 	// Sun
-	//planets[0].scale = V3_ONE * 10.0f;
 	planets[0].radius = 5.0f;
 	planets[0].rotationSpeed = 24.0f;
 	planets[0].orbitSpeed = 0.0f;
@@ -51,7 +41,6 @@ void SolarSystemScene::OnLoad()
 	planets[0].color = { 0.97f, 0.38f, 0.09f };
 
 	// Mercury
-	//planets[1].scale = V3_ONE;
 	planets[1].radius = 0.5f;
 	planets[1].rotationSpeed = 58.7f;
 	planets[1].orbitSpeed = 0.5f;
@@ -59,7 +48,6 @@ void SolarSystemScene::OnLoad()
 	planets[1].color = { 0.45f, 0.07f, 0.006f };
 	
 	// Venus
-	//planets[2].scale = V3_ONE * 2.0f;
 	planets[2].radius = 1.0f;
 	planets[2].rotationSpeed = 243.0f;
 	planets[2].orbitSpeed = 0.8f;
@@ -67,7 +55,6 @@ void SolarSystemScene::OnLoad()
 	planets[2].color = { 0.6f, 0.32f, 0.006f };
 	
 	// Earth
-	//planets[3].scale = V3_ONE * 4.0f;
 	planets[3].radius = 2.0f;
 	planets[3].rotationSpeed = 1.0f;
 	planets[3].orbitSpeed = 1.0f;
@@ -75,7 +62,6 @@ void SolarSystemScene::OnLoad()
 	planets[3].color = { 0.07f, 0.028f, 0.61f };
 
 	// Mars
-	//planets[4].scale = V3_ONE * 3.0f;
 	planets[4].radius = 1.5f;
 	planets[4].rotationSpeed = 1.1f;
 	planets[4].orbitSpeed = 2.0f;
@@ -83,7 +69,6 @@ void SolarSystemScene::OnLoad()
 	planets[4].color = { 0.79f, 0.07f, 0.006f };
 
 	// Jupiter
-	//planets[5].scale = V3_ONE * 8.0f;
 	planets[5].radius = 4.0f;
 	planets[5].rotationSpeed = 0.4f;
 	planets[5].orbitSpeed = 11.0f;
@@ -91,7 +76,6 @@ void SolarSystemScene::OnLoad()
 	planets[5].color = { 0.32f, 0.13f, 0.13f };
 
 	// Saturn
-	//planets[6].scale = V3_ONE * 6.0f;
 	planets[6].radius = 3.0f;
 	planets[6].rotationSpeed = 0.5f;
 	planets[6].orbitSpeed = 29.4f;
@@ -99,7 +83,6 @@ void SolarSystemScene::OnLoad()
 	planets[6].color = { 0.45f, 0.45f, 0.21f };
 
 	// Uranus
-	//planets[7].scale = V3_ONE * 7.0f;
 	planets[7].radius = 3.5f;
 	planets[7].rotationSpeed = 0.8f;
 	planets[7].orbitSpeed = 84.07f;
@@ -107,7 +90,6 @@ void SolarSystemScene::OnLoad()
 	planets[7].color = { 0.13f, 0.13f, 0.32f };
 
 	// Neptune
-	//planets[8].scale = V3_ONE * 8.0f;
 	planets[8].radius = 4.0f;
 	planets[8].rotationSpeed = 0.9f;
 	planets[8].orbitSpeed = 164.81f;
@@ -156,6 +138,8 @@ void SolarSystemScene::OnUpdate(float dt)
 void SolarSystemScene::OnDraw()
 {
 	// TODO -- Make a scene for environment mapping
+	// TODO -- Add transformation order to raymarching base so I remember why all this works xD
+	// TODO -- Add lighting to raymarching and fix rasterized sun lighting
 	DrawSkybox(gSkybox);
 
 	if (fRaymarch)
