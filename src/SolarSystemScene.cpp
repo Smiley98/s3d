@@ -18,6 +18,8 @@ struct Planet
 };
 
 std::array<Planet, 9> planets;
+bool fRaymarch = false;
+float fFov = PI * 0.5f;
 
 void SolarSystemScene::OnLoad()
 {
@@ -30,9 +32,10 @@ void SolarSystemScene::OnLoad()
 	//gCamera.yaw = 67.0f * DEG2RAD;
 
 	// Note that fps camera needs yaw then pitch, so whether they're 2 matrices or 2 eulers, they need to persist separately!
-	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
-	float pitch = gCamera.pitch * RAD2DEG;
-	float yaw = gCamera.yaw * RAD2DEG;
+	//float pitch = gCamera.pitch * RAD2DEG;
+	//float yaw = gCamera.yaw * RAD2DEG;
+	//gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
+	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 
 	// Sun
 	planets[0].scale = V3_ONE * 10.0f;
@@ -120,27 +123,50 @@ void SolarSystemScene::OnUpdate(float dt)
 	}
 
 	gView = ToView(gCamera);
-	gProj = Perspective(PI * 0.5f, SCREEN_ASPECT, 0.1f, 1000.0f);
+	gProj = Perspective(fFov, SCREEN_ASPECT, 0.1f, 1000.0f);
+
+	if (IsKeyPressed(KEY_TAB))
+		fRaymarch = !fRaymarch;
 }
 
 void SolarSystemScene::OnDraw()
 {
+	// TODO -- Make a scene for environment mapping
 	DrawSkybox(gSkybox);
 
-	BindShader(&gShaderPlanetsRaster);
-	for (Planet& planet : planets)
+	if (fRaymarch)
 	{
-		Matrix mvp = planet.world * gView * gProj;
-		Matrix normal = NormalMatrix(planet.world);
-		SendMat4("u_mvp", &mvp);
-		SendMat4("u_world", &planet.world);
-		SendMat3("u_normal", &normal);
+		float time = TotalTime();
+		Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
+		Matrix rot = FpsRotation(gCamera);
+
+		BindShader(&gShaderPlanetsRaymarch);
+		SendMat3("u_camRot", &rot);
 		SendVec3("u_camPos", gCamera.position);
-		SendVec3("u_sunPos", planets[0].position);
-		SendVec3("u_planetColor", planet.color);
-		DrawMesh(gMeshSphere);
+		SendFloat("u_fov", tanf(fFov * 0.5f));
+
+		SendVec2("u_resolution", resolution);
+		SendFloat("u_time", time);
+		DrawFsq();
+		UnbindShader();
 	}
-	UnbindShader();
+	else
+	{
+		BindShader(&gShaderPlanetsRaster);
+		for (Planet& planet : planets)
+		{
+			Matrix mvp = planet.world * gView * gProj;
+			Matrix normal = NormalMatrix(planet.world);
+			SendMat4("u_mvp", &mvp);
+			SendMat4("u_world", &planet.world);
+			SendMat3("u_normal", &normal);
+			SendVec3("u_camPos", gCamera.position);
+			SendVec3("u_sunPos", planets[0].position);
+			SendVec3("u_planetColor", planet.color);
+			DrawMesh(gMeshSphere);
+		}
+		UnbindShader();
+	}
 }
 
 void SolarSystemScene::OnDrawImGui()

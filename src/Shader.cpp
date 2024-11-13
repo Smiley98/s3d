@@ -51,6 +51,7 @@ void CreateShaders()
     GLuint fsPositionsWorld = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_world.frag");
     GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
     GLuint fsPlanetsRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raster.frag"); 
+    GLuint fsPlanetsRaymarch = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raymarch.frag"); 
     
     CreateProgram(&gShaderPassThrough, vsPassThrough, fsPassThrough);
     CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
@@ -66,6 +67,7 @@ void CreateShaders()
     CreateProgram(&gShaderPositionsWorld, vsMVP, fsPositionsWorld);
     CreateProgram(&gShaderPositionsScreen, vsMVP, fsPositionsScreen);
     CreateProgram(&gShaderPlanetsRaster, vsPlanetsRaster, fsPlanetsRaster);
+    CreateProgram(&gShaderPlanetsRaymarch, vsFSQ, fsPlanetsRaymarch);
 }
 
 void DestroyShaders()
