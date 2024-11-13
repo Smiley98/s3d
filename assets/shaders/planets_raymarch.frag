@@ -12,6 +12,12 @@ uniform float u_fov;
 
 uniform vec3 u_pos;
 
+struct object
+{
+  float dist;   // distance
+  int idx;      // material index
+};
+
 mat2 rotate(float angle)
 {
   float s = sin(angle);
@@ -24,6 +30,11 @@ float opU(float a, float b)
     return min(a, b);
 }
 
+object opU2(object obj1, object obj2)
+{
+  return obj1.dist < obj2.dist ? obj1 : obj2;
+}
+
 float sdBox(vec3 p, vec3 b)
 {
   vec3 q = abs(p) - b;
@@ -32,8 +43,6 @@ float sdBox(vec3 p, vec3 b)
 
 float sdSphere(vec3 p, float r)
 {
-  // Formerly length(p - t) - r;
-  // Removed because this forces us to translate *last*
   return length(p) - r;
 }
 
@@ -41,7 +50,7 @@ float sdSphere(vec3 p, float r)
 // "inverted" --> subtract a positive number to translate in the positive direction.
 // "reversed" --> translate then rotate to "rotate in-place".
 // (This behaviour makes sense if you visualize the effects on an individual ray, ie "how does the scene change if we move a ray 5 units left").
-float map(vec3 p)
+object map(vec3 p)
 {
   vec3 extents = vec3(1.0, 1.0, 1.0);
   vec3 translation = vec3(5.0, 0.0, 0.0);
@@ -59,8 +68,22 @@ float map(vec3 p)
   pos2 -= translation;
   float box2 = sdBox(pos2, extents);
 
-  return min(box1, box2);
+  object b1;
+  b1.dist = box1;
+  b1.idx = 0;
+
+  object b2;
+  b2.dist = box2;
+  b2.idx = 1;
+
+  return opU2(b1, b2);
 }
+
+vec3 cols[3] = {
+  vec3(1.0, 0.0, 0.0),
+  vec3(0.0, 1.0, 0.0),
+  vec3(0.0, 0.0, 1.0)
+};
 
 void main()
 {
@@ -76,19 +99,20 @@ void main()
   // Distance along ray
   float t = 0.0;
   
-  int hit = 0;
+  int hit = -1;
   for (int i = 0; i < 64; i++)
   {
     // Position in scene
     vec3 p = ro + rd * t;
     
-    float d = map(p);
+    object obj = map(p);
+    float d = obj.dist;
     t += d;
     
     // Ray is near an object, register a hit!
     if (d < 0.01)
     {
-      hit = 1;
+      hit = obj.idx;
       break;
     }
     
@@ -98,6 +122,6 @@ void main()
   }
   
   // Colour based on ray distance
-  vec3 color = hit > 0 ? vec3(1.0, 0.0, 0.0) : vec3(1.0, 1.0, 1.0);
+  vec3 color = hit >= 0 ? cols[hit] : vec3(1.0, 1.0, 1.0);
   FragColor = vec4(color, 1.0);
 }
