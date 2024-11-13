@@ -92,6 +92,7 @@ void RasterizationScene::OnDrawImGui()
 	{
 		"Flat",
 		"Wireframe",
+		"Depth",
 		"World-Space Positions",
 		"Screen-Space Positions",
 		"Object-Space Normals",

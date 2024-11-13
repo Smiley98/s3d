@@ -129,7 +129,7 @@ void SolarSystemScene::OnUpdate(float dt)
 	}
 
 	gView = ToView(gCamera);
-	gProj = Perspective(fFov, SCREEN_ASPECT, 0.1f, 1000.0f);
+	gProj = Perspective(fFov, SCREEN_ASPECT, 0.1f, 100.0f);
 
 	if (IsKeyPressed(KEY_TAB))
 		fRaymarch = !fRaymarch;

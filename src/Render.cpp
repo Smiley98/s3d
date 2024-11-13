@@ -29,6 +29,24 @@ void DrawMeshWireframes(const Mesh& mesh, Matrix world, Vector3 color)
 	SetWireframes(false);
 }
 
+// Assumes perspective projection.
+// (Could make a system that stores all perspective & ortho values upon set, but I don't think we need that right now).
+void DrawMeshDepth(const Mesh& mesh, Matrix world)
+{
+	float c = gProj.m10;
+	float d = gProj.m14;
+	float near = d / (c - 1.0f);
+	float far = d / (c + 1.0f);
+	Matrix mvp = world * gView * gProj;
+	BindShader(&gShaderDepth);
+	SendMat4("u_mvp", mvp);
+	SendMat4("u_world", world);
+	SendFloat("u_near", near);
+	SendFloat("u_far", far);
+	DrawMesh(mesh);
+	UnbindShader();
+}
+
 void DrawMeshPositionsWorld(const Mesh& mesh, Matrix world)
 {
 	Matrix mvp = world * gView * gProj;
@@ -209,6 +227,10 @@ void DrawMeshDebug(const Mesh& mesh, Matrix world, Vector3 color)
 
 	case WIRE:
 		DrawMeshWireframes(mesh, world, color);
+		break;
+
+	case DEPTH:
+		DrawMeshDepth(mesh, world);
 		break;
 
 	case POSITIONS_WORLD:

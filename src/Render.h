@@ -9,6 +9,7 @@ enum DebugShaderType : int
 {
 	FLAT,
 	WIRE,
+	DEPTH,
 	POSITIONS_WORLD,
 	POSITIONS_SCREEN,
 	NORMALS_OBJECT,
@@ -22,6 +23,7 @@ extern Matrix gProj;
 
 void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color);
 void DrawMeshWireframes(const Mesh& mesh, Matrix world, Vector3 color);
+void DrawMeshDepth(const Mesh& mesh, Matrix world);/*Assumes perspective projection*/
 void DrawMeshPositionsWorld(const Mesh& mesh, Matrix world);
 void DrawMeshPositionsScreen(const Mesh& mesh, Matrix world, Vector2 resolution = { SCREEN_WIDTH, SCREEN_HEIGHT });
 void DrawMeshNormals(const Mesh& mesh, Matrix world, Matrix normal/*identity for object-space*/);

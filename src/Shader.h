@@ -17,6 +17,7 @@ extern Shader gShaderFractal2D;
 extern Shader gShaderFractal3D;
 extern Shader gShaderLine;
 extern Shader gShaderColor;
+extern Shader gShaderDepth;
 extern Shader gShaderNormals;
 extern Shader gShaderTcoords;
 extern Shader gShaderTexture;

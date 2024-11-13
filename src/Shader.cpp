@@ -18,6 +18,7 @@ Shader gShaderFractal2D;
 Shader gShaderFractal3D;
 Shader gShaderLine;
 Shader gShaderColor;
+Shader gShaderDepth;
 Shader gShaderNormals;
 Shader gShaderTcoords;
 Shader gShaderTexture;
@@ -45,6 +46,7 @@ void CreateShaders()
     GLuint fsFractal2D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_2D.frag");
     GLuint fsFractal3D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_3D.frag");
     GLuint fsColor = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
+    GLuint fsDepth = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/depth.frag");
     GLuint fsNormals = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/normals.frag");
     GLuint fsTcoords = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/tcoords.frag");
     GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
@@ -61,6 +63,7 @@ void CreateShaders()
     CreateProgram(&gShaderFractal3D, vsFSQ, fsFractal3D);
     CreateProgram(&gShaderLine, vsLine, fsColor);
     CreateProgram(&gShaderColor, vsMVP, fsColor);
+    CreateProgram(&gShaderDepth, vsMVP, fsDepth);
     CreateProgram(&gShaderNormals, vsMVP, fsNormals);
     CreateProgram(&gShaderTcoords, vsMVP, fsTcoords);
     CreateProgram(&gShaderTexture, vsMVP, fsTexture);
