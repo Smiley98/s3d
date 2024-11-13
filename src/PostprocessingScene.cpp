@@ -37,7 +37,7 @@ void PostprocessingScene::OnDraw()
 
 	Matrix rot = FpsRotation(gCamera);
 	BindShader(shaders[shader]);
-	SendMat3("u_camRot", &rot);
+	SendMat3("u_camRot", rot);
 	SendVec3("u_camPos", gCamera.position);
 	SendFloat("u_fov", tanf(90.0f * 0.5f * DEG2RAD));
 	// Ensure the ray FoV of 90 degrees matches the perspective projection's FoV!

@@ -16,7 +16,7 @@ void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color)
 {
 	Matrix mvp = world * gView * gProj;
 	BindShader(&gShaderColor);
-	SendMat4("u_mvp", &mvp);
+	SendMat4("u_mvp", mvp);
 	SendVec3("u_color", color);
 	DrawMesh(mesh);
 	UnbindShader();
@@ -33,8 +33,8 @@ void DrawMeshPositionsWorld(const Mesh& mesh, Matrix world)
 {
 	Matrix mvp = world * gView * gProj;
 	BindShader(&gShaderPositionsWorld);
-	SendMat4("u_mvp", &mvp);
-	SendMat4("u_world", &world);
+	SendMat4("u_mvp", mvp);
+	SendMat4("u_world", world);
 	DrawMesh(mesh);
 	UnbindShader();
 }
@@ -43,7 +43,7 @@ void DrawMeshPositionsScreen(const Mesh& mesh, Matrix world, Vector2 resolution)
 {
 	Matrix mvp = world * gView * gProj;
 	BindShader(&gShaderPositionsScreen);
-	SendMat4("u_mvp", &mvp);
+	SendMat4("u_mvp", mvp);
 	SendVec2("u_resolution", resolution);
 	DrawMesh(mesh);
 	UnbindShader();
@@ -53,9 +53,9 @@ void DrawMeshNormals(const Mesh& mesh, Matrix world, Matrix normal)
 {
 	Matrix mvp = world * gView * gProj;
 	BindShader(&gShaderNormals);
-	SendMat4("u_mvp", &mvp);
-	SendMat4("u_world", &world);
-	SendMat3("u_normal", &normal);
+	SendMat4("u_mvp", mvp);
+	SendMat4("u_world", world);
+	SendMat3("u_normal", normal);
 	DrawMesh(mesh);
 	UnbindShader();
 }
@@ -66,7 +66,7 @@ void DrawMeshTcoords(const Mesh& mesh, Matrix world)
 	{
 		Matrix mvp = world * gView * gProj;
 		BindShader(&gShaderTcoords);
-		SendMat4("u_mvp", &mvp);
+		SendMat4("u_mvp", mvp);
 		DrawMesh(mesh);
 		UnbindShader();
 	}
@@ -79,8 +79,8 @@ void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture)
 	Matrix mvp = world * gView * gProj;
 	BindTexture(texture);
 	BindShader(&gShaderTexture);
-	SendMat4("u_mvp", &mvp);
-	SendMat3("u_normal", &normal);
+	SendMat4("u_mvp", mvp);
+	SendMat3("u_normal", normal);
 	SendInt("u_tex", 0);
 	DrawMesh(mesh);
 	UnbindShader();
@@ -268,7 +268,7 @@ void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness)
 
 	Matrix mvp = gView * gProj;
 	BindShader(&gShaderLine);
-	SendMat4("u_mvp", &mvp);
+	SendMat4("u_mvp", mvp);
 	SendVec3("u_pos0", p0);
 	SendVec3("u_pos1", p1);
 	SendVec3("u_color", color);
@@ -314,7 +314,7 @@ void DrawSkybox(Cubemap cubemap)
 	Matrix mvpSkybox = NormalMatrix(gView) * gProj;
 	BindCubemap(cubemap);
 	BindShader(&gShaderSkybox);
-	SendMat4("u_mvp", &mvpSkybox);
+	SendMat4("u_mvp", mvpSkybox);
 	SetDepthTest(false);
 	DrawMesh(gMeshCube);
 	SetDepthTest(true);

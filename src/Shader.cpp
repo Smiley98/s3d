@@ -94,14 +94,14 @@ void UnbindShader()
     fShader = nullptr;
 }
 
-void SendFloat(const char* name, float v)
-{
-    glUniform1f(GetUniform(name), v);
-}
-
 void SendInt(const char* name, int v)
 {
     glUniform1i(GetUniform(name), v);
+}
+
+void SendFloat(const char* name, float v)
+{
+    glUniform1f(GetUniform(name), v);
 }
 
 void SendVec2(const char* name, const Vector2& v)
@@ -119,16 +119,59 @@ void SendVec4(const char* name, const Vector4& v)
     glUniform4f(GetUniform(name), v.x, v.y, v.z, v.w);
 }
 
-void SendMat3(const char* name, const Matrix* v)
+void SendMat3(const char* name, const Matrix& v)
 {
-    float9 mat3 = ToFloat9(*v);
+    float9 mat3 = ToFloat9(v);
     glUniformMatrix3fv(GetUniform(name), 1, GL_FALSE, mat3.v);
 }
 
-void SendMat4(const char* name, const Matrix* v)
+void SendMat4(const char* name, const Matrix& v)
 {
-    float16 mat4 = ToFloat16(*v);
+    float16 mat4 = ToFloat16(v);
     glUniformMatrix4fv(GetUniform(name), 1, GL_FALSE, mat4.v);
+}
+
+void SendIntArray(const char* name, int* v, int count)
+{
+    glUniform1iv(GetUniform(name), count, v);
+}
+
+void SendFloatArray(const char* name, float* v, int count)
+{
+    glUniform1fv(GetUniform(name), count, v);
+}
+
+void SendVec2Array(const char* name, Vector2* v, int count)
+{
+    glUniform2fv(GetUniform(name), count, (float*)v);
+}
+
+void SendVec3Array(const char* name, Vector3* v, int count)
+{
+    glUniform3fv(GetUniform(name), count, (float*)v);
+}
+
+void SendVec4Array(const char* name, Vector4* v, int count)
+{
+    glUniform4fv(GetUniform(name), count, (float*)v);
+}
+
+void SendMat3Array(const char* name, Matrix* v, int count)
+{
+    float9* mat3 = new float9[count];
+    for (int i = 0; i < count; i++)
+        mat3[i] = ToFloat9(v[i]);
+    glUniformMatrix3fv(GetUniform(name), count, GL_FALSE, (float*)mat3);
+    delete[] mat3;
+}
+
+void SendMat4Array(const char* name, Matrix* v, int count)
+{
+    float16* mat4 = new float16[count];
+    for (int i = 0; i < count; i++)
+        mat4[i] = ToFloat16(v[i]);
+    glUniformMatrix4fv(GetUniform(name), count, GL_FALSE, (float*)mat4);
+    delete[] mat4;
 }
 
 GLuint CreateShader(GLint type, const char* path)
