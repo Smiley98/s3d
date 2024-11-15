@@ -14,6 +14,7 @@ Shader gShaderPassThrough;
 Shader gShaderFSQ;
 Shader gShaderSkybox;
 Shader gShaderRaymarchBase;
+Shader gShaderRaymarchTheft;
 Shader gShaderFractal2D;
 Shader gShaderFractal3D;
 Shader gShaderLine;
@@ -43,6 +44,7 @@ void CreateShaders()
     GLuint fsPassThrough = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/pass-through.frag");
     GLuint fsSkybox = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/skybox.frag");
     GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
+    GLuint fsRaymarchTheft = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_theft.frag");
     GLuint fsFractal2D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_2D.frag");
     GLuint fsFractal3D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_3D.frag");
     GLuint fsColor = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
@@ -53,12 +55,13 @@ void CreateShaders()
     GLuint fsPositionsWorld = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_world.frag");
     GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
     GLuint fsPlanetsRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raster.frag"); 
-    GLuint fsPlanetsRaymarch = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raymarch.frag"); 
+    GLuint fsPlanetsRaymarch = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raymarch.frag");
     
     CreateProgram(&gShaderPassThrough, vsPassThrough, fsPassThrough);
     CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
     CreateProgram(&gShaderSkybox, vsSkybox, fsSkybox);
     CreateProgram(&gShaderRaymarchBase, vsFSQ, fsRaymarchBase);
+    CreateProgram(&gShaderPlanetsRaymarch, vsFSQ, fsRaymarchTheft);
     CreateProgram(&gShaderFractal2D, vsFSQ, fsFractal2D);
     CreateProgram(&gShaderFractal3D, vsFSQ, fsFractal3D);
     CreateProgram(&gShaderLine, vsLine, fsColor);

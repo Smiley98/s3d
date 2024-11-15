@@ -37,7 +37,7 @@ void Init()
 	CreateShaders();
 	CreateMeshes();
 	CreateTextures();
-	Scene::Create(Scene::SOLAR_SYSTEM);
+	Scene::Create(Scene::POST_PROCESSING);
 }
 
 void Loop()
@@ -117,7 +117,7 @@ void Loop()
 		if (logTimer.Expired())
 		{
 			logTimer.Reset();
-			printf("Fps:  %f\n", fps);
+			printf("Fps: %f\n", fps);
 		}
 #endif
 

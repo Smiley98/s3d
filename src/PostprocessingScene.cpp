@@ -15,13 +15,12 @@ void PostprocessingScene::OnUnload()
 
 void PostprocessingScene::OnUpdate(float dt)
 {
-	// Note that raymarching doesn' use the view matrix!
-	// This is being done mainly to update camera position and orientation.
 	UpdateFpsCameraDefault(gCamera, dt);
-	gView = ToView(gCamera);
+
+	// Raymarching uses the camera matrix, so no need to calculate the view matrix!
+	//gView = ToView(gCamera);
 }
 
-// TODO -- recreate hybrid rendered planet scene!!!
 void PostprocessingScene::OnDraw()
 {
 	float time = TotalTime();
@@ -30,7 +29,7 @@ void PostprocessingScene::OnDraw()
 	mouse.y = 1.0f - mouse.y;
 	mouse = mouse * 2.0f - 1.0f;
 
-	Shader* shaders[]{ &gShaderRaymarchBase, &gShaderFractal2D, &gShaderFractal3D };
+	Shader* shaders[]{ &gShaderRaymarchTheft, &gShaderFractal2D, &gShaderFractal3D };
 	static int shader = 0;
 	if (IsKeyPressed(KEY_TAB))
 		++shader %= 3;
@@ -41,7 +40,7 @@ void PostprocessingScene::OnDraw()
 	SendVec3("u_camPos", gCamera.position);
 	SendFloat("u_fov", tanf(90.0f * 0.5f * DEG2RAD));
 	// Ensure the ray FoV of 90 degrees matches the perspective projection's FoV!
-
+	
 	SendVec2("u_resolution", resolution);
 	SendVec2("u_mouse", mouse);
 	SendFloat("u_time", time);

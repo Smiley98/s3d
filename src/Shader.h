@@ -13,6 +13,7 @@ extern Shader gShaderPassThrough;
 extern Shader gShaderFSQ;
 extern Shader gShaderSkybox;
 extern Shader gShaderRaymarchBase;
+extern Shader gShaderRaymarchTheft;
 extern Shader gShaderFractal2D;
 extern Shader gShaderFractal3D;
 extern Shader gShaderLine;
