@@ -34,6 +34,7 @@ GLint GetUniform(const char* name);
 
 void CreateShaders()
 {
+    // Vertex shaders
     GLuint vsPassThrough = CreateShader(GL_VERTEX_SHADER, "assets/shaders/pass-through.vert");
     GLuint vsFSQ = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
     GLuint vsSkybox = CreateShader(GL_VERTEX_SHADER, "assets/shaders/skybox.vert");
@@ -41,12 +42,17 @@ void CreateShaders()
     GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
     GLuint vsPlanetsRaster = CreateShader(GL_VERTEX_SHADER, "assets/shaders/planets_raster.vert");
 
+    // Generic fragment shaders
     GLuint fsPassThrough = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/pass-through.frag");
     GLuint fsSkybox = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/skybox.frag");
+
+    // Raymarching fragment shaders
     GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
     GLuint fsRaymarchTheft = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_theft.frag");
     GLuint fsFractal2D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_2D.frag");
     GLuint fsFractal3D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_3D.frag");
+
+    // Visualization fragment shaders
     GLuint fsColor = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
     GLuint fsDepth = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/depth.frag");
     GLuint fsNormals = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/normals.frag");
@@ -54,14 +60,17 @@ void CreateShaders()
     GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
     GLuint fsPositionsWorld = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_world.frag");
     GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
+
+    // Solar system shaders
     GLuint fsPlanetsRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raster.frag"); 
     GLuint fsPlanetsRaymarch = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raymarch.frag");
     
+    // Shader programs
     CreateProgram(&gShaderPassThrough, vsPassThrough, fsPassThrough);
     CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
     CreateProgram(&gShaderSkybox, vsSkybox, fsSkybox);
     CreateProgram(&gShaderRaymarchBase, vsFSQ, fsRaymarchBase);
-    CreateProgram(&gShaderPlanetsRaymarch, vsFSQ, fsRaymarchTheft);
+    CreateProgram(&gShaderRaymarchTheft, vsFSQ, fsRaymarchTheft);
     CreateProgram(&gShaderFractal2D, vsFSQ, fsFractal2D);
     CreateProgram(&gShaderFractal3D, vsFSQ, fsFractal3D);
     CreateProgram(&gShaderLine, vsLine, fsColor);
