@@ -11,13 +11,15 @@ std::vector<GLuint> fShaders;
 std::vector<GLuint> fPrograms;
 
 Shader gShaderPassThrough;
+Shader gShaderLine;
 Shader gShaderFSQ;
 Shader gShaderSkybox;
+
 Shader gShaderRaymarchBase;
-Shader gShaderRaymarchTheft;
 Shader gShaderFractal2D;
 Shader gShaderFractal3D;
-Shader gShaderLine;
+Shader gShaderFractalOrb;
+
 Shader gShaderColor;
 Shader gShaderDepth;
 Shader gShaderNormals;
@@ -25,6 +27,7 @@ Shader gShaderTcoords;
 Shader gShaderTexture;
 Shader gShaderPositionsWorld;
 Shader gShaderPositionsScreen;
+
 Shader gShaderPlanetsRaster;
 Shader gShaderPlanetsRaymarch;
 
@@ -48,9 +51,9 @@ void CreateShaders()
 
     // Raymarching fragment shaders
     GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
-    GLuint fsRaymarchTheft = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_theft.frag");
     GLuint fsFractal2D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_2D.frag");
     GLuint fsFractal3D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_3D.frag");
+    GLuint fsFractalOrb = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_orb.frag");
 
     // Visualization fragment shaders
     GLuint fsColor = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
@@ -69,11 +72,13 @@ void CreateShaders()
     CreateProgram(&gShaderPassThrough, vsPassThrough, fsPassThrough);
     CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
     CreateProgram(&gShaderSkybox, vsSkybox, fsSkybox);
+    CreateProgram(&gShaderLine, vsLine, fsColor);
+
     CreateProgram(&gShaderRaymarchBase, vsFSQ, fsRaymarchBase);
-    CreateProgram(&gShaderRaymarchTheft, vsFSQ, fsRaymarchTheft);
     CreateProgram(&gShaderFractal2D, vsFSQ, fsFractal2D);
     CreateProgram(&gShaderFractal3D, vsFSQ, fsFractal3D);
-    CreateProgram(&gShaderLine, vsLine, fsColor);
+    CreateProgram(&gShaderFractalOrb, vsFSQ, fsFractalOrb);
+
     CreateProgram(&gShaderColor, vsMVP, fsColor);
     CreateProgram(&gShaderDepth, vsMVP, fsDepth);
     CreateProgram(&gShaderNormals, vsMVP, fsNormals);
@@ -81,6 +86,7 @@ void CreateShaders()
     CreateProgram(&gShaderTexture, vsMVP, fsTexture);
     CreateProgram(&gShaderPositionsWorld, vsMVP, fsPositionsWorld);
     CreateProgram(&gShaderPositionsScreen, vsMVP, fsPositionsScreen);
+
     CreateProgram(&gShaderPlanetsRaster, vsPlanetsRaster, fsPlanetsRaster);
     CreateProgram(&gShaderPlanetsRaymarch, vsFSQ, fsPlanetsRaymarch);
 }

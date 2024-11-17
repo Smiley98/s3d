@@ -11,7 +11,9 @@ uniform mat3 u_camRot;
 uniform vec3 u_camPos;
 uniform float u_fov;
 
-uniform mat4 u_transform;
+uniform mat4 u_transform1;
+uniform mat4 u_transform2;
+uniform mat4 u_transform3;
 
 mat2 rotate(float angle)
 {
@@ -37,6 +39,12 @@ float sdOctahedron( vec3 p, float s)
   return (p.x + p.y + p.z - s) * 0.57735027;
 }
 
+float sdTorus( vec3 p, vec2 t )
+{
+  vec2 q = vec2(length(p.xz) - t.x, p.y);
+  return length(q) - t.y;
+}
+
 float map(vec3 p)
 {
   // Apply 3d rotations using a 2d matrix by multiplying by the axes you *don't* want to rotate about
@@ -46,33 +54,39 @@ float map(vec3 p)
 
   // Since we're in camera-space, we apply transformations in opposite order
   // So if scale then rotate then translate in view-space, we must translate then rotate then scale in camera space
+  // Also, rotations in camera-space are clockwise instead of counter-clockwise
   vec3 extents = vec3(1.0, 1.0, 1.0);
 
-  // Transforming the "right" way (rotate around origin):
-  vec3 q = p;
-  q -= translation;
-  q.xy *= rotation;
-  float box = sdBox(q, extents);
+  // Transforming the "right" way (rotate about origin -- "in-place"):
+  vec3 a = p;
+  a -= translation;
+  a.xy *= rotation;
+  float box = sdBox(a, extents);
 
-  // Transforming the "wrong" way (rotate around translation):
-  vec3 r = p;
-  r.xy *= rotation;
-  r -= translation;
-  float sphere = sdSphere(r, 1.0);
+  // Transforming the "wrong" way (rotate about translation -- "orbit"):
+  vec3 b = p;
+  b.xy *= rotation;
+  b -= translation;
+  float sphere = sdSphere(b, 1.0);
 
-  vec3 s = p;
-  s.xz *= rotation;
-  float oct = sdOctahedron(s, 1.0);
+  vec3 c = (u_transform1 * vec4(p, 1.0)).xyz; //p;
+  //c.xz *= rotation;
+  float oct = sdOctahedron(c, 1.0);
 
-  vec3 lemniscate = vec3(sin(u_time * 4.0) * 6.0, sin(u_time * 8.0) * 2.0, 0.0);
-  float fig8 = sdSphere(p - lemniscate, 1.0);
+  //vec3 lemniscate = vec3(sin(u_time * 4.0) * 6.0, sin(u_time * 8.0) * 2.0, 0.0);
+  //float fig8 = sdSphere(p - lemniscate, 1.0);
+  vec3 d = (u_transform2 * vec4(p, 1.0)).xyz;
+  float fig8 = sdTorus(d, vec2(1.0, 0.25));
 
-  const int count = 4;
-  float sdfs[count] = { box, sphere, oct, fig8 };
-  float d = 10000.0;
+  vec3 e = (u_transform3 * vec4(p, 1.0)).xyz;
+  float fig8Child = sdTorus(e, vec2(1.0, 0.25));
+
+  const int count = 5;
+  float sdfs[count] = { box, sphere, oct, fig8, fig8Child };
+  float dist = 10000.0;
   for (int i = 0; i < count; i++)
-    d = min(d, sdfs[i]);
-  return d;
+    dist = min(dist, sdfs[i]);
+  return dist;
 }
 
 vec3 normal(vec3 p)
