@@ -45,7 +45,14 @@ float sdTorus( vec3 p, vec2 t )
   return length(q) - t.y;
 }
 
-float map(vec3 p)
+// Less intrusive than making map output a material index because we have to call map in normal()
+struct object
+{
+  float dist;   // distance
+  int idx;      // material index
+};
+
+object map(vec3 p)
 {
   // Apply 3d rotations using a 2d matrix by multiplying by the axes you *don't* want to rotate about
   // ie a rotation about y changes xz values whereas y remains unchanged.
@@ -83,25 +90,41 @@ float map(vec3 p)
 
   const int count = 5;
   float sdfs[count] = { box, sphere, oct, fig8, fig8Child };
-  float dist = 10000.0;
+  object obj;
+  obj.dist = 10000.0;
+  obj.idx = -1;
   for (int i = 0; i < count; i++)
-    dist = min(dist, sdfs[i]);
-  return dist;
+  {
+    if (sdfs[i] < obj.dist)
+    {
+      obj.dist = sdfs[i];
+      obj.idx = i;
+    }
+  }
+  return obj;
 }
 
 vec3 normal(vec3 p)
 {
     return normalize(vec3(
-        map(vec3(p.x + EPSILON, p.y, p.z)) - map(vec3(p.x - EPSILON, p.y, p.z)),
-        map(vec3(p.x, p.y + EPSILON, p.z)) - map(vec3(p.x, p.y - EPSILON, p.z)),
-        map(vec3(p.x, p.y, p.z  + EPSILON)) - map(vec3(p.x, p.y, p.z - EPSILON))
+        map(vec3(p.x + EPSILON, p.y, p.z)).dist - map(vec3(p.x - EPSILON, p.y, p.z)).dist,
+        map(vec3(p.x, p.y + EPSILON, p.z)).dist - map(vec3(p.x, p.y - EPSILON, p.z)).dist,
+        map(vec3(p.x, p.y, p.z  + EPSILON)).dist - map(vec3(p.x, p.y, p.z - EPSILON)).dist
     ));
 }
 
-vec3 shade(vec3 position)
+vec3 shade(vec3 position, int material)
 {
+  vec3 colors[] = {
+    vec3(1.0, 0.0, 0.0),
+    vec3(0.0, 1.0, 0.0),
+    vec3(0.0, 0.0, 1.0),
+    vec3(1.0, 0.0, 1.0),
+    vec3(0.0, 1.0, 1.0)
+  };
+
+  vec3 color = colors[material];
   vec3 light = vec3(cos(u_time) * 5.0, 5.0, 5.0);
-  vec3 color = vec3(1.0, 0.0, 0.0);
 
   vec3 N = normal(position);
   vec3 L = normalize(light - position);
@@ -124,30 +147,31 @@ void main()
   // Distance along ray
   float t = 0.0;
   
-  int hit = -1;
+  int idx = -1;
   for (int i = 0; i < 64; i++)
   {
     // Position along ray
     vec3 p = ro + rd * t;
     
     // Distance of current step
-    float d = map(p);
+    object obj = map(p);
 
     // Distance along ray
-    t += d;
+    t += obj.dist;
     
     // Hit success if step is very small
-    if (d < 0.01)
+    if (obj.dist < 0.01)
     {
-      hit = 0;
-       break;
+      idx = obj.idx;
+      break;
     }
 
     // Hit fail if distance exceeds far plane
     if (t > 100.0)
       break;
   }
+
   vec3 p = ro + rd * t;
-  vec3 color = hit >= 0 ? shade(p) : vec3(1.0, 1.0, 1.0);
+  vec3 color = idx >= 0 ? shade(p, idx) : vec3(1.0, 1.0, 1.0);
   FragColor = vec4(color, 1.0);
 }
