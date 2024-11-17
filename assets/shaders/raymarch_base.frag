@@ -64,15 +64,19 @@ float map(vec3 p)
   s.xz *= rotation;
   float oct = sdOctahedron(s, 1.0);
 
-  // TODO -- Encode as matrix, rotate relative to motion (frenet-frame, look ahead)
-  vec3 fig8 = vec3(sin(u_time) * 3.0, sin(2.0 * u_time), 0.0);//sin(2.0 * u_time));
-  float lit = sdSphere(p - fig8, 1.0);
-  //return lit;
+  vec3 lemniscate = vec3(sin(u_time * 4.0) * 6.0, sin(u_time * 8.0) * 2.0, 0.0);
+  float fig8 = sdSphere(p - lemniscate, 1.0);
 
-  return min(min(box, sphere), oct);
+  const int count = 4;
+  float sdfs[count] = { box, sphere, oct, fig8 };
+  float d = 10000.0;
+  for (int i = 0; i < count; i++)
+    d = min(d, sdfs[i]);
+  return d;
 }
 
-vec3 normal(vec3 p) {
+vec3 normal(vec3 p)
+{
     return normalize(vec3(
         map(vec3(p.x + EPSILON, p.y, p.z)) - map(vec3(p.x - EPSILON, p.y, p.z)),
         map(vec3(p.x, p.y + EPSILON, p.z)) - map(vec3(p.x, p.y - EPSILON, p.z)),

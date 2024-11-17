@@ -29,10 +29,10 @@ void PostprocessingScene::OnDraw()
 	mouse.y = 1.0f - mouse.y;
 	mouse = mouse * 2.0f - 1.0f;
 
-	Shader* shaders[]{ &gShaderRaymarchTheft, &gShaderFractal2D, &gShaderFractal3D };
+	Shader* shaders[]{ &gShaderRaymarchBase, &gShaderFractal2D, &gShaderFractal3D, &gShaderRaymarchTheft };
 	static int shader = 0;
 	if (IsKeyPressed(KEY_TAB))
-		++shader %= 3;
+		++shader %= 4;
 
 	Matrix rot = FpsRotation(gCamera);
 	BindShader(shaders[shader]);
@@ -46,6 +46,8 @@ void PostprocessingScene::OnDraw()
 	SendFloat("u_time", time);
 	DrawFsq();
 	UnbindShader();
+
+
 }
 
 void PostprocessingScene::OnDrawImGui()
