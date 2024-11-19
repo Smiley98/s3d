@@ -1,15 +1,15 @@
 #version 460
+const float EPSILON = 0.0001;
 
 out vec4 FragColor;
 in vec2 uv;
 
-uniform float u_time;
+uniform vec3 u_camPos;
+uniform mat3 u_camRot;
+uniform float u_fov;
 uniform vec2 u_resolution;
 
-uniform mat3 u_camRot;
-uniform vec3 u_camPos;
-uniform float u_fov;
-
+uniform vec3 u_sunPos;
 uniform mat4 u_planetMatrices[9];
 uniform vec3 u_planetColors[9];
 uniform float u_planetRadii[9];
@@ -44,6 +44,27 @@ object map(vec3 p)
   }
 
   return nearest;
+}
+
+vec3 normal(vec3 p)
+{
+    return normalize(vec3(
+        map(vec3(p.x + EPSILON, p.y, p.z)).dist - map(vec3(p.x - EPSILON, p.y, p.z)).dist,
+        map(vec3(p.x, p.y + EPSILON, p.z)).dist - map(vec3(p.x, p.y - EPSILON, p.z)).dist,
+        map(vec3(p.x, p.y, p.z  + EPSILON)).dist - map(vec3(p.x, p.y, p.z - EPSILON)).dist
+    ));
+}
+
+vec3 shade(vec3 position, int material)
+{
+  vec3 color = u_planetColors[material];
+  vec3 light = u_sunPos;
+
+  vec3 N = normal(position);
+  vec3 L = normalize(light - position);
+  float diffuse = max(0.0, dot(N, L));
+
+  return material == 0 ? color : color * diffuse;
 }
 
 void main()
@@ -85,7 +106,8 @@ void main()
 
   if (hit < 0)
     discard;
-
-  vec3 color = u_planetColors[hit];
+  
+  vec3 position = ro + rd * t;
+  vec3 color = shade(position, hit);
   FragColor = vec4(color, 1.0);
 }

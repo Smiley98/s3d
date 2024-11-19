@@ -8,7 +8,6 @@ uniform mat4 u_mvp;
 uniform mat4 u_world;
 uniform mat3 u_normal;
 
-uniform vec3 u_camPos;
 uniform vec3 u_sunPos;
 uniform vec3 u_planetColor;
 uniform int u_planetIndex;

@@ -137,28 +137,29 @@ void SolarSystemScene::OnUpdate(float dt)
 
 void SolarSystemScene::OnDraw()
 {
-	// TODO -- Make a scene for environment mapping
-	// TODO -- Add transformation order to raymarching base so I remember why all this works xD
-	// TODO -- Add lighting to raymarching and fix rasterized sun lighting
+	// TODO -- Make a scene for environment mapping.
+	// TODO -- Instanced rendering.
+	// (Don't bother with UBO. I can send array values to shader so just program as SOA instead of AOS).
 	DrawSkybox(gSkybox);
 
 	if (fRaymarch)
 	{
-		float time = TotalTime();
 		Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
-		Matrix rot = FpsRotation(gCamera);
-
+		Matrix cameraRotation = FpsRotation(gCamera);
 		BindShader(&gShaderPlanetsRaymarch);
+		
+		// Raymarching data
+		SendVec3("u_camPos", gCamera.position);
+		SendMat3("u_camRot", cameraRotation);
+		SendFloat("u_fov", tanf(fFov * 0.5f));
+		SendVec2("u_resolution", resolution);
+
+		// Planet data
 		SendFloatArray("u_planetRadii", planetRadii.data(), 9);
 		SendVec3Array("u_planetColors", planetColors.data(), 9);
 		SendMat4Array("u_planetMatrices", planetMatrices.data(), 9);
+		SendVec3("u_sunPos", planets[0].position);
 
-		SendMat3("u_camRot", rot);
-		SendVec3("u_camPos", gCamera.position);
-		SendFloat("u_fov", tanf(fFov * 0.5f));
-
-		SendVec2("u_resolution", resolution);
-		SendFloat("u_time", time);
 		DrawFsq();
 		UnbindShader();
 	}
@@ -170,19 +171,19 @@ void SolarSystemScene::OnDraw()
 			const Planet& planet = planets[i];
 			Matrix mvp = planet.world * gView * gProj;
 			Matrix normal = NormalMatrix(planet.world);
+
+			// Rasterization data
 			SendMat4("u_mvp", mvp);
 			SendMat4("u_world", planet.world);
 			SendMat3("u_normal", normal);
-			SendVec3("u_camPos", gCamera.position);
+
+			// Planet data
 			SendVec3("u_sunPos", planets[0].position);
 			SendVec3("u_planetColor", planet.color);
 			SendInt("u_planetIndex", i);
+
 			DrawMesh(gMeshSphere);
 		}
 		UnbindShader();
 	}
-}
-
-void SolarSystemScene::OnDrawImGui()
-{
 }
