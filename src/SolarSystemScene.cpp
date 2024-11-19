@@ -176,6 +176,7 @@ void SolarSystemScene::OnDraw()
 			SendVec3("u_camPos", gCamera.position);
 			SendVec3("u_sunPos", planets[0].position);
 			SendVec3("u_planetColor", planet.color);
+			SendInt("u_planetIndex", i);
 			DrawMesh(gMeshSphere);
 		}
 		UnbindShader();

@@ -8,13 +8,21 @@ uniform mat4 u_mvp;
 uniform mat4 u_world;
 uniform mat3 u_normal;
 
-out vec3 position;
-out vec3 normal;
+uniform vec3 u_camPos;
+uniform vec3 u_sunPos;
+uniform vec3 u_planetColor;
+uniform int u_planetIndex;
+
+out vec3 color;
 
 void main()
 {
-   position = (u_world * vec4(aPosition, 1.0)).xyz;
-   normal = normalize(u_normal * aNormal);
+   vec3 P = (u_world * vec4(aPosition, 1.0)).xyz;
+   vec3 N = normalize(u_normal * aNormal);
+   vec3 L = normalize(u_sunPos - P);
+
+   float diffuse = max(dot(N, L), 0.0);
+   color = u_planetIndex > 0 ? diffuse * u_planetColor : u_planetColor;
 
    gl_Position = u_mvp * vec4(aPosition, 1.0);
 }
