@@ -9,10 +9,12 @@ uniform mat3 u_camRot;
 uniform float u_fov;
 uniform vec2 u_resolution;
 
+const int PLANET_COUNT = 9;
+
+uniform mat4 u_planetMatrices[PLANET_COUNT];
+uniform vec3 u_planetColors[PLANET_COUNT];
+uniform float u_planetRadii[PLANET_COUNT];
 uniform vec3 u_sunPos;
-uniform mat4 u_planetMatrices[9];
-uniform vec3 u_planetColors[9];
-uniform float u_planetRadii[9];
 
 struct object
 {
@@ -31,7 +33,7 @@ object map(vec3 p)
   nearest.dist = 100.0;
   nearest.idx = -1;
 
-  for (int i = 0; i < 9; i++)
+  for (int i = 0; i < PLANET_COUNT; i++)
   {
     mat4 mat = u_planetMatrices[i];
     vec3 col = u_planetColors[i];

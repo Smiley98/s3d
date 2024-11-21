@@ -7,25 +7,25 @@
 
 struct Planet
 {
-	//Vector3 scale;
 	Vector3 position;
 	Vector3 color;
 
 	float radius;
 	float rotationSpeed;
 	float orbitSpeed;
-
-	Matrix world;
 };
 
-std::array<Planet, 9> planets;
+static const int PLANET_COUNT = 9;
+Planet planets[PLANET_COUNT];
 bool fRaymarch = false;
 float fFov = PI * 0.5f;
 
-// Raymarching uniforms
-std::array<float, 9> planetRadii;
-std::array<Vector3, 9> planetColors;
-std::array<Matrix, 9> planetMatrices;
+float planetRadii[PLANET_COUNT];		// Raymarch only
+Vector3 planetColors[PLANET_COUNT];		// Both
+Matrix planetWorld[PLANET_COUNT];		// Rasterization world matrix
+Matrix planetWorldInv[PLANET_COUNT];	// Raymarching world matrix
+Matrix planetNormal[PLANET_COUNT];		// Raster only
+Matrix planetMvp[PLANET_COUNT];			// Raster only
 
 void SolarSystemScene::OnLoad()
 {
@@ -109,27 +109,27 @@ void SolarSystemScene::OnUnload()
 
 void SolarSystemScene::OnUpdate(float dt)
 {
-	float tt = TotalTime();
 	UpdateFpsCameraDefault(gCamera, dt);
-	
-	const float rotSelfScale = 0.0004f * 1000.0f;
-	const float rotOrbitYScale = 0.001f * 1000.0f;
-	for (int i = 0; i < 9; i++)
-	{
-		Planet& planet = planets[i];
-		Matrix s = Scale(V3_ONE * planet.radius);
-		Matrix rotSelf = RotateY(tt / planet.rotationSpeed * 0.5f);
-		Matrix rotOrbit = RotateY(tt / planet.orbitSpeed);
-		rotOrbit = planet.orbitSpeed > 0.0f ? rotOrbit : MatrixIdentity();
-		Matrix t = Translate(planet.position);
-		planet.world = s * rotSelf * t * rotOrbit;
-
-		// Invert for raymarching since its in camera-space rather than view-space (scale send as radius)
-		planetMatrices[i] = Invert(rotSelf * t * rotOrbit);
-	}
-
 	gView = ToView(gCamera);
 	gProj = Perspective(fFov, SCREEN_ASPECT, 0.1f, 100.0f);
+	
+	const float tt = TotalTime();
+	const float rotSelfScale = 0.0004f * 1000.0f;
+	const float rotOrbitYScale = 0.001f * 1000.0f;
+	for (int i = 0; i < PLANET_COUNT; i++)
+	{
+		Planet& planet = planets[i];
+		Matrix scale = Scale(V3_ONE * planet.radius);
+		Matrix rotationSelf = RotateY(tt / planet.rotationSpeed * 0.5f);
+		Matrix rotationOrbit = RotateY(tt / planet.orbitSpeed);
+		rotationOrbit = planet.orbitSpeed > 0.0f ? rotationOrbit : MatrixIdentity();
+		Matrix translation = Translate(planet.position);
+		
+		planetWorld[i] = scale * rotationSelf * translation * rotationOrbit;
+		planetWorldInv[i] = Invert(rotationSelf * translation * rotationOrbit);
+		planetNormal[i] = NormalMatrix(planetWorld[i]);
+		planetMvp[i] = planetWorld[i] * gView * gProj;
+	}
 
 	if (IsKeyPressed(KEY_TAB))
 		fRaymarch = !fRaymarch;
@@ -138,8 +138,8 @@ void SolarSystemScene::OnUpdate(float dt)
 void SolarSystemScene::OnDraw()
 {
 	// TODO -- Make a scene for environment mapping.
-	// TODO -- Instanced rendering.
-	// (Don't bother with UBO. I can send array values to shader so just program as SOA instead of AOS).
+	// TODO -- Add an asteroid belt!
+	// TODO -- Test raymarched depth and attempt optimized skybox.
 	DrawSkybox(gSkybox);
 
 	if (fRaymarch)
@@ -155,9 +155,9 @@ void SolarSystemScene::OnDraw()
 		SendVec2("u_resolution", resolution);
 
 		// Planet data
-		SendFloatArray("u_planetRadii", planetRadii.data(), 9);
-		SendVec3Array("u_planetColors", planetColors.data(), 9);
-		SendMat4Array("u_planetMatrices", planetMatrices.data(), 9);
+		SendMat4Array("u_planetMatrices", planetWorldInv, PLANET_COUNT);
+		SendVec3Array("u_planetColors", planetColors, PLANET_COUNT);
+		SendFloatArray("u_planetRadii", planetRadii, PLANET_COUNT);
 		SendVec3("u_sunPos", planets[0].position);
 
 		DrawFsq();
@@ -166,24 +166,12 @@ void SolarSystemScene::OnDraw()
 	else
 	{
 		BindShader(&gShaderPlanetsRaster);
-		for (int i = 0; i < 9; i++)
-		{
-			const Planet& planet = planets[i];
-			Matrix mvp = planet.world * gView * gProj;
-			Matrix normal = NormalMatrix(planet.world);
-
-			// Rasterization data
-			SendMat4("u_mvp", mvp);
-			SendMat4("u_world", planet.world);
-			SendMat3("u_normal", normal);
-
-			// Planet data
-			SendVec3("u_sunPos", planets[0].position);
-			SendVec3("u_planetColor", planet.color);
-			SendInt("u_planetIndex", i);
-
-			DrawMesh(gMeshSphere);
-		}
+		SendMat4Array("u_mvp", planetMvp, PLANET_COUNT);
+		SendMat4Array("u_world", planetWorld, PLANET_COUNT);
+		SendMat3Array("u_normal", planetNormal, PLANET_COUNT);
+		SendVec3Array("u_color", planetColors, PLANET_COUNT);
+		SendVec3("u_sunPos", planets[0].position);
+		DrawMeshInstanced(gMeshSphere, PLANET_COUNT);
 		UnbindShader();
 	}
 }

@@ -57,6 +57,7 @@ void DrawMeshDebug(const Mesh& mesh, Matrix world, Vector3 color);
 
 // Renders mesh as triangles based on bound pipeline state
 void DrawMesh(const Mesh& mesh);
+void DrawMeshInstanced(const Mesh& mesh, int instanceCount);
 
 // Renders a full-screen quad (no depth test or depth write)
 void DrawFsq();

@@ -281,6 +281,20 @@ void DrawMesh(const Mesh& mesh)
 	glBindVertexArray(GL_NONE);
 }
 
+void DrawMeshInstanced(const Mesh& mesh, int instanceCount)
+{
+	glBindVertexArray(mesh.vao);
+	if (mesh.ebo != GL_NONE)
+	{
+		glDrawElementsInstanced(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr, instanceCount);
+	}
+	else
+	{
+		glDrawArraysInstanced(GL_TRIANGLES, 0, mesh.count, instanceCount);
+	}
+	glBindVertexArray(GL_NONE);
+}
+
 void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness)
 {
 	bool depthTest = DepthTest();
