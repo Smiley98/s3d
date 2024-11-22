@@ -36,6 +36,8 @@ void AddColor(Framebuffer* framebuffer, int format, int type, int filter)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + framebuffer->colorCount, GL_TEXTURE_2D, texture.id, 0);
+
+	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 }
 
@@ -46,6 +48,8 @@ void AddDepth(Framebuffer* framebuffer)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture.id, 0);
+
+	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 }
 
