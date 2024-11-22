@@ -46,44 +46,39 @@ void CreateTextureFromFile(Texture* texture, const char* path, bool flip)
 {
     int width, height, channels;
     stbi_uc* pixels = stbi_load(path, &width, &height, &channels, 0);
+
     assert(channels == 3 || channels == 4);
     GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
     if (flip)
         FlipVertically(pixels, width, height, channels);
 
-    GLuint id;
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+    CreateTextureFromMemoryEx(texture, width, height, format, format, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
     stbi_image_free(pixels);
-
-    texture->id = id;
-    texture->width = width;
-    texture->height = height;
-    AddName(texture->id, path);
 }
 
 void CreateTextureFromMemory(Texture* texture, int width, int height, unsigned char* pixels)
+{
+    CreateTextureFromMemoryEx(texture, width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, pixels);
+}
+
+void CreateTextureFromMemoryEx(Texture* texture, int width, int height, int internalFormat, int format, int type, int filter, unsigned char* pixels)
 {
     GLuint id = GL_NONE;
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, pixels);
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
     texture->id = id;
     texture->width = width;
     texture->height = height;
+    texture->format = format;
+    texture->type = type;
+    texture->filter = filter;
     AddName(id);
 }
 
@@ -103,8 +98,8 @@ void DestroyTexture(Texture* texture)
     RemoveName(texture->id);
     glDeleteTextures(1, &texture->id);
 
-    texture->width = 0;
-    texture->height = 0;
+    texture->width = -1;
+    texture->height = -1;
     texture->id = GL_NONE;
 }
 

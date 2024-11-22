@@ -4,12 +4,17 @@
 struct Texture
 {
     GLuint id = GL_NONE;
-    int width = 0;
-    int height = 0;
+    int width = -1;
+    int height = -1;
+
+    int format = -1;
+    int type = -1;
+    int filter = -1;
 };
 
 void CreateTextureFromFile(Texture* texture, const char* path, bool flip = false);
 void CreateTextureFromMemory(Texture* texture, int width, int height, unsigned char* pixels = nullptr/*RGBA, 32-bits per pixel*/);
+void CreateTextureFromMemoryEx(Texture* texture, int width, int height, int internalFormat, int format, int type, int filter, unsigned char* pixels = nullptr);
 
 void UpdateTexture(Texture texture, unsigned char* pixels);
 void DestroyTexture(Texture* texture);

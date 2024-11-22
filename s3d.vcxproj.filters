@@ -117,6 +117,9 @@
     <ClCompile Include="src\stb.cpp">
       <Filter>Image</Filter>
     </ClCompile>
+    <ClCompile Include="src\Framebuffer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h">
@@ -235,6 +238,9 @@
     </ClInclude>
     <ClInclude Include="src\stb.h">
       <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framebuffer.h">
+      <Filter>Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

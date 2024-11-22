@@ -3,7 +3,7 @@
 #include "Time.h"
 #include "Render.h"
 #include "Camera.h"
-#include <array>
+#include "Framebuffer.h"
 
 struct Planet
 {
@@ -27,11 +27,17 @@ Matrix planetWorldInv[PLANET_COUNT];	// Raymarching world matrix
 Matrix planetNormal[PLANET_COUNT];		// Raster only
 Matrix planetMvp[PLANET_COUNT];			// Raster only
 
+Framebuffer fFbo;
+
 void SolarSystemScene::OnLoad()
 {
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
+
+	CreateFramebuffer(&fFbo, SCREEN_WIDTH, SCREEN_HEIGHT);
+	AddColor(&fFbo, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	AddDepth(&fFbo);
 
 	// Sun
 	planets[0].radius = 5.0f;
@@ -105,6 +111,7 @@ void SolarSystemScene::OnLoad()
 
 void SolarSystemScene::OnUnload()
 {
+	DestroyFramebuffer(&fFbo);
 }
 
 void SolarSystemScene::OnUpdate(float dt)
@@ -165,6 +172,10 @@ void SolarSystemScene::OnDraw()
 	}
 	else
 	{
+		//BindDrawBuffer(fFbo);
+		//glClearColor(0.0, 1.0, 0.0, 1.0);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		BindShader(&gShaderPlanetsRaster);
 		SendMat4Array("u_mvp", planetMvp, PLANET_COUNT);
 		SendMat4Array("u_world", planetWorld, PLANET_COUNT);
@@ -173,5 +184,9 @@ void SolarSystemScene::OnDraw()
 		SendVec3("u_sunPos", planets[0].position);
 		DrawMeshInstanced(gMeshSphere, PLANET_COUNT);
 		UnbindShader();
+
+		//BindDefaultDrawBuffer();
+		//BindReadBuffer(fFbo);
+		//DrawFsqTexture()
 	}
 }

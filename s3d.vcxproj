@@ -95,6 +95,7 @@
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\CollisionScene.cpp" />
     <ClCompile Include="src\DDAScene.cpp" />
+    <ClCompile Include="src\Framebuffer.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Image.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -131,6 +132,7 @@
     <ClInclude Include="src\Color.h" />
     <ClInclude Include="src\Config.h" />
     <ClInclude Include="src\DDAScene.h" />
+    <ClInclude Include="src\Framebuffer.h" />
     <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\ImageUtils.h" />
     <ClInclude Include="src\Lights.h" />
