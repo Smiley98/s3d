@@ -62,7 +62,6 @@ void DrawMeshInstanced(const Mesh& mesh, int instanceCount);
 // Renders a full-screen quad (no depth test or depth write)
 void DrawFsq();
 void DrawFsqTexture(Texture texture);
-//void DrawFsqTextureId(GLuint id);
 
 // Renders a skybox (unoptimized, must be rendered before all objects)
 void DrawSkybox(Cubemap cubemap);

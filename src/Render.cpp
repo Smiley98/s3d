@@ -347,13 +347,21 @@ void DrawFsqTexture(Texture texture)
 
 void DrawSkybox(Cubemap cubemap)
 {
-	Matrix mvpSkybox = NormalMatrix(gView) * gProj;
+	Matrix viewSky = gView;
+	viewSky.m12 = viewSky.m13 = viewSky.m14 = 0.0f;
+
+	bool depthTest = DepthTest();
+	bool depthWrite = DepthWrite();
+	SetDepthTest(false);
+	SetDepthWrite(false);
+
 	BindCubemap(cubemap);
 	BindShader(&gShaderSkybox);
-	SendMat4("u_mvp", mvpSkybox);
-	SetDepthTest(false);
+	SendMat4("u_mvp", viewSky * gProj);
 	DrawMesh(gMeshCube);
-	SetDepthTest(true);
 	UnbindShader();
 	UnbindCubemap(cubemap);
+
+	SetDepthWrite(depthWrite);
+	SetDepthTest(depthTest);
 }

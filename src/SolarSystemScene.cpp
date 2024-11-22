@@ -172,9 +172,9 @@ void SolarSystemScene::OnDraw()
 	}
 	else
 	{
-		//BindDrawBuffer(fFbo);
-		//glClearColor(0.0, 1.0, 0.0, 1.0);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		BindFramebuffer(fFbo);
+		glClearColor(0.0, 1.0, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		BindShader(&gShaderPlanetsRaster);
 		SendMat4Array("u_mvp", planetMvp, PLANET_COUNT);
@@ -184,9 +184,11 @@ void SolarSystemScene::OnDraw()
 		SendVec3("u_sunPos", planets[0].position);
 		DrawMeshInstanced(gMeshSphere, PLANET_COUNT);
 		UnbindShader();
+		UnbindFramebuffer();
 
-		//BindDefaultDrawBuffer();
-		//BindReadBuffer(fFbo);
-		//DrawFsqTexture()
+		// READ_FRAMEBUFFER is for downloads like glReadPixels. DRAW_FRAMEBUFFER is all we need.
+		// To sample a framebuffer that's been written to, just sample its respective attachment.
+		// (Things are still broken, should check that FBO is "complete", and RenderDoc where applicable)...
+		DrawFsqTexture(fFbo.colors[0]);
 	}
 }

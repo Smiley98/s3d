@@ -1,8 +1,7 @@
 #include "Framebuffer.h"
 #include <cassert>
 
-static GLuint fReadBuffer = GL_NONE;
-static GLuint fDrawBuffer = GL_NONE;
+static GLuint fBuffer = GL_NONE;
 
 void CreateFramebuffer(Framebuffer* framebuffer, int width, int height)
 {
@@ -17,24 +16,14 @@ void DestroyFramebuffer(Framebuffer* framebuffer)
 	assert(framebuffer->id != GL_NONE);
 
 	for (int i = 0; i < framebuffer->colorCount; i++)
-	{
 		DestroyTexture(&framebuffer->colors[i]);
-		//glDeleteTextures(1, &framebuffer->colors[i]);
-		//framebuffer->colors[i] = GL_NONE;
-	}
 	framebuffer->colorCount = 0;
 
 	if (framebuffer->depth.id != GL_NONE)
 		DestroyTexture(&framebuffer->depth);
-	//if (framebuffer->depth != GL_NONE)
-	//{
-	//	glDeleteTextures(1, &framebuffer->depth);
-	//	framebuffer->depth = GL_NONE;
-	//}
 
 	glDeleteFramebuffers(1, &framebuffer->id);
 	framebuffer->id = GL_NONE;
-
 	framebuffer->width = -1;
 	framebuffer->height = -1;
 }
@@ -60,31 +49,16 @@ void AddDepth(Framebuffer* framebuffer)
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 }
 
-void BindReadBuffer(Framebuffer framebuffer)
+void BindFramebuffer(Framebuffer framebuffer)
 {
-	assert(fReadBuffer != framebuffer.id);
-	fReadBuffer = framebuffer.id;
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, fReadBuffer);
+	assert(fBuffer != framebuffer.id, "Framebuffer already bound");
+	fBuffer = framebuffer.id;
+	glBindFramebuffer(GL_FRAMEBUFFER, fBuffer);
 }
 
-void BindDrawBuffer(Framebuffer framebuffer)
+void UnbindFramebuffer()
 {
-	assert(fDrawBuffer != framebuffer.id);
-	fDrawBuffer = framebuffer.id;
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fDrawBuffer);
-	glViewport(0, 0, framebuffer.width, framebuffer.height);
-}
-
-void BindDefaultReadBuffer()
-{
-	assert(fReadBuffer != 0);
-	fReadBuffer = 0;
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, fReadBuffer);
-}
-
-void BindDefaultDrawBuffer()
-{
-	assert(fDrawBuffer != 0);
-	fDrawBuffer = 0;
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fDrawBuffer);
+	assert(fBuffer != 0, "Default framebuffer already bound");
+	fBuffer = 0;
+	glBindFramebuffer(GL_FRAMEBUFFER, fBuffer);
 }

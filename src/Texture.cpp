@@ -98,9 +98,12 @@ void DestroyTexture(Texture* texture)
     RemoveName(texture->id);
     glDeleteTextures(1, &texture->id);
 
+    texture->id = GL_NONE;
     texture->width = -1;
     texture->height = -1;
-    texture->id = GL_NONE;
+    texture->format = -1;
+    texture->type = -1;
+    texture->filter = -1;
 }
 
 void BindTexture(Texture texture, GLuint slot)
