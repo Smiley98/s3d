@@ -358,7 +358,7 @@ void DrawDepth(Framebuffer framebuffer)
 	float far = d / (c + 1.0f);
 
 	BindTexture(framebuffer.depth);
-	BindShader(&gShaderFsq);
+	BindShader(&gShaderFsqDepth);
 	SendFloat("u_near", near);
 	SendFloat("u_far", far);
 	SendInt("u_tex", 0);

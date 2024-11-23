@@ -73,7 +73,7 @@ void CreateShaders()
     // Shader programs
     CreateProgram(&gShaderPassThrough, vsPassThrough, fsPassThrough);
     CreateProgram(&gShaderFsq, vsFsq, fsTexture);
-    CreateProgram(&gShaderFsq, vsFsq, fsTextureDepth);
+    CreateProgram(&gShaderFsqDepth, vsFsq, fsTextureDepth);
     CreateProgram(&gShaderSkybox, vsSkybox, fsSkybox);
     CreateProgram(&gShaderLine, vsLine, fsColor);
 
