@@ -1,4 +1,5 @@
 #include "Framebuffer.h"
+#include "Config.h"
 #include <cassert>
 
 static GLuint fBuffer = GL_NONE;
@@ -32,13 +33,13 @@ void AddColor(Framebuffer* framebuffer, int format, int type, int filter)
 {
 	Texture& texture = framebuffer->colors[framebuffer->colorCount];
 	CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, format, format, type, filter);
-	framebuffer->colorCount++;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + framebuffer->colorCount, GL_TEXTURE_2D, texture.id, 0);
 
 	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+	framebuffer->colorCount++;
 }
 
 void AddDepth(Framebuffer* framebuffer)
@@ -58,6 +59,7 @@ void BindFramebuffer(Framebuffer framebuffer)
 	assert(fBuffer != framebuffer.id, "Framebuffer already bound");
 	fBuffer = framebuffer.id;
 	glBindFramebuffer(GL_FRAMEBUFFER, fBuffer);
+	glViewport(0, 0, framebuffer.width, framebuffer.height);
 }
 
 void UnbindFramebuffer()
@@ -65,4 +67,5 @@ void UnbindFramebuffer()
 	assert(fBuffer != 0, "Default framebuffer already bound");
 	fBuffer = 0;
 	glBindFramebuffer(GL_FRAMEBUFFER, fBuffer);
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }

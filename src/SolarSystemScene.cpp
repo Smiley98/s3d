@@ -35,6 +35,8 @@ void SolarSystemScene::OnLoad()
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
 
+	// Note that depth must be attached in order for depth-test and depth-write to be performed
+	// If you don't need to sample the depth-buffer, a renderbuffer can be attached for better performance.
 	CreateFramebuffer(&fFbo, SCREEN_WIDTH, SCREEN_HEIGHT);
 	AddColor(&fFbo, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
 	AddDepth(&fFbo);
@@ -173,7 +175,7 @@ void SolarSystemScene::OnDraw()
 	else
 	{
 		BindFramebuffer(fFbo);
-		glClearColor(0.0, 1.0, 0.0, 1.0);
+		glClearColor(1.0, 1.0, 1.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		BindShader(&gShaderPlanetsRaster);
@@ -186,9 +188,6 @@ void SolarSystemScene::OnDraw()
 		UnbindShader();
 		UnbindFramebuffer();
 
-		// READ_FRAMEBUFFER is for downloads like glReadPixels. DRAW_FRAMEBUFFER is all we need.
-		// To sample a framebuffer that's been written to, just sample its respective attachment.
-		// (Things are still broken, should check that FBO is "complete", and RenderDoc where applicable)...
 		DrawFsqTexture(fFbo.colors[0]);
 	}
 }

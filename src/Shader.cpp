@@ -275,9 +275,12 @@ void CreateProgram(Shader* shader, GLuint vs, GLuint fs)
 
 GLint GetUniform(const char* name)
 {
+    // TODO -- consider shader reflection.
+    // Instead of guess-and-check, compile shaders and map their uniforms once on-compile rather than on-draw.
     if (fShader->locs.find(name) != fShader->locs.end())
         return fShader->locs[name];
 
+    // I don't think this has consequences, but kind of jank because if the attribute is not found then locs[name] = -1
     GLint loc = glGetUniformLocation(fShader->id, name);
     fShader->locs[name] = loc;
     return loc;
