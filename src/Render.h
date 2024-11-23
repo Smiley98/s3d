@@ -4,6 +4,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "PipelineState.h"
+#include "Framebuffer.h"
 
 enum DebugShaderType : int
 {
@@ -62,6 +63,12 @@ void DrawMeshInstanced(const Mesh& mesh, int instanceCount);
 // Renders a full-screen quad (no depth test or depth write)
 void DrawFsq();
 void DrawFsqTexture(Texture texture);
+
+// Renders the specified color attachment as a full-screen quad 
+void DrawColor(Framebuffer framebuffer, int slot);
+
+// Renders the depth-buffer in linearized greyscale
+void DrawDepth(Framebuffer framebuffer);
 
 // Renders a skybox (unoptimized, must be rendered before all objects)
 void DrawSkybox(Cubemap cubemap);

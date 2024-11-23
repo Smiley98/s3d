@@ -337,12 +337,35 @@ void DrawFsq()
 void DrawFsqTexture(Texture texture)
 {
 	BindTexture(texture);
-	BindShader(&gShaderFSQ);
+	BindShader(&gShaderFsq);
 	SendInt("u_tex", 0);
 	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
 	UnbindTexture(texture);
+}
+
+void DrawColor(Framebuffer framebuffer, int slot)
+{
+	DrawFsqTexture(framebuffer.colors[slot]);
+}
+
+void DrawDepth(Framebuffer framebuffer)
+{
+	float c = gProj.m10;
+	float d = gProj.m14;
+	float near = d / (c - 1.0f);
+	float far = d / (c + 1.0f);
+
+	BindTexture(framebuffer.depth);
+	BindShader(&gShaderFsq);
+	SendFloat("u_near", near);
+	SendFloat("u_far", far);
+	SendInt("u_tex", 0);
+	BindEmptyVao();
+	DrawFsq();
+	UnbindShader();
+	UnbindTexture(framebuffer.depth);
 }
 
 void DrawSkybox(Cubemap cubemap)

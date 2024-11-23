@@ -12,7 +12,8 @@ std::vector<GLuint> fPrograms;
 
 Shader gShaderPassThrough;
 Shader gShaderLine;
-Shader gShaderFSQ;
+Shader gShaderFsq;
+Shader gShaderFsqDepth;
 Shader gShaderSkybox;
 
 Shader gShaderRaymarchBase;
@@ -39,15 +40,16 @@ void CreateShaders()
 {
     // Vertex shaders
     GLuint vsPassThrough = CreateShader(GL_VERTEX_SHADER, "assets/shaders/pass-through.vert");
-    GLuint vsFSQ = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
+    GLuint vsFsq = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
     GLuint vsSkybox = CreateShader(GL_VERTEX_SHADER, "assets/shaders/skybox.vert");
     GLuint vsLine = CreateShader(GL_VERTEX_SHADER, "assets/shaders/line.vert");
-    GLuint vsMVP = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
+    GLuint vsMvp = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
     GLuint vsPlanetsRaster = CreateShader(GL_VERTEX_SHADER, "assets/shaders/planets_raster.vert");
 
     // Generic fragment shaders
     GLuint fsPassThrough = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/pass-through.frag");
     GLuint fsSkybox = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/skybox.frag");
+    GLuint fsTextureDepth = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture_depth.frag");
 
     // Raymarching fragment shaders
     GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
@@ -70,25 +72,26 @@ void CreateShaders()
     
     // Shader programs
     CreateProgram(&gShaderPassThrough, vsPassThrough, fsPassThrough);
-    CreateProgram(&gShaderFSQ, vsFSQ, fsTexture);
+    CreateProgram(&gShaderFsq, vsFsq, fsTexture);
+    CreateProgram(&gShaderFsq, vsFsq, fsTextureDepth);
     CreateProgram(&gShaderSkybox, vsSkybox, fsSkybox);
     CreateProgram(&gShaderLine, vsLine, fsColor);
 
-    CreateProgram(&gShaderRaymarchBase, vsFSQ, fsRaymarchBase);
-    CreateProgram(&gShaderFractal2D, vsFSQ, fsFractal2D);
-    CreateProgram(&gShaderFractal3D, vsFSQ, fsFractal3D);
-    CreateProgram(&gShaderFractalOrb, vsFSQ, fsFractalOrb);
+    CreateProgram(&gShaderRaymarchBase, vsFsq, fsRaymarchBase);
+    CreateProgram(&gShaderFractal2D, vsFsq, fsFractal2D);
+    CreateProgram(&gShaderFractal3D, vsFsq, fsFractal3D);
+    CreateProgram(&gShaderFractalOrb, vsFsq, fsFractalOrb);
 
-    CreateProgram(&gShaderColor, vsMVP, fsColor);
-    CreateProgram(&gShaderDepth, vsMVP, fsDepth);
-    CreateProgram(&gShaderNormals, vsMVP, fsNormals);
-    CreateProgram(&gShaderTcoords, vsMVP, fsTcoords);
-    CreateProgram(&gShaderTexture, vsMVP, fsTexture);
-    CreateProgram(&gShaderPositionsWorld, vsMVP, fsPositionsWorld);
-    CreateProgram(&gShaderPositionsScreen, vsMVP, fsPositionsScreen);
+    CreateProgram(&gShaderColor, vsMvp, fsColor);
+    CreateProgram(&gShaderDepth, vsMvp, fsDepth);
+    CreateProgram(&gShaderNormals, vsMvp, fsNormals);
+    CreateProgram(&gShaderTcoords, vsMvp, fsTcoords);
+    CreateProgram(&gShaderTexture, vsMvp, fsTexture);
+    CreateProgram(&gShaderPositionsWorld, vsMvp, fsPositionsWorld);
+    CreateProgram(&gShaderPositionsScreen, vsMvp, fsPositionsScreen);
 
     CreateProgram(&gShaderPlanetsRaster, vsPlanetsRaster, fsPlanetsRaster);
-    CreateProgram(&gShaderPlanetsRaymarch, vsFSQ, fsPlanetsRaymarch);
+    CreateProgram(&gShaderPlanetsRaymarch, vsFsq, fsPlanetsRaymarch);
 }
 
 void DestroyShaders()

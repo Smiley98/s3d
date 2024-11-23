@@ -11,7 +11,8 @@ struct Shader
 
 extern Shader gShaderPassThrough;
 extern Shader gShaderLine;
-extern Shader gShaderFSQ;
+extern Shader gShaderFsq;
+extern Shader gShaderFsqDepth;
 extern Shader gShaderSkybox;
 
 extern Shader gShaderRaymarchBase;

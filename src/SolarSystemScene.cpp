@@ -175,9 +175,8 @@ void SolarSystemScene::OnDraw()
 	else
 	{
 		BindFramebuffer(fFbo);
-		glClearColor(1.0, 1.0, 1.0, 1.0);
+		glClearColor(0.0, 1.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		BindShader(&gShaderPlanetsRaster);
 		SendMat4Array("u_mvp", planetMvp, PLANET_COUNT);
 		SendMat4Array("u_world", planetWorld, PLANET_COUNT);
@@ -188,6 +187,10 @@ void SolarSystemScene::OnDraw()
 		UnbindShader();
 		UnbindFramebuffer();
 
-		DrawFsqTexture(fFbo.colors[0]);
+		//DrawColor(fFbo, 0);
+		DrawDepth(fFbo);
 	}
 }
+
+//GLint attachedTexture;
+//glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attachedTexture);
