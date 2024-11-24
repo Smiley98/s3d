@@ -352,11 +352,8 @@ void DrawColor(Framebuffer framebuffer, int slot)
 
 void DrawDepth(Framebuffer framebuffer)
 {
-	float c = gProj.m10;
-	float d = gProj.m14;
-	float near = d / (c - 1.0f);
-	float far = d / (c + 1.0f);
-
+	float near = gProj.m14 / (gProj.m10 - 1.0f);
+	float far = gProj.m14 / (gProj.m10 + 1.0f);
 	BindTexture(framebuffer.depth);
 	BindShader(&gShaderFsqDepth);
 	SendFloat("u_near", near);

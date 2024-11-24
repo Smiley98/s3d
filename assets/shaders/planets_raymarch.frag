@@ -6,8 +6,10 @@ in vec2 uv;
 
 uniform vec3 u_camPos;
 uniform mat3 u_camRot;
-uniform float u_fov;
 uniform vec2 u_resolution;
+uniform float u_fov;
+uniform float u_near;
+uniform float u_far;
 
 const int PLANET_COUNT = 9;
 
@@ -69,6 +71,10 @@ vec3 shade(vec3 position, int material)
   return material == 0 ? color : color * diffuse;
 }
 
+float encodeDepth(float linearDepth, float near, float far) {
+	return (linearDepth * (far + near) / (far - near) + (2.0 * far * near) / (far - near)) / far;
+}
+
 void main()
 {
   // [0, 1] --> [-1, 1]
@@ -111,5 +117,7 @@ void main()
   
   vec3 position = ro + rd * t;
   vec3 color = shade(position, hit);
+  //l_FragDepth = encodeDepth(t, u_near, u_far);
+  gl_FragDepth = 0.8;
   FragColor = vec4(color, 1.0);
 }

@@ -149,19 +149,26 @@ void SolarSystemScene::OnDraw()
 	// TODO -- Make a scene for environment mapping.
 	// TODO -- Add an asteroid belt!
 	// TODO -- Test raymarched depth and attempt optimized skybox.
-	DrawSkybox(gSkybox);
+	//DrawSkybox(gSkybox);
 
+	BindFramebuffer(fFbo);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (fRaymarch)
 	{
 		Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
 		Matrix cameraRotation = FpsRotation(gCamera);
+		float near = gProj.m14 / (gProj.m10 - 1.0f);
+		float far = gProj.m14 / (gProj.m10 + 1.0f);
 		BindShader(&gShaderPlanetsRaymarch);
 		
 		// Raymarching data
 		SendVec3("u_camPos", gCamera.position);
 		SendMat3("u_camRot", cameraRotation);
-		SendFloat("u_fov", tanf(fFov * 0.5f));
 		SendVec2("u_resolution", resolution);
+		SendFloat("u_fov", tanf(fFov * 0.5f));
+		SendFloat("u_near", near);
+		SendFloat("u_far", far);
 
 		// Planet data
 		SendMat4Array("u_planetMatrices", planetWorldInv, PLANET_COUNT);
@@ -169,14 +176,13 @@ void SolarSystemScene::OnDraw()
 		SendFloatArray("u_planetRadii", planetRadii, PLANET_COUNT);
 		SendVec3("u_sunPos", planets[0].position);
 
-		DrawFsq();
+		BindEmptyVao();
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		BindNullVao();
 		UnbindShader();
 	}
 	else
 	{
-		BindFramebuffer(fFbo);
-		glClearColor(0.0, 0.0, 0.0, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		BindShader(&gShaderPlanetsRaster);
 		SendMat4Array("u_mvp", planetMvp, PLANET_COUNT);
 		SendMat4Array("u_world", planetWorld, PLANET_COUNT);
@@ -185,9 +191,8 @@ void SolarSystemScene::OnDraw()
 		SendVec3("u_sunPos", planets[0].position);
 		DrawMeshInstanced(gMeshSphere, PLANET_COUNT);
 		UnbindShader();
-		UnbindFramebuffer();
-
-		DrawColor(fFbo, 0);
-		//DrawDepth(fFbo);
 	}
+	UnbindFramebuffer();
+	//DrawColor(fFbo, 0);
+	DrawDepth(fFbo);
 }
