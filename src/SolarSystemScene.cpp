@@ -144,6 +144,22 @@ void SolarSystemScene::OnUpdate(float dt)
 		fRaymarch = !fRaymarch;
 }
 
+float encodeDepth(float linearDepth, float near, float far)
+{
+	return (linearDepth * (far + near) / (far - near) + (2.0 * far * near) / (far - near)) / far;
+}
+
+float decodeDepth(float depth, float near, float far)
+{
+	// [0, 1] --> [-1, 1]
+	float z = depth * 2.0 - 1.0;
+
+	// [-1, 1] --> [camera, fragment]
+	float linearDepth = (2.0 * near * far) / (far + near - z * (far - near));
+
+	return linearDepth;
+}
+
 void SolarSystemScene::OnDraw()
 {
 	// TODO -- Make a scene for environment mapping.
@@ -161,6 +177,9 @@ void SolarSystemScene::OnDraw()
 		float near = gProj.m14 / (gProj.m10 - 1.0f);
 		float far = gProj.m14 / (gProj.m10 + 1.0f);
 		BindShader(&gShaderPlanetsRaymarch);
+
+		float a = encodeDepth(90.0f, near, far);
+		float b = decodeDepth(a, near, far);
 		
 		// Raymarching data
 		SendVec3("u_camPos", gCamera.position);
@@ -193,6 +212,6 @@ void SolarSystemScene::OnDraw()
 		UnbindShader();
 	}
 	UnbindFramebuffer();
-	//DrawColor(fFbo, 0);
-	DrawDepth(fFbo);
+	DrawColor(fFbo, 0);
+	//DrawDepth(fFbo);
 }
