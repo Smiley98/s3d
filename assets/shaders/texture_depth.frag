@@ -7,13 +7,19 @@ uniform sampler2D u_tex;
 uniform float u_near;
 uniform float u_far;
 
-// Unproject non-linear depth to camera-space
-float decode(float depth)
+// Input: depth in non-linear space between [0, 1].
+// Output: depth in linear space between [near, far].
+float decode(float depth, float near, float far)
 {
-    // [0, 1] --> [-1, 1]
-    float z = depth * 2.0 - 1.0;
-    float linearDepth = (2.0 * u_near * u_far) / (u_far + u_near - z * (u_far - u_near));
-    return linearDepth;
+	depth = depth * 2.0 - 1.0;
+	return (2.0 * near * far) / (far + near - depth * (far - near));
+}
+
+// Input: depth in linear space between [near, far].
+// Output: depth in linear space between [0, 1].
+float normalizeDepth(float depth, float near, float far)
+{
+	return (depth - near) / (far - near);
 }
 
 void main()
@@ -21,8 +27,11 @@ void main()
     // Non-linear [0, 1]
     float depth = texture(u_tex, uv).r;
 
+    // Linear [near, far]
+    depth = decode(depth, u_near, u_far);
+
     // Linear [0, 1]
-    depth = decode(depth);
+    depth = normalizeDepth(depth, u_near, u_far);
 
     // Greyscale
     FragColor = vec4(vec3(depth), 1.0);

@@ -71,18 +71,29 @@ vec3 shade(vec3 position, int material)
   return material == 0 ? color : color * diffuse;
 }
 
-// Projected depth (non-linear)
-float encode(float linearDepth, float near, float far)
+// Input: depth in linear-space between [near, far].
+// Output: depth in non-linear sace between [0, 1].
+float encode(float depth, float near, float far)
 {
-	return (linearDepth * (far + near) / (far - near) + (2.0 * far * near) / (far - near)) / far;
+	float invDepth = 1.0 / depth;
+	float invNear = 1.0 / near;
+	float invFar = 1.0 / far;
+	return (invDepth - invNear) / (invFar - invNear);
 }
 
-// Unprojected depth (linear)
-float decode(float depth)
+// Input: depth in non-linear space between [0, 1].
+// Output: depth in linear space between [near, far].
+float decode(float depth, float near, float far)
 {
-    float z = depth * 2.0 - 1.0;
-    float linearDepth = (2.0 * u_near * u_far) / (u_far + u_near - z * (u_far - u_near));
-    return linearDepth;
+	depth = depth * 2.0 - 1.0;
+	return (2.0 * near * far) / (far + near - depth * (far - near));
+}
+
+// Input: depth in linear space between [near, far].
+// Output: depth in linear space between [0, 1].
+float normalizeDepth(float depth, float near, float far)
+{
+	return (depth - near) / (far - near);
 }
 
 void main()
@@ -128,8 +139,12 @@ void main()
   vec3 position = ro + rd * t;
   vec3 color = shade(position, hit);
   float depth = encode(t, u_near, u_far);
-  depth = decode(depth);
-  //depth = normalizeLinearDepth(depth);
-  //FragColor = vec4(color, 1.0);
-  FragColor = vec4(vec3(depth), 1.0);
+
+  // Depth visualization
+  //depth = decode(depth, u_near, u_far);
+  //depth = normalizeDepth(depth, u_near, u_far);
+  //FragColor = vec4(vec3(depth), 1.0);
+
+  gl_FragDepth = depth;
+  FragColor = vec4(color, 1.0);
 }
