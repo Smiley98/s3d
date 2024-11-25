@@ -6,6 +6,7 @@ struct State
 	bool depthTest;
 	bool depthWrite;
 	bool wireframes;
+	GLenum depthFunc;
 	GLint windingOrder;
 } fState;
 
@@ -17,11 +18,15 @@ void InitPipelineState()
 	SetDepthTest(true);
 	SetDepthWrite(true);
 	SetWireframes(false);
-	SetWindingOrder(GL_CCW);
+	fState.depthFunc = GL_LEQUAL;
+	fState.windingOrder = GL_CCW;
+	glDepthFunc(fState.depthFunc);
+	glFrontFace(fState.windingOrder);
 
 	assert(DepthTest() == true);
 	assert(DepthWrite() == true);
 	assert(Wireframes() == false);
+	assert(DepthFunc() == GL_LEQUAL);
 	assert(WindingOrder() == GL_CCW);
 
 	glGenVertexArrays(1, &fVaoEmpty);
@@ -46,6 +51,12 @@ void SetDepthWrite(bool depthWrite)
 {
 	fState.depthWrite = depthWrite;
 	glDepthMask(depthWrite);
+}
+
+void SetDepthFunc(GLint depthFunc)
+{
+	fState.depthFunc = depthFunc;
+	glDepthFunc(depthFunc);
 }
 
 void SetWireframes(bool wireframes)
@@ -84,8 +95,27 @@ bool DepthWrite()
 
 bool Wireframes()
 {
-	// Not gonna validate this cause its obvious xD
+#if NDEBUG
+#else
+	int mode = 0;
+	glGetIntegerv(GL_POLYGON_MODE, &mode);
+	if (fState.wireframes)
+		assert(mode == GL_LINES);
+	else
+		assert(mode == GL_FILL);
+#endif
 	return fState.wireframes;
+}
+
+GLint DepthFunc()
+{
+#if NDEBUG
+#else
+	GLint depthFunc = 0;
+	glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
+	assert(depthFunc == fState.depthFunc);
+#endif
+	return fState.depthFunc;
 }
 
 GLint WindingOrder()

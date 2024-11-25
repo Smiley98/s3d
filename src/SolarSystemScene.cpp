@@ -148,9 +148,6 @@ void SolarSystemScene::OnDraw()
 {
 	// TODO -- Environment mapping scene.
 	// TODO -- Asteroid belt scene (instanced rendering).
-	// TODO -- Optimized skybox.
-	DrawSkybox(gSkybox);
-
 	BindFramebuffer(fFbo);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -192,7 +189,8 @@ void SolarSystemScene::OnDraw()
 		DrawMeshInstanced(gMeshSphere, PLANET_COUNT);
 		UnbindShader();
 	}
+	DrawSkybox(gSkybox);
 	UnbindFramebuffer();
 	DrawColor(fFbo, 0);
-	DrawDepth(fFbo);
+	//DrawDepth(fFbo);
 }

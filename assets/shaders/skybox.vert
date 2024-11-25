@@ -18,5 +18,8 @@ void main()
    //normal = normalize(u_normal * aNormal);
    //uv = aTcoord;
    position = aPosition;
-   gl_Position = u_mvp * vec4(aPosition, 1.0);
+
+   // Optimized to render last;
+   // Depth func is LEQUAL, so fragments with default depth of 1.0 will be shaded!
+   gl_Position = (u_mvp * vec4(aPosition, 1.0)).xyww;
 }

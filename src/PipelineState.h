@@ -7,11 +7,12 @@ void QuitPipelineState(); // Destroys empty vao
 void SetDepthTest(bool depthTest);
 void SetDepthWrite(bool depthWrite);
 void SetWireframes(bool wireframes);
-void SetWindingOrder(GLint windingOrder);
 
 bool DepthTest();
 bool DepthWrite();
 bool Wireframes();
+
+GLint DepthFunc();
 GLint WindingOrder();
 
 void BindEmptyVao();// vao with no buffers 

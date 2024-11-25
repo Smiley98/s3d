@@ -372,7 +372,7 @@ void DrawSkybox(Cubemap cubemap)
 
 	bool depthTest = DepthTest();
 	bool depthWrite = DepthWrite();
-	SetDepthTest(false);
+	SetDepthTest(true);
 	SetDepthWrite(false);
 	
 	BindCubemap(cubemap);
