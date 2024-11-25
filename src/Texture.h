@@ -37,8 +37,5 @@ void UnbindCubemap(Cubemap cubemap);
 
 GLuint BoundCubemap();
 
-extern Texture gTexHead;
-extern Cubemap gSkybox;
-
 void CreateTextures();
 void DestroyTextures();

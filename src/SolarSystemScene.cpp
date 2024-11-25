@@ -18,6 +18,7 @@ struct Planet
 static const int PLANET_COUNT = 9;
 Planet planets[PLANET_COUNT];
 bool fRaymarch = false;
+bool fDepth = false;
 float fFov = PI * 0.5f;
 
 float planetRadii[PLANET_COUNT];		// Raymarch only
@@ -27,6 +28,7 @@ Matrix planetWorldInv[PLANET_COUNT];	// Raymarching world matrix
 Matrix planetNormal[PLANET_COUNT];		// Raster only
 Matrix planetMvp[PLANET_COUNT];			// Raster only
 
+Cubemap fSkyboxSpace;
 Framebuffer fFbo;
 
 void SolarSystemScene::OnLoad()
@@ -34,6 +36,17 @@ void SolarSystemScene::OnLoad()
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
+
+	const char* skyboxSpaceFiles[] =
+	{
+		"./assets/textures/space_x+.png",
+		"./assets/textures/space_x-.png",
+		"./assets/textures/space_y+.png",
+		"./assets/textures/space_y-.png",
+		"./assets/textures/space_z+.png",
+		"./assets/textures/space_z-.png",
+	};
+	CreateCubemap(&fSkyboxSpace, skyboxSpaceFiles);
 
 	// Note that depth must be attached in order for depth-test and depth-write to be performed
 	// If you don't need to sample the depth-buffer, a renderbuffer can be attached for better performance.
@@ -114,6 +127,7 @@ void SolarSystemScene::OnLoad()
 void SolarSystemScene::OnUnload()
 {
 	DestroyFramebuffer(&fFbo);
+	DestroyCubemap(&fSkyboxSpace);
 }
 
 void SolarSystemScene::OnUpdate(float dt)
@@ -140,13 +154,15 @@ void SolarSystemScene::OnUpdate(float dt)
 		planetMvp[i] = planetWorld[i] * gView * gProj;
 	}
 
-	if (IsKeyPressed(KEY_TAB))
+	if (IsKeyPressed(KEY_Q))
 		fRaymarch = !fRaymarch;
+
+	if (IsKeyPressed(KEY_E))
+		fDepth = !fDepth;
 }
 
 void SolarSystemScene::OnDraw()
 {
-	// TODO -- Environment mapping scene.
 	// TODO -- Asteroid belt scene (instanced rendering).
 	BindFramebuffer(fFbo);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -189,8 +205,11 @@ void SolarSystemScene::OnDraw()
 		DrawMeshInstanced(gMeshSphere, PLANET_COUNT);
 		UnbindShader();
 	}
-	DrawSkybox(gSkybox);
+	DrawSkybox(fSkyboxSpace);
 	UnbindFramebuffer();
-	DrawColor(fFbo, 0);
-	//DrawDepth(fFbo);
+
+	if (fDepth)
+		DrawDepth(fFbo);
+	else
+		DrawColor(fFbo, 0);
 }

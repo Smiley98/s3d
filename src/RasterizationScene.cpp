@@ -19,18 +19,35 @@ int fMeshIndex = 0;
 int fProjIndex = 1;
 Matrix fProjections[] =
 {
-	Ortho(-10.0f * SCREEN_ASPECT, 10.0f * SCREEN_ASPECT, -10.0f, 10.0f, 0.1f, 10.0f),
-	Perspective(75.0f * DEG2RAD, SCREEN_ASPECT, 0.1f, 10.0f)
+	Ortho(-10.0f * SCREEN_ASPECT, 10.0f * SCREEN_ASPECT, -10.0f, 10.0f, 0.1f, 100.0f),
+	Perspective(90.0f * DEG2RAD, SCREEN_ASPECT, 0.1f, 100.0f)
 };
+
+Texture fTexHead;
+Cubemap fSkyboxArctic;
 
 void RasterizationScene::OnLoad()
 {
 	CreateMesh(&fMesh, (MeshType)fMeshIndex);
 	gCamera.position = { 0.0f, 0.0f, 5.0f };
+
+	const char* skyboxArcticFiles[] =
+	{
+		"./assets/textures/arctic_x+.jpg",
+		"./assets/textures/arctic_x-.jpg",
+		"./assets/textures/arctic_y+.jpg",
+		"./assets/textures/arctic_y-.jpg",
+		"./assets/textures/arctic_z+.jpg",
+		"./assets/textures/arctic_z-.jpg",
+	};
+	CreateCubemap(&fSkyboxArctic, skyboxArcticFiles);
+	CreateTextureFromFile(&fTexHead, "assets/textures/african_head_diffuse.png", true);
 }
 
 void RasterizationScene::OnUnload()
 {
+	DestroyTexture(&fTexHead);
+	DestroyCubemap(&fSkyboxArctic);
 	DestroyMesh(&fMesh);
 }
 
@@ -50,13 +67,12 @@ void RasterizationScene::OnUpdate(float dt)
 
 void RasterizationScene::OnDraw()
 {
-	//DrawMeshDebug(fMesh, fWorld, fColor);
+	DrawMeshDebug(fMesh, fWorld, fColor);
 
-	// TODO -- Add UI to cycle between debug shaders/object shaders/whatever rendering tech I'm testing
-	// The goal of this codebase is to be PRIMEOPS with unit tests xD
-	DrawMeshReflect(gMeshHead, Translate(-2.0f, 0.0f, 0.0f), gSkybox);
-	DrawMeshRefract(gMeshHead, Translate(2.0f, 0.0f, 0.0f), gSkybox, 1.00f / 1.52f); // glass
-	DrawSkybox(gSkybox);
+	DrawMeshTexture(gMeshHead, Translate(0.0f, 0.0f, -5.0f), fTexHead);
+	DrawMeshReflect(gMeshCube, Translate(-2.0f, 0.0f, 0.0f), fSkyboxArctic);
+	DrawMeshRefract(gMeshCube, Translate(2.0f, 0.0f, 0.0f), fSkyboxArctic, 1.00f / 1.52f); // glass
+	DrawSkybox(fSkyboxArctic);
 }
 
 void RasterizationScene::OnDrawImGui()

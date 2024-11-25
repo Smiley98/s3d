@@ -7,5 +7,6 @@ uniform samplerCube u_cubemap;
 
 void main()
 {
-    FragColor = texture(u_cubemap, position);
+    vec3 col = texture(u_cubemap, position).xyz;
+    FragColor = vec4(col, 1.0);
 }

@@ -140,7 +140,9 @@ void CreateCubemap(Cubemap* cubemap, const char* path[6])
     for (int i = 0; i < 6; i++)
     {
         stbi_uc* pixels = stbi_load(path[i], &width, &height, &channels, 0);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        assert(channels == 3 || channels == 4);
+        GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
         stbi_image_free(pixels);
     }
 
@@ -187,26 +189,10 @@ GLuint BoundCubemap()
     return fCubemap;
 }
 
-Texture gTexHead;
-Cubemap gSkybox;
-
 void CreateTextures()
 {
-    const char* skyboxFiles[] =
-    {
-        "./assets/textures/sky_x+.png",
-        "./assets/textures/sky_x-.png",
-        "./assets/textures/sky_y+.png",
-        "./assets/textures/sky_y-.png",
-        "./assets/textures/sky_z+.png",
-        "./assets/textures/sky_z-.png",
-    };
-    CreateCubemap(&gSkybox, skyboxFiles);
-    CreateTextureFromFile(&gTexHead, "assets/textures/african_head_diffuse.png", true);
 }
 
 void DestroyTextures()
 {
-    DestroyTexture(&gTexHead);
-    DestroyCubemap(&gSkybox);
 }
