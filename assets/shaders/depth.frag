@@ -5,28 +5,32 @@ out vec4 FragColor;
 uniform float u_near;
 uniform float u_far;
 
-// Unproject non-linear depth to camera-space
-float linearize(float depth)
+// Input: depth in non-linear space between [0, 1].
+// Output: depth in linear space between [near, far].
+float decode(float depth, float near, float far)
 {
-    // [0, 1] --> [-1, 1]
-    float z = depth * 2.0 - 1.0;
-    
-    // [-1, 1] --> [camera, fragment]
-    float linearDepth = (2.0 * u_near * u_far) / (u_far + u_near - z * (u_far - u_near));
-
-    return linearDepth;
+	depth = depth * 2.0 - 1.0;
+	return (2.0 * near * far) / (far + near - depth * (far - near));
 }
 
-// Normalize linear camera-space depth
-float normalizeLinearDepth(float linearDepth)
+// Input: depth in linear space between [near, far].
+// Output: depth in linear space between [0, 1].
+float normalizeDepth(float depth, float near, float far)
 {
-    // [camera, fragment] --> [0, 1]
-    return (linearDepth - u_near) / (u_far - u_near);
+	return (depth - near) / (far - near);
 }
 
 void main()
 {
-    float linearDepth = linearize(gl_FragCoord.z);
-    float depth = normalizeLinearDepth(linearDepth);
+    // Non-linear [0, 1]
+    float depth = gl_FragCoord.z;
+
+    // Linear [near, far]
+    depth = decode(depth, u_near, u_far);
+
+    // Linear [0, 1]
+    depth = normalizeDepth(depth, u_near, u_far);
+
+    // Greyscale
     FragColor = vec4(vec3(depth), 1.0);
 }

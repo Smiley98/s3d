@@ -122,14 +122,14 @@ void main()
     t += d;
     
     // Ray is near an object, register a hit!
-    if (d < 0.01)
+    if (d < EPSILON)
     {
       hit = obj.idx;
       break;
     }
     
     // Ray is too far from anything, abort mission!
-    if (t > 100.0)
+    if (t > u_far)
       break;
   }
 

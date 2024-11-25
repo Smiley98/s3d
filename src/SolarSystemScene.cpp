@@ -144,37 +144,12 @@ void SolarSystemScene::OnUpdate(float dt)
 		fRaymarch = !fRaymarch;
 }
 
-// Input: depth in linear-space between [near, far].
-// Output: depth in non-linear sace between [0, 1].
-float encode(float depth, float near, float far)
-{
-	float invDepth = 1.0 / depth;
-	float invNear = 1.0f / near;
-	float invFar = 1.0f / far;
-	return (invDepth - invNear) / (invFar - invNear);
-}
-
-// Input: depth in non-linear space between [0, 1].
-// Output: depth in linear space between [near, far].
-float decode(float depth, float near, float far)
-{
-	depth = depth * 2.0f - 1.0f;
-	return (2.0f * near * far) / (far + near - depth * (far - near));
-}
-
-// Input: depth in linear space between [near, far].
-// Output: depth in linear space between [0, 1].
-float normalizeDepth(float depth, float near, float far)
-{
-	return (depth - near) / (far - near);
-}
-
 void SolarSystemScene::OnDraw()
 {
-	// TODO -- Make a scene for environment mapping.
-	// TODO -- Add an asteroid belt!
-	// TODO -- Test raymarched depth and attempt optimized skybox.
-	//DrawSkybox(gSkybox);
+	// TODO -- Environment mapping scene.
+	// TODO -- Asteroid belt scene (instanced rendering).
+	// TODO -- Optimized skybox.
+	DrawSkybox(gSkybox);
 
 	BindFramebuffer(fFbo);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -186,10 +161,6 @@ void SolarSystemScene::OnDraw()
 		float near = gProj.m14 / (gProj.m10 - 1.0f);
 		float far = gProj.m14 / (gProj.m10 + 1.0f);
 		BindShader(&gShaderPlanetsRaymarch);
-
-		float a = encode(90.0, near, far);		// [near, far] linear --> [0, 1] non-linear
-		float b = decode(a, near, far);			// [0, 1] non-linear --> [near, far] linear
-		float c = normalizeDepth(b, near, far);	// [near, far] linear --> [0, 1] linear
 		
 		// Raymarching data
 		SendVec3("u_camPos", gCamera.position);
@@ -222,5 +193,6 @@ void SolarSystemScene::OnDraw()
 		UnbindShader();
 	}
 	UnbindFramebuffer();
+	DrawColor(fFbo, 0);
 	DrawDepth(fFbo);
 }

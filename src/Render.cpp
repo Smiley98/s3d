@@ -374,7 +374,7 @@ void DrawSkybox(Cubemap cubemap)
 	bool depthWrite = DepthWrite();
 	SetDepthTest(false);
 	SetDepthWrite(false);
-
+	
 	BindCubemap(cubemap);
 	BindShader(&gShaderSkybox);
 	SendMat4("u_mvp", viewSky * gProj);
