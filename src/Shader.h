@@ -14,6 +14,7 @@ extern Shader gShaderLine;
 extern Shader gShaderFsq;
 extern Shader gShaderFsqDepth;
 extern Shader gShaderSkybox;
+extern Shader gShaderEnvironment;
 
 extern Shader gShaderRaymarchBase;
 extern Shader gShaderFractal2D;

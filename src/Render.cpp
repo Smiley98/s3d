@@ -105,6 +105,24 @@ void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture)
 	UnbindTexture(texture);
 }
 
+void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap)
+{
+	BindCubemap(gSkybox);
+	BindShader(&gShaderEnvironment);
+	Matrix mvp = world * gView * gProj;
+	SendMat4("u_mvp", mvp);
+	SendMat4("u_world", world);
+	SendMat3("u_normal", NormalMatrix(world));
+	DrawMesh(gMeshHead);
+	UnbindShader();
+	UnbindCubemap(gSkybox);
+}
+
+void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap)
+{
+	// TODO -- split shader into reflect.frag and refract.frag
+}
+
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
 {
 	Matrix world = Scale(width, height, 1.0f) * RotateZ(angle) * Translate(center.x, center.y, 0.0f);

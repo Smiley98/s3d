@@ -51,6 +51,16 @@ void RasterizationScene::OnUpdate(float dt)
 void RasterizationScene::OnDraw()
 {
 	DrawMeshDebug(fMesh, fWorld, fColor);
+
+	BindCubemap(gSkybox);
+	BindShader(&gShaderEnvironment);
+	Matrix mvp = fWorld * gView * gProj;
+	SendMat4("u_mvp", mvp);
+	SendMat4("u_world", fWorld);
+	SendMat3("u_normal", NormalMatrix(fWorld));
+	DrawMesh(gMeshHead);
+	UnbindShader();
+	UnbindCubemap(gSkybox);
 }
 
 void RasterizationScene::OnDrawImGui()
