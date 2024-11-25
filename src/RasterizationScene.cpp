@@ -50,17 +50,13 @@ void RasterizationScene::OnUpdate(float dt)
 
 void RasterizationScene::OnDraw()
 {
-	DrawMeshDebug(fMesh, fWorld, fColor);
+	//DrawMeshDebug(fMesh, fWorld, fColor);
 
-	BindCubemap(gSkybox);
-	BindShader(&gShaderEnvironment);
-	Matrix mvp = fWorld * gView * gProj;
-	SendMat4("u_mvp", mvp);
-	SendMat4("u_world", fWorld);
-	SendMat3("u_normal", NormalMatrix(fWorld));
-	DrawMesh(gMeshHead);
-	UnbindShader();
-	UnbindCubemap(gSkybox);
+	// TODO -- Add UI to cycle between debug shaders/object shaders/whatever rendering tech I'm testing
+	// The goal of this codebase is to be PRIMEOPS with unit tests xD
+	DrawMeshReflect(gMeshHead, Translate(-2.0f, 0.0f, 0.0f), gSkybox);
+	DrawMeshRefract(gMeshHead, Translate(2.0f, 0.0f, 0.0f), gSkybox, 1.00f / 1.52f); // glass
+	DrawSkybox(gSkybox);
 }
 
 void RasterizationScene::OnDrawImGui()

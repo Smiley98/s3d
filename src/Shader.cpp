@@ -15,7 +15,8 @@ Shader gShaderLine;
 Shader gShaderFsq;
 Shader gShaderFsqDepth;
 Shader gShaderSkybox;
-Shader gShaderEnvironment;
+Shader gShaderEnvironmentReflect;
+Shader gShaderEnvironmentRefract;
 
 Shader gShaderRaymarchBase;
 Shader gShaderFractal2D;
@@ -50,7 +51,8 @@ void CreateShaders()
     // Generic fragment shaders
     GLuint fsPassThrough = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/pass-through.frag");
     GLuint fsSkybox = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/skybox.frag");
-    GLuint fsEnvironment = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/environment.frag");
+    GLuint fsEnvironmentReflect = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/environment_reflect.frag");
+    GLuint fsEnvironmentRefract = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/environment_refract.frag");
     GLuint fsTextureDepth = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture_depth.frag");
 
     // Raymarching fragment shaders
@@ -77,7 +79,8 @@ void CreateShaders()
     CreateProgram(&gShaderFsq, vsFsq, fsTexture);
     CreateProgram(&gShaderFsqDepth, vsFsq, fsTextureDepth);
     CreateProgram(&gShaderSkybox, vsSkybox, fsSkybox);
-    CreateProgram(&gShaderEnvironment, vsMvp, fsEnvironment);
+    CreateProgram(&gShaderEnvironmentReflect, vsMvp, fsEnvironmentReflect);
+    CreateProgram(&gShaderEnvironmentRefract, vsMvp, fsEnvironmentRefract);
     CreateProgram(&gShaderLine, vsLine, fsColor);
 
     CreateProgram(&gShaderRaymarchBase, vsFsq, fsRaymarchBase);

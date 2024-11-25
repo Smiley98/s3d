@@ -36,7 +36,7 @@ void DrawMeshTcoords(const Mesh& mesh, Matrix world/*object-space*/);
 // Object effects
 void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture);
 void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap);
-void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap);
+void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, float ratio);
 
 // 2d:
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle = 0.0f);
