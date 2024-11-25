@@ -33,6 +33,7 @@ Shader gShaderPositionsScreen;
 
 Shader gShaderPlanetsRaster;
 Shader gShaderPlanetsRaymarch;
+Shader gShaderAsteroids;
 
 GLuint CreateShader(GLint type, const char* path);
 void CreateProgram(Shader* shader, GLuint vs, GLuint fs);
@@ -47,6 +48,7 @@ void CreateShaders()
     GLuint vsLine = CreateShader(GL_VERTEX_SHADER, "assets/shaders/line.vert");
     GLuint vsMvp = CreateShader(GL_VERTEX_SHADER, "assets/shaders/default.vert");
     GLuint vsPlanetsRaster = CreateShader(GL_VERTEX_SHADER, "assets/shaders/planets_raster.vert");
+    GLuint vsAsteroids = CreateShader(GL_VERTEX_SHADER, "assets/shaders/asteroids.vert");
 
     // Generic fragment shaders
     GLuint fsPassThrough = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/pass-through.frag");
@@ -73,6 +75,7 @@ void CreateShaders()
     // Solar system shaders
     GLuint fsPlanetsRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raster.frag"); 
     GLuint fsPlanetsRaymarch = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raymarch.frag");
+    GLuint fsAsteroids = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/asteroids.frag");
     
     // Shader programs
     CreateProgram(&gShaderPassThrough, vsPassThrough, fsPassThrough);
@@ -98,6 +101,7 @@ void CreateShaders()
 
     CreateProgram(&gShaderPlanetsRaster, vsPlanetsRaster, fsPlanetsRaster);
     CreateProgram(&gShaderPlanetsRaymarch, vsFsq, fsPlanetsRaymarch);
+    CreateProgram(&gShaderAsteroids, vsAsteroids, fsAsteroids);
 }
 
 void DestroyShaders()

@@ -32,6 +32,7 @@ extern Shader gShaderPositionsScreen;
 
 extern Shader gShaderPlanetsRaster;
 extern Shader gShaderPlanetsRaymarch;
+extern Shader gShaderAsteroids;
 
 void CreateShaders();
 void DestroyShaders();

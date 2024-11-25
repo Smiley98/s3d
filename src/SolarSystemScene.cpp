@@ -164,6 +164,7 @@ void SolarSystemScene::OnUpdate(float dt)
 void SolarSystemScene::OnDraw()
 {
 	// TODO -- Asteroid belt scene (instanced rendering).
+	// TODO -- Debug environment mapping - my reflection & refraction don't match that of LearnOpenGL's demo
 	BindFramebuffer(fFbo);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
