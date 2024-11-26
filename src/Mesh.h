@@ -42,8 +42,8 @@ extern Mesh gMeshHead;
 void CreateMeshes();
 void DestroyMeshes();
 
-void CreateMesh(Mesh* mesh, const char* path);
-void CreateMesh(Mesh* mesh, MeshType type);
+void CreateMesh(Mesh* mesh, const char* path, bool gpu = true);
+void CreateMesh(Mesh* mesh, MeshType type, bool gpu = true);
 void DestroyMesh(Mesh* mesh);
 
 // par meshes:

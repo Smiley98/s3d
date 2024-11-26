@@ -31,20 +31,62 @@ Matrix planetMvp[PLANET_COUNT];			// Raster only
 Cubemap fSkyboxSpace;
 Framebuffer fFbo;
 
-//struct Asteroids
-//{
-//	GLuint vao = GL_NONE;
-//};
+struct Asteroids
+{
+	GLuint vao = GL_NONE;
+	GLuint pbo = GL_NONE;	// positions (1 asteroid)
+	GLuint tbo = GL_NONE;	// tcoords (1 asteroid)
+	GLuint mbo = GL_NONE;	// matrices (all asteroids
+	int count = 0;
+} fAsteroids;
 
-Mesh fAsteroid;
 Texture fTexAsteroid;
+
+void CreateAsteroidsGPU()
+{
+	Mesh asteroid;
+	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
+	fAsteroids.count = asteroid.count;
+
+	std::vector<Vector3> translations;
+	for (int i = 0; i < 5; i++)
+	{
+		translations[i] = { i * 10.0f, 0.0f, 0.0f };
+	}
+
+	glGenVertexArrays(1, &fAsteroids.vao);
+	glBindVertexArray(fAsteroids.vao);
+
+	glGenBuffers(1, &fAsteroids.pbo);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.pbo);
+	glBufferData(GL_ARRAY_BUFFER, asteroid.positions.size() * sizeof(Vector3), asteroid.positions.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(0);
+
+	glGenBuffers(1, &fAsteroids.tbo);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.tbo);
+	glBufferData(GL_ARRAY_BUFFER, asteroid.tcoords.size() * sizeof(Vector2), asteroid.tcoords.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
+	glEnableVertexAttribArray(1);
+
+	glGenBuffers(1, &fAsteroids.mbo);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.mbo);
+	glBufferData(GL_ARRAY_BUFFER, translations.size() * sizeof(Vector3), translations.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(2);
+	glVertexAttribDivisor(2, 1);
+
+	glBindVertexArray(GL_NONE);
+
+	DestroyMesh(&asteroid);
+}
 
 void SolarSystemScene::OnLoad()
 {
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
-	CreateMesh(&fAsteroid, "./assets/meshes/asteroid.obj");
+	gShaderAsteroids;
 	CreateTextureFromFile(&fTexAsteroid, "./assets/textures/asteroid.png");
 
 	const char* skyboxSpaceFiles[] =
@@ -179,7 +221,13 @@ void SolarSystemScene::OnDraw()
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	DrawMeshTexture(fAsteroid, Translate(10.0f, 0.0f, 0.0f), fTexAsteroid);
+	BindShader(&gShaderAsteroids);
+	glBindVertexArray(fAsteroids.vao);
+	glDrawArraysInstanced(GL_TRIANGLES, 0, fAsteroids.count, 5);
+	glBindVertexArray(GL_NONE);
+	UnbindShader();
+
+	//DrawMeshTexture(fAsteroid, Translate(10.0f, 0.0f, 0.0f), fTexAsteroid);
 	if (fRaymarch)
 	{
 		Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };

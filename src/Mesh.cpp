@@ -37,7 +37,7 @@ void DestroyMeshes()
 	DestroyMesh(&gMeshSphere);
 }
 
-void CreateMesh(Mesh* mesh, const char* path)
+void CreateMesh(Mesh* mesh, const char* path, bool gpu)
 {
 	fastObjMesh* obj = fast_obj_read(path);
 	const int count = obj->index_count;
@@ -65,10 +65,12 @@ void CreateMesh(Mesh* mesh, const char* path)
 	
 	fast_obj_destroy(obj);
 	mesh->count = count;
-	Upload(mesh);
+
+	if (gpu)
+		Upload(mesh);
 }
 
-void CreateMesh(Mesh* mesh, MeshType type)
+void CreateMesh(Mesh* mesh, MeshType type, bool gpu)
 {
 #if PLATONIC
 	if (type == MESH_CUBE || type == MESH_SPHERE)
@@ -80,7 +82,8 @@ void CreateMesh(Mesh* mesh, MeshType type)
 	else
 		GenParametric(mesh, type);
 
-	Upload(mesh);
+	if (gpu)
+		Upload(mesh);
 }
 
 void DestroyMesh(Mesh* mesh)
