@@ -105,14 +105,17 @@ void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture)
 	UnbindTexture(texture);
 }
 
-void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap)
+void DrawMeshReflect(const Mesh& mesh, Matrix world,  Cubemap cubemap)
 {
+	// TODO -- Should I keep the camera global, or pass it everywhere its used?
+	// (First time sending the camera position to the GPU since I have yet to implement lighting).
 	Matrix mvp = world * gView * gProj;
 	BindCubemap(cubemap);
 	BindShader(&gShaderEnvironmentReflect);
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_world", world);
 	SendMat3("u_normal", NormalMatrix(world));
+	SendVec3("u_camPos", gCamera.position);
 	DrawMesh(mesh);
 	UnbindShader();
 	UnbindCubemap(cubemap);
@@ -126,6 +129,7 @@ void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, float rati
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_world", world);
 	SendMat3("u_normal", NormalMatrix(world));
+	SendVec3("u_camPos", gCamera.position);
 	SendFloat("u_ratio", ratio);
 	DrawMesh(mesh);
 	UnbindShader();

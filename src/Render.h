@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "PipelineState.h"
 #include "Framebuffer.h"
+#include "Camera.h"
 
 extern Matrix gView;
 extern Matrix gProj;
