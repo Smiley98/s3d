@@ -31,11 +31,21 @@ Matrix planetMvp[PLANET_COUNT];			// Raster only
 Cubemap fSkyboxSpace;
 Framebuffer fFbo;
 
+//struct Asteroids
+//{
+//	GLuint vao = GL_NONE;
+//};
+
+Mesh fAsteroid;
+Texture fTexAsteroid;
+
 void SolarSystemScene::OnLoad()
 {
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
+	CreateMesh(&fAsteroid, "./assets/meshes/asteroid.obj");
+	CreateTextureFromFile(&fTexAsteroid, "./assets/textures/asteroid.png");
 
 	const char* skyboxSpaceFiles[] =
 	{
@@ -168,6 +178,8 @@ void SolarSystemScene::OnDraw()
 	BindFramebuffer(fFbo);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	DrawMeshTexture(fAsteroid, Translate(10.0f, 0.0f, 0.0f), fTexAsteroid);
 	if (fRaymarch)
 	{
 		Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
