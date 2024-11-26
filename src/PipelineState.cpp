@@ -97,12 +97,10 @@ bool Wireframes()
 {
 #if NDEBUG
 #else
-	int mode = 0;
-	glGetIntegerv(GL_POLYGON_MODE, &mode);
-	if (fState.wireframes)
-		assert(mode == GL_LINES);
-	else
-		assert(mode == GL_FILL);
+	int mode[2]{};
+	int target = fState.wireframes ? GL_LINE : GL_FILL;
+	glGetIntegerv(GL_POLYGON_MODE, mode);
+	assert(mode[0] == target && mode[1] == target);
 #endif
 	return fState.wireframes;
 }
