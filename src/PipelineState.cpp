@@ -97,10 +97,12 @@ bool Wireframes()
 {
 #if NDEBUG
 #else
+	// Apparently a core context returns 1 value but compatability returns 2.
+	// Not sure why my contexts seemingly differ between machines, but may as well just examine mode[0]
 	int mode[2]{};
 	int target = fState.wireframes ? GL_LINE : GL_FILL;
 	glGetIntegerv(GL_POLYGON_MODE, mode);
-	assert(mode[0] == target && mode[1] == target);
+	assert(mode[0] == target);
 #endif
 	return fState.wireframes;
 }

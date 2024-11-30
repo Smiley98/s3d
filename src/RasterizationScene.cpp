@@ -67,8 +67,8 @@ void RasterizationScene::OnUpdate(float dt)
 
 void RasterizationScene::OnDraw()
 {
-	DrawMeshDebug(fMesh, fWorld, fColor);
-	DrawMeshTexture(gMeshHead, Translate(0.0f, 0.0f, -5.0f), fTexHead);
+	//DrawMeshDebug(fMesh, fWorld, fColor);
+	//DrawMeshTexture(gMeshHead, Translate(0.0f, 0.0f, -5.0f), fTexHead);
 	DrawMeshReflect(gMeshCube, Translate(-2.0f, 0.0f, 0.0f), fSkyboxArctic);
 	DrawMeshRefract(gMeshCube, Translate(2.0f, 0.0f, 0.0f), fSkyboxArctic, 1.00f / 1.52f); // glass
 	DrawSkybox(fSkyboxArctic);

@@ -42,13 +42,13 @@ struct Asteroids
 
 Texture fTexAsteroid;
 
-void CreateAsteroidsGPU()
+void CreateAsteroidsInstance()
 {
 	Mesh asteroid;
 	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
 	fAsteroids.count = asteroid.count;
 
-	std::vector<Vector3> translations;
+	std::vector<Vector3> translations(5);
 	for (int i = 0; i < 5; i++)
 	{
 		translations[i] = { i * 10.0f, 0.0f, 0.0f };
@@ -86,8 +86,9 @@ void SolarSystemScene::OnLoad()
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
-	gShaderAsteroids;
+
 	CreateTextureFromFile(&fTexAsteroid, "./assets/textures/asteroid.png");
+	CreateAsteroidsInstance();
 
 	const char* skyboxSpaceFiles[] =
 	{
@@ -222,6 +223,8 @@ void SolarSystemScene::OnDraw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	BindShader(&gShaderAsteroids);
+	Matrix mvp = gView * gProj;
+	SendMat4("u_mvp", mvp);
 	glBindVertexArray(fAsteroids.vao);
 	glDrawArraysInstanced(GL_TRIANGLES, 0, fAsteroids.count, 5);
 	glBindVertexArray(GL_NONE);
