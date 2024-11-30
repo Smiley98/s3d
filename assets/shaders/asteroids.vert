@@ -7,10 +7,11 @@ layout (location = 2) in mat4 aWorld;
 
 out vec2 uv;
 
+uniform mat4 u_orbit;
 uniform mat4 u_mvp;
 
 void main()
 {
    uv = aTcoord;
-   gl_Position = u_mvp * aWorld * vec4(aPosition, 1.0);
+   gl_Position = u_mvp * u_orbit * aWorld * vec4(aPosition, 1.0);
 }

@@ -38,6 +38,7 @@ struct Asteroids
 	GLuint tbo = GL_NONE;	// tcoords (1 asteroid)
 	GLuint mbo = GL_NONE;	// matrices (all asteroids
 	int count = 0;
+	int instances = 0;
 } fAsteroids;
 
 Texture fTexAsteroid;
@@ -47,18 +48,19 @@ void CreateAsteroidsInstance()
 	Mesh asteroid;
 	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
 	fAsteroids.count = asteroid.count;
+	fAsteroids.instances = 250;
 
-	//std::vector<Vector3> translations(5);
-	//for (int i = 0; i < 5; i++)
-	//{
-	//	translations[i] = { i * 10.0f, 0.0f, 0.0f };
-	//}
-
-	std::vector<Matrix> transformations(5);
+	std::vector<Matrix> transformations(fAsteroids.instances);
 	for (int i = 0; i < transformations.size(); i++)
 	{
-		// Must transpose to change from row-major to column-major
-		transformations[i] = Transpose(Translate(i * 10.0f, 0.0f, 0.0f));
+		float angle = (float)i / (float)fAsteroids.instances * PI * 2.0f;
+		float x = Random(50.0f, 100.0f);
+		float z = Random(50.0f, 100.0f);
+
+		Matrix translation = Translate(cosf(angle) * x, Random(0.0f, 10.0f), sinf(angle) * z);
+		Matrix rotation = Rotate(Normalize(Vector3{ Random(0.0f, 1.0f), Random(0.0f, 1.0f), Random(0.0f, 1.0f) }), Random(0.0f, PI));
+		Matrix scale = Scale(Random(0.25f, 2.0f), Random(0.25f, 2.0f), Random(0.25f, 2.0f));
+		transformations[i] = Transpose(scale * rotation * translation);
 	}
 
 	glGenVertexArrays(1, &fAsteroids.vao);
@@ -215,7 +217,7 @@ void SolarSystemScene::OnUpdate(float dt)
 {
 	UpdateFpsCameraDefault(gCamera, dt);
 	gView = ToView(gCamera);
-	gProj = Perspective(fFov, SCREEN_ASPECT, 0.1f, 100.0f);
+	gProj = Perspective(fFov, SCREEN_ASPECT, 0.1f, 1000.0f);
 	
 	const float tt = TotalTime();
 	const float rotSelfScale = 0.0004f * 1000.0f;
@@ -244,15 +246,19 @@ void SolarSystemScene::OnUpdate(float dt)
 
 void SolarSystemScene::OnDraw()
 {
+	float tt = TotalTime();
+
 	BindFramebuffer(fFbo);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	BindShader(&gShaderAsteroids);
 	Matrix mvp = gView * gProj;
+	Matrix orbit = RotateY(5.0f * tt * DEG2RAD);
 	SendMat4("u_mvp", mvp);
+	SendMat4("u_orbit", orbit);
 	glBindVertexArray(fAsteroids.vao);
-	glDrawArraysInstanced(GL_TRIANGLES, 0, fAsteroids.count, 5);
+	glDrawArraysInstanced(GL_TRIANGLES, 0, fAsteroids.count, fAsteroids.instances);
 	glBindVertexArray(GL_NONE);
 	UnbindShader();
 
