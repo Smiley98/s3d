@@ -37,7 +37,7 @@ struct Asteroids
 	GLuint pbo = GL_NONE;	// positions (1 asteroid)
 	GLuint tbo = GL_NONE;	// tcoords (1 asteroid)
 	GLuint nbo = GL_NONE;	// normals (1 asteroid)
-	GLuint mbo = GL_NONE;	// matrices (all asteroids
+	GLuint mbo = GL_NONE;	// world matrices (all asteroids
 	int count = 0;
 	int instances = 0;
 } fAsteroids;
