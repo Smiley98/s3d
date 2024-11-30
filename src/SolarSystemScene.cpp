@@ -36,6 +36,7 @@ struct Asteroids
 	GLuint vao = GL_NONE;
 	GLuint pbo = GL_NONE;	// positions (1 asteroid)
 	GLuint tbo = GL_NONE;	// tcoords (1 asteroid)
+	GLuint nbo = GL_NONE;	// normals (1 asteroid)
 	GLuint mbo = GL_NONE;	// matrices (all asteroids
 	int count = 0;
 	int instances = 0;
@@ -81,21 +82,27 @@ void CreateAsteroidsInstance()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
 	glEnableVertexAttribArray(1);
 
+	glGenBuffers(1, &fAsteroids.nbo);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.nbo);
+	glBufferData(GL_ARRAY_BUFFER, asteroid.normals.size() * sizeof(Vector3), asteroid.normals.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(2);
+
 	glGenBuffers(1, &fAsteroids.mbo);
 	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.mbo);
 	glBufferData(GL_ARRAY_BUFFER, fAsteroids.instances * sizeof(float16), worlds, GL_STATIC_DRAW);
 	for (int i = 0; i < 4; i++)
 	{
-		int attribute = 2 + i;
+		int attribute = 3 + i;
 		glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(i * sizeof(Vector4)));
 		glEnableVertexAttribArray(attribute);
 		glVertexAttribDivisor(attribute, 1);
 	}
 
 	glBindVertexArray(GL_NONE);
+	DestroyMesh(&asteroid);
 	delete[] normals;
 	delete[] worlds;
-	DestroyMesh(&asteroid);
 }
 
 void SolarSystemScene::OnLoad()
