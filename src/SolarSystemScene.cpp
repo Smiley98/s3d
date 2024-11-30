@@ -48,10 +48,17 @@ void CreateAsteroidsInstance()
 	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
 	fAsteroids.count = asteroid.count;
 
-	std::vector<Vector3> translations(5);
-	for (int i = 0; i < 5; i++)
+	//std::vector<Vector3> translations(5);
+	//for (int i = 0; i < 5; i++)
+	//{
+	//	translations[i] = { i * 10.0f, 0.0f, 0.0f };
+	//}
+
+	std::vector<Matrix> transformations(5);
+	for (int i = 0; i < transformations.size(); i++)
 	{
-		translations[i] = { i * 10.0f, 0.0f, 0.0f };
+		// Must transpose to change from row-major to column-major
+		transformations[i] = Transpose(Translate(i * 10.0f, 0.0f, 0.0f));
 	}
 
 	glGenVertexArrays(1, &fAsteroids.vao);
@@ -71,10 +78,31 @@ void CreateAsteroidsInstance()
 
 	glGenBuffers(1, &fAsteroids.mbo);
 	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.mbo);
-	glBufferData(GL_ARRAY_BUFFER, translations.size() * sizeof(Vector3), translations.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	
+	//glBufferData(GL_ARRAY_BUFFER, translations.size() * sizeof(Vector3), translations.data(), GL_STATIC_DRAW);
+	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	//glEnableVertexAttribArray(2);
+	//glVertexAttribDivisor(2, 1);
+
+	glBufferData(GL_ARRAY_BUFFER, transformations.size() * sizeof(Matrix), transformations.data(), GL_STATIC_DRAW);
+	//for (int i = 0; i < 4; i++)
+	//{
+	//
+	//}
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(0 * sizeof(Vector4)));
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(1 * sizeof(Vector4)));
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(2 * sizeof(Vector4)));
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(3 * sizeof(Vector4)));
+
 	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
+	glEnableVertexAttribArray(5);
+
 	glVertexAttribDivisor(2, 1);
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
 
 	glBindVertexArray(GL_NONE);
 
@@ -216,8 +244,6 @@ void SolarSystemScene::OnUpdate(float dt)
 
 void SolarSystemScene::OnDraw()
 {
-	// TODO -- Asteroid belt scene (instanced rendering).
-	// TODO -- Debug environment mapping - my reflection & refraction don't match that of LearnOpenGL's demo
 	BindFramebuffer(fFbo);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -230,7 +256,6 @@ void SolarSystemScene::OnDraw()
 	glBindVertexArray(GL_NONE);
 	UnbindShader();
 
-	//DrawMeshTexture(fAsteroid, Translate(10.0f, 0.0f, 0.0f), fTexAsteroid);
 	if (fRaymarch)
 	{
 		Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
