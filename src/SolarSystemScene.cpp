@@ -239,9 +239,11 @@ void SolarSystemScene::OnDraw()
 	Matrix orbit = RotateY(5.0f * tt * DEG2RAD);
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_orbit", orbit);
+	BindTexture(fTexAsteroid);
 	glBindVertexArray(fAsteroids.vao);
 	glDrawArraysInstanced(GL_TRIANGLES, 0, fAsteroids.count, fAsteroids.instances);
 	glBindVertexArray(GL_NONE);
+	UnbindTexture(fTexAsteroid);
 	UnbindShader();
 
 	if (fRaymarch)
