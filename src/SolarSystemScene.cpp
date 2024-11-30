@@ -50,8 +50,9 @@ void CreateAsteroidsInstance()
 	fAsteroids.count = asteroid.count;
 	fAsteroids.instances = 250;
 
-	std::vector<Matrix> transformations(fAsteroids.instances);
-	for (int i = 0; i < transformations.size(); i++)
+	float16* worlds = new float16[fAsteroids.instances];
+	float9* normals = new float9[fAsteroids.instances];
+	for (int i = 0; i < fAsteroids.instances; i++)
 	{
 		float angle = (float)i / (float)fAsteroids.instances * PI * 2.0f;
 		float x = Random(50.0f, 100.0f);
@@ -60,7 +61,9 @@ void CreateAsteroidsInstance()
 		Matrix translation = Translate(cosf(angle) * x, Random(-10.0f, 10.0f), sinf(angle) * z);
 		Matrix rotation = Rotate(Normalize(Vector3{ Random(0.0f, 1.0f), Random(0.0f, 1.0f), Random(0.0f, 1.0f) }), Random(0.0f, PI));
 		Matrix scale = Scale(Random(0.25f, 2.0f), Random(0.25f, 2.0f), Random(0.25f, 2.0f));
-		transformations[i] = Transpose(scale * rotation * translation);
+		Matrix world = scale * rotation * translation;
+		worlds[i] = ToFloat16(world);
+		normals[i] = ToFloat9(NormalMatrix(world));
 	}
 
 	glGenVertexArrays(1, &fAsteroids.vao);
@@ -80,7 +83,7 @@ void CreateAsteroidsInstance()
 
 	glGenBuffers(1, &fAsteroids.mbo);
 	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.mbo);
-	glBufferData(GL_ARRAY_BUFFER, transformations.size() * sizeof(Matrix), transformations.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, fAsteroids.instances * sizeof(float16), worlds, GL_STATIC_DRAW);
 	for (int i = 0; i < 4; i++)
 	{
 		int attribute = 2 + i;
@@ -90,6 +93,8 @@ void CreateAsteroidsInstance()
 	}
 
 	glBindVertexArray(GL_NONE);
+	delete[] normals;
+	delete[] worlds;
 	DestroyMesh(&asteroid);
 }
 
