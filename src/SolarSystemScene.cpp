@@ -34,10 +34,11 @@ Framebuffer fFbo;
 struct Asteroids
 {
 	GLuint vao = GL_NONE;
-	GLuint pbo = GL_NONE;	// positions (1 asteroid)
-	GLuint tbo = GL_NONE;	// tcoords (1 asteroid)
-	GLuint nbo = GL_NONE;	// normals (1 asteroid)
-	GLuint mbo = GL_NONE;	// world matrices (all asteroids
+	GLuint pbo = GL_NONE;			// positions (1 asteroid)
+	GLuint tbo = GL_NONE;			// tcoords (1 asteroid)
+	GLuint nbo = GL_NONE;			// normals (1 asteroid)
+	GLuint vboWorlds = GL_NONE;		// world  matrices (all asteroids
+	GLuint vboNormals = GL_NONE;	// normal matrices (all asteroids
 	int count = 0;
 	int instances = 0;
 } fAsteroids;
@@ -88,13 +89,24 @@ void CreateAsteroidsInstance()
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
 	glEnableVertexAttribArray(2);
 
-	glGenBuffers(1, &fAsteroids.mbo);
-	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.mbo);
+	glGenBuffers(1, &fAsteroids.vboWorlds);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.vboWorlds);
 	glBufferData(GL_ARRAY_BUFFER, fAsteroids.instances * sizeof(float16), worlds, GL_STATIC_DRAW);
 	for (int i = 0; i < 4; i++)
 	{
 		int attribute = 3 + i;
 		glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(i * sizeof(Vector4)));
+		glEnableVertexAttribArray(attribute);
+		glVertexAttribDivisor(attribute, 1);
+	}
+
+	glGenBuffers(1, &fAsteroids.vboNormals);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.vboNormals);
+	glBufferData(GL_ARRAY_BUFFER, fAsteroids.instances * sizeof(float9), normals, GL_STATIC_DRAW);
+	for (int i = 0; i < 4; i++)
+	{
+		int attribute = 7 + i;
+		glVertexAttribPointer(attribute, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(Vector3), (void*)(i * sizeof(Vector3)));
 		glEnableVertexAttribArray(attribute);
 		glVertexAttribDivisor(attribute, 1);
 	}

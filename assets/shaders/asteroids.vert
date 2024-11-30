@@ -4,6 +4,7 @@ layout (location = 0) in vec3 aPosition;  // per-draw
 layout (location = 1) in vec2 aTcoord;    // per-draw
 layout (location = 2) in vec3 aNormal;    // per-draw
 layout (location = 3) in mat4 aWorlds;    // per-instance
+layout (location = 7) in mat3 aNormals;   // per-instance
 
 out vec2 uv;
 out vec3 normal;
@@ -15,17 +16,15 @@ uniform vec3 u_sunPos;
 
 void main()
 {
-   // Can't pre-compute normal matrices because asteroids are dynamic (in-motion)
-   // Actually, we probably could by sending aWorld as normals then multiplying by mat3(u_orbit)
+   // Normals now optimized as instance data rather than mat3(transpose(inverse(worldMat)));
    mat4 worldMat = u_orbit * aWorlds;
-   mat3 normalMat = mat3(transpose(inverse(worldMat)));
+   mat3 normalMat = mat3(u_orbit) * aNormals;
    uv = aTcoord;
    normal = normalMat * aNormal;
 
    vec3 P = (worldMat * vec4(aPosition, 1.0)).xyz;
    vec3 N = normalize(normal);
    vec3 L = normalize(u_sunPos - P);
-
    float diffuse = max(dot(N, L), 0.0) * 0.6;
    lighting = 0.1 + diffuse;
 
