@@ -10,8 +10,8 @@ out vec2 uv;
 out vec3 normal;
 out float lighting;
 
-uniform mat4 u_orbit;
 uniform mat4 u_mvp;
+uniform mat4 u_orbit;
 uniform vec3 u_sunPos;
 
 void main()

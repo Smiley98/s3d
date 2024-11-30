@@ -33,6 +33,10 @@ Framebuffer fFbo;
 
 struct Asteroids
 {
+	Matrix viewProj = MatrixIdentity();
+	Matrix orbit = MatrixIdentity();
+	Texture texture;
+
 	GLuint vao = GL_NONE;
 	GLuint pbo = GL_NONE;			// positions (1 asteroid)
 	GLuint tbo = GL_NONE;			// tcoords (1 asteroid)
@@ -43,10 +47,10 @@ struct Asteroids
 	int instances = 0;
 } fAsteroids;
 
-Texture fTexAsteroid;
-
-void CreateAsteroidsInstance()
+void CreateAsteroids()
 {
+	CreateTextureFromFile(&fAsteroids.texture, "./assets/textures/asteroid.png");
+
 	Mesh asteroid;
 	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
 	fAsteroids.count = asteroid.count;
@@ -117,14 +121,24 @@ void CreateAsteroidsInstance()
 	delete[] worlds;
 }
 
+void DestroyAsteroids()
+{
+	DestroyTexture(&fAsteroids.texture);
+	glDeleteBuffers(1, &fAsteroids.pbo);
+	glDeleteBuffers(1, &fAsteroids.tbo);
+	glDeleteBuffers(1, &fAsteroids.nbo);
+	glDeleteBuffers(1, &fAsteroids.vboWorlds);
+	glDeleteBuffers(1, &fAsteroids.vboNormals);
+	glDeleteVertexArrays(1, &fAsteroids.vao);
+	fAsteroids.pbo = fAsteroids.tbo = fAsteroids.nbo =
+		fAsteroids.vboWorlds = fAsteroids.vboNormals = GL_NONE;
+}
+
 void SolarSystemScene::OnLoad()
 {
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
-
-	CreateTextureFromFile(&fTexAsteroid, "./assets/textures/asteroid.png");
-	CreateAsteroidsInstance();
 
 	const char* skyboxSpaceFiles[] =
 	{
@@ -136,6 +150,7 @@ void SolarSystemScene::OnLoad()
 		"./assets/textures/space_z-.png",
 	};
 	CreateCubemap(&fSkyboxSpace, skyboxSpaceFiles);
+	CreateAsteroids();
 
 	// Note that depth must be attached in order for depth-test and depth-write to be performed
 	// If you don't need to sample the depth-buffer, a renderbuffer can be attached for better performance.
@@ -215,6 +230,7 @@ void SolarSystemScene::OnLoad()
 
 void SolarSystemScene::OnUnload()
 {
+	DestroyAsteroids();
 	DestroyFramebuffer(&fFbo);
 	DestroyCubemap(&fSkyboxSpace);
 }
@@ -243,6 +259,9 @@ void SolarSystemScene::OnUpdate(float dt)
 		planetMvp[i] = planetWorld[i] * gView * gProj;
 	}
 
+	fAsteroids.viewProj = gView * gProj;
+	fAsteroids.orbit = RotateY(5.0f * tt * DEG2RAD);
+
 	if (IsKeyPressed(KEY_Q))
 		fRaymarch = !fRaymarch;
 
@@ -259,15 +278,14 @@ void SolarSystemScene::OnDraw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	BindShader(&gShaderAsteroids);
-	Matrix mvp = gView * gProj;
-	Matrix orbit = RotateY(5.0f * tt * DEG2RAD);
-	SendMat4("u_mvp", mvp);
-	SendMat4("u_orbit", orbit);
-	BindTexture(fTexAsteroid);
+	SendMat4("u_mvp", fAsteroids.viewProj);
+	SendMat4("u_orbit", fAsteroids.orbit);
+	SendVec3("u_sunPos", V3_ZERO);
+	BindTexture(fAsteroids.texture);
 	glBindVertexArray(fAsteroids.vao);
 	glDrawArraysInstanced(GL_TRIANGLES, 0, fAsteroids.count, fAsteroids.instances);
 	glBindVertexArray(GL_NONE);
-	UnbindTexture(fTexAsteroid);
+	UnbindTexture(fAsteroids.texture);
 	UnbindShader();
 
 	if (fRaymarch)
