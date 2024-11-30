@@ -122,18 +122,19 @@ void main()
     t += d;
     
     // Ray is near an object, register a hit!
-    if (d < EPSILON)
+    if (d <= EPSILON)
     {
       hit = obj.idx;
       break;
     }
     
     // Ray is too far from anything, abort mission!
-    if (t > u_far)
+    if (t >= u_far)
       break;
   }
 
-  if (hit < 0)
+  // Discard if no intersection found or in-front of near-plane
+  if (hit < 0 || t <= u_near)
     discard;
   
   vec3 position = ro + rd * t;
