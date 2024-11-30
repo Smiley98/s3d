@@ -57,7 +57,7 @@ void CreateAsteroidsInstance()
 		float x = Random(50.0f, 100.0f);
 		float z = Random(50.0f, 100.0f);
 
-		Matrix translation = Translate(cosf(angle) * x, Random(0.0f, 10.0f), sinf(angle) * z);
+		Matrix translation = Translate(cosf(angle) * x, Random(-10.0f, 10.0f), sinf(angle) * z);
 		Matrix rotation = Rotate(Normalize(Vector3{ Random(0.0f, 1.0f), Random(0.0f, 1.0f), Random(0.0f, 1.0f) }), Random(0.0f, PI));
 		Matrix scale = Scale(Random(0.25f, 2.0f), Random(0.25f, 2.0f), Random(0.25f, 2.0f));
 		transformations[i] = Transpose(scale * rotation * translation);
@@ -80,34 +80,16 @@ void CreateAsteroidsInstance()
 
 	glGenBuffers(1, &fAsteroids.mbo);
 	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.mbo);
-	
-	//glBufferData(GL_ARRAY_BUFFER, translations.size() * sizeof(Vector3), translations.data(), GL_STATIC_DRAW);
-	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	//glEnableVertexAttribArray(2);
-	//glVertexAttribDivisor(2, 1);
-
 	glBufferData(GL_ARRAY_BUFFER, transformations.size() * sizeof(Matrix), transformations.data(), GL_STATIC_DRAW);
-	//for (int i = 0; i < 4; i++)
-	//{
-	//
-	//}
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(0 * sizeof(Vector4)));
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(1 * sizeof(Vector4)));
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(2 * sizeof(Vector4)));
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(3 * sizeof(Vector4)));
-
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
-	glEnableVertexAttribArray(5);
-
-	glVertexAttribDivisor(2, 1);
-	glVertexAttribDivisor(3, 1);
-	glVertexAttribDivisor(4, 1);
-	glVertexAttribDivisor(5, 1);
+	for (int i = 0; i < 4; i++)
+	{
+		int attribute = 2 + i;
+		glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(i * sizeof(Vector4)));
+		glEnableVertexAttribArray(attribute);
+		glVertexAttribDivisor(attribute, 1);
+	}
 
 	glBindVertexArray(GL_NONE);
-
 	DestroyMesh(&asteroid);
 }
 
