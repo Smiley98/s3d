@@ -303,8 +303,6 @@ void DrawPlanetsRaymarch()
 {
 	Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
 	Matrix cameraRotation = FpsRotation(gCamera);
-	float near = gProj.m14 / (gProj.m10 - 1.0f);
-	float far = gProj.m14 / (gProj.m10 + 1.0f);
 	BindShader(&gShaderPlanetsRaymarch);
 
 	// Raymarching data
@@ -312,8 +310,13 @@ void DrawPlanetsRaymarch()
 	SendMat3("u_camRot", cameraRotation);
 	SendVec2("u_resolution", resolution);
 	SendFloat("u_fov", tanf(fFov * 0.5f));
-	SendFloat("u_near", near);
-	SendFloat("u_far", far);
+	SendFloat("u_near", fNear);
+	SendFloat("u_far", fFar);
+
+	// Again, this doesn't work because proj.m15 is 0 so perspective divide yeilds divide by zero error...
+	Matrix proj = Perspective(fFov, SCREEN_ASPECT, fNear, fFar);
+	proj.m11 = 1.0f;
+	SendMat4("u_proj", proj);
 
 	// Planet data
 	SendMat4Array("u_planetMatrices", planetWorldInv, PLANET_COUNT);

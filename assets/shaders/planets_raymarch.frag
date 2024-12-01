@@ -10,6 +10,7 @@ uniform vec2 u_resolution;
 uniform float u_fov;
 uniform float u_near;
 uniform float u_far;
+uniform mat4 u_proj;
 
 const int PLANET_COUNT = 9;
 
@@ -139,7 +140,10 @@ void main()
   
   vec3 position = ro + rd * t;
   vec3 color = shade(position, hit);
-  float depth = encode(t, u_near, u_far);
+  //float depth = encode(t, u_near, u_far);
+  vec4 clip = u_proj * vec4(position, 1.0);
+  clip /= clip.w;
+  float depth = clip.z;
 
   // gl_FragDepth is within [0, 1] so no don't change to [-1, 1]
   //depth = depth * 2.0 - 1.0;
