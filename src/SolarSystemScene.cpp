@@ -23,8 +23,10 @@ Planet planets[PLANET_COUNT];
 bool fRaster = true;
 bool fDepth = true;
 float fFov = PI * 0.5f;
-float fNear = 25.0f;
-float fFar = 100.0f;
+float fNear = 0.1f;
+float fFar = 1000.0f;
+//float fNear = 7.5f;
+//float fFar = 12.5f;
 
 float planetRadii[PLANET_COUNT];		// Raymarch only
 Vector3 planetColors[PLANET_COUNT];		// Both
@@ -59,11 +61,42 @@ void DrawAsteroids();
 void DrawPlanetsRaster();
 void DrawPlanetsRaymarch();
 
+float encode(float depth, float near, float far)
+{
+	float invDepth = 1.0 / depth;
+	float invNear = 1.0 / near;
+	float invFar = 1.0 / far;
+	return (invDepth - invNear) / (invFar - invNear);
+}
+
+void Debug()
+{
+	Vector3 ro = { 0.0f, 0.0f, 10.0f };
+	Vector3 pos = V3_ZERO;
+	float dist = Length(pos - ro);
+	float rayDepth = encode(dist, fNear, fFar);
+
+	Matrix world = Translate(pos);
+	Matrix view = LookAt(ro, V3_ZERO, V3_UP);
+	Matrix proj = Perspective(fFov, 1.0f, fNear, fFar);
+	Matrix mvp = world * view * proj;
+	Vector4 clip = pos;
+	clip = mvp * clip;
+	clip /= clip.w;
+
+	float16 proj2 = ToFloat16(proj);
+
+	// Changing near & far affect result
+	printf("Lit!\n");
+}
+
 void SolarSystemScene::OnLoad()
 {
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
+	
+	//Debug();
 
 	const char* skyboxSpaceFiles[] =
 	{
@@ -277,7 +310,7 @@ void CreateAsteroids()
 	Mesh asteroid;
 	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
 	fAsteroids.count = asteroid.count;
-	fAsteroids.instances = 250;
+	fAsteroids.instances = 250000;
 
 	float16* worlds = new float16[fAsteroids.instances];
 	float9* normals = new float9[fAsteroids.instances];
