@@ -24,7 +24,7 @@ bool fRaster = true;
 bool fDepth = true;
 float fFov = PI * 0.5f;
 float fNear = 0.1f;
-float fFar = 1000.0f;
+float fFar = 100.0f;
 //float fNear = 7.5f;
 //float fFar = 12.5f;
 
@@ -61,6 +61,8 @@ void DrawAsteroids();
 void DrawPlanetsRaster();
 void DrawPlanetsRaymarch();
 
+// Input: depth in linear-space between [near, far].
+// Output: depth in non-linear sace between [0, 1].
 float encode(float depth, float near, float far)
 {
 	float invDepth = 1.0 / depth;
@@ -69,25 +71,47 @@ float encode(float depth, float near, float far)
 	return (invDepth - invNear) / (invFar - invNear);
 }
 
+// Input: depth in non-linear space between [0, 1].
+// Output: depth in linear space between [near, far].
+float decode(float depth, float near, float far)
+{
+	depth = depth * 2.0 - 1.0;
+	return (2.0 * near * far) / (far + near - depth * (far - near));
+}
+
+// Input: depth in linear space between [near, far].
+// Output: depth in linear space between [0, 1].
+float normalizeDepth(float depth, float near, float far)
+{
+	return (depth - near) / (far - near);
+}
+
+// OpenGL NDC is [-1, 1] for x, y, and z.
+// OpenGL depth buffer is [0, 1].
+// Rasterization converts from NDC = [-1, 1] to depth = [0, 1].
 void Debug()
 {
-	Vector3 ro = { 0.0f, 0.0f, 10.0f };
-	Vector3 pos = V3_ZERO;
-	float dist = Length(pos - ro);
-	float rayDepth = encode(dist, fNear, fFar);
+	Vector3 eye = { 0.0f, 0.0f, 5.0f };
+	Vector3 pos = { 0.0f, 0.0f, 0.0f };
+	float near = 0.1f;
+	float far = 10.0f;
+	float rayDist = Length(pos - eye);
 
 	Matrix world = Translate(pos);
-	Matrix view = LookAt(ro, V3_ZERO, V3_UP);
-	Matrix proj = Perspective(fFov, 1.0f, fNear, fFar);
+	Matrix view = LookAt(eye, pos, V3_UP);
+	Matrix proj = Perspective(fFov, 1.0f, near, far);
 	Matrix mvp = world * view * proj;
-	Vector4 clip = pos;
+	Vector4 clip = { 0.0f, 0.0f, 0.0f, 1.0f };
 	clip = mvp * clip;
 	clip /= clip.w;
 
-	float16 proj2 = ToFloat16(proj);
+	float rasterDepth = clip.z;
+	float rayDepth = encode(rayDist, near, far);
 
-	// Changing near & far affect result
-	printf("Lit!\n");
+	// Make depths match (to test calculations, in practice must write to gl_FragDepth within [0, 1]).
+	rayDepth = rayDepth * 2.0f - 1.0f;
+
+	// Ray depths seem to be further away than raster depths as rays move away from middle of the screen.
 }
 
 void SolarSystemScene::OnLoad()
@@ -96,7 +120,7 @@ void SolarSystemScene::OnLoad()
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
 	
-	//Debug();
+	Debug();
 
 	const char* skyboxSpaceFiles[] =
 	{
@@ -233,7 +257,7 @@ void SolarSystemScene::OnDraw()
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	DrawAsteroids();
+	//DrawAsteroids();
 
 	if (fRaster)
 		DrawPlanetsRaster();
@@ -310,7 +334,7 @@ void CreateAsteroids()
 	Mesh asteroid;
 	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
 	fAsteroids.count = asteroid.count;
-	fAsteroids.instances = 250000;
+	fAsteroids.instances = 250;
 
 	float16* worlds = new float16[fAsteroids.instances];
 	float9* normals = new float9[fAsteroids.instances];

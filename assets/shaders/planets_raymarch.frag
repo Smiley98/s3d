@@ -141,6 +141,9 @@ void main()
   vec3 color = shade(position, hit);
   float depth = encode(t, u_near, u_far);
 
+  // gl_FragDepth is within [0, 1] so no don't change to [-1, 1]
+  //depth = depth * 2.0 - 1.0;
+
   // Depth visualization
   //depth = decode(depth, u_near, u_far);
   //depth = normalizeDepth(depth, u_near, u_far);
