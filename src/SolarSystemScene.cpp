@@ -25,8 +25,6 @@ bool fDepth = true;
 float fFov = PI * 0.5f;
 float fNear = 0.1f;
 float fFar = 100.0f;
-//float fNear = 7.5f;
-//float fFar = 12.5f;
 
 float planetRadii[PLANET_COUNT];		// Raymarch only
 Vector3 planetColors[PLANET_COUNT];		// Both
@@ -312,11 +310,6 @@ void DrawPlanetsRaymarch()
 	SendFloat("u_fov", tanf(fFov * 0.5f));
 	SendFloat("u_near", fNear);
 	SendFloat("u_far", fFar);
-
-	// Again, this doesn't work because proj.m15 is 0 so perspective divide yeilds divide by zero error...
-	Matrix proj = Perspective(fFov, SCREEN_ASPECT, fNear, fFar);
-	proj.m11 = 1.0f;
-	SendMat4("u_proj", proj);
 
 	// Planet data
 	SendMat4Array("u_planetMatrices", planetWorldInv, PLANET_COUNT);
