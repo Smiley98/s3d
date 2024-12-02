@@ -110,6 +110,7 @@ void Debug()
 	rayDepth = rayDepth * 2.0f - 1.0f;
 
 	// Ray depths seem to be further away than raster depths as rays move away from middle of the screen.
+	// raylib's hybrid rendering demo seems to calculate depth as the dot-product of the camera's forward vector and ray direction, then multiply it by ray distance!
 }
 
 void SolarSystemScene::OnLoad()
@@ -301,10 +302,12 @@ void DrawPlanetsRaymarch()
 {
 	Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
 	Matrix cameraRotation = FpsRotation(gCamera);
+	Vector3 cameraDirection = { gView.m8, gView.m9, gView.m10 };
 	BindShader(&gShaderPlanetsRaymarch);
 
 	// Raymarching data
 	SendVec3("u_camPos", gCamera.position);
+	SendVec3("u_camDir", cameraDirection);
 	SendMat3("u_camRot", cameraRotation);
 	SendVec2("u_resolution", resolution);
 	SendFloat("u_fov", tanf(fFov * 0.5f));

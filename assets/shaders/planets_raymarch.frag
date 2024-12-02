@@ -5,6 +5,7 @@ out vec4 FragColor;
 in vec2 uv;
 
 uniform vec3 u_camPos;
+uniform vec3 u_camDir;
 uniform mat3 u_camRot;
 uniform vec2 u_resolution;
 uniform float u_fov;
@@ -137,17 +138,19 @@ void main()
   if (hit < 0 || t <= u_near)
     discard;
   
+  // World-space lighting
   vec3 position = ro + rd * t;
   vec3 color = shade(position, hit);
-  float depth = encode(t, u_near, u_far);
 
-  // gl_FragDepth is within [0, 1] so no don't change to [-1, 1]
-  //depth = depth * 2.0 - 1.0;
+  // Scale ray-length based on screen-position to ensure consistent depth
+  vec3 rd0 = normalize(vec3(uv * u_fov, -1.0));
+  float z = dot(rd0, vec3(0.0, 0.0, -1.0)) * t;
+  float depth = encode(z, u_near, u_far);
 
   // Depth visualization
   //depth = decode(depth, u_near, u_far);
   //depth = normalizeDepth(depth, u_near, u_far);
-  //FragColor = vec4(vec3(depth), 1.0);
+  //color = vec3(depth);
 
   gl_FragDepth = depth;
   FragColor = vec4(color, 1.0);
