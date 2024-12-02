@@ -21,10 +21,10 @@ struct Planet
 static const int PLANET_COUNT = 9;
 Planet planets[PLANET_COUNT];
 bool fRaster = true;
-bool fDepth = true;
+bool fDepth = false;
 float fFov = PI * 0.5f;
 float fNear = 0.1f;
-float fFar = 100.0f;
+float fFar = 1000.0f;
 
 float planetRadii[PLANET_COUNT];		// Raymarch only
 Vector3 planetColors[PLANET_COUNT];		// Both
@@ -59,67 +59,11 @@ void DrawAsteroids();
 void DrawPlanetsRaster();
 void DrawPlanetsRaymarch();
 
-// Input: depth in linear-space between [near, far].
-// Output: depth in non-linear sace between [0, 1].
-float encode(float depth, float near, float far)
-{
-	float invDepth = 1.0 / depth;
-	float invNear = 1.0 / near;
-	float invFar = 1.0 / far;
-	return (invDepth - invNear) / (invFar - invNear);
-}
-
-// Input: depth in non-linear space between [0, 1].
-// Output: depth in linear space between [near, far].
-float decode(float depth, float near, float far)
-{
-	depth = depth * 2.0 - 1.0;
-	return (2.0 * near * far) / (far + near - depth * (far - near));
-}
-
-// Input: depth in linear space between [near, far].
-// Output: depth in linear space between [0, 1].
-float normalizeDepth(float depth, float near, float far)
-{
-	return (depth - near) / (far - near);
-}
-
-// OpenGL NDC is [-1, 1] for x, y, and z.
-// OpenGL depth buffer is [0, 1].
-// Rasterization converts from NDC = [-1, 1] to depth = [0, 1].
-void Debug()
-{
-	Vector3 eye = { 0.0f, 0.0f, 5.0f };
-	Vector3 pos = { 0.0f, 0.0f, 0.0f };
-	float near = 0.1f;
-	float far = 10.0f;
-	float rayDist = Length(pos - eye);
-
-	Matrix world = Translate(pos);
-	Matrix view = LookAt(eye, pos, V3_UP);
-	Matrix proj = Perspective(fFov, 1.0f, near, far);
-	Matrix mvp = world * view * proj;
-	Vector4 clip = { 0.0f, 0.0f, 0.0f, 1.0f };
-	clip = mvp * clip;
-	clip /= clip.w;
-
-	float rasterDepth = clip.z;
-	float rayDepth = encode(rayDist, near, far);
-
-	// Make depths match (to test calculations, in practice must write to gl_FragDepth within [0, 1]).
-	rayDepth = rayDepth * 2.0f - 1.0f;
-
-	// Ray depths seem to be further away than raster depths as rays move away from middle of the screen.
-	// raylib's hybrid rendering demo seems to calculate depth as the dot-product of the camera's forward vector and ray direction, then multiply it by ray distance!
-}
-
 void SolarSystemScene::OnLoad()
 {
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
-	
-	Debug();
 
 	const char* skyboxSpaceFiles[] =
 	{
@@ -256,7 +200,7 @@ void SolarSystemScene::OnDraw()
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//DrawAsteroids();
+	DrawAsteroids();
 
 	if (fRaster)
 		DrawPlanetsRaster();
