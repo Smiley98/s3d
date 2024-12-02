@@ -11,6 +11,5 @@ uniform sampler2D u_tex;
 void main()
 {
     vec3 col = texture(u_tex, uv).rgb * lighting;
-    //vec3 col = normalize(normal);
     FragColor = vec4(col, 1.0);
 }

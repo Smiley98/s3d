@@ -17,6 +17,8 @@ uniform vec3 u_sunPos;
 void main()
 {
    // Normals now optimized as instance data rather than mat3(transpose(inverse(worldMat)));
+   // Might be faster computing normal matrix per-vertex since that saves on data
+   // Might also be faster computing lighting in fragment shader due to early depth-test 
    mat4 worldMat = u_orbit * aWorlds;
    mat3 normalMat = mat3(u_orbit) * aNormals;
    uv = aTcoord;

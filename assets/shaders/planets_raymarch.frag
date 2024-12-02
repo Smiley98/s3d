@@ -5,7 +5,6 @@ out vec4 FragColor;
 in vec2 uv;
 
 uniform vec3 u_camPos;
-uniform vec3 u_camDir;
 uniform mat3 u_camRot;
 uniform vec2 u_resolution;
 uniform float u_fov;
@@ -33,7 +32,7 @@ float sdSphere(vec3 p, float r)
 object map(vec3 p)
 { 
   object nearest;
-  nearest.dist = 100.0;
+  nearest.dist = u_far;
   nearest.idx = -1;
 
   for (int i = 0; i < PLANET_COUNT; i++)

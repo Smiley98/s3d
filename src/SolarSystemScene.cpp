@@ -15,9 +15,6 @@ struct Planet
 	float orbitSpeed;
 };
 
-// Debugging raster vs ray by using an absurd near-plane.
-// Both near & far seem to differ between raster vs ray.
-// Best way to debug this would be to simulate raster vs ray depth on CPU (do SDF vs mvp transform).
 static const int PLANET_COUNT = 9;
 Planet planets[PLANET_COUNT];
 bool fRaster = true;
@@ -146,7 +143,7 @@ void SolarSystemScene::OnLoad()
 	planets[8].position = V3_RIGHT * 80.0f;
 	planets[8].color = { 0.21f, 0.028f, 0.79f };
 
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < PLANET_COUNT; i++)
 	{
 		planetRadii[i] = planets[i].radius;
 		planetColors[i] = planets[i].color;
@@ -201,12 +198,10 @@ void SolarSystemScene::OnDraw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	DrawAsteroids();
-
 	if (fRaster)
 		DrawPlanetsRaster();
 	else
 		DrawPlanetsRaymarch();
-
 	DrawSkybox(fSkyboxSpace);
 	UnbindFramebuffer();
 
@@ -246,12 +241,10 @@ void DrawPlanetsRaymarch()
 {
 	Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
 	Matrix cameraRotation = FpsRotation(gCamera);
-	Vector3 cameraDirection = { gView.m8, gView.m9, gView.m10 };
 	BindShader(&gShaderPlanetsRaymarch);
 
 	// Raymarching data
 	SendVec3("u_camPos", gCamera.position);
-	SendVec3("u_camDir", cameraDirection);
 	SendMat3("u_camRot", cameraRotation);
 	SendVec2("u_resolution", resolution);
 	SendFloat("u_fov", tanf(fFov * 0.5f));
