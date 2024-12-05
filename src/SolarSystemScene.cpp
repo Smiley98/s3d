@@ -33,6 +33,15 @@ Matrix planetMvp[PLANET_COUNT];			// Raster only
 Cubemap fSkyboxSpace;
 Framebuffer fFbo;
 
+// TODO -- decide whether I want asteroids in a circle or a sphere!
+inline Vector3 RandomSpherePoint(float radius)
+{
+	float z = Random(-1.0f, 1.0f);
+	float t = Random(0.0f, PI * 2.0);
+	float r = sqrtf(1.0f - z * z);
+	return Vector3{ r * cosf(t), r * sinf(t), z } *radius;
+}
+
 struct Asteroids
 {
 	Matrix viewProj = MatrixIdentity();
@@ -182,7 +191,7 @@ void SolarSystemScene::OnUpdate(float dt)
 	}
 
 	fAsteroids.viewProj = gView * gProj;
-	fAsteroids.orbit = RotateY(5.0f * tt * DEG2RAD);
+	fAsteroids.orbit = RotateY(25.0f * tt * DEG2RAD);
 
 	if (IsKeyPressed(KEY_Q))
 		fRaster = !fRaster;
@@ -270,17 +279,18 @@ void CreateAsteroids()
 	Mesh asteroid;
 	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
 	fAsteroids.count = asteroid.count;
-	fAsteroids.instances = 250;
+	fAsteroids.instances = 25000;
 
 	float16* worlds = new float16[fAsteroids.instances];
 	float9* normals = new float9[fAsteroids.instances];
 	for (int i = 0; i < fAsteroids.instances; i++)
 	{
 		float angle = (float)i / (float)fAsteroids.instances * PI * 2.0f;
-		float x = Random(50.0f, 100.0f);
-		float z = Random(50.0f, 100.0f);
+		float x = Random(50.0f, 500.0f);
+		float z = Random(50.0f, 500.0f);
 
-		Matrix translation = Translate(cosf(angle) * x, Random(-10.0f, 10.0f), sinf(angle) * z);
+		//Matrix translation = Translate(cosf(angle) * x, Random(-50.0f, 50.0f), sinf(angle) * z);
+		Matrix translation = Translate(RandomSpherePoint(Random(50.0f, 500.0f)));
 		Matrix rotation = Rotate(Normalize(Vector3{ Random(0.0f, 1.0f), Random(0.0f, 1.0f), Random(0.0f, 1.0f) }), Random(0.0f, PI));
 		Matrix scale = Scale(Random(0.25f, 2.0f), Random(0.25f, 2.0f), Random(0.25f, 2.0f));
 		Matrix world = scale * rotation * translation;
