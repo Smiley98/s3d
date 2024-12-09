@@ -4,6 +4,7 @@
 #include "Render.h"
 #include "Camera.h"
 #include "Framebuffer.h"
+#include "Geometry.h"
 
 struct Planet
 {
@@ -33,15 +34,6 @@ Matrix planetMvp[PLANET_COUNT];			// Raster only
 Cubemap fSkyboxSpace;
 Framebuffer fFbo;
 
-// TODO -- decide whether I want asteroids in a circle or a sphere!
-inline Vector3 RandomSpherePoint(float radius)
-{
-	float z = Random(-1.0f, 1.0f);
-	float t = Random(0.0f, PI * 2.0);
-	float r = sqrtf(1.0f - z * z);
-	return Vector3{ r * cosf(t), r * sinf(t), z } *radius;
-}
-
 struct Asteroids
 {
 	Matrix viewProj = MatrixIdentity();
@@ -64,6 +56,95 @@ void DestroyAsteroids();
 void DrawAsteroids();
 void DrawPlanetsRaster();
 void DrawPlanetsRaymarch();
+
+void CreateAsteroids()
+{
+	CreateTextureFromFile(&fAsteroids.texture, "./assets/textures/asteroid.png");
+
+	Mesh asteroid;
+	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
+	fAsteroids.count = asteroid.count;
+	fAsteroids.instances = 2500;
+	//25k within a sphere looks cool, and 250k runs at 60fps, but 2.5k in circle looks the best
+
+	float16* worlds = new float16[fAsteroids.instances];
+	float9* normals = new float9[fAsteroids.instances];
+	for (int i = 0; i < fAsteroids.instances; i++)
+	{
+		float angle = (float)i / (float)fAsteroids.instances * PI * 2.0f;
+		float x = Random(50.0f, 500.0f);
+		float z = Random(50.0f, 500.0f);
+
+		//Matrix translation = Translate(RandomSpherePoint(Random(50.0f, 500.0f)));
+		Matrix translation = Translate(cosf(angle) * x, Random(-50.0f, 50.0f), sinf(angle) * z);
+		Matrix rotation = Rotate(Normalize(Vector3{ Random(0.0f, 1.0f), Random(0.0f, 1.0f), Random(0.0f, 1.0f) }), Random(0.0f, PI));
+		Matrix scale = Scale(Random(0.25f, 2.0f), Random(0.25f, 2.0f), Random(0.25f, 2.0f));
+		Matrix world = scale * rotation * translation;
+		worlds[i] = ToFloat16(world);
+		normals[i] = ToFloat9(NormalMatrix(world));
+	}
+
+	glGenVertexArrays(1, &fAsteroids.vao);
+	glBindVertexArray(fAsteroids.vao);
+
+	glGenBuffers(1, &fAsteroids.pbo);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.pbo);
+	glBufferData(GL_ARRAY_BUFFER, asteroid.positions.size() * sizeof(Vector3), asteroid.positions.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(0);
+
+	glGenBuffers(1, &fAsteroids.tbo);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.tbo);
+	glBufferData(GL_ARRAY_BUFFER, asteroid.tcoords.size() * sizeof(Vector2), asteroid.tcoords.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
+	glEnableVertexAttribArray(1);
+
+	glGenBuffers(1, &fAsteroids.nbo);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.nbo);
+	glBufferData(GL_ARRAY_BUFFER, asteroid.normals.size() * sizeof(Vector3), asteroid.normals.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
+	glEnableVertexAttribArray(2);
+
+	glGenBuffers(1, &fAsteroids.vboWorlds);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.vboWorlds);
+	glBufferData(GL_ARRAY_BUFFER, fAsteroids.instances * sizeof(float16), worlds, GL_STATIC_DRAW);
+	for (int i = 0; i < 4; i++)
+	{
+		int attribute = 3 + i;
+		glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(i * sizeof(Vector4)));
+		glEnableVertexAttribArray(attribute);
+		glVertexAttribDivisor(attribute, 1);
+	}
+
+	glGenBuffers(1, &fAsteroids.vboNormals);
+	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.vboNormals);
+	glBufferData(GL_ARRAY_BUFFER, fAsteroids.instances * sizeof(float9), normals, GL_STATIC_DRAW);
+	for (int i = 0; i < 4; i++)
+	{
+		int attribute = 7 + i;
+		glVertexAttribPointer(attribute, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(Vector3), (void*)(i * sizeof(Vector3)));
+		glEnableVertexAttribArray(attribute);
+		glVertexAttribDivisor(attribute, 1);
+	}
+
+	glBindVertexArray(GL_NONE);
+	DestroyMesh(&asteroid);
+	delete[] normals;
+	delete[] worlds;
+}
+
+void DestroyAsteroids()
+{
+	DestroyTexture(&fAsteroids.texture);
+	glDeleteBuffers(1, &fAsteroids.pbo);
+	glDeleteBuffers(1, &fAsteroids.tbo);
+	glDeleteBuffers(1, &fAsteroids.nbo);
+	glDeleteBuffers(1, &fAsteroids.vboWorlds);
+	glDeleteBuffers(1, &fAsteroids.vboNormals);
+	glDeleteVertexArrays(1, &fAsteroids.vao);
+	fAsteroids.pbo = fAsteroids.tbo = fAsteroids.nbo =
+		fAsteroids.vboWorlds = fAsteroids.vboNormals = GL_NONE;
+}
 
 void SolarSystemScene::OnLoad()
 {
@@ -191,7 +272,7 @@ void SolarSystemScene::OnUpdate(float dt)
 	}
 
 	fAsteroids.viewProj = gView * gProj;
-	fAsteroids.orbit = RotateY(25.0f * tt * DEG2RAD);
+	fAsteroids.orbit = RotateY(5.0f * tt * DEG2RAD);
 
 	if (IsKeyPressed(KEY_Q))
 		fRaster = !fRaster;
@@ -270,92 +351,4 @@ void DrawPlanetsRaymarch()
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	BindNullVao();
 	UnbindShader();
-}
-
-void CreateAsteroids()
-{
-	CreateTextureFromFile(&fAsteroids.texture, "./assets/textures/asteroid.png");
-
-	Mesh asteroid;
-	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
-	fAsteroids.count = asteroid.count;
-	fAsteroids.instances = 25000;
-
-	float16* worlds = new float16[fAsteroids.instances];
-	float9* normals = new float9[fAsteroids.instances];
-	for (int i = 0; i < fAsteroids.instances; i++)
-	{
-		float angle = (float)i / (float)fAsteroids.instances * PI * 2.0f;
-		float x = Random(50.0f, 500.0f);
-		float z = Random(50.0f, 500.0f);
-
-		//Matrix translation = Translate(cosf(angle) * x, Random(-50.0f, 50.0f), sinf(angle) * z);
-		Matrix translation = Translate(RandomSpherePoint(Random(50.0f, 500.0f)));
-		Matrix rotation = Rotate(Normalize(Vector3{ Random(0.0f, 1.0f), Random(0.0f, 1.0f), Random(0.0f, 1.0f) }), Random(0.0f, PI));
-		Matrix scale = Scale(Random(0.25f, 2.0f), Random(0.25f, 2.0f), Random(0.25f, 2.0f));
-		Matrix world = scale * rotation * translation;
-		worlds[i] = ToFloat16(world);
-		normals[i] = ToFloat9(NormalMatrix(world));
-	}
-
-	glGenVertexArrays(1, &fAsteroids.vao);
-	glBindVertexArray(fAsteroids.vao);
-
-	glGenBuffers(1, &fAsteroids.pbo);
-	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.pbo);
-	glBufferData(GL_ARRAY_BUFFER, asteroid.positions.size() * sizeof(Vector3), asteroid.positions.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	glEnableVertexAttribArray(0);
-
-	glGenBuffers(1, &fAsteroids.tbo);
-	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.tbo);
-	glBufferData(GL_ARRAY_BUFFER, asteroid.tcoords.size() * sizeof(Vector2), asteroid.tcoords.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
-	glEnableVertexAttribArray(1);
-
-	glGenBuffers(1, &fAsteroids.nbo);
-	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.nbo);
-	glBufferData(GL_ARRAY_BUFFER, asteroid.normals.size() * sizeof(Vector3), asteroid.normals.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-	glEnableVertexAttribArray(2);
-
-	glGenBuffers(1, &fAsteroids.vboWorlds);
-	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.vboWorlds);
-	glBufferData(GL_ARRAY_BUFFER, fAsteroids.instances * sizeof(float16), worlds, GL_STATIC_DRAW);
-	for (int i = 0; i < 4; i++)
-	{
-		int attribute = 3 + i;
-		glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(Vector4), (void*)(i * sizeof(Vector4)));
-		glEnableVertexAttribArray(attribute);
-		glVertexAttribDivisor(attribute, 1);
-	}
-
-	glGenBuffers(1, &fAsteroids.vboNormals);
-	glBindBuffer(GL_ARRAY_BUFFER, fAsteroids.vboNormals);
-	glBufferData(GL_ARRAY_BUFFER, fAsteroids.instances * sizeof(float9), normals, GL_STATIC_DRAW);
-	for (int i = 0; i < 4; i++)
-	{
-		int attribute = 7 + i;
-		glVertexAttribPointer(attribute, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(Vector3), (void*)(i * sizeof(Vector3)));
-		glEnableVertexAttribArray(attribute);
-		glVertexAttribDivisor(attribute, 1);
-	}
-
-	glBindVertexArray(GL_NONE);
-	DestroyMesh(&asteroid);
-	delete[] normals;
-	delete[] worlds;
-}
-
-void DestroyAsteroids()
-{
-	DestroyTexture(&fAsteroids.texture);
-	glDeleteBuffers(1, &fAsteroids.pbo);
-	glDeleteBuffers(1, &fAsteroids.tbo);
-	glDeleteBuffers(1, &fAsteroids.nbo);
-	glDeleteBuffers(1, &fAsteroids.vboWorlds);
-	glDeleteBuffers(1, &fAsteroids.vboNormals);
-	glDeleteVertexArrays(1, &fAsteroids.vao);
-	fAsteroids.pbo = fAsteroids.tbo = fAsteroids.nbo =
-		fAsteroids.vboWorlds = fAsteroids.vboNormals = GL_NONE;
 }

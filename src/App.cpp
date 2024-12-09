@@ -37,7 +37,7 @@ void Init()
 	CreateShaders();
 	CreateMeshes();
 	CreateTextures();
-	Scene::Create(Scene::SOLAR_SYSTEM);
+	Scene::Create(Scene::DEFERRED_RENDERING);
 }
 
 void Loop()

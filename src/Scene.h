@@ -6,7 +6,6 @@ class Scene
 {
 public:
 
-	// TODO -- make a LIGHTING_TEST scene that loads Minty Aftershave and does deferred rendering
 	enum Type : size_t
 	{
 		MAIN,
@@ -17,6 +16,7 @@ public:
 		COLLISION,
 		POST_PROCESSING,
 		SOLAR_SYSTEM,
+		DEFERRED_RENDERING,
 		COUNT
 	};
 
