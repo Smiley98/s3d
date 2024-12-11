@@ -5,6 +5,7 @@
 #include "RasterizationScene.h"
 #include "RaycastingScene.h"
 #include "CollisionScene.h"
+#include "PhysicsScene.h"
 #include "PostprocessingScene.h"
 #include "SolarSystemScene.h"
 #include "DeferredScene.h"
@@ -21,6 +22,7 @@ void Scene::Create(Scene::Type scene)
 	sScenes[RASTER] = new RasterizationScene;
 	sScenes[RAYCAST] = new RaycastingScene;
 	sScenes[COLLISION] = new CollisionScene;
+	sScenes[PHYSICS] = new PhysicsScene;
 	sScenes[POST_PROCESSING] = new PostprocessingScene;
 	sScenes[SOLAR_SYSTEM] = new SolarSystemScene;
 	sScenes[DEFERRED_RENDERING] = new DeferredScene;
