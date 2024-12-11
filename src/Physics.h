@@ -1,5 +1,5 @@
 #pragma once
-#include "Collision.h"
+#include "Math.h"
 #include <vector>
 
 enum ShapeType
@@ -11,8 +11,8 @@ enum ShapeType
 
 struct PhysicsBody
 {
-    Vector3 pos = V3_ZERO;
-    Vector3 vel = V3_ZERO;
+    Vector2 pos = V3_ZERO;
+    Vector2 vel = V3_ZERO;
 
     // Drag must be between 0 and 1. Drag of 1 means no air resistance!
     float drag = 1.0f;
@@ -45,7 +45,15 @@ struct PhysicsBody
     }
 };
 
+struct HitPair
+{
+    int a = -1;
+    int b = -1;
+    Vector2 mtv = V2_ZERO;
+};
+
 constexpr Vector2 GRAVITY = { 0.0f, -9.81f };
 using PhysicsWorld = std::vector<PhysicsBody>;
+using Collisions = std::vector<HitPair>;
 
 // TODO -- If I *actually want* a generic physics system, make a class for it here.

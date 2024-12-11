@@ -2,9 +2,13 @@
 #include "Render.h"
 #include "Camera.h"
 #include "Physics.h"
+#include "Collision.h"
+#include <cassert>
 
 void PhysicsStep(PhysicsWorld& world, float dt);
 void UpdateMotion(PhysicsWorld& world, float dt);
+Collisions DetectCollisions(PhysicsWorld& world);
+void ResolveCollisions(PhysicsWorld& world, Collisions& collisions);
 
 static PhysicsWorld fWorld{};
 
@@ -22,8 +26,8 @@ void PhysicsScene::OnLoad()
 	PhysicsBody circle1;
 	circle1.type = CIRCLE;
 	circle1.radius = 10.0f;
-	circle1.pos = { 0.0f, -100.0f };
-	circle1.vel = V2_UP * 50.0f;
+	circle1.pos = V2_ZERO;//{ 0.0f, -100.0f };
+	circle1.vel = V2_ZERO;//V2_UP * 50.0f;
 	fWorld.push_back(circle1);
 }
 
@@ -63,18 +67,9 @@ void PhysicsScene::OnDraw()
 
 void PhysicsStep(PhysicsWorld& world, float dt)
 {
-	for (PhysicsBody& circle1 : fWorld)
-		circle1.collision = false;
-
 	UpdateMotion(world, dt);
-
-	// 2. Detect collisions
-	//List<HitPair> collisions = DetectCollisions();
-
-	// 3. Resolve collisions
-	//ResolveCollisions(collisions);
-
-
+	Collisions collisions = DetectCollisions(world);
+	ResolveCollisions(world, collisions);
 }
 
 void UpdateMotion(PhysicsWorld& world, float dt)
@@ -88,6 +83,89 @@ void UpdateMotion(PhysicsWorld& world, float dt)
             circle1.vel *= powf(circle1.drag, dt);
             circle1.vel += acc * dt;
             circle1.pos += circle1.vel * dt;
+        }
+    }
+}
+
+Collisions DetectCollisions(PhysicsWorld& world)
+{
+    // Reset collision flag before hit-testing
+    for (PhysicsBody& circle1 : fWorld)
+        circle1.collision = false;
+
+    Collisions collisions{};
+    // Test all bodies for collision, store pairs of colliding objects
+    for (size_t i = 0; i < world.size(); i++)
+    {
+        for (size_t j = i + 1; j < world.size(); j++)
+        {
+            PhysicsBody& a = world[i];
+            PhysicsBody& b = world[j];
+
+            Vector2 mtv = V2_ZERO;
+            bool collision = false;
+            if (a.type == CIRCLE && b.type == CIRCLE)
+            {
+                collision = CircleCircle(a.pos, a.radius, b.pos, b.radius, &mtv);
+            }
+            else if (a.type == CIRCLE && b.type == PLANE)
+            {
+                collision = CirclePlane(a.pos, a.radius, b.pos, b.normal, &mtv);
+            }
+            else if (a.type == PLANE && b.type == CIRCLE)
+            {
+                collision = CirclePlane(b.pos, b.radius, a.pos, a.normal, &mtv);
+            }
+            else
+            {
+                assert(false, "Invalid collision test");
+            }
+            a.collision |= collision;
+            b.collision |= collision;
+
+            if (collision)
+            {
+                HitPair hitPair;
+                hitPair.a = i; hitPair.b = j;
+                hitPair.mtv = mtv;
+                collisions.push_back(hitPair);
+            }
+        }
+    }
+    return collisions;
+}
+
+void ResolveCollisions(PhysicsWorld& world, Collisions& collisions)
+{
+    // Pre-pass to ensure A is *always* dynamic and MTV points from B to A
+    for (HitPair& collision : collisions)
+    {
+        if (!world[collision.a].Dynamic())
+        {
+            int temp = collision.a;
+            collision.a = collision.b;
+            collision.b = temp;
+
+            if (Dot(Normalize(collision.mtv), Normalize(world[collision.a].pos - world[collision.b].pos)) < 0.0f)
+            {
+                collision.mtv *= -1.0f;
+            }
+        }
+    }
+
+    for (const HitPair& collision : collisions)
+    {
+        PhysicsBody& a = world[collision.a];
+        PhysicsBody& b = world[collision.b];
+
+        if (!b.Dynamic())
+        {
+            a.pos += collision.mtv;
+        }
+        else
+        {
+            a.pos += collision.mtv * 0.5f;
+            b.pos -= collision.mtv * 0.5f;
         }
     }
 }
