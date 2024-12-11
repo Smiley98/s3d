@@ -5,26 +5,26 @@
 #include "Camera.h"
 #include <imgui/imgui.h>
 
-bool fTranslate = false;
-bool fRotate = false;
-bool fScale = false;
+static bool fTranslate = false;
+static bool fRotate = false;
+static bool fScale = false;
 
-Vector3 fColor = V3_ONE;
-Vector3 fPosition = V3_ZERO;
+static Vector3 fColor = V3_ONE;
+static Vector3 fPosition = V3_ZERO;
 
-Matrix fWorld;
-Mesh fMesh;
+static Matrix fWorld;
+static Mesh fMesh;
 
-int fMeshIndex = 0;
-int fProjIndex = 1;
-Matrix fProjections[] =
+static int fMeshIndex = 0;
+static int fProjIndex = 1;
+static Matrix fProjections[] =
 {
 	Ortho(-10.0f * SCREEN_ASPECT, 10.0f * SCREEN_ASPECT, -10.0f, 10.0f, 0.1f, 100.0f),
 	Perspective(90.0f * DEG2RAD, SCREEN_ASPECT, 0.1f, 100.0f)
 };
 
-Texture fTexHead;
-Cubemap fSkyboxArctic;
+static Texture fTexHead;
+static Cubemap fSkyboxArctic;
 
 void RasterizationScene::OnLoad()
 {

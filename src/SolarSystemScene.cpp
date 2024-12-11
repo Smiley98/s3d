@@ -17,22 +17,22 @@ struct Planet
 };
 
 static const int PLANET_COUNT = 9;
-Planet planets[PLANET_COUNT];
-bool fRaster = true;
-bool fDepth = false;
-float fFov = PI * 0.5f;
-float fNear = 0.1f;
-float fFar = 1000.0f;
+static Planet planets[PLANET_COUNT];
+static bool fRaster = true;
+static bool fDepth = false;
+static float fFov = PI * 0.5f;
+static float fNear = 0.1f;
+static float fFar = 1000.0f;
 
-float planetRadii[PLANET_COUNT];		// Raymarch only
-Vector3 planetColors[PLANET_COUNT];		// Both
-Matrix planetWorld[PLANET_COUNT];		// Rasterization world matrix
-Matrix planetWorldInv[PLANET_COUNT];	// Raymarching world matrix
-Matrix planetNormal[PLANET_COUNT];		// Raster only
-Matrix planetMvp[PLANET_COUNT];			// Raster only
+static float planetRadii[PLANET_COUNT];		// Raymarch only
+static Vector3 planetColors[PLANET_COUNT];		// Both
+static Matrix planetWorld[PLANET_COUNT];		// Rasterization world matrix
+static Matrix planetWorldInv[PLANET_COUNT];	// Raymarching world matrix
+static Matrix planetNormal[PLANET_COUNT];		// Raster only
+static Matrix planetMvp[PLANET_COUNT];			// Raster only
 
-Cubemap fSkyboxSpace;
-Framebuffer fFbo;
+static Cubemap fSkyboxSpace;
+static Framebuffer fFbo;
 
 struct Asteroids
 {

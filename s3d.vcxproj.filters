@@ -257,5 +257,8 @@
     <ClInclude Include="src\PhysicsScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Physics.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
