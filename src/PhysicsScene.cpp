@@ -12,12 +12,19 @@ void PhysicsScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 
-	PhysicsBody body;
-	body.type = CIRCLE;
-	body.radius = 10.0f;
-	body.pos = { 0.0f, -100.0f };
-	body.vel = V2_UP * 50.0f;
-	fWorld.push_back(body);
+	PhysicsBody ground;
+	ground.type = PLANE;
+	ground.normal = V2_UP;
+	ground.pos = { 0.0f, -100.0f };
+	ground.invMass = 0.0f;
+	fWorld.push_back(ground);
+
+	PhysicsBody circle1;
+	circle1.type = CIRCLE;
+	circle1.radius = 10.0f;
+	circle1.pos = { 0.0f, -100.0f };
+	circle1.vel = V2_UP * 50.0f;
+	fWorld.push_back(circle1);
 }
 
 void PhysicsScene::OnUnload()
@@ -47,6 +54,8 @@ void PhysicsScene::OnDraw()
 			break;
 
 		case PLANE:
+			// TODO -- Examine if 400 is in fact the correct width (shouldn't it be 200)?
+			DrawRectangle(body.pos, 400.0f, 5.0f, { 0.75f, 0.5f, 0.33f });
 			break;
 		}
 	}
@@ -54,8 +63,8 @@ void PhysicsScene::OnDraw()
 
 void PhysicsStep(PhysicsWorld& world, float dt)
 {
-	for (PhysicsBody& body : fWorld)
-		body.collision = false;
+	for (PhysicsBody& circle1 : fWorld)
+		circle1.collision = false;
 
 	UpdateMotion(world, dt);
 
@@ -72,13 +81,13 @@ void UpdateMotion(PhysicsWorld& world, float dt)
 {
     for (size_t i = 0; i < world.size(); i++)
     {
-        PhysicsBody& body = world[i];
-        if (body.Dynamic())
+        PhysicsBody& circle1 = world[i];
+        if (circle1.Dynamic())
         {
             Vector2 acc = GRAVITY;
-            body.vel *= powf(body.drag, dt);
-            body.vel += acc * dt;
-            body.pos += body.vel * dt;
+            circle1.vel *= powf(circle1.drag, dt);
+            circle1.vel += acc * dt;
+            circle1.pos += circle1.vel * dt;
         }
     }
 }
