@@ -153,6 +153,48 @@ void ResolveCollisions(PhysicsWorld& world, Collisions& collisions)
         }
     }
 
+    for (HitPair& collision : collisions)
+    {
+        PhysicsBody& a = world[collision.a];
+        PhysicsBody& b = world[collision.b];
+
+        // No motion to resolve if both bodies are static (should never happen, but still)
+        float invMassSum = a.invMass + b.invMass;
+        if (invMassSum <= EPSILON)
+            continue;
+
+        // Velocity of A relative to B
+        Vector2 velBA = a.vel - b.vel;
+        Vector2 mtvDir = Normalize(collision.mtv);
+        float mtvMag = Length(collision.mtv);
+
+        // How similar motion of A relative to B is to the direction we want to move A and/or B
+        float t = Dot(velBA, mtvDir);
+
+        // Don't change velocities if object are already moving away from each other
+        // (Only change if velocities within are less than 90 degrees of each other)
+        if (t > 0.0f)
+            continue;
+
+        float restitution = fminf(a.restitutionCoefficient, b.restitutionCoefficient);
+        float normalImpulseMagnitude = -(1.0f + restitution) * t / invMassSum;
+
+        // p = mv --> v = p / m
+        Vector2 normalImpulse = mtvDir * normalImpulseMagnitude;
+        a.vel += normalImpulse * a.invMass;
+        b.vel -= normalImpulse * b.invMass;
+
+        Vector2 frictionImpulseDirection = Normalize(velBA - (mtvDir * t));
+        float frictionImpulseMagnitude = -Dot(velBA, frictionImpulseDirection) / invMassSum;
+        float mu = sqrtf(a.frictionCoefficient * b.frictionCoefficient); // <-- Coulomb's Law (how to combine friction coefficients)
+        frictionImpulseMagnitude = Clamp(frictionImpulseMagnitude, -normalImpulseMagnitude * mu, normalImpulseMagnitude * mu);
+
+        // p = mv --> v = p / m
+        Vector2 frictionImpulse = frictionImpulseDirection * frictionImpulseMagnitude;
+        a.vel += frictionImpulse * a.invMass;
+        b.vel -= frictionImpulse * b.invMass;
+    }
+
     for (const HitPair& collision : collisions)
     {
         PhysicsBody& a = world[collision.a];
