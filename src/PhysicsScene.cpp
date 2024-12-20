@@ -26,8 +26,8 @@ void PhysicsScene::OnLoad()
 	PhysicsBody circle1;
 	circle1.type = CIRCLE;
 	circle1.radius = 10.0f;
-	circle1.pos = V2_ZERO;//{ 0.0f, -100.0f };
-	circle1.vel = V2_ZERO;//V2_UP * 50.0f;
+	circle1.pos = V2_ZERO;
+	circle1.vel = V2_ZERO;
 	fWorld.push_back(circle1);
 }
 
@@ -58,8 +58,8 @@ void PhysicsScene::OnDraw()
 			break;
 
 		case PLANE:
-			// TODO -- Examine if 400 is in fact the correct width (shouldn't it be 200)?
-			DrawRectangle(body.pos, 400.0f, 5.0f, { 0.75f, 0.5f, 0.33f });
+            // Screen extents are [-100 * aspect, 100 * aspect], so rect is rendering correctly!
+			DrawRectangle(body.pos, 100.0f * SCREEN_ASPECT * 2.0f, 5.0f, { 0.75f, 0.5f, 0.33f });
 			break;
 		}
 	}
@@ -76,13 +76,13 @@ void UpdateMotion(PhysicsWorld& world, float dt)
 {
     for (size_t i = 0; i < world.size(); i++)
     {
-        PhysicsBody& circle1 = world[i];
-        if (circle1.Dynamic())
+        PhysicsBody& body = world[i];
+        if (body.Dynamic())
         {
             Vector2 acc = GRAVITY;
-            circle1.vel *= powf(circle1.drag, dt);
-            circle1.vel += acc * dt;
-            circle1.pos += circle1.vel * dt;
+            body.vel *= powf(body.drag, dt);
+            body.vel += acc * dt;
+            body.pos += body.vel * dt;
         }
     }
 }
@@ -90,11 +90,11 @@ void UpdateMotion(PhysicsWorld& world, float dt)
 Collisions DetectCollisions(PhysicsWorld& world)
 {
     // Reset collision flag before hit-testing
-    for (PhysicsBody& circle1 : fWorld)
-        circle1.collision = false;
+    for (PhysicsBody& body : fWorld)
+        body.collision = false;
 
+    // Test all bodies for collision, store pairs of colliding bodies
     Collisions collisions{};
-    // Test all bodies for collision, store pairs of colliding objects
     for (size_t i = 0; i < world.size(); i++)
     {
         for (size_t j = i + 1; j < world.size(); j++)
@@ -137,7 +137,7 @@ Collisions DetectCollisions(PhysicsWorld& world)
 
 void ResolveCollisions(PhysicsWorld& world, Collisions& collisions)
 {
-    // Pre-pass to ensure A is *always* dynamic and MTV points from B to A
+    // Pre-pass to ensure A is *always* dynamic and MTV points *FROM* B *TO* A
     for (HitPair& collision : collisions)
     {
         if (!world[collision.a].Dynamic())
@@ -160,8 +160,7 @@ void ResolveCollisions(PhysicsWorld& world, Collisions& collisions)
 
         // No motion to resolve if both bodies are static (should never happen, but still)
         float invMassSum = a.invMass + b.invMass;
-        if (invMassSum <= EPSILON)
-            continue;
+        assert(invMassSum > FLT_EPSILON);
 
         // Velocity of A relative to B
         Vector2 velBA = a.vel - b.vel;

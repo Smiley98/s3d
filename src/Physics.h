@@ -57,3 +57,7 @@ using PhysicsWorld = std::vector<PhysicsBody>;
 using Collisions = std::vector<HitPair>;
 
 // TODO -- If I *actually want* a generic physics system, make a class for it here.
+// A *generic physics engine* is PROBABLY NOT a good idea because each object has its own rules.
+// Its easier to write unique rules vs generic rules + hacks.
+// Its okay to make re-usable functions like Seek & Flee, or UpdateMotion (kinematic movement) and even Rebound (impulse-based collision).
+// Just be careful not to back yourself into a corner trying to generalize object-specific physics code!
