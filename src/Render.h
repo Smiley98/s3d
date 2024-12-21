@@ -3,9 +3,9 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "PipelineState.h"
-#include "Framebuffer.h"
 #include "Camera.h"
+#include "Framebuffer.h"
+#include "PipelineState.h"
 
 extern Matrix gView;
 extern Matrix gProj;
@@ -61,10 +61,10 @@ void DrawPlaneX(Vector3 center, float height, float depth, Vector3 color, Matrix
 
 // Fullscreen quad
 void DrawFsq();
-void DrawFsqTexture(Texture texture);
+void DrawFsqTexture(Texture texture, int slot = 0);
 
 // Framebuffer
-void DrawColor(Framebuffer framebuffer, int slot);
+void DrawColor(Framebuffer framebuffer, int slot = 0);
 void DrawDepth(Framebuffer framebuffer);
 
 // Cubemap

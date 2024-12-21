@@ -30,6 +30,7 @@ Shader gShaderTcoords;
 Shader gShaderTexture;
 Shader gShaderPositionsWorld;
 Shader gShaderPositionsScreen;
+Shader gShaderGeometryBuffer;
 
 Shader gShaderPlanetsRaster;
 Shader gShaderPlanetsRaymarch;
@@ -71,6 +72,7 @@ void CreateShaders()
     GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
     GLuint fsPositionsWorld = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_world.frag");
     GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
+    GLuint fsGeometryBuffer = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/geometry_buffer.frag");
 
     // Solar system shaders
     GLuint fsPlanetsRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raster.frag"); 
@@ -98,6 +100,7 @@ void CreateShaders()
     CreateProgram(&gShaderTexture, vsMvp, fsTexture);
     CreateProgram(&gShaderPositionsWorld, vsMvp, fsPositionsWorld);
     CreateProgram(&gShaderPositionsScreen, vsMvp, fsPositionsScreen);
+    CreateProgram(&gShaderGeometryBuffer, vsMvp, fsGeometryBuffer);
 
     CreateProgram(&gShaderPlanetsRaster, vsPlanetsRaster, fsPlanetsRaster);
     CreateProgram(&gShaderPlanetsRaymarch, vsFsq, fsPlanetsRaymarch);

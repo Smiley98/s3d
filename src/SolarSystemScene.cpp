@@ -167,8 +167,8 @@ void SolarSystemScene::OnLoad()
 	// Note that depth must be attached in order for depth-test and depth-write to be performed
 	// If you don't need to sample the depth-buffer, a renderbuffer can be attached for better performance.
 	CreateFramebuffer(&fFbo, SCREEN_WIDTH, SCREEN_HEIGHT);
-	AddColor(&fFbo, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-	AddDepth(&fFbo);
+	AddColor(&fFbo, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	AddDepth(&fFbo);//, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
 
 	// Sun
 	planets[0].radius = 5.0f;

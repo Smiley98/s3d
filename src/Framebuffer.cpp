@@ -29,10 +29,10 @@ void DestroyFramebuffer(Framebuffer* framebuffer)
 	framebuffer->height = -1;
 }
 
-void AddColor(Framebuffer* framebuffer, int format, int type, int filter)
+void AddColor(Framebuffer* framebuffer, int internalFormat, int format, int type, int filter)
 {
 	Texture& texture = framebuffer->colors[framebuffer->colorCount];
-	CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, format, format, type, filter);
+	CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, internalFormat, format, type, filter);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + framebuffer->colorCount, GL_TEXTURE_2D, texture.id, 0);
@@ -47,7 +47,10 @@ void AddDepth(Framebuffer* framebuffer)
 	Texture& texture = framebuffer->depth;
 	//CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST);
 	CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
+	//CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, internalFormat, format, type, filter);
 
+	// TODO -- Add additional function for stencil attachment like AddStencil(Framebuffer* framebuffer)
+	// Figure out if depth buffer is needed for stencil test. Test it. Would be nice if depth & stencil buffers are only ever *one* format in s3d.
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
 	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture.id, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture.id, 0);

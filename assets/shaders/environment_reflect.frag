@@ -14,6 +14,6 @@ void main()
     vec3 N = normalize(normal);
     vec3 I = normalize(position - u_camPos);    // camera to fragment
     vec3 R = reflect(I, N);
-    vec3 col = texture(u_cubemap, R).xyz;
+    vec3 col = texture(u_cubemap, R).rgb;
     FragColor = vec4(col, 1.0);
 }

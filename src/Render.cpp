@@ -365,11 +365,11 @@ void DrawFsq()
 	SetDepthTest(depthTest);
 }
 
-void DrawFsqTexture(Texture texture)
+void DrawFsqTexture(Texture texture, int slot)
 {
-	BindTexture(texture);
+	BindTexture(texture, slot);
 	BindShader(&gShaderFsq);
-	SendInt("u_tex", 0);
+	SendInt("u_tex", slot);
 	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
@@ -378,7 +378,7 @@ void DrawFsqTexture(Texture texture)
 
 void DrawColor(Framebuffer framebuffer, int slot)
 {
-	DrawFsqTexture(framebuffer.colors[slot]);
+	DrawFsqTexture(framebuffer.colors[slot], slot);
 }
 
 void DrawDepth(Framebuffer framebuffer)

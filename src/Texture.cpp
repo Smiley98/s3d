@@ -49,16 +49,17 @@ void CreateTextureFromFile(Texture* texture, const char* path, bool flip)
 
     assert(channels == 3 || channels == 4);
     GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
+    GLint internalFormat = channels == 3 ? GL_RGB8 : GL_RGBA8;
     if (flip)
         FlipVertically(pixels, width, height, channels);
 
-    CreateTextureFromMemoryEx(texture, width, height, format, format, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
+    CreateTextureFromMemoryEx(texture, width, height, internalFormat, format, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
     stbi_image_free(pixels);
 }
 
-void CreateTextureFromMemory(Texture* texture, int width, int height, unsigned char* pixels)
+void CreateTextureFromMemory(Texture* texture, int width, int height, unsigned char* pixels/*RGBA -- 4 channels * 8 bits per channel assumed*/)
 {
-    CreateTextureFromMemoryEx(texture, width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, pixels);
+    CreateTextureFromMemoryEx(texture, width, height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, pixels);
 }
 
 void CreateTextureFromMemoryEx(Texture* texture, int width, int height, int internalFormat, int format, int type, int filter, unsigned char* pixels)
@@ -110,7 +111,7 @@ void BindTexture(Texture texture, GLuint slot)
 {
     assert(texture.id != GL_NONE, "Can't bind null texture");
     assert(texture.id != QueryTexture(), "Texture already bound");
-
+    
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, texture.id);
     fTexture = texture.id;
@@ -142,7 +143,8 @@ void CreateCubemap(Cubemap* cubemap, const char* path[6])
         stbi_uc* pixels = stbi_load(path[i], &width, &height, &channels, 0);
         assert(channels == 3 || channels == 4);
         GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
+        GLint internalFormat = channels == 3 ? GL_RGB8 : GL_RGBA8;
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
         stbi_image_free(pixels);
     }
 
