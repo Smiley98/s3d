@@ -64,6 +64,12 @@ void BindFramebuffer(Framebuffer framebuffer)
 	assert(fBuffer != framebuffer.id, "Framebuffer already bound");
 	fBuffer = framebuffer.id;
 	glBindFramebuffer(GL_FRAMEBUFFER, fBuffer);
+
+	GLenum drawBuffers[MAX_ATTACHMENTS];
+	for (size_t i = 0; i < framebuffer.colorCount; i++)
+		drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
+
+	glDrawBuffers(framebuffer.colorCount, drawBuffers);
 	glViewport(0, 0, framebuffer.width, framebuffer.height);
 }
 

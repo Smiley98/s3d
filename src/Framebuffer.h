@@ -1,6 +1,7 @@
 #pragma once
 #include "Texture.h"
-#include <array>
+
+constexpr size_t MAX_ATTACHMENTS = 8;
 
 struct Framebuffer
 {
@@ -8,8 +9,8 @@ struct Framebuffer
 	int width = -1;
 	int height = -1;
 
-	std::array<Texture, 8> colors{};
 	size_t colorCount = 0;
+	Texture colors[MAX_ATTACHMENTS]{};
 	Texture depth{};
 };
 

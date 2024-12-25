@@ -50,11 +50,7 @@ void DeferredScene::OnDraw()
 
 	DestroyMesh(&mesh);
 
-	// When sampling from the g-buffer, we need bind positions normals and colours all at once (3 texture units).
-	// However if only visualizing one at a time, then only 1 texture unit is needed
-	// TODO -- Add a slot to UnbindTexture and give each texture a slot value. Check if slot parameter matches texture's slot.
-
-	DrawColor(fGeometryBuffer);
-	//DrawColor(fGeometryBuffer, 1);
-	// TODO -- fix texture slots - normals don't render as attechment 1 but they render as attachment 0...
+	// TODO -- Handle multiple texture slots
+	//DrawColor(fGeometryBuffer);
+	DrawColor(fGeometryBuffer, 1);
 }
