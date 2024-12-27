@@ -35,7 +35,7 @@ void DrawMeshNormals(const Mesh& mesh, Matrix world, Matrix normal/*identity for
 void DrawMeshTcoords(const Mesh& mesh, Matrix world/*object-space*/);
 
 // Object effects
-void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture);
+void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture, GLuint slot);
 void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap);
 void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, float ratio);
 

@@ -307,11 +307,11 @@ void DrawAsteroids()
 	SendMat4("u_mvp", fAsteroids.viewProj);
 	SendMat4("u_orbit", fAsteroids.orbit);
 	SendVec3("u_sunPos", V3_ZERO);
-	BindTexture(fAsteroids.texture);
+	BindTexture(fAsteroids.texture, 0);
 	glBindVertexArray(fAsteroids.vao);
 	glDrawArraysInstanced(GL_TRIANGLES, 0, fAsteroids.count, fAsteroids.instances);
 	glBindVertexArray(GL_NONE);
-	UnbindTexture(fAsteroids.texture);
+	UnbindTexture(fAsteroids.texture, 0);
 	UnbindShader();
 }
 

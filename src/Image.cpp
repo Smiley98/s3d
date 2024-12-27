@@ -4,6 +4,7 @@
 
 void CreateImageFromFile(Image* image, const char* path, bool flip)
 {
+    // Color is RGBA so channels must be 4
     int width, height, channels;
     stbi_uc* pixels = stbi_load(path, &width, &height, &channels, 4);
     assert(pixels != nullptr && channels == 4);
@@ -31,8 +32,8 @@ void DestroyImage(Image* image)
 {
     image->pixels.resize(0);
     image->depth.resize(0);
-    image->width = 0;
-    image->height = 0;
+    image->width = -1;
+    image->height = -1;
 }
 
 void Flip(Image* image)

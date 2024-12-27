@@ -4,29 +4,10 @@
 #include <cassert>
 #include <unordered_map>
 
-static std::unordered_map<GLuint, char[64]> fTextureNames;
 static GLuint fTexture = GL_NONE;
 static GLuint fCubemap = GL_NONE;
 
-inline void AddName(GLuint id, const char* name = nullptr)
-{
-#if _DEBUG
-    assert(fTextureNames.find(id) == fTextureNames.end());
-    if (name != nullptr)
-        strcpy(fTextureNames[id], name);
-    else
-        sprintf(fTextureNames[id], "Unnamed texture %i", id);
-#endif
-}
-
-inline void RemoveName(GLuint id)
-{
-#if _DEBUG
-    assert(fTextureNames.find(id) != fTextureNames.end());
-    fTextureNames.erase(id);
-#endif
-}
-
+// Switch texture slot then see the id (ie bind a texture to slot 0, activate slot 1 then query. Entiendo if id 0 returned).
 inline GLint QueryTexture()
 {
     GLint id;
@@ -41,28 +22,26 @@ inline GLint QueryCubemap()
     return id;
 }
 
-// Made this because texture-from-image is 1) slow and 2) forces 4 channels & nearest sampling
+// TODO -- Consider passing in type & internal-format parameters, or even removing this funciton entirely.
+// The more abstractions, the more chances there are for texture-formatting errors to occur.
 void CreateTextureFromFile(Texture* texture, const char* path, bool flip)
 {
     int width, height, channels;
     stbi_uc* pixels = stbi_load(path, &width, &height, &channels, 0);
 
+    // What if we have a greyscale texture??
+    // Probably reasonable to keep this function and handle greyscale/outlier textures via CreateTextureFromMemory.
     assert(channels == 3 || channels == 4);
     GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
     GLint internalFormat = channels == 3 ? GL_RGB8 : GL_RGBA8;
     if (flip)
         FlipVertically(pixels, width, height, channels);
 
-    CreateTextureFromMemoryEx(texture, width, height, internalFormat, format, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
+    CreateTextureFromMemory(texture, width, height, internalFormat, format, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
     stbi_image_free(pixels);
 }
 
-void CreateTextureFromMemory(Texture* texture, int width, int height, unsigned char* pixels/*RGBA -- 4 channels * 8 bits per channel assumed*/)
-{
-    CreateTextureFromMemoryEx(texture, width, height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, pixels);
-}
-
-void CreateTextureFromMemoryEx(Texture* texture, int width, int height, int internalFormat, int format, int type, int filter, unsigned char* pixels)
+void CreateTextureFromMemory(Texture* texture, int width, int height, int internalFormat, int format, int type, int filter, unsigned char* pixels)
 {
     GLuint id = GL_NONE;
     glGenTextures(1, &id);
@@ -77,18 +56,21 @@ void CreateTextureFromMemoryEx(Texture* texture, int width, int height, int inte
     texture->id = id;
     texture->width = width;
     texture->height = height;
+
+    texture->internalFormat = internalFormat;
     texture->format = format;
     texture->type = type;
     texture->filter = filter;
-    AddName(id);
 }
 
+// TODO -- Remove this function because it shouldn't be used outside of CPU-rendering.
+// Do something like store a texture within Image.cpp or Rasterization.cpp and have that update.
 void UpdateTexture(Texture texture, unsigned char* pixels)
 {
     assert(pixels != nullptr);
-    BindTexture(texture);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.width, texture.height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    UnbindTexture(texture);
+    BindTexture(texture, 0);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.width, texture.height, texture.format, texture.type, pixels);
+    UnbindTexture(texture, 0);
 }
 
 void DestroyTexture(Texture* texture)
@@ -96,7 +78,6 @@ void DestroyTexture(Texture* texture)
     assert(texture->id != QueryTexture(), "Can't delete a bound texture");
     assert(texture->id != GL_NONE, "Invalid texture handle");
 
-    RemoveName(texture->id);
     glDeleteTextures(1, &texture->id);
 
     texture->id = GL_NONE;
@@ -109,27 +90,23 @@ void DestroyTexture(Texture* texture)
 
 void BindTexture(Texture texture, GLuint slot)
 {
+    glActiveTexture(GL_TEXTURE0 + slot);
+    
     assert(texture.id != GL_NONE, "Can't bind null texture");
     assert(texture.id != QueryTexture(), "Texture already bound");
-    
-    glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, texture.id);
+
     fTexture = texture.id;
 }
 
-void UnbindTexture(Texture texture)
+void UnbindTexture(Texture texture, GLuint slot)
 {
     assert(texture.id != GL_NONE, "Current texture is null");
     assert(QueryTexture() != GL_NONE, "No texture currently bound (nothing to unbind)");
 
+    glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
     fTexture = GL_NONE;
-}
-
-GLuint BoundTexture()
-{
-    assert(fTexture == QueryTexture());
-    return fTexture;
 }
 
 void CreateCubemap(Cubemap* cubemap, const char* path[6])
@@ -155,7 +132,6 @@ void CreateCubemap(Cubemap* cubemap, const char* path[6])
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
-    AddName(cubemap->id, path[0]);
 }
 
 void DestroyCubemap(Cubemap* cubemap)
@@ -163,7 +139,6 @@ void DestroyCubemap(Cubemap* cubemap)
     assert(cubemap->id != QueryCubemap(), "Can't delete a bound cubemap");
     assert(cubemap->id != GL_NONE, "Invalid cubemap handle");
 
-    RemoveName(cubemap->id);
     glDeleteTextures(1, &cubemap->id);
     cubemap->id = GL_NONE;
 }
@@ -186,11 +161,6 @@ void UnbindCubemap(Cubemap cubemap)
     fCubemap = GL_NONE;
 }
 
-GLuint BoundCubemap()
-{
-    return fCubemap;
-}
-
 void CreateTextures()
 {
 }
@@ -198,3 +168,39 @@ void CreateTextures()
 void DestroyTextures()
 {
 }
+
+// Not sure what purpose this served. Banished to the comment realm until proven useful xD
+//static std::unordered_map<GLuint, char[64]> fTextureNames;
+/*
+inline void AddName(GLuint id, const char* name = nullptr)
+{
+#if _DEBUG
+    assert(fTextureNames.find(id) == fTextureNames.end());
+    if (name != nullptr)
+        strcpy(fTextureNames[id], name);
+    else
+        sprintf(fTextureNames[id], "Unnamed texture %i", id);
+#endif
+}
+
+inline void RemoveName(GLuint id)
+{
+#if _DEBUG
+    assert(fTextureNames.find(id) != fTextureNames.end());
+    fTextureNames.erase(id);
+#endif
+}
+*/
+
+// The program is horribly flawed if it ever has to conditionally bind/unbind textures based on the currently bound texture... 
+//GLuint BoundTexture()
+//{
+//    assert(fTexture == QueryTexture());
+//    return fTexture;
+//}
+//
+//GLuint BoundCubemap()
+//{
+//    assert(fCubemap == QueryCubemap());
+//    return fCubemap;
+//}

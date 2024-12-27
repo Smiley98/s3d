@@ -90,19 +90,19 @@ void DrawMeshTcoords(const Mesh& mesh, Matrix world)
 	}
 }
 
-void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture)
+void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture, GLuint slot)
 {
 	assert(!mesh.tcoords.empty());
 	Matrix normal = NormalMatrix(world);
 	Matrix mvp = world * gView * gProj;
-	BindTexture(texture);
+	BindTexture(texture, slot);
 	BindShader(&gShaderTexture);
 	SendMat4("u_mvp", mvp);
 	SendMat3("u_normal", normal);
-	SendInt("u_tex", 0);
+	SendInt("u_tex", slot);
 	DrawMesh(mesh);
 	UnbindShader();
-	UnbindTexture(texture);
+	UnbindTexture(texture, slot);
 }
 
 void DrawMeshReflect(const Mesh& mesh, Matrix world,  Cubemap cubemap)
@@ -373,7 +373,7 @@ void DrawFsqTexture(Texture texture, int slot)
 	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
-	UnbindTexture(texture);
+	UnbindTexture(texture, slot);
 }
 
 void DrawColor(Framebuffer framebuffer, int slot)
@@ -385,7 +385,7 @@ void DrawDepth(Framebuffer framebuffer)
 {
 	float near = gProj.m14 / (gProj.m10 - 1.0f);
 	float far = gProj.m14 / (gProj.m10 + 1.0f);
-	BindTexture(framebuffer.depth);
+	BindTexture(framebuffer.depth, 0);
 	BindShader(&gShaderFsqDepth);
 	SendFloat("u_near", near);
 	SendFloat("u_far", far);
@@ -393,7 +393,7 @@ void DrawDepth(Framebuffer framebuffer)
 	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
-	UnbindTexture(framebuffer.depth);
+	UnbindTexture(framebuffer.depth, 0);
 }
 
 void DrawSkybox(Cubemap cubemap)

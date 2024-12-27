@@ -92,7 +92,7 @@ RaycastingScene::RayHit RaycastingScene::Raycast(Vector2 position, Vector2 direc
 void RaycastingScene::OnLoad()
 {
 	CreateImageFromMemory(&mImage, IMAGE_SIZE, IMAGE_SIZE);
-	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
+	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
 
 	mHits.resize(mImage.width);
 	mPosition = CENTER;

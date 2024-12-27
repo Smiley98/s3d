@@ -12,7 +12,7 @@ Image fDiffuseMap;
 void MainScene::OnLoad()
 {
 	CreateImageFromMemory(&mImage, IMAGE_SIZE, IMAGE_SIZE);
-	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
+	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
 	CreateImageFromFile(&fDiffuseMap, "assets/textures/african_head_diffuse.png", true);
 	mMesh = gMeshHead;
 	gCamera.position = { 0.0f, 0.0f, 5.0f };

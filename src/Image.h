@@ -3,12 +3,13 @@
 #include <vector>
 // See ImageUtils.h for additional features.
 
+// Fixed-format CPU-side pixel array. Used for software rendering only for educational purposes. Completely independent of Texture.
 struct Image
 {
 	std::vector<Color> pixels;
     std::vector<float> depth;
-    int width = 0;
-    int height = 0;
+    int width = -1;
+    int height = -1;
 };
 
 void CreateImageFromFile(Image* image, const char* path, bool flip = false);

@@ -32,7 +32,7 @@ void DestroyFramebuffer(Framebuffer* framebuffer)
 void AddColor(Framebuffer* framebuffer, int internalFormat, int format, int type, int filter)
 {
 	Texture& texture = framebuffer->colors[framebuffer->colorCount];
-	CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, internalFormat, format, type, filter);
+	CreateTextureFromMemory(&texture, framebuffer->width, framebuffer->height, internalFormat, format, type, filter);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + framebuffer->colorCount, GL_TEXTURE_2D, texture.id, 0);
@@ -46,7 +46,7 @@ void AddDepth(Framebuffer* framebuffer)
 {
 	Texture& texture = framebuffer->depth;
 	//CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST);
-	CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
+	CreateTextureFromMemory(&texture, framebuffer->width, framebuffer->height, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
 	//CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, internalFormat, format, type, filter);
 
 	// TODO -- Add additional function for stencil attachment like AddStencil(Framebuffer* framebuffer)

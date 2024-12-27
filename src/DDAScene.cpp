@@ -10,7 +10,7 @@ constexpr size_t IMAGE_SIZE = 512;
 void DDAScene::OnLoad()
 {
 	CreateImageFromMemory(&mImage, IMAGE_SIZE, IMAGE_SIZE);
-	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE);
+	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
 }
 
 void DDAScene::OnUnload()
