@@ -119,6 +119,16 @@ void Loop()
 
 		// Poll events
 		Poll();
+		
+		// Switch scene ("unit testing" xD)
+		if (IsKeyPressed(KEY_GRAVE_ACCENT))
+		{
+			int scene = Scene::Current();
+			++scene %= Scene::Type::COUNT;
+			Scene::Change((Scene::Type)scene);
+		}
+
+		// Terminate program
 		if (IsKeyDown(KEY_ESCAPE))
 			Close();
 	}

@@ -33,6 +33,7 @@ void PhysicsScene::OnLoad()
 
 void PhysicsScene::OnUnload()
 {
+    fWorld.clear();
 }
 
 void PhysicsScene::OnUpdate(float dt)
