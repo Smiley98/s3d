@@ -2,6 +2,11 @@
 #include "stb.h"
 #include <cassert>
 
+void CreateImageDefault(Image* image)
+{
+    CreateImageFromMemory(image, CPU_IMAGE_SIZE, CPU_IMAGE_SIZE);
+}
+
 void CreateImageFromFile(Image* image, const char* path, bool flip)
 {
     // Color is RGBA so channels must be 4

@@ -1,7 +1,5 @@
 #pragma once
 #include "Scene.h"
-#include "Image.h"
-#include "Texture.h"
 
 class TestScene : public Scene
 {
@@ -11,8 +9,4 @@ public:
 
 	void OnUpdate(float dt) final;
 	void OnDraw() final;
-
-private:
-	Image mImage;
-	Texture mTexture;
 };

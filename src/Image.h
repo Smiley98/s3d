@@ -1,7 +1,8 @@
 #pragma once
 #include "Color.h"
 #include <vector>
-// See ImageUtils.h for additional features.
+
+constexpr int CPU_IMAGE_SIZE = 512;
 
 // Fixed-format CPU-side pixel array. Used for software rendering only for educational purposes. Completely independent of Texture.
 struct Image
@@ -12,6 +13,7 @@ struct Image
     int height = -1;
 };
 
+void CreateImageDefault(Image* image);
 void CreateImageFromFile(Image* image, const char* path, bool flip = false);
 void CreateImageFromMemory(Image* image, int width, int height, Color* pixels = nullptr);
 void DestroyImage(Image* image);

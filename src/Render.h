@@ -61,10 +61,10 @@ void DrawPlaneX(Vector3 center, float height, float depth, Vector3 color, Matrix
 
 // Fullscreen quad
 void DrawFsq();
-void DrawFsqTexture(Texture texture, int slot = 0);
+void DrawFsqTexture(Texture texture, int slot);
 
 // Framebuffer
-void DrawColor(Framebuffer framebuffer, int slot = 0);
+void DrawColor(Framebuffer framebuffer, int slot);
 void DrawDepth(Framebuffer framebuffer);
 
 // Cubemap
@@ -73,3 +73,10 @@ void DrawSkybox(Cubemap cubemap);
 // Mesh
 void DrawMesh(const Mesh& mesh);
 void DrawMeshInstanced(const Mesh& mesh, int instanceCount);
+
+// CPU Rendering
+struct Image;
+void Present(Image* image);
+
+void InitSoftwareRenderer();
+void QuitSoftwareRenderer();

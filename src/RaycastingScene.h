@@ -1,8 +1,7 @@
 #pragma once
 #include "Scene.h"
-#include "Image.h"
-#include "Texture.h"
 #include <array>
+#include <vector>
 
 class RaycastingScene : public Scene
 {
@@ -29,9 +28,6 @@ private:
 
 	Vector2 mPosition;
 	Vector2 mDirection{ 1.0f, 0.0f };
-
-	Image mImage;
-	Texture mTexture;
 
 	// 0 = air, 1 = red, 2 = green, 3 = blue
 	std::array<std::array<size_t, 16>, 16> mMap

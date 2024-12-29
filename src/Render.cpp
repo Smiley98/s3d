@@ -416,3 +416,30 @@ void DrawSkybox(Cubemap cubemap)
 	SetDepthWrite(depthWrite);
 	SetDepthTest(depthTest);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////CPU RENDERING///////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+#include "Image.h"
+static Texture fSoftwareRenderTexture;
+
+void Present(Image* image)
+{
+	assert(!image->pixels.empty() && image->width == CPU_IMAGE_SIZE && image->height == CPU_IMAGE_SIZE);
+
+	BindTexture(fSoftwareRenderTexture, 0);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, CPU_IMAGE_SIZE, CPU_IMAGE_SIZE, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels.data());
+	UnbindTexture(fSoftwareRenderTexture, 0);
+
+	DrawFsqTexture(fSoftwareRenderTexture, 0);
+}
+
+void InitSoftwareRenderer()
+{
+	CreateTextureFromMemory(&fSoftwareRenderTexture, CPU_IMAGE_SIZE, CPU_IMAGE_SIZE, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+}
+
+void QuitSoftwareRenderer()
+{
+	DestroyTexture(&fSoftwareRenderTexture);
+}

@@ -3,23 +3,21 @@
 #include "Render.h"
 #include "ImageUtils.h"
 
-constexpr size_t IMAGE_SIZE = 512;
+static Image fImage;
 
-float Fract(float f)
+inline float Fract(float f)
 {
 	return f - floorf(f);
 }
 
 void TestScene::OnLoad()
 {
-	CreateImageFromMemory(&mImage, IMAGE_SIZE, IMAGE_SIZE);
-	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	CreateImageDefault(&fImage);
 }
 
 void TestScene::OnUnload()
 {
-	DestroyTexture(&mTexture);
-	DestroyImage(&mImage);
+	DestroyImage(&fImage);
 }
 
 void TestScene::OnUpdate(float dt)
@@ -31,12 +29,12 @@ void TestScene::OnUpdate(float dt)
 	Vector3 d{ 0.263f, 0.416f, 0.557f };
 	
 	float tt = TotalTime();
-	for (int y = 0; y < mImage.height; y++)
+	for (int y = 0; y < fImage.height; y++)
 	{
-		for (int x = 0; x < mImage.width; x++)
+		for (int x = 0; x < fImage.width; x++)
 		{
 			Vector2 fragCoord{ x, y };
-			Vector2 resolution{ mImage.width, mImage.height };
+			Vector2 resolution{ fImage.width, fImage.height };
 			Vector2 uv = fragCoord / resolution;
 			uv = uv * 2.0f - 1.0f;
 			uv.x *= SCREEN_ASPECT;
@@ -60,13 +58,12 @@ void TestScene::OnUpdate(float dt)
 			}
 
 			Color color = Float3ToColor(&finalColor.x);
-			SetPixel(&mImage, x, y, color);
+			SetPixel(&fImage, x, y, color);
 		}
 	}
 }
 
 void TestScene::OnDraw()
 {
-	UpdateTexture(mTexture, (unsigned char*)mImage.pixels.data());
-	DrawFsqTexture(mTexture);
+	Present(&fImage);
 }

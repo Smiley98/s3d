@@ -1,14 +1,9 @@
 #include "App.h"
 #include "Window.h"
-#include "Camera.h"
 #include "Scene.h"
+#include "Render.h"
 #include "Time.h"
 #include "Timer.h"
-
-#include "Shader.h"
-#include "Mesh.h"
-#include "Image.h"
-#include "Texture.h"
 
 #include <array>
 #include <iostream>
@@ -37,7 +32,8 @@ void Init()
 	CreateShaders();
 	CreateMeshes();
 	CreateTextures();
-	Scene::Create(Scene::DEFERRED_RENDERING);
+	InitSoftwareRenderer();
+	Scene::Create(Scene::DDA_TEST);
 }
 
 void Loop()
@@ -131,6 +127,7 @@ void Loop()
 void Quit()
 {
 	Scene::Destroy();
+	QuitSoftwareRenderer();
 	DestroyTextures();
 	DestroyMeshes();
 	DestroyShaders();

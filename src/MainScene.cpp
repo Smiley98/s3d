@@ -3,32 +3,30 @@
 #include "Render.h"
 #include "Rasterization.h"
 #include "ImageUtils.h"
-#include "Camera.h"
 
-constexpr int IMAGE_SIZE = 512;
-
-Image fDiffuseMap;
+static Mesh fMesh;
+static Image fImage;
+static Image fDiffuseMap;
 
 void MainScene::OnLoad()
 {
-	CreateImageFromMemory(&mImage, IMAGE_SIZE, IMAGE_SIZE);
-	CreateTextureFromMemory(&mTexture, IMAGE_SIZE, IMAGE_SIZE, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-	CreateImageFromFile(&fDiffuseMap, "assets/textures/african_head_diffuse.png", true);
-	mMesh = gMeshHead;
+	fMesh = gMeshHead;
 	gCamera.position = { 0.0f, 0.0f, 5.0f };
+
+	CreateImageDefault(&fImage);
+	CreateImageFromFile(&fDiffuseMap, "assets/textures/african_head_diffuse.png", true);
 }
 
 void MainScene::OnUnload()
 {
 	DestroyImage(&fDiffuseMap);
-	DestroyTexture(&mTexture);
-	DestroyImage(&mImage);
+	DestroyImage(&fImage);
 }
 
 void MainScene::OnUpdate(float dt)
 {
-	ClearColor(&mImage, BLACK);
-	ClearDepth(&mImage, 1.0f);
+	ClearColor(&fImage, BLACK);
+	ClearDepth(&fImage, 1.0f);
 
 	float tt = TotalTime();
 	float nsin = sinf(tt) * 0.5f + 0.5f;
@@ -64,11 +62,10 @@ void MainScene::OnUpdate(float dt)
 	data.diffuse = 0.75f;
 	data.specular = 32.0f;
 
-	DrawMesh(&mImage, mMesh, data, &fDiffuseMap);
+	DrawMesh(&fImage, fMesh, data, &fDiffuseMap);
 }
 
 void MainScene::OnDraw() 
 {
-	UpdateTexture(mTexture, (unsigned char*)mImage.pixels.data());
-	DrawFsqTexture(mTexture);
+	Present(&fImage);
 }
