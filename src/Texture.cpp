@@ -11,6 +11,8 @@ static GLuint fCubemap = GL_NONE;
 inline GLint QueryTexture()
 {
     GLint id;
+    //glActiveTexture(GL_TEXTURE0 + 5);
+    //glBindTexture(GL_TEXTURE_2D, 0);
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &id);
     return id;
 }
@@ -61,16 +63,6 @@ void CreateTextureFromMemory(Texture* texture, int width, int height, int intern
     texture->format = format;
     texture->type = type;
     texture->filter = filter;
-}
-
-// TODO -- Remove this function because it shouldn't be used outside of CPU-rendering.
-// Do something like store a texture within Image.cpp or Rasterization.cpp and have that update.
-void UpdateTexture(Texture texture, unsigned char* pixels)
-{
-    assert(pixels != nullptr);
-    BindTexture(texture, 0);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.width, texture.height, texture.format, texture.type, pixels);
-    UnbindTexture(texture, 0);
 }
 
 void DestroyTexture(Texture* texture)

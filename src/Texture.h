@@ -35,8 +35,6 @@ struct Texture
 
 void CreateTextureFromFile(Texture* texture, const char* path, bool flip = false);
 void CreateTextureFromMemory(Texture* texture, int width, int height, int internalFormat, int format, int type, int filter, unsigned char* pixels = nullptr);
-
-void UpdateTexture(Texture texture, unsigned char* pixels);
 void DestroyTexture(Texture* texture);
 
 void BindTexture(Texture texture, GLuint slot);

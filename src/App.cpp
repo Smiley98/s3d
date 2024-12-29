@@ -33,7 +33,7 @@ void Init()
 	CreateMeshes();
 	CreateTextures();
 	InitSoftwareRenderer();
-	Scene::Create(Scene::DDA_TEST);
+	Scene::Create(Scene::SOLAR_SYSTEM);
 }
 
 void Loop()
