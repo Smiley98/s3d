@@ -4,15 +4,9 @@
 #include <cassert>
 #include <unordered_map>
 
-static GLuint fTexture = GL_NONE;
-static GLuint fCubemap = GL_NONE;
-
-// Switch texture slot then see the id (ie bind a texture to slot 0, activate slot 1 then query. Entiendo if id 0 returned).
 inline GLint QueryTexture()
 {
     GLint id;
-    //glActiveTexture(GL_TEXTURE0 + 5);
-    //glBindTexture(GL_TEXTURE_2D, 0);
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &id);
     return id;
 }
@@ -83,22 +77,17 @@ void DestroyTexture(Texture* texture)
 void BindTexture(Texture texture, GLuint slot)
 {
     glActiveTexture(GL_TEXTURE0 + slot);
-    
     assert(texture.id != GL_NONE, "Can't bind null texture");
-    assert(texture.id != QueryTexture(), "Texture already bound");
+    assert(QueryTexture() == GL_NONE, "Must unbind texture");
     glBindTexture(GL_TEXTURE_2D, texture.id);
-
-    fTexture = texture.id;
 }
 
 void UnbindTexture(Texture texture, GLuint slot)
 {
+    glActiveTexture(GL_TEXTURE0 + slot);
     assert(texture.id != GL_NONE, "Current texture is null");
     assert(QueryTexture() != GL_NONE, "No texture currently bound (nothing to unbind)");
-
-    glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
-    fTexture = GL_NONE;
 }
 
 void CreateCubemap(Cubemap* cubemap, const char* path[6])
@@ -139,18 +128,14 @@ void BindCubemap(Cubemap cubemap)
 {
     assert(cubemap.id != GL_NONE, "Can't bind null cubemap");
     assert(cubemap.id != QueryCubemap(), "Cubemap already bound");
-
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.id);
-    fCubemap = fCubemap;
 }
 
 void UnbindCubemap(Cubemap cubemap)
 {
     assert(cubemap.id != GL_NONE);
     assert(QueryCubemap() != GL_NONE, "No cubemap currently bound (nothing to unbind)");
-
     glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
-    fCubemap = GL_NONE;
 }
 
 void CreateTextures()
@@ -160,39 +145,3 @@ void CreateTextures()
 void DestroyTextures()
 {
 }
-
-// Not sure what purpose this served. Banished to the comment realm until proven useful xD
-//static std::unordered_map<GLuint, char[64]> fTextureNames;
-/*
-inline void AddName(GLuint id, const char* name = nullptr)
-{
-#if _DEBUG
-    assert(fTextureNames.find(id) == fTextureNames.end());
-    if (name != nullptr)
-        strcpy(fTextureNames[id], name);
-    else
-        sprintf(fTextureNames[id], "Unnamed texture %i", id);
-#endif
-}
-
-inline void RemoveName(GLuint id)
-{
-#if _DEBUG
-    assert(fTextureNames.find(id) != fTextureNames.end());
-    fTextureNames.erase(id);
-#endif
-}
-*/
-
-// The program is horribly flawed if it ever has to conditionally bind/unbind textures based on the currently bound texture... 
-//GLuint BoundTexture()
-//{
-//    assert(fTexture == QueryTexture());
-//    return fTexture;
-//}
-//
-//GLuint BoundCubemap()
-//{
-//    assert(fCubemap == QueryCubemap());
-//    return fCubemap;
-//}

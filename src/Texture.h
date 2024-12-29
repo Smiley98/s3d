@@ -18,9 +18,6 @@ struct Texture
     int width = -1;
     int height = -1;
 
-    // Storing this might create a disconnect between intended GPU-state vs *actual* GPU-state
-    //GLuint slot = 0;
-
     int internalFormat = -1;
     int format = -1;
     int type = -1;
