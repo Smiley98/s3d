@@ -50,7 +50,10 @@ void DeferredScene::OnDraw()
 
 	DestroyMesh(&mesh);
 
-	// TODO -- Handle multiple texture slots
-	//DrawColor(fGeometryBuffer);
+	// This could actually be achieved with a single texture unit since its 2 draw calls xD
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT * 0.5f);
+	DrawColor(fGeometryBuffer, 0);
+	glViewport(0, SCREEN_HEIGHT * 0.5f, SCREEN_WIDTH, SCREEN_HEIGHT * 0.5f);
 	DrawColor(fGeometryBuffer, 1);
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }

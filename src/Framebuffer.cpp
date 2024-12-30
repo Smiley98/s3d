@@ -2,6 +2,8 @@
 #include "Config.h"
 #include <cassert>
 
+// TODO -- Make a CompleteFramebuffer function in which draw-buffer attachments are specified and FBO is validated.
+// TODO -- Implement new texture API & rework Framebuffer to use it (perhaps verify MRT read first)?
 static GLuint fBuffer = GL_NONE;
 
 void CreateFramebuffer(Framebuffer* framebuffer, int width, int height)
