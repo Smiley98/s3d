@@ -1,17 +1,15 @@
 #include "Texture.h"
 #include "stb.h"
-
 #include <cassert>
-#include <unordered_map>
 
-inline GLint QueryTexture()
+inline GLint GetTextureId()
 {
     GLint id;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &id);
     return id;
 }
 
-inline GLint QueryCubemap()
+inline GLint GetCubemapId()
 {
     GLint id;
     glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &id);
@@ -39,46 +37,29 @@ void CreateTextureFromFile(Texture* texture, const char* path, bool flip)
 
 void CreateTextureFromMemory(Texture* texture, int width, int height, int internalFormat, int format, int type, int filter, unsigned char* pixels)
 {
-    GLuint id = GL_NONE;
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, pixels);
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
-
-    texture->id = id;
-    texture->width = width;
-    texture->height = height;
-
-    texture->internalFormat = internalFormat;
-    texture->format = format;
-    texture->type = type;
-    texture->filter = filter;
+    GLenum target = GL_TEXTURE_2D;
+    glGenTextures(1, &texture->id);
+    glBindTexture(target, texture->id);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+    glTexImage2D(target, 0, internalFormat, width, height, 0, format, type, pixels);
+    glBindTexture(target, GL_NONE);
 }
 
 void DestroyTexture(Texture* texture)
 {
-    assert(texture->id != QueryTexture(), "Can't delete a bound texture");
     assert(texture->id != GL_NONE, "Invalid texture handle");
-
     glDeleteTextures(1, &texture->id);
-
     texture->id = GL_NONE;
-    texture->width = -1;
-    texture->height = -1;
-    texture->format = -1;
-    texture->type = -1;
-    texture->filter = -1;
 }
 
 void BindTexture(Texture texture, GLuint slot)
 {
     glActiveTexture(GL_TEXTURE0 + slot);
     assert(texture.id != GL_NONE, "Can't bind null texture");
-    assert(QueryTexture() == GL_NONE, "Must unbind texture");
+    assert(GetTextureId() == GL_NONE, "Must unbind before binding new texture");
     glBindTexture(GL_TEXTURE_2D, texture.id);
 }
 
@@ -86,7 +67,7 @@ void UnbindTexture(Texture texture, GLuint slot)
 {
     glActiveTexture(GL_TEXTURE0 + slot);
     assert(texture.id != GL_NONE, "Current texture is null");
-    assert(QueryTexture() != GL_NONE, "No texture currently bound (nothing to unbind)");
+    assert(GetTextureId() != GL_NONE, "No texture currently bound (nothing to unbind)");
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
 }
 
@@ -117,7 +98,7 @@ void CreateCubemap(Cubemap* cubemap, const char* path[6])
 
 void DestroyCubemap(Cubemap* cubemap)
 {
-    assert(cubemap->id != QueryCubemap(), "Can't delete a bound cubemap");
+    assert(cubemap->id != GetCubemapId(), "Can't delete a bound cubemap");
     assert(cubemap->id != GL_NONE, "Invalid cubemap handle");
 
     glDeleteTextures(1, &cubemap->id);
@@ -127,14 +108,14 @@ void DestroyCubemap(Cubemap* cubemap)
 void BindCubemap(Cubemap cubemap)
 {
     assert(cubemap.id != GL_NONE, "Can't bind null cubemap");
-    assert(cubemap.id != QueryCubemap(), "Cubemap already bound");
+    assert(cubemap.id != GetCubemapId(), "Cubemap already bound");
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.id);
 }
 
 void UnbindCubemap(Cubemap cubemap)
 {
     assert(cubemap.id != GL_NONE);
-    assert(QueryCubemap() != GL_NONE, "No cubemap currently bound (nothing to unbind)");
+    assert(GetCubemapId() != GL_NONE, "No cubemap currently bound (nothing to unbind)");
     glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
 }
 

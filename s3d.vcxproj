@@ -115,6 +115,7 @@
     <ClCompile Include="src\stb.cpp" />
     <ClCompile Include="src\TestScene.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\TextureNew.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="src\stb.h" />
     <ClInclude Include="src\TestScene.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\TextureNew.h" />
     <ClInclude Include="src\Time.h" />
     <ClInclude Include="src\Timer.h" />
     <ClInclude Include="src\Window.h" />
