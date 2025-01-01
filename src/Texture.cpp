@@ -1,128 +1,191 @@
 #include "Texture.h"
-#include "stb.h"
+#include <unordered_map>
 #include <cassert>
 
-inline GLint GetTextureId()
+GLint GetTexture1DId();
+GLint GetTexture2DId();
+GLint GetTexture3DId();
+GLint GetCubemapId();
+
+static std::unordered_map<GLuint, GLuint> fTex1Units;
+static std::unordered_map<GLuint, GLuint> fTex2Units;
+static std::unordered_map<GLuint, GLuint> fTex3Units;
+static std::unordered_map<GLuint, GLuint> fTexCubemapUnits;
+
+void CreateTexture1D(Texture1D* texture, int width, int internalFormat, int format, int type, int filter, void* pixels)
 {
-    GLint id;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &id);
-    return id;
+    GLuint id = GL_NONE;
+    GLenum target = GL_TEXTURE_1D;
+    glGenTextures(1, &id);
+    glBindTexture(target, id);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+    glTexImage1D(target, 0, internalFormat, width, 0, format, type, pixels);
+    glBindTexture(target, GL_NONE);
+    texture->id = id;
 }
 
-inline GLint GetCubemapId()
+void CreateTexture2D(Texture2D* texture, int width, int height, int internalFormat, int format, int type, int filter, void* pixels)
 {
-    GLint id;
-    glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &id);
-    return id;
-}
-
-// TODO -- Consider passing in type & internal-format parameters, or even removing this funciton entirely.
-// The more abstractions, the more chances there are for texture-formatting errors to occur.
-void CreateTextureFromFile(Texture* texture, const char* path, bool flip)
-{
-    int width, height, channels;
-    stbi_uc* pixels = stbi_load(path, &width, &height, &channels, 0);
-
-    // What if we have a greyscale texture??
-    // Probably reasonable to keep this function and handle greyscale/outlier textures via CreateTextureFromMemory.
-    assert(channels == 3 || channels == 4);
-    GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
-    GLint internalFormat = channels == 3 ? GL_RGB8 : GL_RGBA8;
-    if (flip)
-        FlipVertically(pixels, width, height, channels);
-
-    CreateTextureFromMemory(texture, width, height, internalFormat, format, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
-    stbi_image_free(pixels);
-}
-
-void CreateTextureFromMemory(Texture* texture, int width, int height, int internalFormat, int format, int type, int filter, unsigned char* pixels)
-{
+    GLuint id = GL_NONE;
     GLenum target = GL_TEXTURE_2D;
-    glGenTextures(1, &texture->id);
-    glBindTexture(target, texture->id);
+    glGenTextures(1, &id);
+    glBindTexture(target, id);
     glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
     glTexImage2D(target, 0, internalFormat, width, height, 0, format, type, pixels);
     glBindTexture(target, GL_NONE);
+    texture->id = id;
 }
 
-void DestroyTexture(Texture* texture)
+void CreateTexture3D(Texture3D* texture, int width, int height, int depth, int internalFormat, int format, int type, int filter, void* pixels)
 {
-    assert(texture->id != GL_NONE, "Invalid texture handle");
+    GLuint id = GL_NONE;
+    GLenum target = GL_TEXTURE_3D;
+    glGenTextures(1, &id);
+    glBindTexture(target, id);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+    glTexImage3D(target, 0, internalFormat, width, height, depth, 0, format, type, pixels);
+    glBindTexture(target, GL_NONE);
+    texture->id = id;
+}
+
+void CreateCubemap(Cubemap* texture, int width, int height, int internalFormat, int format, int type, int filter, void* pixels[6])
+{
+    GLuint id = GL_NONE;
+    GLenum target = GL_TEXTURE_CUBE_MAP;
+    glGenTextures(1, &id);
+    glBindTexture(target, id);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    for (int i = 0; i < 6; i++)
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, type, pixels[i]);
+    glBindTexture(target, GL_NONE);
+    texture->id = id;
+}
+
+void DestroyTexture1D(Texture1D* texture)
+{
     glDeleteTextures(1, &texture->id);
     texture->id = GL_NONE;
 }
 
-void BindTexture(Texture texture, GLuint slot)
+void DestroyTexture2D(Texture2D* texture)
 {
-    glActiveTexture(GL_TEXTURE0 + slot);
-    assert(texture.id != GL_NONE, "Can't bind null texture");
-    assert(GetTextureId() == GL_NONE, "Must unbind before binding new texture");
+    glDeleteTextures(1, &texture->id);
+    texture->id = GL_NONE;
+}
+
+void DestroyTexture3D(Texture3D* texture)
+{
+    glDeleteTextures(1, &texture->id);
+    texture->id = GL_NONE;
+}
+
+void DestroyCubemap(Cubemap* texture)
+{
+    glDeleteTextures(1, &texture->id);
+    texture->id = GL_NONE;
+}
+
+void BindTexture1D(Texture1D texture, GLuint unit)
+{
+    glActiveTexture(GL_TEXTURE0 + unit);
+    assert(GetTexture1DId() == GL_NONE);
+    assert(fTex1Units.insert({ texture.id, unit }).second);
+    glBindTexture(GL_TEXTURE_1D, texture.id);
+}
+
+void BindTexture2D(Texture2D texture, GLuint unit)
+{
+    glActiveTexture(GL_TEXTURE0 + unit);
+    assert(GetTexture2DId() == GL_NONE);
+    assert(fTex2Units.insert({ texture.id, unit }).second);
     glBindTexture(GL_TEXTURE_2D, texture.id);
 }
 
-void UnbindTexture(Texture texture, GLuint slot)
+void BindTexture3D(Texture3D texture, GLuint unit)
 {
-    glActiveTexture(GL_TEXTURE0 + slot);
-    assert(texture.id != GL_NONE, "Current texture is null");
-    assert(GetTextureId() != GL_NONE, "No texture currently bound (nothing to unbind)");
+    glActiveTexture(GL_TEXTURE0 + unit);
+    assert(GetTexture3DId() == GL_NONE);
+    assert(fTex3Units.insert({ texture.id, unit }).second);
+    glBindTexture(GL_TEXTURE_3D, texture.id);
+}
+
+void BindCubemap(Cubemap texture, GLuint unit)
+{
+    glActiveTexture(GL_TEXTURE0 + unit);
+    assert(GetCubemapId() == GL_NONE);
+    assert(fTexCubemapUnits.insert({ texture.id, unit }).second);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture.id);
+}
+
+void UnbindTexture1D(Texture1D texture, GLuint unit)
+{
+    glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(GL_TEXTURE_1D, GL_NONE);
+    assert(fTex1Units.at(texture.id) == unit);
+    assert(fTex1Units.erase(texture.id) == 1);
+}
+
+void UnbindTexture2D(Texture2D texture, GLuint unit)
+{
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
+    assert(fTex2Units.at(texture.id) == unit);
+    assert(fTex2Units.erase(texture.id) == 1);
 }
 
-void CreateCubemap(Cubemap* cubemap, const char* path[6])
+void UnbindTexture3D(Texture3D texture, GLuint unit)
 {
-    glGenTextures(1, &cubemap->id);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->id);
+    glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(GL_TEXTURE_3D, GL_NONE);
+    assert(fTex3Units.at(texture.id) == unit);
+    assert(fTex3Units.erase(texture.id) == 1);
+}
 
-    int width, height, channels;
-    for (int i = 0; i < 6; i++)
-    {
-        stbi_uc* pixels = stbi_load(path[i], &width, &height, &channels, 0);
-        assert(channels == 3 || channels == 4);
-        GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
-        GLint internalFormat = channels == 3 ? GL_RGB8 : GL_RGBA8;
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
-        stbi_image_free(pixels);
-    }
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
+void UnbindCubemap(Cubemap texture, GLuint unit)
+{
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
+    assert(fTexCubemapUnits.at(texture.id) == unit);
+    assert(fTexCubemapUnits.erase(texture.id) == 1);
 }
 
-void DestroyCubemap(Cubemap* cubemap)
+GLint GetTexture1DId()
 {
-    assert(cubemap->id != GetCubemapId(), "Can't delete a bound cubemap");
-    assert(cubemap->id != GL_NONE, "Invalid cubemap handle");
-
-    glDeleteTextures(1, &cubemap->id);
-    cubemap->id = GL_NONE;
+    GLint id;
+    glGetIntegerv(GL_TEXTURE_BINDING_1D, &id);
+    return id;
 }
 
-void BindCubemap(Cubemap cubemap)
+GLint GetTexture2DId()
 {
-    assert(cubemap.id != GL_NONE, "Can't bind null cubemap");
-    assert(cubemap.id != GetCubemapId(), "Cubemap already bound");
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.id);
+    GLint id;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &id);
+    return id;
 }
 
-void UnbindCubemap(Cubemap cubemap)
+GLint GetTexture3DId()
 {
-    assert(cubemap.id != GL_NONE);
-    assert(GetCubemapId() != GL_NONE, "No cubemap currently bound (nothing to unbind)");
-    glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
+    GLint id;
+    glGetIntegerv(GL_TEXTURE_BINDING_3D, &id);
+    return id;
 }
 
-void CreateTextures()
+GLint GetCubemapId()
 {
-}
-
-void DestroyTextures()
-{
+    GLint id;
+    glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &id);
+    return id;
 }

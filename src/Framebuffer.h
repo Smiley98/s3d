@@ -10,8 +10,8 @@ struct Framebuffer
 	int height = -1;
 
 	size_t colorCount = 0;
-	Texture colors[MAX_ATTACHMENTS]{};
-	Texture depth{};
+	Texture2D colors[MAX_ATTACHMENTS]{};
+	Texture2D depth{};
 };
 
 void CreateFramebuffer(Framebuffer* framebuffer, int width, int height);

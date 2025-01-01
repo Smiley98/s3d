@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Framebuffer.h"
 #include "Geometry.h"
+#include "ImageLoader.h"
 
 struct Planet
 {
@@ -38,7 +39,7 @@ struct Asteroids
 {
 	Matrix viewProj = MatrixIdentity();
 	Matrix orbit = MatrixIdentity();
-	Texture texture;
+	Texture2D texture;
 
 	GLuint vao = GL_NONE;
 	GLuint pbo = GL_NONE;			// positions (1 asteroid)
@@ -59,7 +60,12 @@ void DrawPlanetsRaymarch();
 
 void CreateAsteroids()
 {
-	CreateTextureFromFile(&fAsteroids.texture, "./assets/textures/asteroid.png");
+	{
+		int w, h, c;
+		uint8_t* pixels = LoadImage2D("./assets/textures/asteroid.png", &w, &h, &c);
+		CreateTexture2D(&fAsteroids.texture, w, h, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
+		UnloadImage(pixels);
+	}
 
 	Mesh asteroid;
 	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
@@ -135,7 +141,7 @@ void CreateAsteroids()
 
 void DestroyAsteroids()
 {
-	DestroyTexture(&fAsteroids.texture);
+	DestroyTexture2D(&fAsteroids.texture);
 	glDeleteBuffers(1, &fAsteroids.pbo);
 	glDeleteBuffers(1, &fAsteroids.tbo);
 	glDeleteBuffers(1, &fAsteroids.nbo);
@@ -151,17 +157,15 @@ void SolarSystemScene::OnLoad()
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
 	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
-
-	const char* skyboxSpaceFiles[] =
+	
 	{
-		"./assets/textures/space_x+.png",
-		"./assets/textures/space_x-.png",
-		"./assets/textures/space_y+.png",
-		"./assets/textures/space_y-.png",
-		"./assets/textures/space_z+.png",
-		"./assets/textures/space_z-.png",
-	};
-	CreateCubemap(&fSkyboxSpace, skyboxSpaceFiles);
+		int w, h, c;
+		uint8_t* pixels[6];
+		LoadCubemap("./assets/textures/space", "png", &w, &h, &c, pixels);
+		CreateCubemap(&fSkyboxSpace, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
+		UnloadCubemap(pixels);
+	}
+
 	CreateAsteroids();
 
 	// Note that depth must be attached in order for depth-test and depth-write to be performed
@@ -292,11 +296,11 @@ void SolarSystemScene::OnDraw()
 		DrawPlanetsRaster();
 	else
 		DrawPlanetsRaymarch();
-	DrawSkybox(fSkyboxSpace);
+	DrawSkybox(fSkyboxSpace, 0);
 	UnbindFramebuffer();
 
 	if (fDepth)
-		DrawDepth(fFbo);
+		DrawDepth(fFbo, 0);
 	else
 		DrawColor(fFbo, 0);
 }
@@ -307,11 +311,11 @@ void DrawAsteroids()
 	SendMat4("u_mvp", fAsteroids.viewProj);
 	SendMat4("u_orbit", fAsteroids.orbit);
 	SendVec3("u_sunPos", V3_ZERO);
-	BindTexture(fAsteroids.texture, 0);
+	BindTexture2D(fAsteroids.texture, 0);
 	glBindVertexArray(fAsteroids.vao);
 	glDrawArraysInstanced(GL_TRIANGLES, 0, fAsteroids.count, fAsteroids.instances);
 	glBindVertexArray(GL_NONE);
-	UnbindTexture(fAsteroids.texture, 0);
+	UnbindTexture2D(fAsteroids.texture, 0);
 	UnbindShader();
 }
 

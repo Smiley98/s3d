@@ -99,6 +99,7 @@
     <ClCompile Include="src\Framebuffer.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Image.cpp" />
+    <ClCompile Include="src\ImageLoader.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainScene.cpp" />
     <ClCompile Include="src\Materials.cpp" />
@@ -115,7 +116,6 @@
     <ClCompile Include="src\stb.cpp" />
     <ClCompile Include="src\TestScene.cpp" />
     <ClCompile Include="src\Texture.cpp" />
-    <ClCompile Include="src\TextureNew.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +139,7 @@
     <ClInclude Include="src\Framebuffer.h" />
     <ClInclude Include="src\Geometry.h" />
     <ClInclude Include="src\Image.h" />
+    <ClInclude Include="src\ImageLoader.h" />
     <ClInclude Include="src\ImageUtils.h" />
     <ClInclude Include="src\Lights.h" />
     <ClInclude Include="src\Log.h" />
@@ -160,7 +161,6 @@
     <ClInclude Include="src\stb.h" />
     <ClInclude Include="src\TestScene.h" />
     <ClInclude Include="src\Texture.h" />
-    <ClInclude Include="src\TextureNew.h" />
     <ClInclude Include="src\Time.h" />
     <ClInclude Include="src\Timer.h" />
     <ClInclude Include="src\Window.h" />

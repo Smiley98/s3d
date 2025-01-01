@@ -19,11 +19,11 @@ void DestroyFramebuffer(Framebuffer* framebuffer)
 	assert(framebuffer->id != GL_NONE);
 
 	for (int i = 0; i < framebuffer->colorCount; i++)
-		DestroyTexture(&framebuffer->colors[i]);
+		DestroyTexture2D(&framebuffer->colors[i]);
 	framebuffer->colorCount = 0;
 
 	if (framebuffer->depth.id != GL_NONE)
-		DestroyTexture(&framebuffer->depth);
+		DestroyTexture2D(&framebuffer->depth);
 
 	glDeleteFramebuffers(1, &framebuffer->id);
 	framebuffer->id = GL_NONE;
@@ -33,8 +33,8 @@ void DestroyFramebuffer(Framebuffer* framebuffer)
 
 void AddColor(Framebuffer* framebuffer, int internalFormat, int format, int type, int filter)
 {
-	Texture& texture = framebuffer->colors[framebuffer->colorCount];
-	CreateTextureFromMemory(&texture, framebuffer->width, framebuffer->height, internalFormat, format, type, filter);
+	Texture2D& texture = framebuffer->colors[framebuffer->colorCount];
+	CreateTexture2D(&texture, framebuffer->width, framebuffer->height, internalFormat, format, type, filter);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + framebuffer->colorCount, GL_TEXTURE_2D, texture.id, 0);
@@ -46,10 +46,10 @@ void AddColor(Framebuffer* framebuffer, int internalFormat, int format, int type
 
 void AddDepth(Framebuffer* framebuffer)
 {
-	Texture& texture = framebuffer->depth;
-	//CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST);
-	CreateTextureFromMemory(&texture, framebuffer->width, framebuffer->height, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
-	//CreateTextureFromMemoryEx(&texture, framebuffer->width, framebuffer->height, internalFormat, format, type, filter);
+	Texture2D& texture = framebuffer->depth;
+	//CreateTexture2D(&texture, framebuffer->width, framebuffer->height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST);
+	CreateTexture2D(&texture, framebuffer->width, framebuffer->height, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
+	//CreateTexture2D(&texture, framebuffer->width, framebuffer->height, internalFormat, format, type, filter);
 
 	// TODO -- Add additional function for stencil attachment like AddStencil(Framebuffer* framebuffer)
 	// Figure out if depth buffer is needed for stencil test. Test it. Would be nice if depth & stencil buffers are only ever *one* format in s3d.

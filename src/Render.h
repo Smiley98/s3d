@@ -35,9 +35,9 @@ void DrawMeshNormals(const Mesh& mesh, Matrix world, Matrix normal/*identity for
 void DrawMeshTcoords(const Mesh& mesh, Matrix world/*object-space*/);
 
 // Object effects
-void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture, GLuint slot);
-void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap);
-void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, float ratio);
+void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture2D texture, GLuint unit);
+void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit);
+void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit, float ratio);
 
 // 2d:
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle = 0.0f);
@@ -61,14 +61,14 @@ void DrawPlaneX(Vector3 center, float height, float depth, Vector3 color, Matrix
 
 // Fullscreen quad
 void DrawFsq();
-void DrawFsqTexture(Texture texture, int slot);
+void DrawFsqTexture(Texture2D texture, GLuint unit);
 
 // Framebuffer
-void DrawColor(Framebuffer framebuffer, int slot);
-void DrawDepth(Framebuffer framebuffer);
+void DrawColor(Framebuffer framebuffer, GLuint unit);
+void DrawDepth(Framebuffer framebuffer, GLuint unit);
 
 // Cubemap
-void DrawSkybox(Cubemap cubemap);
+void DrawSkybox(Cubemap cubemap, GLuint unit);
 
 // Mesh
 void DrawMesh(const Mesh& mesh);

@@ -3,6 +3,7 @@
 #include "Time.h"
 #include "Render.h"
 #include "Camera.h"
+#include "ImageLoader.h"
 #include <imgui/imgui.h>
 
 static bool fTranslate = false;
@@ -23,7 +24,7 @@ static Matrix fProjections[] =
 	Perspective(90.0f * DEG2RAD, SCREEN_ASPECT, 0.1f, 100.0f)
 };
 
-static Texture fTexHead;
+static Texture2D fTexHead;
 static Cubemap fSkyboxArctic;
 
 void RasterizationScene::OnLoad()
@@ -31,22 +32,25 @@ void RasterizationScene::OnLoad()
 	CreateMesh(&fMesh, (MeshType)fMeshIndex);
 	gCamera.position = { 0.0f, 0.0f, 5.0f };
 
-	const char* skyboxArcticFiles[] =
 	{
-		"./assets/textures/arctic_x+.jpg",
-		"./assets/textures/arctic_x-.jpg",
-		"./assets/textures/arctic_y+.jpg",
-		"./assets/textures/arctic_y-.jpg",
-		"./assets/textures/arctic_z+.jpg",
-		"./assets/textures/arctic_z-.jpg",
-	};
-	CreateCubemap(&fSkyboxArctic, skyboxArcticFiles);
-	CreateTextureFromFile(&fTexHead, "assets/textures/african_head_diffuse.png", true);
+		int w, h, c;
+		uint8_t* pixels[6];
+		LoadCubemap("./assets/textures/arctic", "jpg", &w, &h, &c, pixels);
+		CreateCubemap(&fSkyboxArctic, w, h, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
+		UnloadCubemap(pixels);
+	}
+
+	{
+		int w, h, c;
+		uint8_t* pixels = LoadImage2D("./assets/textures/african_head_diffuse.png", &w, &h, &c);
+		CreateTexture2D(&fTexHead, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
+		UnloadImage(pixels);
+	}
 }
 
 void RasterizationScene::OnUnload()
 {
-	DestroyTexture(&fTexHead);
+	DestroyTexture2D(&fTexHead);
 	DestroyCubemap(&fSkyboxArctic);
 	DestroyMesh(&fMesh);
 }
@@ -68,10 +72,10 @@ void RasterizationScene::OnUpdate(float dt)
 void RasterizationScene::OnDraw()
 {
 	DrawMeshDebug(fMesh, fWorld, fColor);
-	//DrawMeshTexture(gMeshHead, Translate(0.0f, 0.0f, -5.0f), fTexHead);
-	DrawMeshReflect(gMeshCube, Translate(-2.0f, 0.0f, 0.0f), fSkyboxArctic);
-	DrawMeshRefract(gMeshCube, Translate(2.0f, 0.0f, 0.0f), fSkyboxArctic, 1.00f / 1.52f); // glass
-	DrawSkybox(fSkyboxArctic);
+	DrawMeshTexture(gMeshHead, Translate(0.0f, 0.0f, -5.0f), fTexHead, 0);
+	DrawMeshReflect(gMeshCube, Translate(-2.0f, 0.0f, 0.0f), fSkyboxArctic, 0);
+	DrawMeshRefract(gMeshCube, Translate(2.0f, 0.0f, 0.0f), fSkyboxArctic, 0, 1.00f / 1.52f); // glass
+	DrawSkybox(fSkyboxArctic, 0);
 }
 
 void RasterizationScene::OnDrawImGui()

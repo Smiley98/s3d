@@ -31,7 +31,6 @@ void Init()
 	CreateWindow();
 	CreateShaders();
 	CreateMeshes();
-	CreateTextures();
 	InitSoftwareRenderer();
 	Scene::Create(Scene::DEFERRED_RENDERING);
 }
@@ -138,7 +137,6 @@ void Quit()
 {
 	Scene::Destroy();
 	QuitSoftwareRenderer();
-	DestroyTextures();
 	DestroyMeshes();
 	DestroyShaders();
 	DestroyWindow();

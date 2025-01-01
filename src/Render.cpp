@@ -90,27 +90,27 @@ void DrawMeshTcoords(const Mesh& mesh, Matrix world)
 	}
 }
 
-void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture texture, GLuint slot)
+void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture2D texture, GLuint unit)
 {
 	assert(!mesh.tcoords.empty());
 	Matrix normal = NormalMatrix(world);
 	Matrix mvp = world * gView * gProj;
-	BindTexture(texture, slot);
+	BindTexture2D(texture, unit);
 	BindShader(&gShaderTexture);
 	SendMat4("u_mvp", mvp);
 	SendMat3("u_normal", normal);
-	SendInt("u_tex", slot);
+	SendInt("u_tex", unit);
 	DrawMesh(mesh);
 	UnbindShader();
-	UnbindTexture(texture, slot);
+	UnbindTexture2D(texture, unit);
 }
 
-void DrawMeshReflect(const Mesh& mesh, Matrix world,  Cubemap cubemap)
+void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit)
 {
 	// TODO -- Should I keep the camera global, or pass it everywhere its used?
 	// (First time sending the camera position to the GPU since I have yet to implement lighting).
 	Matrix mvp = world * gView * gProj;
-	BindCubemap(cubemap);
+	BindCubemap(cubemap, unit);
 	BindShader(&gShaderEnvironmentReflect);
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_world", world);
@@ -118,13 +118,13 @@ void DrawMeshReflect(const Mesh& mesh, Matrix world,  Cubemap cubemap)
 	SendVec3("u_camPos", gCamera.position);
 	DrawMesh(mesh);
 	UnbindShader();
-	UnbindCubemap(cubemap);
+	UnbindCubemap(cubemap, unit);
 }
 
-void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, float ratio)
+void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit, float ratio)
 {
 	Matrix mvp = world * gView * gProj;
-	BindCubemap(cubemap);
+	BindCubemap(cubemap, unit);
 	BindShader(&gShaderEnvironmentRefract);
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_world", world);
@@ -133,7 +133,7 @@ void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, float rati
 	SendFloat("u_ratio", ratio);
 	DrawMesh(mesh);
 	UnbindShader();
-	UnbindCubemap(cubemap);
+	UnbindCubemap(cubemap, unit);
 }
 
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
@@ -365,38 +365,38 @@ void DrawFsq()
 	SetDepthTest(depthTest);
 }
 
-void DrawFsqTexture(Texture texture, int slot)
+void DrawFsqTexture(Texture2D texture, GLuint unit)
 {
-	BindTexture(texture, slot);
+	BindTexture2D(texture, unit);
 	BindShader(&gShaderFsq);
-	SendInt("u_tex", slot);
+	SendInt("u_tex", unit);
 	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
-	UnbindTexture(texture, slot);
+	UnbindTexture2D(texture, unit);
 }
 
-void DrawColor(Framebuffer framebuffer, int slot)
+void DrawColor(Framebuffer framebuffer, GLuint unit)
 {
-	DrawFsqTexture(framebuffer.colors[slot], slot);
+	DrawFsqTexture(framebuffer.colors[unit], unit);
 }
 
-void DrawDepth(Framebuffer framebuffer)
+void DrawDepth(Framebuffer framebuffer, GLuint unit)
 {
 	float near = gProj.m14 / (gProj.m10 - 1.0f);
 	float far = gProj.m14 / (gProj.m10 + 1.0f);
-	BindTexture(framebuffer.depth, 0);
+	BindTexture2D(framebuffer.depth, unit);
 	BindShader(&gShaderFsqDepth);
 	SendFloat("u_near", near);
 	SendFloat("u_far", far);
-	SendInt("u_tex", 0);
+	SendInt("u_tex", unit);
 	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
-	UnbindTexture(framebuffer.depth, 0);
+	UnbindTexture2D(framebuffer.depth, unit);
 }
 
-void DrawSkybox(Cubemap cubemap)
+void DrawSkybox(Cubemap cubemap, GLuint unit)
 {
 	Matrix viewSky = gView;
 	viewSky.m12 = viewSky.m13 = viewSky.m14 = 0.0f;
@@ -406,12 +406,12 @@ void DrawSkybox(Cubemap cubemap)
 	SetDepthTest(true);
 	SetDepthWrite(false);
 	
-	BindCubemap(cubemap);
+	BindCubemap(cubemap, unit);
 	BindShader(&gShaderSkybox);
 	SendMat4("u_mvp", viewSky * gProj);
 	DrawMesh(gMeshCube);
 	UnbindShader();
-	UnbindCubemap(cubemap);
+	UnbindCubemap(cubemap, unit);
 
 	SetDepthWrite(depthWrite);
 	SetDepthTest(depthTest);
@@ -421,25 +421,25 @@ void DrawSkybox(Cubemap cubemap)
 ////////////////////////////////////////////CPU RENDERING///////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Image.h"
-static Texture fSoftwareRenderTexture;
+static Texture2D fSoftwareRenderTexture;
 
 void Present(Image* image)
 {
 	assert(!image->pixels.empty() && image->width == CPU_IMAGE_SIZE && image->height == CPU_IMAGE_SIZE);
 
-	BindTexture(fSoftwareRenderTexture, 0);
+	BindTexture2D(fSoftwareRenderTexture, 0);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, CPU_IMAGE_SIZE, CPU_IMAGE_SIZE, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels.data());
-	UnbindTexture(fSoftwareRenderTexture, 0);
+	UnbindTexture2D(fSoftwareRenderTexture, 0);
 
 	DrawFsqTexture(fSoftwareRenderTexture, 0);
 }
 
 void InitSoftwareRenderer()
 {
-	CreateTextureFromMemory(&fSoftwareRenderTexture, CPU_IMAGE_SIZE, CPU_IMAGE_SIZE, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	CreateTexture2D(&fSoftwareRenderTexture, CPU_IMAGE_SIZE, CPU_IMAGE_SIZE, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
 }
 
 void QuitSoftwareRenderer()
 {
-	DestroyTexture(&fSoftwareRenderTexture);
+	DestroyTexture2D(&fSoftwareRenderTexture);
 }

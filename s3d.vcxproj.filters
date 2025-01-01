@@ -84,9 +84,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Entry Point</Filter>
     </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
-      <Filter>Image</Filter>
-    </ClCompile>
     <ClCompile Include="src\Materials.cpp">
       <Filter>Lighting</Filter>
     </ClCompile>
@@ -126,7 +123,10 @@
     <ClCompile Include="src\PhysicsScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\TextureNew.cpp">
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>Image</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImageLoader.cpp">
       <Filter>Image</Filter>
     </ClCompile>
   </ItemGroup>
@@ -187,9 +187,6 @@
     </ClInclude>
     <ClInclude Include="src\DDAScene.h">
       <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Texture.h">
-      <Filter>Image</Filter>
     </ClInclude>
     <ClInclude Include="src\Lights.h">
       <Filter>Lighting</Filter>
@@ -263,7 +260,10 @@
     <ClInclude Include="src\Physics.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\TextureNew.h">
+    <ClInclude Include="src\Texture.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImageLoader.h">
       <Filter>Image</Filter>
     </ClInclude>
   </ItemGroup>
