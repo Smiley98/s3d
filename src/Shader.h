@@ -31,6 +31,7 @@ extern Shader gShaderPositionsWorld;
 extern Shader gShaderPositionsScreen;
 extern Shader gShaderGeometryBuffer;
 extern Shader gShaderDeferredLighting;
+extern Shader gShaderDeferredLightingTest;
 
 extern Shader gShaderPlanetsRaster;
 extern Shader gShaderPlanetsRaymarch;

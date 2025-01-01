@@ -32,6 +32,7 @@ Shader gShaderPositionsWorld;
 Shader gShaderPositionsScreen;
 Shader gShaderGeometryBuffer;
 Shader gShaderDeferredLighting;
+Shader gShaderDeferredLightingTest;
 
 Shader gShaderPlanetsRaster;
 Shader gShaderPlanetsRaymarch;
@@ -75,6 +76,7 @@ void CreateShaders()
     GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
     GLuint fsGeometryBuffer = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/geometry_buffer.frag");
     GLuint fsDeferredLighting = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/deferred_lighting.frag");
+    GLuint fsDeferredLightingTest = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/deferred_lighting_test.frag");
 
     // Solar system shaders
     GLuint fsPlanetsRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raster.frag"); 
@@ -104,6 +106,7 @@ void CreateShaders()
     CreateProgram(&gShaderPositionsScreen, vsMvp, fsPositionsScreen);
     CreateProgram(&gShaderGeometryBuffer, vsMvp, fsGeometryBuffer);
     CreateProgram(&gShaderDeferredLighting, vsFsq, fsDeferredLighting);
+    CreateProgram(&gShaderDeferredLightingTest, vsFsq, fsDeferredLightingTest);
 
     CreateProgram(&gShaderPlanetsRaster, vsPlanetsRaster, fsPlanetsRaster);
     CreateProgram(&gShaderPlanetsRaymarch, vsFsq, fsPlanetsRaymarch);

@@ -7,7 +7,7 @@ static Framebuffer fGeometryBuffer;
 
 void DeferredScene::OnLoad()
 {
-	gCamera = FromView(LookAt({ 0.0f, 0.0f, 50.0f }, V3_ZERO, V3_UP));
+	gCamera = FromView(LookAt({ 0.0f, 0.0f, 20.0f }, V3_ZERO, V3_UP));
 
 	// Convert from 4-channels in storage to 3-channels in memory (format = SSD, internal format = VRAM)
 	{
@@ -73,17 +73,17 @@ void DeferredScene::OnDraw()
 	glViewport(hw, 0, hw, hh);
 	DrawColor(fGeometryBuffer, 1);
 
-	// Albedo (2, top-left
+	// Albedo (2, top-left)
 	glViewport(0, hh, hw, hh);
 	DrawColor(fGeometryBuffer, 2);
 
-	// Final render or light buffer top-right!?
+	// Final render (0, 1, 2, top-right)
 	glViewport(hw, hh, hw, hh);
-
 	BindTexture2D(fGeometryBuffer.colors[0], 0);
 	BindTexture2D(fGeometryBuffer.colors[1], 1);
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
-	BindShader(&gShaderDeferredLighting);
+	BindShader(&gShaderDeferredLightingTest);
+
 	SendInt("u_positions", 0);
 	SendInt("u_normals", 1);
 	SendInt("u_albedo", 2);
@@ -94,5 +94,6 @@ void DeferredScene::OnDraw()
 	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
 	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
 
+	// Reset viewport to entire screen for next frame
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
