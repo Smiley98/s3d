@@ -301,7 +301,7 @@ void SolarSystemScene::OnDraw()
 	UnbindFramebuffer(fFbo);
 
 	if (fDepth)
-		DrawDepth(fFbo, 0);
+		DrawDepth(fFbo);
 	else
 		DrawColor(fFbo, 0);
 }

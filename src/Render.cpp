@@ -107,8 +107,6 @@ void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture2D texture, GLuint u
 
 void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit)
 {
-	// TODO -- Should I keep the camera global, or pass it everywhere its used?
-	// (First time sending the camera position to the GPU since I have yet to implement lighting).
 	Matrix mvp = world * gView * gProj;
 	BindCubemap(cubemap, unit);
 	BindShader(&gShaderEnvironmentReflect);
@@ -155,7 +153,6 @@ void DrawCircle(Vector2 center, float radius, Vector3 color, float angle)
 	DrawMeshType(MESH_CIRCLE, world, color);
 }
 
-// GenSemicircle produces a vertical semicircle
 void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 {
 	Matrix world = Scale(radius, radius, 1.0f) * RotateZ(angle) * Translate(center.x, center.y, 0.0f);
@@ -376,24 +373,25 @@ void DrawFsqTexture(Texture2D texture, GLuint unit)
 	UnbindTexture2D(texture, unit);
 }
 
-void DrawColor(Framebuffer framebuffer, GLuint unit)
+void DrawColor(Framebuffer framebuffer, GLuint attachment)
 {
-	DrawFsqTexture(framebuffer.colors[unit], unit);
+	// Defaulting to texture unit 0 is now error-proof
+	DrawFsqTexture(framebuffer.colors[attachment], 0);
 }
 
-void DrawDepth(Framebuffer framebuffer, GLuint unit)
+void DrawDepth(Framebuffer framebuffer)
 {
 	float near = gProj.m14 / (gProj.m10 - 1.0f);
 	float far = gProj.m14 / (gProj.m10 + 1.0f);
-	BindTexture2D(framebuffer.depth, unit);
+	BindTexture2D(framebuffer.depth, 0);
 	BindShader(&gShaderFsqDepth);
 	SendFloat("u_near", near);
 	SendFloat("u_far", far);
-	SendInt("u_tex", unit);
+	SendInt("u_tex", 0);
 	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
-	UnbindTexture2D(framebuffer.depth, unit);
+	UnbindTexture2D(framebuffer.depth, 0);
 }
 
 void DrawSkybox(Cubemap cubemap, GLuint unit)
