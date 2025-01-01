@@ -50,7 +50,7 @@ void DeferredScene::OnDraw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	BindTexture2D(fTextureAlbedo, 0);
-	BindShader(&gShaderGeometryBuffer);
+	BindShader(&gShaderDeferred);
 
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_world", world);
@@ -82,7 +82,7 @@ void DeferredScene::OnDraw()
 	BindTexture2D(fGeometryBuffer.colors[0], 0);
 	BindTexture2D(fGeometryBuffer.colors[1], 1);
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
-	BindShader(&gShaderDeferredLightingTest);
+	BindShader(&gShaderDeferredTest);
 
 	SendInt("u_positions", 0);
 	SendInt("u_normals", 1);
@@ -96,4 +96,6 @@ void DeferredScene::OnDraw()
 
 	// Reset viewport to entire screen for next frame
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	// No need to test blitting cause I can just disable the depth-test when rendering light volumes...
 }

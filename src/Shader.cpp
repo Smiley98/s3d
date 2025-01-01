@@ -30,9 +30,10 @@ Shader gShaderTcoords;
 Shader gShaderTexture;
 Shader gShaderPositionsWorld;
 Shader gShaderPositionsScreen;
-Shader gShaderGeometryBuffer;
+
+Shader gShaderDeferred;
+Shader gShaderDeferredTest;
 Shader gShaderDeferredLighting;
-Shader gShaderDeferredLightingTest;
 
 Shader gShaderPlanetsRaster;
 Shader gShaderPlanetsRaymarch;
@@ -74,9 +75,11 @@ void CreateShaders()
     GLuint fsTexture = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture.frag");
     GLuint fsPositionsWorld = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_world.frag");
     GLuint fsPositionsScreen = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/positions_screen.frag");
-    GLuint fsGeometryBuffer = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/geometry_buffer.frag");
+
+    // Deferred pipeline fragment shaders
+    GLuint fsDeferred = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/deferred.frag");
+    GLuint fsDeferredTest = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/deferred_test.frag");
     GLuint fsDeferredLighting = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/deferred_lighting.frag");
-    GLuint fsDeferredLightingTest = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/deferred_lighting_test.frag");
 
     // Solar system shaders
     GLuint fsPlanetsRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raster.frag"); 
@@ -104,9 +107,10 @@ void CreateShaders()
     CreateProgram(&gShaderTexture, vsMvp, fsTexture);
     CreateProgram(&gShaderPositionsWorld, vsMvp, fsPositionsWorld);
     CreateProgram(&gShaderPositionsScreen, vsMvp, fsPositionsScreen);
-    CreateProgram(&gShaderGeometryBuffer, vsMvp, fsGeometryBuffer);
-    CreateProgram(&gShaderDeferredLighting, vsFsq, fsDeferredLighting);
-    CreateProgram(&gShaderDeferredLightingTest, vsFsq, fsDeferredLightingTest);
+
+    CreateProgram(&gShaderDeferred, vsMvp, fsDeferred);
+    CreateProgram(&gShaderDeferredTest, vsFsq, fsDeferredTest);
+    CreateProgram(&gShaderDeferredLighting, vsMvp, fsDeferredLighting);
 
     CreateProgram(&gShaderPlanetsRaster, vsPlanetsRaster, fsPlanetsRaster);
     CreateProgram(&gShaderPlanetsRaymarch, vsFsq, fsPlanetsRaymarch);
