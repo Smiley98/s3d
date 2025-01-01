@@ -94,6 +94,8 @@ void DeferredScene::OnDraw()
 	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
 	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
 
+	//DrawMeshWireframes()
+
 	// Reset viewport to entire screen for next frame
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 

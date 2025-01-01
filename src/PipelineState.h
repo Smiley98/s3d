@@ -7,11 +7,13 @@ void QuitPipelineState(); // Destroys empty vao
 void SetDepthTest(bool depthTest);
 void SetDepthWrite(bool depthWrite);
 void SetWireframes(bool wireframes);
+void SetFaceCulling(GLenum faceCulling);
 
 bool DepthTest();
 bool DepthWrite();
 bool Wireframes();
 
+GLenum FaceCulling();
 GLint DepthFunc();
 GLint WindingOrder();
 

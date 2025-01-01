@@ -6,7 +6,9 @@ struct State
 	bool depthTest;
 	bool depthWrite;
 	bool wireframes;
+
 	GLenum depthFunc;
+	GLenum faceCulling;
 	GLint windingOrder;
 } fState;
 
@@ -18,16 +20,21 @@ void InitPipelineState()
 	SetDepthTest(true);
 	SetDepthWrite(true);
 	SetWireframes(false);
+	SetFaceCulling(GL_BACK);
+
 	fState.depthFunc = GL_LEQUAL;
 	fState.windingOrder = GL_CCW;
 	glDepthFunc(fState.depthFunc);
 	glFrontFace(fState.windingOrder);
+	//glEnable(GL_CULL_FACE);
+	// Not storing whether face culling is enabled/disabled. Turning it on and never turning it off.
 
 	assert(DepthTest() == true);
 	assert(DepthWrite() == true);
 	assert(Wireframes() == false);
 	assert(DepthFunc() == GL_LEQUAL);
 	assert(WindingOrder() == GL_CCW);
+	assert(FaceCulling() == GL_BACK);
 
 	glGenVertexArrays(1, &fVaoEmpty);
 }
@@ -63,6 +70,13 @@ void SetWireframes(bool wireframes)
 {
 	fState.wireframes = wireframes;
 	glPolygonMode(GL_FRONT_AND_BACK, wireframes ? GL_LINE : GL_FILL);
+}
+
+void SetFaceCulling(GLenum faceCulling)
+{
+	assert(faceCulling == GL_FRONT || faceCulling == GL_BACK || faceCulling == GL_FRONT_AND_BACK);
+	glCullFace(faceCulling);
+	fState.faceCulling = faceCulling;
 }
 
 void SetWindingOrder(GLint windingOrder)
@@ -105,6 +119,11 @@ bool Wireframes()
 	assert(mode[0] == target);
 #endif
 	return fState.wireframes;
+}
+
+GLenum FaceCulling()
+{
+	return fState.faceCulling;
 }
 
 GLint DepthFunc()

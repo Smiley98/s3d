@@ -32,7 +32,7 @@ void Init()
 	CreateShaders();
 	CreateMeshes();
 	InitSoftwareRenderer();
-	Scene::Create(Scene::DEFERRED_RENDERING);
+	Scene::Create(Scene::RASTER);
 }
 
 void Loop()

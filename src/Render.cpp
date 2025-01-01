@@ -107,6 +107,7 @@ void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture2D texture, GLuint u
 
 void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit)
 {
+	glDisable(GL_CULL_FACE);
 	Matrix mvp = world * gView * gProj;
 	BindCubemap(cubemap, unit);
 	BindShader(&gShaderEnvironmentReflect);
@@ -117,10 +118,12 @@ void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint uni
 	DrawMesh(mesh);
 	UnbindShader();
 	UnbindCubemap(cubemap, unit);
+	glEnable(GL_CULL_FACE);
 }
 
 void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit, float ratio)
 {
+	glDisable(GL_CULL_FACE);
 	Matrix mvp = world * gView * gProj;
 	BindCubemap(cubemap, unit);
 	BindShader(&gShaderEnvironmentRefract);
@@ -132,6 +135,7 @@ void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint uni
 	DrawMesh(mesh);
 	UnbindShader();
 	UnbindCubemap(cubemap, unit);
+	glEnable(GL_CULL_FACE);
 }
 
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
@@ -401,9 +405,12 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 
 	bool depthTest = DepthTest();
 	bool depthWrite = DepthWrite();
+	//GLenum faceCulling = FaceCulling();
 	SetDepthTest(true);
 	SetDepthWrite(false);
-	
+	//SetFaceCulling(GL_FRONT);
+	glDisable(GL_CULL_FACE);
+
 	BindCubemap(cubemap, unit);
 	BindShader(&gShaderSkybox);
 	SendMat4("u_mvp", viewSky * gProj);
@@ -411,6 +418,8 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 	UnbindShader();
 	UnbindCubemap(cubemap, unit);
 
+	glEnable(GL_CULL_FACE);
+	//SetFaceCulling(faceCulling);
 	SetDepthWrite(depthWrite);
 	SetDepthTest(depthTest);
 }
