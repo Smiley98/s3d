@@ -9,14 +9,6 @@ void DeferredScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 50.0f }, V3_ZERO, V3_UP));
 
-	// Note - Shaders only use .rgb when sampling diffuse textures at the moment (4th color channel not necessary).
-	CreateFramebuffer(&fGeometryBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
-	AddColor(&fGeometryBuffer, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_NEAREST);			// Positions
-	AddColor(&fGeometryBuffer, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_NEAREST);			// Normals
-	AddColor(&fGeometryBuffer, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);	// Albedo-Specular
-	AddDepth(&fGeometryBuffer);
-	CompleteFramebuffer(&fGeometryBuffer);
-
 	// Convert from 4-channels in storage to 3-channels in memory (format = SSD, internal format = VRAM)
 	{
 		int w, h, c;
@@ -24,12 +16,20 @@ void DeferredScene::OnLoad()
 		CreateTexture2D(&fTextureAlbedo, w, h, GL_RGB8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
 		UnloadImage(pixels);
 	}
+
+	// Positions, normals, and albedo are all 3-component. Can convert to RGBA for albedo-specular.
+	CreateFramebuffer(&fGeometryBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
+	AddColor(&fGeometryBuffer, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);		// Positions
+	AddColor(&fGeometryBuffer, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);		// Normals
+	AddColor(&fGeometryBuffer, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);	// Albedo
+	AddDepth(&fGeometryBuffer);
+	CompleteFramebuffer(&fGeometryBuffer);
 }
 
 void DeferredScene::OnUnload()
 {
-	DestroyTexture2D(&fTextureAlbedo);
 	DestroyFramebuffer(&fGeometryBuffer);
+	DestroyTexture2D(&fTextureAlbedo);
 }
 
 void DeferredScene::OnUpdate(float dt)
