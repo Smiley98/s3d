@@ -30,6 +30,7 @@ extern Shader gShaderTexture;
 extern Shader gShaderPositionsWorld;
 extern Shader gShaderPositionsScreen;
 extern Shader gShaderGeometryBuffer;
+extern Shader gShaderDeferredLighting;
 
 extern Shader gShaderPlanetsRaster;
 extern Shader gShaderPlanetsRaymarch;

@@ -80,5 +80,19 @@ void DeferredScene::OnDraw()
 	// Final render or light buffer top-right!?
 	glViewport(hw, hh, hw, hh);
 
+	BindTexture2D(fGeometryBuffer.colors[0], 0);
+	BindTexture2D(fGeometryBuffer.colors[1], 1);
+	BindTexture2D(fGeometryBuffer.colors[2], 2);
+	BindShader(&gShaderDeferredLighting);
+	SendInt("u_positions", 0);
+	SendInt("u_normals", 1);
+	SendInt("u_albedo", 2);
+	DrawFsq();
+
+	UnbindShader();
+	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
+	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
+	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
+
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
