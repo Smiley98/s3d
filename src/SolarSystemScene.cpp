@@ -172,7 +172,8 @@ void SolarSystemScene::OnLoad()
 	// If you don't need to sample the depth-buffer, a renderbuffer can be attached for better performance.
 	CreateFramebuffer(&fFbo, SCREEN_WIDTH, SCREEN_HEIGHT);
 	AddColor(&fFbo, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-	AddDepth(&fFbo);//, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
+	AddDepth(&fFbo);
+	CompleteFramebuffer(&fFbo);
 
 	// Sun
 	planets[0].radius = 5.0f;
@@ -297,7 +298,7 @@ void SolarSystemScene::OnDraw()
 	else
 		DrawPlanetsRaymarch();
 	DrawSkybox(fSkyboxSpace, 0);
-	UnbindFramebuffer();
+	UnbindFramebuffer(fFbo);
 
 	if (fDepth)
 		DrawDepth(fFbo, 0);

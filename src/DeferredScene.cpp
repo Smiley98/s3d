@@ -12,6 +12,7 @@ void DeferredScene::OnLoad()
 	AddColor(&fGeometryBuffer, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_NEAREST);			// Normals
 	AddColor(&fGeometryBuffer, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);		// Color
 	AddDepth(&fGeometryBuffer);
+	CompleteFramebuffer(&fGeometryBuffer);
 	// Currently all shaders do texture(u_tex, uv).rgb so no sense in storing more than 3 texture channels
 }
 
@@ -46,7 +47,7 @@ void DeferredScene::OnDraw()
 	DrawMesh(mesh);
 
 	UnbindShader();
-	UnbindFramebuffer();
+	UnbindFramebuffer(fGeometryBuffer);
 
 	DestroyMesh(&mesh);
 

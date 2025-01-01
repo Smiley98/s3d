@@ -18,9 +18,9 @@ void CreateTexture1D(Texture1D* texture, int width, int internalFormat, int form
     GLenum target = GL_TEXTURE_1D;
     glGenTextures(1, &id);
     glBindTexture(target, id);
-    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexImage1D(target, 0, internalFormat, width, 0, format, type, pixels);
     glBindTexture(target, GL_NONE);
     texture->id = id;
@@ -32,10 +32,10 @@ void CreateTexture2D(Texture2D* texture, int width, int height, int internalForm
     GLenum target = GL_TEXTURE_2D;
     glGenTextures(1, &id);
     glBindTexture(target, id);
-    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexImage2D(target, 0, internalFormat, width, height, 0, format, type, pixels);
     glBindTexture(target, GL_NONE);
     texture->id = id;
@@ -47,11 +47,11 @@ void CreateTexture3D(Texture3D* texture, int width, int height, int depth, int i
     GLenum target = GL_TEXTURE_3D;
     glGenTextures(1, &id);
     glBindTexture(target, id);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
     glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
     glTexImage3D(target, 0, internalFormat, width, height, depth, 0, format, type, pixels);
     glBindTexture(target, GL_NONE);
     texture->id = id;

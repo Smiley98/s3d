@@ -1,15 +1,5 @@
-// Probably don't need this API yet, but separating loading files vs uploading to GPU makes things easier.
-// Probably better to switch to this sooner than later before the Texture class is used in 100+ places.
 #pragma once
 #include <glad/glad.h>
-
-// Probably don't need these yet. Easier to add texture units everywhere and just assign them on the fly for now.
-// (I don't normally use more than 1 unit for 90% of draw calls, and deferred needs 3. Maybe a cubemap in there somewhere).
-//constexpr GLuint TEXTURE_UNIT_DEFAULT = 0;
-//constexpr GLuint TEXTURE_UNIT_FBO_POSITIONS = 1;
-//constexpr GLuint TEXTURE_UNIT_FBO_NORMALS = 2;
-//constexpr GLuint TEXTURE_UNIT_FBO_ALBEDO = 3;
-//constexpr GLuint TEXTURE_UNIT_CUBEMAP = 4;
 
 struct Texture1D
 {
@@ -51,4 +41,9 @@ void UnbindTexture2D(Texture2D texture, GLuint unit);
 void UnbindTexture3D(Texture3D texture, GLuint unit);
 void UnbindCubemap(Cubemap cubemap, GLuint unit);
 
-// New API internals are looking pretty based TBH (super-safe validation wrapped in pretty little assertions)!
+// Easier to add texture units everywhere and just assign them on the fly for now.
+//constexpr GLuint TEXTURE_UNIT_DEFAULT = 0;
+//constexpr GLuint TEXTURE_UNIT_FBO_POSITIONS = 1;
+//constexpr GLuint TEXTURE_UNIT_FBO_NORMALS = 2;
+//constexpr GLuint TEXTURE_UNIT_FBO_ALBEDO = 3;
+//constexpr GLuint TEXTURE_UNIT_CUBEMAP = 4;
