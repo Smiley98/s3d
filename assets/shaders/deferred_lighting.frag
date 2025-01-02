@@ -4,23 +4,17 @@ uniform sampler2D u_positions;
 uniform sampler2D u_normals;
 uniform sampler2D u_albedo;
 
-uniform vec2 u_resolution;
 uniform vec3 u_lightPosition;
 uniform vec3 u_lightColor;
 
-//uniform float u_lightRadius;
-// Attenuation serves two purposes:
-// 1. Contribution.
-// 2. Falloff.
-// Deferred lighting ensures lights don't contribute to fragments outside their radius.
-// However, falloff still needs a formula... Simply don't have falloff??
-// P0 will most likely be made with a forward pipeline so transparency and multi-sampling are easier!
+uniform vec2 u_viewportSize;
+uniform vec2 u_viewportOffset;
 
 out vec4 FragColor;
 
 void main()
 {
-    vec2 uv = gl_FragCoord.xy / u_resolution;
+    vec2 uv = (gl_FragCoord.xy - u_viewportOffset) / u_viewportSize;
 
     vec3 position = texture(u_positions, uv).xyz;
     vec3 albedo = texture(u_albedo, uv).rgb;

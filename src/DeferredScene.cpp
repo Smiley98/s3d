@@ -38,10 +38,12 @@ void DeferredScene::OnUnload()
 
 void DeferredScene::OnUpdate(float dt)
 {
-	float tt = TotalTime();
 	UpdateFpsCameraDefault(gCamera, dt);
 	gView = ToView(gCamera);
 	gProj = Perspective(PI * 0.5f, SCREEN_ASPECT, 0.1f, 1000.0f);
+
+	// Light cannot be completely inside the mesh otherwise L (fragPos - lightPos) is negative. 
+	float tt = TotalTime();
 	fLightPosition = { cosf(tt) * 5.0f, 0.0f, 10.0f };
 }
 
@@ -72,19 +74,19 @@ void DeferredScene::OnDraw()
 	float hh = SCREEN_HEIGHT * 0.5f;
 
 	// Positions (0, bottom-left)
-	//glViewport(0, 0, hw, hh);
-	//DrawColor(fGeometryBuffer, 0);
-	//
-	//// Normals (1, bottom-right)
-	//glViewport(hw, 0, hw, hh);
-	//DrawColor(fGeometryBuffer, 1);
-	//
-	//// Albedo (2, top-left)
-	//glViewport(0, hh, hw, hh);
-	//DrawColor(fGeometryBuffer, 2);
-	//
-	//// Final render (0, 1, 2, top-right)
-	//glViewport(hw, hh, hw, hh);
+	glViewport(0, 0, hw, hh);
+	DrawColor(fGeometryBuffer, 0);
+
+	// Normals (1, bottom-right)
+	glViewport(hw, 0, hw, hh);
+	DrawColor(fGeometryBuffer, 1);
+
+	// Albedo (2, top-left)
+	glViewport(0, hh, hw, hh);
+	DrawColor(fGeometryBuffer, 2);
+
+	// Final render (0, 1, 2, top-right)
+	glViewport(hw, hh, hw, hh);
 
 	BindTexture2D(fGeometryBuffer.colors[0], 0);
 	BindTexture2D(fGeometryBuffer.colors[1], 1);
@@ -97,9 +99,10 @@ void DeferredScene::OnDraw()
 	SendInt("u_positions", 0);
 	SendInt("u_normals", 1);
 	SendInt("u_albedo", 2);
-	SendVec2("u_resolution", { SCREEN_WIDTH, SCREEN_HEIGHT });
 	SendVec3("u_lightPosition", fLightPosition);
 	SendVec3("u_lightColor", fLightColor);
+	SendVec2("u_viewportSize", { hw, hh });
+	SendVec2("u_viewportOffset", { hw, hh });
 
 	GLenum faceCulling = FaceCulling();
 	SetFaceCulling(GL_FRONT);
@@ -112,5 +115,10 @@ void DeferredScene::OnDraw()
 	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
 
 	DrawMeshWireframes(gMeshSphere, world, fLightColor);
-	// No need to test blitting cause I can just disable the depth-test when rendering light volumes...
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	// TODO -- Implement blitting, test blitted depth against forward rendered objects
+	// TODO -- Implement stencil test so screen-space light volumes do accidentally light things
+	// TODO -- Load buildings and make an EPIC demo with 512 lights!!!
+	// TODO -- Throw this deferred pipeline in the trash and make a video game instead of playing with graphics xD
 }
