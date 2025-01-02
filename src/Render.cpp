@@ -24,9 +24,15 @@ void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color)
 
 void DrawMeshWireframes(const Mesh& mesh, Matrix world, Vector3 color)
 {
+	bool depthTest = DepthTest();
+	bool depthWrite = DepthWrite();
+	SetDepthTest(false);
+	SetDepthWrite(false);
 	SetWireframes(true);
 	DrawMeshFlat(mesh, world, color);
 	SetWireframes(false);
+	SetDepthWrite(depthTest);
+	SetDepthTest(depthWrite);
 }
 
 // Assumes perspective projection.
@@ -107,7 +113,6 @@ void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture2D texture, GLuint u
 
 void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit)
 {
-	glDisable(GL_CULL_FACE);
 	Matrix mvp = world * gView * gProj;
 	BindCubemap(cubemap, unit);
 	BindShader(&gShaderEnvironmentReflect);
@@ -118,12 +123,10 @@ void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint uni
 	DrawMesh(mesh);
 	UnbindShader();
 	UnbindCubemap(cubemap, unit);
-	glEnable(GL_CULL_FACE);
 }
 
 void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit, float ratio)
 {
-	glDisable(GL_CULL_FACE);
 	Matrix mvp = world * gView * gProj;
 	BindCubemap(cubemap, unit);
 	BindShader(&gShaderEnvironmentRefract);
@@ -135,7 +138,6 @@ void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint uni
 	DrawMesh(mesh);
 	UnbindShader();
 	UnbindCubemap(cubemap, unit);
-	glEnable(GL_CULL_FACE);
 }
 
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
@@ -405,11 +407,10 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 
 	bool depthTest = DepthTest();
 	bool depthWrite = DepthWrite();
-	//GLenum faceCulling = FaceCulling();
+	GLenum faceCulling = FaceCulling();
 	SetDepthTest(true);
 	SetDepthWrite(false);
-	//SetFaceCulling(GL_FRONT);
-	glDisable(GL_CULL_FACE);
+	SetFaceCulling(GL_FRONT);
 
 	BindCubemap(cubemap, unit);
 	BindShader(&gShaderSkybox);
@@ -418,8 +419,7 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 	UnbindShader();
 	UnbindCubemap(cubemap, unit);
 
-	glEnable(GL_CULL_FACE);
-	//SetFaceCulling(faceCulling);
+	SetFaceCulling(faceCulling);
 	SetDepthWrite(depthWrite);
 	SetDepthTest(depthTest);
 }

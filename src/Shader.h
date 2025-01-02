@@ -9,7 +9,6 @@ struct Shader
 	std::unordered_map<const char*, GLint> locs;
 };
 
-extern Shader gShaderPassThrough;
 extern Shader gShaderLine;
 extern Shader gShaderFsq;
 extern Shader gShaderFsqDepth;

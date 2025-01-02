@@ -24,14 +24,14 @@ void main()
 
     vec3 position = texture(u_positions, uv).xyz;
     vec3 albedo = texture(u_albedo, uv).rgb;
-
+    
     vec3 N = texture(u_normals, uv).xyz;
     vec3 L = normalize(u_lightPosition - position);
-
+    
     float dotNL = max(dot(N, L), 0.0);
     float ambient = 0.1;
     float diffuse = 1.0;
-
+    
     vec3 color = vec3(0.0);
     color += u_lightColor * albedo * ambient;
     color += u_lightColor * albedo * diffuse * dotNL;

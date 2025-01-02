@@ -22,12 +22,12 @@ void InitPipelineState()
 	SetWireframes(false);
 	SetFaceCulling(GL_BACK);
 
+	// Not storing whether face culling is enabled/disabled. Turning it on and never turning it off.
 	fState.depthFunc = GL_LEQUAL;
 	fState.windingOrder = GL_CCW;
 	glDepthFunc(fState.depthFunc);
 	glFrontFace(fState.windingOrder);
-	//glEnable(GL_CULL_FACE);
-	// Not storing whether face culling is enabled/disabled. Turning it on and never turning it off.
+	glEnable(GL_CULL_FACE);
 
 	assert(DepthTest() == true);
 	assert(DepthWrite() == true);

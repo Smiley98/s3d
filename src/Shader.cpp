@@ -46,7 +46,7 @@ GLint GetUniform(const char* name);
 void CreateShaders()
 {
     // Vertex shaders
-    GLuint vsPassThrough = CreateShader(GL_VERTEX_SHADER, "assets/shaders/pass-through.vert");
+    GLuint vsPassThrough = CreateShader(GL_VERTEX_SHADER, "assets/shaders/pass_through.vert");
     GLuint vsFsq = CreateShader(GL_VERTEX_SHADER, "assets/shaders/fsq.vert");
     GLuint vsSkybox = CreateShader(GL_VERTEX_SHADER, "assets/shaders/skybox.vert");
     GLuint vsLine = CreateShader(GL_VERTEX_SHADER, "assets/shaders/line.vert");
@@ -55,7 +55,6 @@ void CreateShaders()
     GLuint vsAsteroids = CreateShader(GL_VERTEX_SHADER, "assets/shaders/asteroids.vert");
 
     // Generic fragment shaders
-    GLuint fsPassThrough = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/pass-through.frag");
     GLuint fsSkybox = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/skybox.frag");
     GLuint fsEnvironmentReflect = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/environment_reflect.frag");
     GLuint fsEnvironmentRefract = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/environment_refract.frag");
@@ -87,7 +86,6 @@ void CreateShaders()
     GLuint fsAsteroids = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/asteroids.frag");
     
     // Shader programs
-    CreateProgram(&gShaderPassThrough, vsPassThrough, fsPassThrough);
     CreateProgram(&gShaderFsq, vsFsq, fsTexture);
     CreateProgram(&gShaderFsqDepth, vsFsq, fsTextureDepth);
     CreateProgram(&gShaderSkybox, vsSkybox, fsSkybox);
@@ -110,7 +108,7 @@ void CreateShaders()
 
     CreateProgram(&gShaderDeferred, vsMvp, fsDeferred);
     CreateProgram(&gShaderDeferredTest, vsFsq, fsDeferredTest);
-    CreateProgram(&gShaderDeferredLighting, vsMvp, fsDeferredLighting);
+    CreateProgram(&gShaderDeferredLighting, vsPassThrough, fsDeferredLighting);
 
     CreateProgram(&gShaderPlanetsRaster, vsPlanetsRaster, fsPlanetsRaster);
     CreateProgram(&gShaderPlanetsRaymarch, vsFsq, fsPlanetsRaymarch);
