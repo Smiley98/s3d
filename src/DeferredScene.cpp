@@ -48,7 +48,6 @@ void DeferredScene::OnUpdate(float dt)
 
 void DeferredScene::OnDraw()
 {
-	Mesh mesh;
 	Matrix world = Scale(V3_ONE * 10.0f);
 	Matrix mvp = world * gView * gProj;
 
@@ -123,6 +122,15 @@ void DeferredScene::OnDraw()
 
 	DrawMeshWireframes(gMeshSphere, world, fLightColor);
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	// Billboard circles instead of projecting spheres into screen-space?
+	world = LookRotation(V3_ZERO, gCamera.position, V3_UP);
+	mvp = world * gView * gProj;
+	BindShader(&gShaderColor);
+	SendMat4("u_mvp", mvp);
+	SendVec3("u_color", V3_RIGHT);
+	DrawMesh(gMeshCube);
+	UnbindShader();
 
 	// TODO -- Implement blitting, test blitted depth against forward rendered objects
 	// TODO -- Implement stencil test so screen-space light volumes do accidentally light things

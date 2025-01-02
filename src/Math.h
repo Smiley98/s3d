@@ -1763,7 +1763,7 @@ RMAPI Matrix LookAt(Vector3 eye, Vector3 target, Vector3 up)
 }
 
 // Extract rotation from world matrix
-inline Matrix NormalMatrix(Matrix world)
+RMAPI Matrix NormalMatrix(Matrix world)
 {
     Matrix normal = world;
     normal.m12 = normal.m13 = normal.m14 = 0.0f;
@@ -1771,8 +1771,30 @@ inline Matrix NormalMatrix(Matrix world)
     return normal;
 }
 
+RMAPI Matrix LookRotation(Vector3 eye, Vector3 target, Vector3 up)
+{
+    Vector3 forward = Normalize(target - eye);
+    Vector3 right = Cross(up, forward);
+    Vector3 above = Cross(forward, right);
+
+    // Make a column setter if I need to set forward/right/up in multiple places
+    Matrix rotation = MatrixIdentity();
+    rotation.m0 = right.x;
+    rotation.m1 = right.y;
+    rotation.m2 = right.z;
+
+    rotation.m4 = above.x;
+    rotation.m5 = above.y;
+    rotation.m6 = above.z;
+
+    rotation.m8 = forward.x;
+    rotation.m9 = forward.y;
+    rotation.m10 = forward.z;
+    return rotation;
+}
+
 // Convert from object-space to normalized-device-coordinates
-inline Vector3 Clip(Matrix m, Vector3 v)
+RMAPI Vector3 Clip(Matrix m, Vector3 v)
 {
     Vector4 clip;
     clip.x = v.x;
@@ -2311,21 +2333,6 @@ RMAPI Quaternion FromEuler(Vector3 v)
 RMAPI Matrix Scale(Vector3 v)
 {
     return Scale(v.x, v.y, v.z);
-}
-
-RMAPI void CopyRotation(Matrix src, Matrix* dst)
-{
-    dst->m0 = src.m0;
-    dst->m1 = src.m1;
-    dst->m2 = src.m2;
-
-    dst->m4 = src.m4;
-    dst->m5 = src.m5;
-    dst->m6 = src.m6;
-
-    dst->m8 = src.m8;
-    dst->m9 = src.m9;
-    dst->m10 = src.m10;
 }
 
 //----------------------------------------------------------------------------------
