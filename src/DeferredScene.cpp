@@ -42,9 +42,8 @@ void DeferredScene::OnUpdate(float dt)
 	gView = ToView(gCamera);
 	gProj = Perspective(PI * 0.5f, SCREEN_ASPECT, 0.1f, 1000.0f);
 
-	// Light cannot be completely inside the mesh otherwise L (fragPos - lightPos) is negative. 
 	float tt = TotalTime();
-	fLightPosition = { cosf(tt) * 5.0f, 0.0f, 10.0f };
+	fLightPosition = { cosf(tt) * 10.0f, 0.0f, 0.0f };
 }
 
 void DeferredScene::OnDraw()
@@ -93,7 +92,7 @@ void DeferredScene::OnDraw()
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
 	BindShader(&gShaderDeferredLighting);
 
-	world = Scale(V3_ONE * 5.0f) * Translate(fLightPosition);
+	world = Scale(V3_ONE * 10.0f) * Translate(fLightPosition);
 	mvp = world * gView * gProj;
 	SendMat4("u_mvp", mvp);
 	SendInt("u_positions", 0);
@@ -101,13 +100,21 @@ void DeferredScene::OnDraw()
 	SendInt("u_albedo", 2);
 	SendVec3("u_lightPosition", fLightPosition);
 	SendVec3("u_lightColor", fLightColor);
+	SendFloat("u_ambient", 1.0f);
+	SendFloat("u_diffuse", 1.0f);
 	SendVec2("u_viewportSize", { hw, hh });
 	SendVec2("u_viewportOffset", { hw, hh });
 
+	bool depthTest = DepthTest();
+	bool depthWrite = DepthWrite();
 	GLenum faceCulling = FaceCulling();
+	SetDepthTest(false);
+	SetDepthWrite(false);
 	SetFaceCulling(GL_FRONT);
 	DrawMesh(gMeshSphere);
 	SetFaceCulling(faceCulling);
+	SetDepthWrite(depthWrite);
+	SetDepthTest(depthTest);
 
 	UnbindShader();
 	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
