@@ -91,7 +91,12 @@ void DeferredScene::OnDraw()
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
 	BindShader(&gShaderDeferredLighting);
 
-	world = Scale(V3_ONE * 10.0f) * Translate(fLightPosition);
+	// A circle is just the 2d projection of a sphere, so why not just render circles!?
+	// Would still need cones for spot-lights, but all I care about are point-lights.
+	Matrix S = Scale(V3_ONE * 10.0f);
+	Matrix R = LookRotation(fLightPosition, gCamera.position, V3_UP);
+	Matrix T = Translate(fLightPosition);
+	world = S * R * T;
 	mvp = world * gView * gProj;
 	SendMat4("u_mvp", mvp);
 	SendInt("u_positions", 0);
@@ -106,12 +111,9 @@ void DeferredScene::OnDraw()
 
 	bool depthTest = DepthTest();
 	bool depthWrite = DepthWrite();
-	GLenum faceCulling = FaceCulling();
 	SetDepthTest(false);
 	SetDepthWrite(false);
-	SetFaceCulling(GL_FRONT);
-	DrawMesh(gMeshSphere);
-	SetFaceCulling(faceCulling);
+	DrawMesh(gMeshCircle);
 	SetDepthWrite(depthWrite);
 	SetDepthTest(depthTest);
 
@@ -120,17 +122,8 @@ void DeferredScene::OnDraw()
 	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
 	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
 
-	DrawMeshWireframes(gMeshSphere, world, fLightColor);
+	DrawMeshWireframes(gMeshCircle, world, fLightColor);
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	// Billboard circles instead of projecting spheres into screen-space?
-	world = LookRotation(V3_ZERO, gCamera.position, V3_UP);
-	mvp = world * gView * gProj;
-	BindShader(&gShaderColor);
-	SendMat4("u_mvp", mvp);
-	SendVec3("u_color", V3_RIGHT);
-	DrawMesh(gMeshCube);
-	UnbindShader();
 
 	// TODO -- Implement blitting, test blitted depth against forward rendered objects
 	// TODO -- Implement stencil test so screen-space light volumes do accidentally light things

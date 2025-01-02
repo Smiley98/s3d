@@ -9,6 +9,7 @@
 
 #define PLATONIC false
 
+Mesh gMeshCircle;
 Mesh gMeshSphere;
 Mesh gMeshCube;
 Mesh gMeshHead;
@@ -21,6 +22,9 @@ void GenCube(Mesh* mesh, float width, float height, float length);
 
 void CreateMeshes()
 {
+	GenParametric(&gMeshCircle, MESH_CIRCLE);
+	Upload(&gMeshCircle);
+
 	GenParametric(&gMeshSphere, MESH_SPHERE);
 	Upload(&gMeshSphere);
 
@@ -35,6 +39,7 @@ void DestroyMeshes()
 	DestroyMesh(&gMeshHead);
 	DestroyMesh(&gMeshCube);
 	DestroyMesh(&gMeshSphere);
+	DestroyMesh(&gMeshCircle);
 }
 
 void CreateMesh(Mesh* mesh, const char* path, bool gpu)
