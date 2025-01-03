@@ -1,23 +1,39 @@
-#include "DeferredScene.h"
+#include "NeonDrive.h"
 #include "Time.h"
 #include "Render.h"
 #include "ImageLoader.h"
 
+static Texture2D fTextureWhite;
 static Texture2D fTextureAlbedo;
+static Texture2D fTextureGround;
 static Framebuffer fGeometryBuffer;
 
 static Vector3 fLightPosition = V3_ZERO;
 static Vector3 fLightColor = V3_ONE;
 
-void DeferredScene::OnLoad()
+void NeonDriveScene::OnLoad()
 {
-	gCamera = FromView(LookAt({ 0.0f, 0.0f, 20.0f }, V3_ZERO, V3_UP));
+	gCamera = FromView(LookAt({ 20.0f, 20.0f, 20.0f }, V3_ZERO, V3_UP));
 
-	// Convert from 4-channels in storage to 3-channels in memory (format = SSD, internal format = VRAM)
+	// World's most elaborate texture xD xD xD
+	{
+		uint32_t pixel = 0xFFFFFFFF;
+		CreateTexture2D(&fTextureWhite, 1, 1, GL_RGB8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, &pixel);
+	}
+
+	// Original format = RGBA
 	{
 		int w, h, c;
 		uint8_t* pixels = LoadImage2D("./assets/textures/african_head_diffuse.png", &w, &h, &c);
 		CreateTexture2D(&fTextureAlbedo, w, h, GL_RGB8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
+		UnloadImage(pixels);
+	}
+
+	// Original format = RGB
+	{
+		int w, h, c;
+		uint8_t* pixels = LoadImage2D("./assets/textures/ground.png", &w, &h, &c);
+		CreateTexture2D(&fTextureGround, w, h, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
 		UnloadImage(pixels);
 	}
 
@@ -30,13 +46,15 @@ void DeferredScene::OnLoad()
 	CompleteFramebuffer(&fGeometryBuffer);
 }
 
-void DeferredScene::OnUnload()
+void NeonDriveScene::OnUnload()
 {
 	DestroyFramebuffer(&fGeometryBuffer);
+	DestroyTexture2D(&fTextureGround);
 	DestroyTexture2D(&fTextureAlbedo);
+	DestroyTexture2D(&fTextureWhite);
 }
 
-void DeferredScene::OnUpdate(float dt)
+void NeonDriveScene::OnUpdate(float dt)
 {
 	UpdateFpsCameraDefault(gCamera, dt);
 	gView = ToView(gCamera);
@@ -46,53 +64,37 @@ void DeferredScene::OnUpdate(float dt)
 	fLightPosition = { cosf(tt) * 10.0f, 0.0f, 0.0f };
 }
 
-void DeferredScene::OnDraw()
+void NeonDriveScene::OnDraw()
 {
-	Matrix world = Scale(V3_ONE * 10.0f);
+	DrawMeshTexture(gMeshGround, Scale(100.0f, 1.0f, 100.0f), fTextureGround, 0);
+	DrawMeshNormals(gMeshTd, MatrixIdentity(), MatrixIdentity());
+	return;
+
+	Matrix world = MatrixIdentity();//Scale(V3_ONE * 10.0f);
 	Matrix mvp = world * gView * gProj;
 
 	BindFramebuffer(fGeometryBuffer);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	BindTexture2D(fTextureAlbedo, 0);
+	BindTexture2D(fTextureWhite, 0);
 	BindShader(&gShaderDeferred);
 
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_world", world);
 	SendMat3("u_normal", NormalMatrix(world));
 	SendInt("u_tex", 0);
-	DrawMesh(gMeshHead);
+	DrawMesh(gMeshTd);
 
 	UnbindShader();
-	UnbindTexture2D(fTextureAlbedo, 0);
+	UnbindTexture2D(fTextureWhite, 0);
 	UnbindFramebuffer(fGeometryBuffer);
-
-	float hw = SCREEN_WIDTH * 0.5f;
-	float hh = SCREEN_HEIGHT * 0.5f;
-
-	// Positions (0, bottom-left)
-	glViewport(0, 0, hw, hh);
-	DrawColor(fGeometryBuffer, 0);
-
-	// Normals (1, bottom-right)
-	glViewport(hw, 0, hw, hh);
-	DrawColor(fGeometryBuffer, 1);
-
-	// Albedo (2, top-left)
-	glViewport(0, hh, hw, hh);
-	DrawColor(fGeometryBuffer, 2);
-
-	// Final render (0, 1, 2, top-right)
-	glViewport(hw, hh, hw, hh);
 
 	BindTexture2D(fGeometryBuffer.colors[0], 0);
 	BindTexture2D(fGeometryBuffer.colors[1], 1);
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
 	BindShader(&gShaderDeferredLighting);
 
-	// A circle is just the 2d projection of a sphere, so why not just render circles!?
-	// Would still need cones for spot-lights, but all I care about are point-lights.
 	Matrix S = Scale(V3_ONE * 10.0f);
 	Matrix R = LookRotation(fLightPosition, gCamera.position, V3_UP);
 	Matrix T = Translate(fLightPosition);
@@ -106,8 +108,8 @@ void DeferredScene::OnDraw()
 	SendVec3("u_lightColor", fLightColor);
 	SendFloat("u_ambient", 1.0f);
 	SendFloat("u_diffuse", 1.0f);
-	SendVec2("u_viewportSize", { hw, hh });
-	SendVec2("u_viewportOffset", { hw, hh });
+	SendVec2("u_viewportSize", { SCREEN_WIDTH, SCREEN_HEIGHT });
+	SendVec2("u_viewportOffset", V2_ZERO);
 
 	bool depthTest = DepthTest();
 	bool depthWrite = DepthWrite();
@@ -123,9 +125,4 @@ void DeferredScene::OnDraw()
 	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
 
 	DrawMeshWireframes(gMeshCircle, world, fLightColor);
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	// Lighting doesn't need to be pixel-perfect, so no need for stencil buffer just yet.
-	// If I *were* to implement a stencil pass (+1 back-faces, -1 front-faces),
-	// I can still do the lighting pass by sampling within billboarded circles.
-	// (Stencil needs light volumes cause it depends on the depth-test, but g-buffer sampling is screen-space).
 }

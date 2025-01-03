@@ -12,7 +12,10 @@
 Mesh gMeshCircle;
 Mesh gMeshSphere;
 Mesh gMeshCube;
+
 Mesh gMeshHead;
+Mesh gMeshTd;
+Mesh gMeshGround;
 
 void Upload(Mesh* mesh);
 
@@ -32,10 +35,15 @@ void CreateMeshes()
 	Upload(&gMeshCube);
 
 	CreateMesh(&gMeshHead, "assets/meshes/head.obj");
+	CreateMesh(&gMeshTd, "assets/meshes/bld_td_10x10x50.obj");
+
+	GenParametric(&gMeshGround, MESH_PLANE_Y);
+	Upload(&gMeshGround);
 }
 
 void DestroyMeshes()
 {
+	DestroyMesh(&gMeshTd);
 	DestroyMesh(&gMeshHead);
 	DestroyMesh(&gMeshCube);
 	DestroyMesh(&gMeshSphere);

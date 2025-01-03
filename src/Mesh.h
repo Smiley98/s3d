@@ -38,7 +38,10 @@ struct Mesh
 extern Mesh gMeshCircle;// Unit circle r = 1
 extern Mesh gMeshSphere;// Unit sphere r = 1
 extern Mesh gMeshCube;	// Unit cube L x W x H = 1
+
 extern Mesh gMeshHead;
+extern Mesh gMeshTd;	// 10 x 10 x 50
+extern Mesh gMeshGround;// 1x1 PLANE_XZ
 
 void CreateMeshes();
 void DestroyMeshes();

@@ -1,6 +1,6 @@
 #pragma once
 #include "Scene.h"
-class DeferredScene : public Scene
+class NeonDriveScene : public Scene
 {
 public:
 	void OnLoad() final;

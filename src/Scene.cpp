@@ -9,6 +9,7 @@
 #include "PostprocessingScene.h"
 #include "SolarSystemScene.h"
 #include "DeferredScene.h"
+#include "NeonDrive.h"
 
 Scene* Scene::sScenes[Scene::COUNT]{};
 Scene* Scene::sScene = nullptr;
@@ -26,6 +27,7 @@ void Scene::Create(Scene::Type scene)
 	sScenes[POST_PROCESSING] = new PostprocessingScene;
 	sScenes[SOLAR_SYSTEM] = new SolarSystemScene;
 	sScenes[DEFERRED_RENDERING] = new DeferredScene;
+	sScenes[NEON_DRIVE] = new NeonDriveScene;
 
 	for (size_t i = 0; i < COUNT; i++)
 		sScenes[i]->OnCreate();

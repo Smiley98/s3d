@@ -104,6 +104,7 @@
     <ClCompile Include="src\MainScene.cpp" />
     <ClCompile Include="src\Materials.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\NeonDrive.cpp" />
     <ClCompile Include="src\PhysicsScene.cpp" />
     <ClCompile Include="src\PipelineState.cpp" />
     <ClCompile Include="src\PostprocessingScene.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="src\Materials.h" />
     <ClInclude Include="src\Math.h" />
     <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\NeonDrive.h" />
     <ClInclude Include="src\Physics.h" />
     <ClInclude Include="src\PhysicsScene.h" />
     <ClInclude Include="src\PipelineState.h" />
