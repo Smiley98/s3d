@@ -35,7 +35,7 @@ void CreateMeshes()
 	Upload(&gMeshCube);
 
 	CreateMesh(&gMeshHead, "assets/meshes/head.obj");
-	CreateMesh(&gMeshTd, "assets/meshes/bld_td_10x10x50.obj");
+	CreateMesh(&gMeshTd, "assets/meshes/bld_td.obj");
 
 	GenParametric(&gMeshGround, MESH_PLANE_Y);
 	Upload(&gMeshGround);
