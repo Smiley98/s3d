@@ -3,23 +3,23 @@
 #include <vector>
 #include "Math.h"
 
-enum MeshType
-{
-	MESH_TRIANGLE,	// Faces +Z
-	MESH_SQUARE,	// Faces +Z
-	MESH_HEXAGON,	// Faces +Z
-	MESH_CIRCLE,
-	MESH_SEMICIRCLE,
-
-	MESH_CUBE,
-	MESH_SPHERE,
-	MESH_HEMISPHERE,
-	MESH_CYLINDER,
-
-	MESH_PLANE_Z, // Faces +Z
-	MESH_PLANE_Y, // Faces +Y
-	MESH_PLANE_X, // Faces +X
-};
+//enum MeshType
+//{
+//	MESH_TRIANGLE,	// Faces +Z
+//	MESH_SQUARE,	// Faces +Z
+//	MESH_HEXAGON,	// Faces +Z
+//	MESH_CIRCLE,
+//	MESH_SEMICIRCLE,
+//
+//	MESH_CUBE,
+//	MESH_SPHERE,
+//	MESH_HEMISPHERE,
+//	MESH_CYLINDER,
+//
+//	MESH_PLANE_Z, // Faces +Z
+//	MESH_PLANE_Y, // Faces +Y
+//	MESH_PLANE_X, // Faces +X
+//};
 
 struct Mesh
 {
@@ -37,17 +37,19 @@ struct Mesh
 };
 
 // 2D primitives
-extern Mesh gMeshCircle;	// Unit circle r = 1
-extern Mesh gMeshHexagon;	// Unit hexagon r = 1, faces +Y
+extern Mesh gMeshCircle;// Unit circle r = 1
 
 // 3D primitives
 extern Mesh gMeshSphere;// Unit sphere r = 1
 extern Mesh gMeshCube;	// Unit cube L x W x H = 1
 
-// Imported meshes
-extern Mesh gMeshGround;// 1x1 PLANE_XZ (faces +Y)
+// Imported meshes for demos
 extern Mesh gMeshHead;
-extern Mesh gMeshTd;	// 10 x 10 x 50
+
+// Imported meshes for main game
+extern Mesh gMeshGround;	// 1x1 PLANE_XZ (faces +Y)
+extern Mesh gMeshParticle;	// Unit hexagon r = 1, faces +Y
+extern Mesh gMeshTd;		// 10 x 10 x 50
 
 void CreateMeshes();	// Create all global meshes
 void DestroyMeshes();	// Destroy all global meshes
@@ -55,11 +57,21 @@ void DestroyMeshes();	// Destroy all global meshes
 void CreateMesh(Mesh* mesh);	// Allocate mesh on the GPU
 void DestroyMesh(Mesh* mesh);	// Deallocate mesh on the GPU
 
-void GenMeshObj(Mesh* mesh, const char* path);	// Load a mesh using fast_obj
-void GenMeshPar(Mesh* mesh, MeshType type);		// Load a mesh using par_shapes
-
 // Transforms the positions & normals of a mesh on the CPU
 void TransformMesh(Mesh* mesh, Matrix transform);
+
+void GenMeshObj(Mesh* mesh, const char* path);
+
+void GenMeshTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2);
+void GenMeshHexagon(Mesh* mesh, float radius);
+void GenMeshCircle(Mesh* mesh, float radius);
+void GenMeshSemicircle(Mesh* mesh, float radius);
+
+void GenMeshSphere(Mesh* mesh, float radius);
+void GenMeshHemisphere(Mesh* mesh, float radius);				// Faces +Z
+void GenMeshCylinder(Mesh* mesh, float radius, float height);	// Faces +Z
+void GenMeshPlane(Mesh* mesh, float width, float height);		// Faces +Z
+void GenMeshCube(Mesh* mesh, float width, float height, float depth);
 
 // par meshes:
 // Optimized. Using par for parametric meshes, using custom algorithms for platonic solids.
