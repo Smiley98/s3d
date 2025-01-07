@@ -68,7 +68,8 @@ void CreateAsteroids()
 	}
 
 	Mesh asteroid;
-	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", MatrixIdentity(), false);
+	GenMeshObj(&asteroid, "./assets/meshes/asteroid.obj");
+	CreateMesh(&asteroid);
 	fAsteroids.count = asteroid.count;
 	fAsteroids.instances = 2500;
 	//25k within a sphere looks cool, and 250k runs at 60fps, but 2.5k in circle looks the best

@@ -49,12 +49,17 @@ extern Mesh gMeshGround;// 1x1 PLANE_XZ (faces +Y)
 extern Mesh gMeshHead;
 extern Mesh gMeshTd;	// 10 x 10 x 50
 
-void CreateMeshes();
-void DestroyMeshes();
+void CreateMeshes();	// Create all global meshes
+void DestroyMeshes();	// Destroy all global meshes
 
-void CreateMesh(Mesh* mesh, const char* path, Matrix rigidTransform = MatrixIdentity(), bool gpu = true);
-void CreateMesh(Mesh* mesh, MeshType type, Matrix rigidTransform = MatrixIdentity(), bool gpu = true);
-void DestroyMesh(Mesh* mesh);
+void CreateMesh(Mesh* mesh);	// Allocate mesh on the GPU
+void DestroyMesh(Mesh* mesh);	// Deallocate mesh on the GPU
+
+void GenMeshObj(Mesh* mesh, const char* path);	// Load a mesh using fast_obj
+void GenMeshPar(Mesh* mesh, MeshType type);		// Load a mesh using par_shapes
+
+// Transforms the positions & normals of a mesh on the CPU
+void TransformMesh(Mesh* mesh, Matrix transform);
 
 // par meshes:
 // Optimized. Using par for parametric meshes, using custom algorithms for platonic solids.

@@ -30,7 +30,8 @@ static Cubemap fSkyboxArctic;
 void RasterizationScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
-	CreateMesh(&fMesh, (MeshType)fMeshIndex);
+	GenMeshPar(&fMesh, (MeshType)fMeshIndex);
+	CreateMesh(&fMesh);
 
 	{
 		int w, h, c;
@@ -111,7 +112,8 @@ void RasterizationScene::OnDrawImGui()
 	if (gen)
 	{
 		DestroyMesh(&fMesh);
-		CreateMesh(&fMesh, (MeshType)fMeshIndex);
+		GenMeshPar(&fMesh, (MeshType)fMeshIndex);
+		CreateMesh(&fMesh);
 	}
 
 	static const char* shaderNames[] =

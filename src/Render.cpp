@@ -296,7 +296,8 @@ void DrawMeshDebug(const Mesh& mesh, Matrix world, Vector3 color)
 void DrawMeshType(MeshType type, Matrix world, Vector3 color)
 {
 	Mesh mesh;
-	CreateMesh(&mesh, type);
+	GenMeshPar(&mesh, type);
+	CreateMesh(&mesh);
 	DrawMeshDebug(mesh, world, color);
 	DestroyMesh(&mesh);
 }
