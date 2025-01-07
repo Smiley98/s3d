@@ -11,7 +11,7 @@ static Image fDiffuseMap;
 void MainScene::OnLoad()
 {
 	fMesh = gMeshHead;
-	gCamera.position = { 0.0f, 0.0f, 5.0f };
+	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 
 	CreateImageDefault(&fImage);
 	CreateImageFromFile(&fDiffuseMap, "assets/textures/african_head_diffuse.png", true);

@@ -68,6 +68,7 @@ void NeonDriveScene::OnDraw()
 {
 	DrawMeshTexture(gMeshGround, Scale(100.0f, 1.0f, 100.0f), fTextureGround, 0);
 	DrawMeshNormals(gMeshTd, MatrixIdentity(), MatrixIdentity());
+	DrawMeshNormals(gMeshHexagon, Scale(V3_ONE * 5.0f) * Translate(0.0, 1.0f, 10.0f), MatrixIdentity());
 	return;
 
 	Matrix world = MatrixIdentity();//Scale(V3_ONE * 10.0f);

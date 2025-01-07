@@ -10,7 +10,7 @@ static Matrix fTransform3 = MatrixIdentity();
 
 void PostprocessingScene::OnLoad()
 {
-	gCamera.position = { 0.0f, 0.0f, 5.0f };
+	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 }
 
 void PostprocessingScene::OnUnload()

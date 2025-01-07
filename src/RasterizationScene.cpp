@@ -29,8 +29,8 @@ static Cubemap fSkyboxArctic;
 
 void RasterizationScene::OnLoad()
 {
+	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 	CreateMesh(&fMesh, (MeshType)fMeshIndex);
-	gCamera.position = { 0.0f, 0.0f, 5.0f };
 
 	{
 		int w, h, c;
@@ -84,6 +84,7 @@ void RasterizationScene::OnDrawImGui()
 	{
 		"Triangle",
 		"Square",
+		"Hexagon",
 		"Circle",
 		"Semicircle",
 

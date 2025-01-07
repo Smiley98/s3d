@@ -32,7 +32,8 @@ void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color);
 
 void CollisionScene::OnLoad()
 {
-	gView = LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP);
+	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
+	gView = ToView(gCamera);
 	gProj = Ortho(-fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT, -fSize, fSize, 0.01f, 10.0f);
 }
 

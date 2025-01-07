@@ -68,7 +68,7 @@ void CreateAsteroids()
 	}
 
 	Mesh asteroid;
-	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", false);
+	CreateMesh(&asteroid, "./assets/meshes/asteroid.obj", MatrixIdentity(), false);
 	fAsteroids.count = asteroid.count;
 	fAsteroids.instances = 2500;
 	//25k within a sphere looks cool, and 250k runs at 60fps, but 2.5k in circle looks the best
@@ -154,9 +154,9 @@ void DestroyAsteroids()
 
 void SolarSystemScene::OnLoad()
 {
+	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
 	SetMousePosition({ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f });
 	SetMouseState(MOUSE_STATE_NORMAL);
-	gCamera = FromView(LookAt({ 48.0f, 48.0f, 20.0f }, V3_ZERO, V3_UP));
 	
 	{
 		int w, h, c;

@@ -5,8 +5,9 @@
 
 enum MeshType
 {
-	MESH_TRIANGLE,
-	MESH_SQUARE,
+	MESH_TRIANGLE,	// Faces +Z
+	MESH_SQUARE,	// Faces +Z
+	MESH_HEXAGON,	// Faces +Z
 	MESH_CIRCLE,
 	MESH_SEMICIRCLE,
 
@@ -35,19 +36,24 @@ struct Mesh
 	GLuint ebo = GL_NONE;	// Vertex indices
 };
 
-extern Mesh gMeshCircle;// Unit circle r = 1
+// 2D primitives
+extern Mesh gMeshCircle;	// Unit circle r = 1
+extern Mesh gMeshHexagon;	// Unit hexagon r = 1, faces +Y
+
+// 3D primitives
 extern Mesh gMeshSphere;// Unit sphere r = 1
 extern Mesh gMeshCube;	// Unit cube L x W x H = 1
 
+// Imported meshes
+extern Mesh gMeshGround;// 1x1 PLANE_XZ (faces +Y)
 extern Mesh gMeshHead;
 extern Mesh gMeshTd;	// 10 x 10 x 50
-extern Mesh gMeshGround;// 1x1 PLANE_XZ
 
 void CreateMeshes();
 void DestroyMeshes();
 
-void CreateMesh(Mesh* mesh, const char* path, bool gpu = true);
-void CreateMesh(Mesh* mesh, MeshType type, bool gpu = true);
+void CreateMesh(Mesh* mesh, const char* path, Matrix rigidTransform = MatrixIdentity(), bool gpu = true);
+void CreateMesh(Mesh* mesh, MeshType type, Matrix rigidTransform = MatrixIdentity(), bool gpu = true);
 void DestroyMesh(Mesh* mesh);
 
 // par meshes:

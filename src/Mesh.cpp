@@ -10,9 +10,9 @@
 #define PLATONIC false
 
 Mesh gMeshCircle;
+Mesh gMeshHexagon;
 Mesh gMeshSphere;
 Mesh gMeshCube;
-
 Mesh gMeshHead;
 Mesh gMeshTd;
 Mesh gMeshGround;
@@ -25,20 +25,18 @@ void GenCube(Mesh* mesh, float width, float height, float length);
 
 void CreateMeshes()
 {
-	GenParametric(&gMeshCircle, MESH_CIRCLE);
-	Upload(&gMeshCircle);
+	// TODO -- Replace internal par_shapes transformation with matrix transformations.
+	// (Data is copied from par_shapes to Mesh structure, so more intuitive to transform via matrix).
 
-	GenParametric(&gMeshSphere, MESH_SPHERE);
-	Upload(&gMeshSphere);
+	// TODO -- Separate CPU vs GPU creation to allow for an intermediate external function to transform CPU vertex data.
 
-	GenCube(&gMeshCube, 1.0f, 1.0f, 1.0f);
-	Upload(&gMeshCube);
-
+	CreateMesh(&gMeshCircle, MESH_CIRCLE);
+	CreateMesh(&gMeshHexagon, MESH_HEXAGON, RotateX(-PI * 0.5f));
+	CreateMesh(&gMeshSphere, MESH_SPHERE);
+	CreateMesh(&gMeshCube, MESH_CUBE);
+	CreateMesh(&gMeshGround, MESH_PLANE_Y);
 	CreateMesh(&gMeshHead, "assets/meshes/head.obj");
 	CreateMesh(&gMeshTd, "assets/meshes/bld_td.obj");
-
-	GenParametric(&gMeshGround, MESH_PLANE_Y);
-	Upload(&gMeshGround);
 }
 
 void DestroyMeshes()
@@ -46,11 +44,13 @@ void DestroyMeshes()
 	DestroyMesh(&gMeshTd);
 	DestroyMesh(&gMeshHead);
 	DestroyMesh(&gMeshCube);
+	DestroyMesh(&gMeshGround);
 	DestroyMesh(&gMeshSphere);
+	DestroyMesh(&gMeshHexagon);
 	DestroyMesh(&gMeshCircle);
 }
 
-void CreateMesh(Mesh* mesh, const char* path, bool gpu)
+void CreateMesh(Mesh* mesh, const char* path, Matrix rigidTransform, bool gpu)
 {
 	fastObjMesh* obj = fast_obj_read(path);
 	const int count = obj->index_count;
@@ -79,11 +79,17 @@ void CreateMesh(Mesh* mesh, const char* path, bool gpu)
 	fast_obj_destroy(obj);
 	mesh->count = count;
 
+	for (size_t i = 0; i < mesh->positions.size(); i++)
+		mesh->positions[i] = rigidTransform * mesh->positions[i];
+
+	for (size_t i = 0; i < mesh->normals.size(); i++)
+		mesh->normals[i] = rigidTransform * mesh->normals[i];
+
 	if (gpu)
 		Upload(mesh);
 }
 
-void CreateMesh(Mesh* mesh, MeshType type, bool gpu)
+void CreateMesh(Mesh* mesh, MeshType type, Matrix rigidTransform, bool gpu)
 {
 #if PLATONIC
 	if (type == MESH_CUBE || type == MESH_SPHERE)
@@ -94,6 +100,12 @@ void CreateMesh(Mesh* mesh, MeshType type, bool gpu)
 #endif
 	else
 		GenParametric(mesh, type);
+
+	for (size_t i = 0; i < mesh->positions.size(); i++)
+		mesh->positions[i] = rigidTransform * mesh->positions[i];
+
+	for (size_t i = 0; i < mesh->normals.size(); i++)
+		mesh->normals[i] = rigidTransform * mesh->normals[i];
 
 	if (gpu)
 		Upload(mesh);
@@ -248,6 +260,10 @@ void GenParametric(Mesh* mesh, MeshType type)
 	case MESH_PLANE_Z:
 		par = par_shapes_create_plane(1, 1);
 		par_shapes_translate(par, -0.5f, -0.5f, 0.0f);
+		break;
+
+	case MESH_HEXAGON:
+		par = par_shapes_create_disk(1.0f, 6, &position.x, &normal.x);
 		break;
 
 	case MESH_CIRCLE:
