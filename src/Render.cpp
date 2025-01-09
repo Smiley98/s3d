@@ -5,8 +5,6 @@ DebugShaderType gDebugShader = FLAT;
 Matrix gView = MatrixIdentity();
 Matrix gProj = MatrixIdentity();
 
-void DrawMeshType(MeshType type, Matrix world, Vector3 color);
-
 void SetDebugShader(DebugShaderType type)
 {
 	gDebugShader = type;
@@ -143,24 +141,27 @@ void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint uni
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
 {
 	Matrix world = Scale(width, height, 1.0f) * RotateZ(angle) * Translate(center.x, center.y, 0.0f);
-	DrawMeshType(MESH_SQUARE, world, color);
+	DrawMeshDebug(gMeshSquare, world, color);
 }
 
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle)
 {
-	// TODO -- add passed-in triangle vertices
-	//GenTriangle(mesh, v0, v1, v2);
-	DrawMeshType(MESH_TRIANGLE, RotateZ(angle), color);
+	Mesh mesh;
+	GenMeshTriangle(&mesh, v0, v1, v2);
+	CreateMesh(&mesh);
+	DrawMeshDebug(mesh, RotateZ(angle), color);
+	DestroyMesh(&mesh);
 }
 
 void DrawCircle(Vector2 center, float radius, Vector3 color, float angle)
 {
 	Matrix world = Scale(radius, radius, 1.0f) * RotateZ(angle) *  Translate(center.x, center.y, 0.0f);
-	DrawMeshType(MESH_CIRCLE, world, color);
+	DrawMeshDebug(gMeshCircle, world, color);
 }
 
 void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 {
+	// TODO make all primitive presets!?!?!?
 	Matrix world = Scale(radius, radius, 1.0f) * RotateZ(angle) * Translate(center.x, center.y, 0.0f);
 	DrawMeshType(MESH_SEMICIRCLE, world, color);
 }
@@ -291,15 +292,6 @@ void DrawMeshDebug(const Mesh& mesh, Matrix world, Vector3 color)
 		assert(false, "Invalid Debug Shader");
 		break;
 	}
-}
-
-void DrawMeshType(MeshType type, Matrix world, Vector3 color)
-{
-	Mesh mesh;
-	GenMeshPar(&mesh, type);
-	CreateMesh(&mesh);
-	DrawMeshDebug(mesh, world, color);
-	DestroyMesh(&mesh);
 }
 
 void DrawMesh(const Mesh& mesh)

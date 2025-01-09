@@ -9,10 +9,11 @@
 
 #define PLATONIC false
 
+Mesh gMeshSquare;
 Mesh gMeshCircle;
 
-Mesh gMeshSphere;
 Mesh gMeshCube;
+Mesh gMeshSphere;
 
 Mesh gMeshHead;
 
@@ -27,12 +28,14 @@ void CreateMeshes()
 {
 	const float unit = 1.0f;
 
+	GenMeshPlane(&gMeshSquare, unit, unit);
 	GenMeshCircle(&gMeshCircle, unit);
-	GenMeshSphere(&gMeshSphere, unit);
+
 	GenMeshCube(&gMeshCube, unit, unit, unit);
+	GenMeshSphere(&gMeshSphere, unit);
 
 	GenMeshPlane(&gMeshGround, unit, unit);
-	GenMeshHexagon(&gMeshParticle, unit);
+	GenMeshCircle(&gMeshParticle, unit, 6);
 	TransformMesh(&gMeshGround, RotateX(-PI * 0.5f));
 	TransformMesh(&gMeshParticle, RotateX(-PI * 0.5f));
 
@@ -214,20 +217,11 @@ void GenMeshTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2)
 	par_shapes_free_mesh(par);
 }
 
-void GenMeshHexagon(Mesh* mesh, float radius)
+void GenMeshCircle(Mesh* mesh, float radius, int slices)
 {
 	Vector3 position = V3_ZERO;
 	Vector3 normal = V3_FORWARD;
-	par_shapes_mesh* par = par_shapes_create_disk(radius, 6, &position.x, &normal.x);
-	CopyMesh(mesh, par);
-	par_shapes_free_mesh(par);
-}
-
-void GenMeshCircle(Mesh* mesh, float radius)
-{
-	Vector3 position = V3_ZERO;
-	Vector3 normal = V3_FORWARD;
-	par_shapes_mesh* par = par_shapes_create_disk(radius, 32, &position.x, &normal.x);
+	par_shapes_mesh* par = par_shapes_create_disk(radius, slices, &position.x, &normal.x);
 	CopyMesh(mesh, par);
 	par_shapes_free_mesh(par);
 }

@@ -37,11 +37,12 @@ struct Mesh
 };
 
 // 2D primitives
+extern Mesh gMeshSquare;// Unit plane W x H = 1 (faces +z)
 extern Mesh gMeshCircle;// Unit circle r = 1
 
 // 3D primitives
-extern Mesh gMeshSphere;// Unit sphere r = 1
 extern Mesh gMeshCube;	// Unit cube L x W x H = 1
+extern Mesh gMeshSphere;// Unit sphere r = 1
 
 // Imported meshes for demos
 extern Mesh gMeshHead;
@@ -63,8 +64,7 @@ void TransformMesh(Mesh* mesh, Matrix transform);
 void GenMeshObj(Mesh* mesh, const char* path);
 
 void GenMeshTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2);
-void GenMeshHexagon(Mesh* mesh, float radius);
-void GenMeshCircle(Mesh* mesh, float radius);
+void GenMeshCircle(Mesh* mesh, float radius, int slices = 32);
 void GenMeshSemicircle(Mesh* mesh, float radius);
 
 void GenMeshSphere(Mesh* mesh, float radius);
