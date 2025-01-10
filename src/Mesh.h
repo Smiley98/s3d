@@ -18,14 +18,20 @@ struct Mesh
 	GLuint ebo = GL_NONE;	// Vertex indices
 };
 
-// TODO - Make all parametric meshes global? Seems kind of silly duplicating meshes...
-// Update - I think its better to make a structure called Primitives or Shapes or something. No duplicates xD
-// Common meshes. Manged by Init/Quit DebugRenderer
-extern Mesh gMeshCircle;
-extern Mesh gMeshSphere;
-extern Mesh gMeshCube;
+// Shape meshes
 
-// Game meshes. Managed by Create/Destroy Meshes
+// 2D
+extern Mesh gMeshPlane;
+extern Mesh gMeshCircle;
+extern Mesh gMeshSemicircle;
+
+// 3D
+extern Mesh gMeshCube;
+extern Mesh gMeshSphere;
+extern Mesh gMeshHemisphere;
+extern Mesh gMeshCylinder;
+
+// Game meshes
 extern Mesh gMeshHead;
 extern Mesh gMeshGround;	// 1x1 PLANE_XZ (faces +Y)
 extern Mesh gMeshParticle;	// Unit hexagon r = 1, faces +Y

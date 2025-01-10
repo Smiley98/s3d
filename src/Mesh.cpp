@@ -9,6 +9,15 @@
 
 #define PLATONIC false
 
+Mesh gMeshPlane;
+Mesh gMeshCircle;
+Mesh gMeshSemicircle;
+
+Mesh gMeshCube;
+Mesh gMeshSphere;
+Mesh gMeshHemisphere;
+Mesh gMeshCylinder;
+
 Mesh gMeshHead;
 Mesh gMeshGround;
 Mesh gMeshParticle;
@@ -16,9 +25,13 @@ Mesh gMeshTd;
 
 // Copies a par_shapes_mesh to a Mesh
 void CopyMesh(Mesh* dst, par_shapes_mesh* src);
+void CreateShapes();
+void DestroyShapes();
 
 void CreateMeshes()
 {
+	CreateShapes();
+
 	GenMeshObj(&gMeshTd, "assets/meshes/bld_td.obj");
 	GenMeshObj(&gMeshHead, "assets/meshes/head.obj");
 	GenMeshPlane(&gMeshGround);
@@ -38,6 +51,8 @@ void DestroyMeshes()
 	DestroyMesh(&gMeshHead);
 	DestroyMesh(&gMeshGround);
 	DestroyMesh(&gMeshTd);
+
+	DestroyShapes();
 }
 
 void CreateMesh(Mesh* mesh)
@@ -385,6 +400,39 @@ void CopyMesh(Mesh* dst, par_shapes_mesh* src)
 		for (int i = 0; i < src->npoints; i++)
 			dst->tcoords[i] = ((Vector2*)src->tcoords)[i];
 	}
+}
+
+void CreateShapes()
+{
+	GenMeshPlane(&gMeshPlane);
+	GenMeshCircle(&gMeshCircle);
+	GenMeshSemicircle(&gMeshSemicircle);
+
+	GenMeshCube(&gMeshCube);
+	GenMeshSphere(&gMeshSphere);
+	GenMeshHemisphere(&gMeshHemisphere);
+	GenMeshCylinder(&gMeshCylinder);
+
+	CreateMesh(&gMeshPlane);
+	CreateMesh(&gMeshCircle);
+	CreateMesh(&gMeshSemicircle);
+
+	CreateMesh(&gMeshCube);
+	CreateMesh(&gMeshSphere);
+	CreateMesh(&gMeshHemisphere);
+	CreateMesh(&gMeshCylinder);
+}
+
+void DestroyShapes()
+{
+	DestroyMesh(&gMeshCylinder);
+	DestroyMesh(&gMeshHemisphere);
+	DestroyMesh(&gMeshSphere);
+	DestroyMesh(&gMeshCube);
+	
+	DestroyMesh(&gMeshSemicircle);
+	DestroyMesh(&gMeshCircle);
+	DestroyMesh(&gMeshPlane);
 }
 
 // Leaving this in case I want a par_shapes platonics solid in the future (remember to unweld normals with indices = true)

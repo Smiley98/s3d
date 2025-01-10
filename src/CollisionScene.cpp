@@ -35,6 +35,7 @@ void CollisionScene::OnLoad()
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 	gView = ToView(gCamera);
 	gProj = Ortho(-fSize * SCREEN_ASPECT, fSize * SCREEN_ASPECT, -fSize, fSize, 0.01f, 10.0f);
+	gDebugShader = FLAT;
 }
 
 void CollisionScene::OnUnload()

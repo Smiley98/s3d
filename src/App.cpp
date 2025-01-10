@@ -31,7 +31,6 @@ void Init()
 	CreateWindow();
 	CreateShaders();
 	CreateMeshes();
-	InitDebugRenderer();
 	InitSoftwareRenderer();
 	Scene::Create(Scene::RASTER);
 }
@@ -40,7 +39,6 @@ void Quit()
 {
 	Scene::Destroy();
 	QuitSoftwareRenderer();
-	QuitDebugRenderer();
 	DestroyMeshes();
 	DestroyShaders();
 	DestroyWindow();

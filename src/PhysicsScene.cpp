@@ -17,6 +17,7 @@ void PhysicsScene::OnLoad()
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
     gView = ToView(gCamera);
     gProj = Ortho(-100.0f * SCREEN_ASPECT, 100.0f * SCREEN_ASPECT, -100.0f, 100.0f, 0.1f, 10.0f);
+    gDebugShader = FLAT;
 
 	PhysicsBody ground;
 	ground.type = PLANE;

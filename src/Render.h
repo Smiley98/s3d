@@ -41,8 +41,8 @@ void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint uni
 
 // 2d:
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle = 0.0f);
-void DrawCircle(Vector2 center, float radius, Vector3 color, float angle = 0.0f);
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle = 0.0f);
+void DrawCircle(Vector2 center, float radius, Vector3 color, float angle = 0.0f);
 void DrawSemicircleX(Vector2 center, float radius, Vector3 color, float angle = 0.0f);
 void DrawSemicircleY(Vector2 center, float radius, Vector3 color, float angle = 0.0f);
 void DrawCapsuleX(Vector2 center, float radius, float halfHeight, Vector3 color, float angle = 0.0f);
