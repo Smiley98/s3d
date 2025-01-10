@@ -3,24 +3,6 @@
 #include <vector>
 #include "Math.h"
 
-//enum MeshType
-//{
-//	MESH_TRIANGLE,	// Faces +Z
-//	MESH_SQUARE,	// Faces +Z
-//	MESH_HEXAGON,	// Faces +Z
-//	MESH_CIRCLE,
-//	MESH_SEMICIRCLE,
-//
-//	MESH_CUBE,
-//	MESH_SPHERE,
-//	MESH_HEMISPHERE,
-//	MESH_CYLINDER,
-//
-//	MESH_PLANE_Z, // Faces +Z
-//	MESH_PLANE_Y, // Faces +Y
-//	MESH_PLANE_X, // Faces +X
-//};
-
 struct Mesh
 {
 	int count = 0;
@@ -36,42 +18,39 @@ struct Mesh
 	GLuint ebo = GL_NONE;	// Vertex indices
 };
 
-// 2D primitives
-extern Mesh gMeshSquare;// Unit plane W x H = 1 (faces +z)
-extern Mesh gMeshCircle;// Unit circle r = 1
+// TODO - Make all parametric meshes global? Seems kind of silly duplicating meshes...
+// Update - I think its better to make a structure called Primitives or Shapes or something. No duplicates xD
+// Common meshes. Manged by Init/Quit DebugRenderer
+extern Mesh gMeshCircle;
+extern Mesh gMeshSphere;
+extern Mesh gMeshCube;
 
-// 3D primitives
-extern Mesh gMeshCube;	// Unit cube L x W x H = 1
-extern Mesh gMeshSphere;// Unit sphere r = 1
-
-// Imported meshes for demos
+// Game meshes. Managed by Create/Destroy Meshes
 extern Mesh gMeshHead;
-
-// Imported meshes for main game
 extern Mesh gMeshGround;	// 1x1 PLANE_XZ (faces +Y)
 extern Mesh gMeshParticle;	// Unit hexagon r = 1, faces +Y
 extern Mesh gMeshTd;		// 10 x 10 x 50
 
-void CreateMeshes();	// Create all global meshes
-void DestroyMeshes();	// Destroy all global meshes
+void CreateMeshes();	// Create game meshes
+void DestroyMeshes();	// Destroy game meshes
 
 void CreateMesh(Mesh* mesh);	// Allocate mesh on the GPU
 void DestroyMesh(Mesh* mesh);	// Deallocate mesh on the GPU
 
-// Transforms the positions & normals of a mesh on the CPU
-void TransformMesh(Mesh* mesh, Matrix transform);
+void TransformMesh(Mesh* mesh, Matrix transform);	// CPU only
+void CopyMesh(Mesh* dst, Mesh* src);				// CPU only
 
 void GenMeshObj(Mesh* mesh, const char* path);
 
 void GenMeshTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2);
-void GenMeshCircle(Mesh* mesh, float radius, int slices = 32);
-void GenMeshSemicircle(Mesh* mesh, float radius);
+void GenMeshPlane(Mesh* mesh, float width = 1.0f, float height = 1.0f, int divisions = 1);
+void GenMeshCircle(Mesh* mesh, float radius = 1.0f, int divisions = 32);
+void GenMeshSemicircle(Mesh* mesh, float radius = 1.0f, int divisions = 16);
 
-void GenMeshSphere(Mesh* mesh, float radius);
-void GenMeshHemisphere(Mesh* mesh, float radius);				// Faces +Z
-void GenMeshCylinder(Mesh* mesh, float radius, float height);	// Faces +Z
-void GenMeshPlane(Mesh* mesh, float width, float height);		// Faces +Z
-void GenMeshCube(Mesh* mesh, float width, float height, float depth);
+void GenMeshCube(Mesh* mesh, float width = 1.0f, float height = 1.0f, float depth = 1.0f);
+void GenMeshSphere(Mesh* mesh, float radius = 1.0f, int divisions = 8);
+void GenMeshHemisphere(Mesh* mesh, float radius = 1.0f, int divisions = 4);
+void GenMeshCylinder(Mesh* mesh, float radius = 1.0f, float height = 1.0f, int divisions = 8);
 
 // par meshes:
 // Optimized. Using par for parametric meshes, using custom algorithms for platonic solids.

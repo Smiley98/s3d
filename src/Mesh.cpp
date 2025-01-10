@@ -9,14 +9,7 @@
 
 #define PLATONIC false
 
-Mesh gMeshSquare;
-Mesh gMeshCircle;
-
-Mesh gMeshCube;
-Mesh gMeshSphere;
-
 Mesh gMeshHead;
-
 Mesh gMeshGround;
 Mesh gMeshParticle;
 Mesh gMeshTd;
@@ -26,40 +19,25 @@ void CopyMesh(Mesh* dst, par_shapes_mesh* src);
 
 void CreateMeshes()
 {
-	const float unit = 1.0f;
-
-	GenMeshPlane(&gMeshSquare, unit, unit);
-	GenMeshCircle(&gMeshCircle, unit);
-
-	GenMeshCube(&gMeshCube, unit, unit, unit);
-	GenMeshSphere(&gMeshSphere, unit);
-
-	GenMeshPlane(&gMeshGround, unit, unit);
-	GenMeshCircle(&gMeshParticle, unit, 6);
+	GenMeshObj(&gMeshTd, "assets/meshes/bld_td.obj");
+	GenMeshObj(&gMeshHead, "assets/meshes/head.obj");
+	GenMeshPlane(&gMeshGround);
+	GenMeshCircle(&gMeshParticle, 1.0f, 6);
 	TransformMesh(&gMeshGround, RotateX(-PI * 0.5f));
 	TransformMesh(&gMeshParticle, RotateX(-PI * 0.5f));
 
-	GenMeshObj(&gMeshHead, "assets/meshes/head.obj");
-	GenMeshObj(&gMeshTd, "assets/meshes/bld_td.obj");
-
-	CreateMesh(&gMeshCircle);
-	CreateMesh(&gMeshSphere);
-	CreateMesh(&gMeshCube);
+	CreateMesh(&gMeshTd);
 	CreateMesh(&gMeshHead);
 	CreateMesh(&gMeshGround);
 	CreateMesh(&gMeshParticle);
-	CreateMesh(&gMeshTd);
 }
 
 void DestroyMeshes()
 {
-	DestroyMesh(&gMeshTd);
+	DestroyMesh(&gMeshParticle);
 	DestroyMesh(&gMeshHead);
 	DestroyMesh(&gMeshGround);
-	DestroyMesh(&gMeshCube);
-	DestroyMesh(&gMeshSphere);
-	DestroyMesh(&gMeshParticle);
-	DestroyMesh(&gMeshCircle);
+	DestroyMesh(&gMeshTd);
 }
 
 void CreateMesh(Mesh* mesh)
@@ -155,7 +133,6 @@ void GenMeshObj(Mesh* mesh, const char* path)
 
 void GenMeshTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2)
 {
-	// Could probably use Mesh directly, although this serves as a reference of how to use par_shapes
 	par_shapes_mesh* par = par_shapes_create_empty();
 	Vector3 normal = Normalize(Cross(Normalize(v1 - v0), Normalize(v2 - v0)));
 
@@ -166,17 +143,6 @@ void GenMeshTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2)
 
 	par->triangles = PAR_MALLOC(PAR_SHAPES_T, 3);
 	par->ntriangles = 1;
-
-	// Use this to recreate DrawEquilateral(float sideLength)
-	//par->points[0] = 0.0f;
-	//par->points[1] = 1.0f;
-	//par->points[2] = 0.0f;
-	//par->points[3] = -1.0f * sinf(PI / 3.0f);
-	//par->points[4] = -1.0f * cosf(PI / 3.0f);
-	//par->points[5] = 0.0f;
-	//par->points[6] = 1.0f * sinf(PI / 3.0f);
-	//par->points[7] = -1.0f * cosf(PI / 3.0f);
-	//par->points[8] = 0.0f;
 
 	par->points[0] = v0.x;
 	par->points[1] = v0.y;
@@ -217,34 +183,44 @@ void GenMeshTriangle(Mesh* mesh, Vector3 v0, Vector3 v1, Vector3 v2)
 	par_shapes_free_mesh(par);
 }
 
-void GenMeshCircle(Mesh* mesh, float radius, int slices)
+void GenMeshPlane(Mesh* mesh, float width, float height, int divisions)
+{
+	par_shapes_mesh* par = par_shapes_create_plane(divisions, divisions);
+	CopyMesh(mesh, par);
+	par_shapes_free_mesh(par);
+
+	// Center about the origin
+	TransformMesh(mesh, Translate(-0.5f, -0.5f, 0.0f) * Scale(width, height, 1.0f));
+}
+
+void GenMeshCircle(Mesh* mesh, float radius, int divisions)
 {
 	Vector3 position = V3_ZERO;
 	Vector3 normal = V3_FORWARD;
-	par_shapes_mesh* par = par_shapes_create_disk(radius, slices, &position.x, &normal.x);
+	par_shapes_mesh* par = par_shapes_create_disk(radius, divisions, &position.x, &normal.x);
 	CopyMesh(mesh, par);
 	par_shapes_free_mesh(par);
 }
 
-void GenMeshSemicircle(Mesh* mesh, float radius)
+void GenMeshSemicircle(Mesh* mesh, float radius, int divisions)
 {
 	Vector3 position = V3_ZERO;
 	Vector3 normal = V3_FORWARD;
-	par_shapes_mesh* par = par_shapes_create_half_disk(radius, 16, &position.x, &normal.x);
+	par_shapes_mesh* par = par_shapes_create_half_disk(radius, divisions, &position.x, &normal.x);
 	CopyMesh(mesh, par);
 	par_shapes_free_mesh(par);
 }
 
-void GenMeshSphere(Mesh* mesh, float radius)
+void GenMeshSphere(Mesh* mesh, float radius, int divisions)
 {
-	par_shapes_mesh* par = par_shapes_create_parametric_sphere(8, 8);
+	par_shapes_mesh* par = par_shapes_create_parametric_sphere(divisions, divisions);
 	CopyMesh(mesh, par);
 	par_shapes_free_mesh(par);
 }
 
-void GenMeshHemisphere(Mesh* mesh, float radius)
+void GenMeshHemisphere(Mesh* mesh, float radius, int divisions)
 {
-	par_shapes_mesh* par = par_shapes_create_hemisphere(4, 4);
+	par_shapes_mesh* par = par_shapes_create_hemisphere(divisions, divisions);
 	CopyMesh(mesh, par);
 	par_shapes_free_mesh(par);
 
@@ -252,24 +228,14 @@ void GenMeshHemisphere(Mesh* mesh, float radius)
 	TransformMesh(mesh, RotateX(-PI * 0.5f));
 }
 
-void GenMeshCylinder(Mesh* mesh, float radius, float height)
+void GenMeshCylinder(Mesh* mesh, float radius, float height, int divisions)
 {
-	par_shapes_mesh* par = par_shapes_create_cylinder(8, 1);
+	par_shapes_mesh* par = par_shapes_create_cylinder(divisions, 1);
 	CopyMesh(mesh, par);
 	par_shapes_free_mesh(par);
 
 	// Center about the origin
 	TransformMesh(mesh, Translate(0.0f, 0.0f, -0.5f) * Scale(radius, height, 1.0f));
-}
-
-void GenMeshPlane(Mesh* mesh, float width, float height)
-{
-	par_shapes_mesh* par = par_shapes_create_plane(1, 1);
-	CopyMesh(mesh, par);
-	par_shapes_free_mesh(par);
-
-	// Center about the origin
-	TransformMesh(mesh, Translate(-0.5f, -0.5f, 0.0f) * Scale(width, height, 1.0f));
 }
 
 void GenMeshCube(Mesh* mesh, float width, float height, float depth)
@@ -387,6 +353,15 @@ void TransformMesh(Mesh* mesh, Matrix transform)
 	Matrix normal = NormalMatrix(transform);
 	for (size_t i = 0; i < mesh->normals.size(); i++)
 		mesh->normals[i] = normal * mesh->normals[i];
+}
+
+void CopyMesh(Mesh* dst, Mesh* src)
+{
+	dst->count = src->count;
+	dst->positions = src->positions;
+	dst->normals = src->normals;
+	dst->tcoords = src->tcoords;
+	dst->indices = src->indices;
 }
 
 void CopyMesh(Mesh* dst, par_shapes_mesh* src)

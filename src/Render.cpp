@@ -5,6 +5,24 @@ DebugShaderType gDebugShader = FLAT;
 Matrix gView = MatrixIdentity();
 Matrix gProj = MatrixIdentity();
 
+Mesh gMeshCircle;
+Mesh gMeshSphere;
+Mesh gMeshCube;
+
+struct Shapes
+{
+	// 2D
+	Mesh square;
+	Mesh circle;
+	Mesh semicircle;
+
+	// 3D
+	Mesh cube;
+	Mesh sphere;
+	Mesh hemisphere;
+	Mesh cylinder;
+} fShapes;
+
 void SetDebugShader(DebugShaderType type)
 {
 	gDebugShader = type;
@@ -141,7 +159,7 @@ void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint uni
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle)
 {
 	Matrix world = Scale(width, height, 1.0f) * RotateZ(angle) * Translate(center.x, center.y, 0.0f);
-	DrawMeshDebug(gMeshSquare, world, color);
+	DrawMeshDebug(fShapes.square, world, color);
 }
 
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle)
@@ -156,14 +174,13 @@ void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle
 void DrawCircle(Vector2 center, float radius, Vector3 color, float angle)
 {
 	Matrix world = Scale(radius, radius, 1.0f) * RotateZ(angle) *  Translate(center.x, center.y, 0.0f);
-	DrawMeshDebug(gMeshCircle, world, color);
+	DrawMeshDebug(fShapes.circle, world, color);
 }
 
 void DrawSemicircle(Vector2 center, float radius, Vector3 color, float angle)
 {
-	// TODO make all primitive presets!?!?!?
 	Matrix world = Scale(radius, radius, 1.0f) * RotateZ(angle) * Translate(center.x, center.y, 0.0f);
-	DrawMeshType(MESH_SEMICIRCLE, world, color);
+	DrawMeshDebug(fShapes.semicircle, world, color);
 }
 
 void DrawSemicircleX(Vector2 center, float radius, Vector3 color, float angle)
@@ -199,25 +216,25 @@ void DrawCapsuleY(Vector2 center, float radius, float halfHeight, Vector3 color,
 void DrawCube(Vector3 center, float width, float height, float depth, Vector3 color, Matrix rotation)
 {
 	Matrix world = Scale(width, height, depth) * rotation * Translate(center.x, center.y, center.z);
-	DrawMeshType(MESH_CUBE, world, color);
+	DrawMeshDebug(fShapes.cube, world, color);
 }
 
 void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 {
 	Matrix world = Scale(radius, radius, radius) * rotation *  Translate(center.x, center.y, center.z);
-	DrawMeshType(MESH_SPHERE, world, color);
+	DrawMeshDebug(fShapes.sphere, world, color);
 }
 
 void DrawHemisphere(Vector3 center, float radius, Vector3 color, Matrix rotation)
 {
 	Matrix world = Scale(radius, radius, radius) * rotation * Translate(center.x, center.y, center.z);
-	DrawMeshType(MESH_HEMISPHERE, world, color);
+	DrawMeshDebug(fShapes.hemisphere, world, color);
 }
 
 void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation)
 {
 	Matrix world = Scale(radius, radius, halfHeight * 2.0f) * rotation * Translate(center.x, center.y, center.z);
-	DrawMeshType(MESH_CYLINDER, world, color);
+	DrawMeshDebug(fShapes.cylinder, world, color);
 }
 
 void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation)
@@ -229,27 +246,6 @@ void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 
 	DrawCylinder(center, radius, halfHeight, color, rotation);
 	DrawHemisphere(top, radius, color, rotation);
 	DrawHemisphere(bot, radius, color, RotateX(PI) * rotation);
-}
-
-// Draw a plane who's normal is +Z
-void DrawPlaneZ(Vector3 center, float width, float height, Vector3 color, Matrix rotation)
-{
-	Matrix world = Scale(width, height, 1.0f) * rotation * Translate(center.x, center.y, center.z);
-	DrawMeshType(MESH_PLANE_Z, world, color);
-}
-
-// Draw a plane who's normal is +Y
-void DrawPlaneY(Vector3 center, float width, float depth, Vector3 color, Matrix rotation)
-{
-	Matrix world = Scale(width, 1.0f, depth) * rotation * Translate(center.x, center.y, center.z);
-	DrawMeshType(MESH_PLANE_Y, world, color);
-}
-
-// Draw a plane who's normal is +X
-void DrawPlaneX(Vector3 center, float height, float depth, Vector3 color, Matrix rotation)
-{
-	Matrix world = Scale(1.0f, height, depth) * rotation * Translate(center.x, center.y, center.z);
-	DrawMeshType(MESH_PLANE_X, world, color);
 }
 
 void DrawMeshDebug(const Mesh& mesh, Matrix world, Vector3 color)
@@ -408,7 +404,7 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 	BindCubemap(cubemap, unit);
 	BindShader(&gShaderSkybox);
 	SendMat4("u_mvp", viewSky * gProj);
-	DrawMesh(gMeshCube);
+	DrawMesh(fShapes.cube);
 	UnbindShader();
 	UnbindCubemap(cubemap, unit);
 
@@ -432,6 +428,51 @@ void Present(Image* image)
 	UnbindTexture2D(fSoftwareRenderTexture, 0);
 
 	DrawFsqTexture(fSoftwareRenderTexture, 0);
+}
+
+void InitDebugRenderer()
+{
+	GenMeshPlane(&fShapes.square);
+	GenMeshCircle(&fShapes.circle);
+	GenMeshSemicircle(&fShapes.semicircle);
+
+	GenMeshCube(&fShapes.cube);
+	GenMeshSphere(&fShapes.sphere);
+	GenMeshHemisphere(&fShapes.hemisphere);
+	GenMeshCylinder(&fShapes.cylinder);
+
+	CopyMesh(&gMeshCircle, &fShapes.circle);
+	CopyMesh(&gMeshSphere, &fShapes.sphere);
+	CopyMesh(&gMeshCube, &fShapes.cube);
+
+	CreateMesh(&fShapes.square);
+	CreateMesh(&fShapes.circle);
+	CreateMesh(&fShapes.semicircle);
+
+	CreateMesh(&fShapes.cube);
+	CreateMesh(&fShapes.sphere);
+	CreateMesh(&fShapes.hemisphere);
+	CreateMesh(&fShapes.cylinder);
+
+	CreateMesh(&gMeshCircle);
+	CreateMesh(&gMeshSphere);
+	CreateMesh(&gMeshCube);
+}
+
+void QuitDebugRenderer()
+{
+	DestroyMesh(&gMeshCube);
+	DestroyMesh(&gMeshSphere);
+	DestroyMesh(&gMeshCircle);
+
+	DestroyMesh(&fShapes.cylinder);
+	DestroyMesh(&fShapes.hemisphere);
+	DestroyMesh(&fShapes.sphere);
+	DestroyMesh(&fShapes.cube);
+	
+	DestroyMesh(&fShapes.semicircle);
+	DestroyMesh(&fShapes.circle);
+	DestroyMesh(&fShapes.square);
 }
 
 void InitSoftwareRenderer()

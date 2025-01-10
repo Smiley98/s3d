@@ -31,8 +31,19 @@ void Init()
 	CreateWindow();
 	CreateShaders();
 	CreateMeshes();
+	InitDebugRenderer();
 	InitSoftwareRenderer();
-	Scene::Create(Scene::NEON_DRIVE);
+	Scene::Create(Scene::RASTER);
+}
+
+void Quit()
+{
+	Scene::Destroy();
+	QuitSoftwareRenderer();
+	QuitDebugRenderer();
+	DestroyMeshes();
+	DestroyShaders();
+	DestroyWindow();
 }
 
 void Loop()
@@ -131,15 +142,6 @@ void Loop()
 		if (IsKeyDown(KEY_ESCAPE))
 			Close();
 	}
-}
-
-void Quit()
-{
-	Scene::Destroy();
-	QuitSoftwareRenderer();
-	DestroyMeshes();
-	DestroyShaders();
-	DestroyWindow();
 }
 
 void Update(float dt)

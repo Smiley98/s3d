@@ -11,10 +11,6 @@ static bool fRotate = false;
 static bool fScale = false;
 
 static Vector3 fColor = V3_ONE;
-static Vector3 fPosition = V3_ZERO;
-
-static Matrix fWorld;
-static Mesh fMesh;
 
 static int fMeshIndex = 0;
 static int fProjIndex = 1;
@@ -27,11 +23,11 @@ static Matrix fProjections[] =
 static Texture2D fTexHead;
 static Cubemap fSkyboxArctic;
 
+void DrawDebugShapes();
+
 void RasterizationScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
-	GenMeshPar(&fMesh, (MeshType)fMeshIndex);
-	CreateMesh(&fMesh);
 
 	{
 		int w, h, c;
@@ -53,26 +49,18 @@ void RasterizationScene::OnUnload()
 {
 	DestroyTexture2D(&fTexHead);
 	DestroyCubemap(&fSkyboxArctic);
-	DestroyMesh(&fMesh);
 }
 
 void RasterizationScene::OnUpdate(float dt)
 {
-	float tt = TotalTime();
 	UpdateFpsCameraDefault(gCamera, dt);
-
-	Matrix translation = Translate(fPosition) * (fTranslate ? Translate(cosf(tt), 0.0f, 0.0f) : MatrixIdentity());
-	Matrix rotation = fRotate ? RotateY(tt * 100.0f * DEG2RAD) : MatrixIdentity();
-	Matrix scale = fScale ? Scale(cosf(tt), sinf(tt), 1.0f) : MatrixIdentity();
-
-	fWorld = scale * rotation * translation;
 	gView = ToView(gCamera);
 	gProj = fProjections[fProjIndex];
 }
 
 void RasterizationScene::OnDraw()
 {
-	DrawMeshDebug(fMesh, fWorld, fColor);
+	DrawDebugShapes();
 	DrawMeshTexture(gMeshHead, Translate(0.0f, 0.0f, -5.0f), fTexHead, 0);
 	DrawMeshReflect(gMeshCube, Translate(-2.0f, 0.0f, 0.0f), fSkyboxArctic, 0);
 	DrawMeshRefract(gMeshCube, Translate(2.0f, 0.0f, 0.0f), fSkyboxArctic, 0, 1.00f / 1.52f); // glass
@@ -81,24 +69,6 @@ void RasterizationScene::OnDraw()
 
 void RasterizationScene::OnDrawImGui()
 {
-	static const char* meshNames[] =
-	{
-		"Triangle",
-		"Square",
-		"Hexagon",
-		"Circle",
-		"Semicircle",
-
-		"Cube",
-		"Sphere",
-		"Hemisphere",
-		"Cylinder",
-
-		"Plane_Z",
-		"Plane_Y",
-		"Plane_X"
-	};
-
 	ImGui::RadioButton("Orthographic", &fProjIndex, 0); ImGui::SameLine();
 	ImGui::RadioButton("Perspective", &fProjIndex, 1);
 
@@ -106,15 +76,19 @@ void RasterizationScene::OnDrawImGui()
 	ImGui::Checkbox("Rotate", &fRotate); ImGui::SameLine();
 	ImGui::Checkbox("Scale", &fScale);
 
-	ImGui::SliderFloat3("Object Position", &fPosition.x, -10.0f, 10.0f);
-
-	bool gen = ImGui::Combo("Meshes", &fMeshIndex, meshNames, IM_ARRAYSIZE(meshNames));
-	if (gen)
+	static const char* meshNames[] =
 	{
-		DestroyMesh(&fMesh);
-		GenMeshPar(&fMesh, (MeshType)fMeshIndex);
-		CreateMesh(&fMesh);
-	}
+		"Triangle",
+		"Square",
+		"Circle",
+
+		"Cube",
+		"Sphere",
+		"Hemisphere",
+		"Cylinder",
+
+		"Head"
+	};
 
 	static const char* shaderNames[] =
 	{
@@ -129,9 +103,66 @@ void RasterizationScene::OnDrawImGui()
 	};
 
 	static int shaderIndex = 0;
+	ImGui::Combo("Meshes", &fMeshIndex, meshNames, IM_ARRAYSIZE(meshNames));
 	ImGui::Combo("Shaders", &shaderIndex, shaderNames, IM_ARRAYSIZE(shaderNames));
 	gDebugShader = (DebugShaderType)shaderIndex;
 	
 	ImGui::ColorPicker3("Colour", &fColor.x);
 	//ImGui::ShowDemoWindow();
+}
+
+void DrawDebugShapes()
+{
+	float tt = TotalTime();
+	Vector3 position = fTranslate ? Vector3{ cosf(tt), 0.0f, 0.0f } : V3_ZERO;
+	float angle = fRotate ? tt * 100.0f * DEG2RAD : 0.0f;
+	Vector3 size = fScale ? Vector3{ cosf(tt), sinf(tt), 1.0f } : V3_ONE;
+
+	Matrix translation = Translate(position);
+	Matrix rotation = RotateY(angle);
+	Matrix scale = Scale(size);
+	Matrix world = scale * rotation * translation;
+
+	switch (fMeshIndex)
+	{
+	case 0:
+	{
+		Vector3 v0{ 0.0f, 1.0f, 0.0f };
+		Vector3 v1{ -1.0f * sinf(PI / 3.0f), -1.0f * cosf(PI / 3.0f), 0.0f };
+		Vector3 v2{ 1.0f * sinf(PI / 3.0f), -1.0f * cosf(PI / 3.0f), 0.0f };
+		DrawTriangle(v0, v1, v2, fColor, angle);
+	}
+	break;
+
+	case 1:
+		DrawRectangle(position, size.x, size.y, fColor, angle);
+		break;
+
+	case 2:
+		DrawCircle(position, size.x, fColor, angle);
+		break;
+
+	case 3:
+		DrawCube(position, size.x, size.y, size.z, fColor, rotation);
+		break;
+
+	case 4:
+		DrawSphere(position, size.x, fColor, rotation);
+		break;
+
+	case 5:
+		DrawHemisphere(position, size.x, fColor, rotation);
+		break;
+
+	case 6:
+		DrawCylinder(position, size.x, size.y, fColor, rotation);
+		break;
+
+	case 7:
+		DrawMeshDebug(gMeshHead, world, fColor);
+		break;
+
+	default:
+		assert(false, "Invalid Mesh");
+	}
 }

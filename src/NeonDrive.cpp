@@ -125,5 +125,5 @@ void NeonDriveScene::OnDraw()
 	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
 	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
 
-	DrawMeshWireframes(gMeshCircle, world, fLightColor);
+	//DrawMeshWireframes(gMeshCircle, world, fLightColor);
 }

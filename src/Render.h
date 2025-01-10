@@ -55,9 +55,6 @@ void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation = M
 void DrawHemisphere(Vector3 center, float radius, Vector3 color, Matrix rotation = MatrixIdentity());
 void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation = MatrixIdentity());
 void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation = MatrixIdentity());
-void DrawPlaneZ(Vector3 center, float width, float height, Vector3 color, Matrix rotation = MatrixIdentity());
-void DrawPlaneY(Vector3 center, float width, float depth, Vector3 color, Matrix rotation = MatrixIdentity());
-void DrawPlaneX(Vector3 center, float height, float depth, Vector3 color, Matrix rotation = MatrixIdentity());
 
 // Fullscreen quad
 void DrawFsq();
@@ -77,6 +74,9 @@ void DrawMeshInstanced(const Mesh& mesh, int instanceCount);
 // CPU Rendering
 struct Image;
 void Present(Image* image);
+
+void InitDebugRenderer();	// Create debug meshes
+void QuitDebugRenderer();	// Destroy debug meshes
 
 void InitSoftwareRenderer();
 void QuitSoftwareRenderer();
