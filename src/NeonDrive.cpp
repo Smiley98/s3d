@@ -69,6 +69,13 @@ void NeonDriveScene::OnDraw()
 	//DrawMeshTexture(gMeshGround, Scale(100.0f, 100.0f, 1.0f), fTextureGround, 0);
 	//DrawMeshNormals(gMeshTd, MatrixIdentity(), MatrixIdentity());
 
+	static int grid[3][5]
+	{
+		{ 1, 1, 1, 1, 1 },
+		{   1, 0, 0, 0, 1 },
+		{ 1, 1, 1, 1, 1 }
+	};
+
 	// TODO - Make a pipeline state save and load feature?
 	// Pipeline pipeline = SavePipeline();
 	// *Insert state changes & draw calls here*
@@ -80,10 +87,17 @@ void NeonDriveScene::OnDraw()
 		SetDepthTest(false);
 		SetDepthWrite(false);
 
-		float x = 1.5f;
-		float y = sqrtf(3.0f) * 0.5f;
-		DrawMeshFlat(gMeshParticle, Translate(0.0, 0.0f, 0.0f), V3_RIGHT);
-		DrawMeshFlat(gMeshParticle, Translate(x, y, 0.0f), V3_UP);
+		for (int i = 0; i < 3; i++)
+		{
+			float y = (sqrtf(3.0f) * 0.5f) * (float)i;
+			float xStart = i % 2 == 0 ? 0.0f : 1.5f;
+			for (int j = 0; j < 5; j++)
+			{
+				Vector3 color = grid[i][j] == 0 ? V3_RIGHT : V3_UP;
+				float x = xStart + 3.0f * (float)j;
+				DrawMeshFlat(gMeshParticle, Translate(x, y, 0.0f), color);
+			}
+		}
 
 		SetDepthWrite(depthWrite);
 		SetDepthTest(depthTest);
