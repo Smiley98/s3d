@@ -25,6 +25,7 @@ Mesh gMeshTd;
 
 // Copies a par_shapes_mesh to a Mesh
 void CopyMesh(Mesh* dst, par_shapes_mesh* src);
+
 void CreateShapes();
 void DestroyShapes();
 
@@ -36,8 +37,6 @@ void CreateMeshes()
 	GenMeshObj(&gMeshHead, "assets/meshes/head.obj");
 	GenMeshPlane(&gMeshGround);
 	GenMeshCircle(&gMeshParticle, 1.0f, 6);
-	TransformMesh(&gMeshGround, RotateX(-PI * 0.5f));
-	TransformMesh(&gMeshParticle, RotateX(-PI * 0.5f));
 
 	CreateMesh(&gMeshTd);
 	CreateMesh(&gMeshHead);

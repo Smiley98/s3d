@@ -18,8 +18,6 @@ struct Mesh
 	GLuint ebo = GL_NONE;	// Vertex indices
 };
 
-// Shape meshes
-
 // 2D
 extern Mesh gMeshPlane;
 extern Mesh gMeshCircle;

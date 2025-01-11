@@ -13,7 +13,7 @@ static Vector3 fLightColor = V3_ONE;
 
 void NeonDriveScene::OnLoad()
 {
-	gCamera = FromView(LookAt({ 20.0f, 20.0f, 20.0f }, V3_ZERO, V3_UP));
+	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 
 	// World's most elaborate texture xD xD xD
 	{
@@ -66,9 +66,29 @@ void NeonDriveScene::OnUpdate(float dt)
 
 void NeonDriveScene::OnDraw()
 {
-	DrawMeshTexture(gMeshGround, Scale(100.0f, 1.0f, 100.0f), fTextureGround, 0);
-	DrawMeshNormals(gMeshTd, MatrixIdentity(), MatrixIdentity());
-	DrawMeshNormals(gMeshParticle, Scale(V3_ONE * 5.0f) * Translate(0.0, 1.0f, 10.0f), MatrixIdentity());
+	//DrawMeshTexture(gMeshGround, Scale(100.0f, 100.0f, 1.0f), fTextureGround, 0);
+	//DrawMeshNormals(gMeshTd, MatrixIdentity(), MatrixIdentity());
+
+	// TODO - Make a pipeline state save and load feature?
+	// Pipeline pipeline = SavePipeline();
+	// *Insert state changes & draw calls here*
+	// LoadPipeline(&pipeline);
+	{
+		bool depthTest = DepthTest();
+		bool depthWrite = DepthWrite();
+		SetWireframes(true);
+		SetDepthTest(false);
+		SetDepthWrite(false);
+
+		float x = 1.5f;
+		float y = sqrtf(3.0f) * 0.5f;
+		DrawMeshFlat(gMeshParticle, Translate(0.0, 0.0f, 0.0f), V3_RIGHT);
+		DrawMeshFlat(gMeshParticle, Translate(x, y, 0.0f), V3_UP);
+
+		SetDepthWrite(depthWrite);
+		SetDepthTest(depthTest);
+		SetWireframes(false);
+	}
 	return;
 
 	Matrix world = MatrixIdentity();//Scale(V3_ONE * 10.0f);
