@@ -2,6 +2,7 @@
 #include "Time.h"
 #include "Render.h"
 #include "ImageLoader.h"
+#include <vector>
 
 static Texture2D fTextureWhite;
 static Texture2D fTextureAlbedo;
@@ -11,8 +12,43 @@ static Framebuffer fGeometryBuffer;
 static Vector3 fLightPosition = V3_ZERO;
 static Vector3 fLightColor = V3_ONE;
 
+struct HexagonGrid
+{
+	int rows = 0;
+	int cols = 0;
+	std::vector<int> values;
+};
+
+static HexagonGrid fGrid;
+
+void GenGrid(HexagonGrid* grid, int rows, int cols)
+{
+	grid->rows = rows;
+	grid->cols = cols;
+	grid->values.resize(rows * cols);
+
+	// Vertical borders
+	for (int i = 0; i < rows; i++)
+	{
+		// TODO -- Separate into separate loops
+		if (i % 2 == 0)
+		{
+			grid->values[i * cols] = 1;
+			grid->values[i * cols + cols - 1] = 1;
+		}
+	}
+
+	// Horizontal borders
+	for (int i = 0; i < cols; i++)
+	{
+		grid->values[i] = 1;
+		grid->values[(rows - 1) * cols + i] = 1;
+	}
+}
+
 void NeonDriveScene::OnLoad()
 {
+	GenGrid(&fGrid, 32, 16);
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 
 	// World's most elaborate texture xD xD xD
@@ -69,12 +105,12 @@ void NeonDriveScene::OnDraw()
 	//DrawMeshTexture(gMeshGround, Scale(100.0f, 100.0f, 1.0f), fTextureGround, 0);
 	//DrawMeshNormals(gMeshTd, MatrixIdentity(), MatrixIdentity());
 
-	static int grid[3][5]
-	{
-		{ 1, 1, 1, 1, 1 },
-		{   1, 0, 0, 0, 1 },
-		{ 1, 1, 1, 1, 1 }
-	};
+	//static int grid[3][5]
+	//{
+	//	{ 1, 1, 1, 1, 1 },
+	//	{   1, 0, 0, 0, 1 },
+	//	{ 1, 1, 1, 1, 1 }
+	//};
 
 	// TODO - Make a pipeline state save and load feature?
 	// Pipeline pipeline = SavePipeline();
@@ -87,13 +123,15 @@ void NeonDriveScene::OnDraw()
 		SetDepthTest(false);
 		SetDepthWrite(false);
 
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < fGrid.rows; i++)
 		{
 			float y = (sqrtf(3.0f) * 0.5f) * (float)i;
 			float xStart = i % 2 == 0 ? 0.0f : 1.5f;
-			for (int j = 0; j < 5; j++)
+			for (int j = 0; j < fGrid.cols; j++)
 			{
-				Vector3 color = grid[i][j] == 0 ? V3_RIGHT : V3_UP;
+				//Vector3 color = grid[i][j] == 0 ? V3_RIGHT : V3_UP;
+				int index = i * fGrid.cols + j;
+				Vector3 color = fGrid.values[index] == 0 ? V3_RIGHT : V3_UP;
 				float x = xStart + 3.0f * (float)j;
 				DrawMeshFlat(gMeshParticle, Translate(x, y, 0.0f), color);
 			}
