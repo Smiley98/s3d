@@ -17,6 +17,7 @@ struct HexagonGrid
 {
 	int rows = 0;
 	int cols = 0;
+	float radius = 1.0f;
 	std::vector<std::vector<int>> values;
 };
 
@@ -29,11 +30,12 @@ struct HexagonGrid
 //};
 static HexagonGrid fGrid;
 
-void GenGrid(HexagonGrid* grid, int rows, int cols)
+void GenGrid(HexagonGrid* grid, int rows, int cols, float r)
 {
 	assert(rows > 0 && cols > 0);
 	grid->rows = rows;
 	grid->cols = cols;
+	grid->radius = r;
 	grid->values.resize(rows);
 	for (int i = 0; i < rows; i++)
 		grid->values[i].resize(cols);
@@ -53,7 +55,7 @@ void GenGrid(HexagonGrid* grid, int rows, int cols)
 
 void NeonDriveScene::OnLoad()
 {
-	GenGrid(&fGrid, 16, 32);
+	GenGrid(&fGrid, 16, 32, 5.0f);
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 
 	// World's most elaborate texture xD xD xD
@@ -120,15 +122,17 @@ void NeonDriveScene::OnDraw()
 		SetWireframes(true);
 		SetDepthTest(false);
 		SetDepthWrite(false);
-		for (int i = 0; i < 16; i++)
+
+		for (int i = 0; i < fGrid.rows; i++)
 		{
-			for (int j = 0; j < 32; j++)
+			for (int j = 0; j < fGrid.cols; j++)
 			{
 				Vector3 color = fGrid.values[i][j] == 0 ? V3_RIGHT : V3_UP;
-				float sc = 1.5f;		// Space between columns
-				float sr = sqrtf(3.0f); // Space between rows
+				float r = fGrid.radius;
+				float sc = 1.5f * r;		// Space between columns
+				float sr = sqrtf(3.0f) * r;	// Space between rows
 				float offset = j % 2 == 0 ? 0.0f : sr * 0.5f;
-				DrawMeshFlat(gMeshParticle, Translate(j * sc, i * sr + offset, 0.0f), color);
+				DrawMeshFlat(gMeshParticle, Scale(r, r, 1.0f) * Translate(j * sc, i * sr + offset, 0.0f), color);
 			}
 		}
 
