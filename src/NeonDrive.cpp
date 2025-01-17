@@ -28,14 +28,12 @@ void GenGrid(HexagonGrid* grid, int rows, int cols)
 	grid->values.resize(rows * cols);
 
 	// Vertical borders
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; i += 2)
 	{
-		// TODO -- Separate into separate loops
-		if (i % 2 == 0)
-		{
-			grid->values[i * cols] = 1;
-			grid->values[i * cols + cols - 1] = 1;
-		}
+		int left = i * cols;
+		int right = i * cols + (cols - 1);
+		grid->values[left] = 1;
+		grid->values[right] = 1;
 	}
 
 	// Horizontal borders
@@ -44,6 +42,8 @@ void GenGrid(HexagonGrid* grid, int rows, int cols)
 		grid->values[i] = 1;
 		grid->values[(rows - 1) * cols + i] = 1;
 	}
+
+	// TODO - flip array, visuals are deceiving us
 }
 
 void NeonDriveScene::OnLoad()

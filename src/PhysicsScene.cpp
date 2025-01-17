@@ -3,14 +3,17 @@
 #include "Camera.h"
 #include "Physics.h"
 #include "Collision.h"
+#include "Timer.h"
 #include <cassert>
 
 void PhysicsStep(PhysicsWorld& world, float dt);
 void UpdateMotion(PhysicsWorld& world, float dt);
+
 Collisions DetectCollisions(PhysicsWorld& world);
 void ResolveCollisions(PhysicsWorld& world, Collisions& collisions);
 
 static PhysicsWorld fWorld{};
+static Timer fTimer;
 
 void PhysicsScene::OnLoad()
 {
@@ -19,19 +22,36 @@ void PhysicsScene::OnLoad()
     gProj = Ortho(-100.0f * SCREEN_ASPECT, 100.0f * SCREEN_ASPECT, -100.0f, 100.0f, 0.1f, 10.0f);
     gDebugShader = FLAT;
 
-	PhysicsBody ground;
-	ground.type = PLANE;
-	ground.normal = V2_UP;
-	ground.pos = { 0.0f, -100.0f };
-	ground.invMass = 0.0f;
-	fWorld.push_back(ground);
+    PhysicsBody top;
+    top.type = PLANE;
+    top.normal = V2_UP * -1.0f;
+    top.pos = { 0.0f, 100.0f };
+    top.invMass = 0.0f;
+    fWorld.push_back(top);
 
-	PhysicsBody circle1;
-	circle1.type = CIRCLE;
-	circle1.radius = 10.0f;
-	circle1.pos = V2_ZERO;
-	circle1.vel = V2_ZERO;
-	fWorld.push_back(circle1);
+	PhysicsBody bottom;
+	bottom.type = PLANE;
+	bottom.normal = V2_UP;
+	bottom.pos = { 0.0f, -100.0f };
+	bottom.invMass = 0.0f;
+	fWorld.push_back(bottom);
+    
+    PhysicsBody left;
+    left.type = PLANE;
+    left.normal = V2_RIGHT;
+    left.pos = { -100.0f * SCREEN_ASPECT, 0.0f };
+    left.invMass = 0.0f;
+    fWorld.push_back(left);
+    
+    PhysicsBody right;
+    right.type = PLANE;
+    right.normal = V2_RIGHT * -1.0f;
+    right.pos = { 100.0f * SCREEN_ASPECT, 0.0f };
+    right.invMass = 0.0f;
+    fWorld.push_back(right);
+
+    fTimer.current = 0.0f;
+    fTimer.total = 0.25f;
 }
 
 void PhysicsScene::OnUnload()
@@ -41,6 +61,18 @@ void PhysicsScene::OnUnload()
 
 void PhysicsScene::OnUpdate(float dt)
 {	
+    fTimer.Tick(dt);
+    if (fTimer.Expired())
+    {
+        fTimer.Reset();
+
+        PhysicsBody circle;
+        circle.type = CIRCLE;
+        circle.radius = 10.0f;
+        circle.pos = V2_ZERO;
+        circle.vel = { Random(-25.0f, 25.0f), Random(-100.0f, 25.0f) };
+        fWorld.push_back(circle);
+    }
 	PhysicsStep(fWorld, dt);
 }
 
@@ -59,8 +91,8 @@ void PhysicsScene::OnDraw()
 			break;
 
 		case PLANE:
-            // Screen extents are [-100 * aspect, 100 * aspect], so rect is rendering correctly!
-			DrawRectangle(body.pos, 100.0f * SCREEN_ASPECT * 2.0f, 5.0f, { 0.75f, 0.5f, 0.33f });
+            float angle = Angle(body.normal) + PI * 0.5f;
+			DrawRectangle(body.pos, 100.0f * SCREEN_ASPECT * 2.0f, 5.0f, { 0.75f, 0.5f, 0.33f }, angle);
 			break;
 		}
 	}
@@ -119,7 +151,8 @@ Collisions DetectCollisions(PhysicsWorld& world)
             }
             else
             {
-                assert(false, "Invalid collision test");
+                // Ignore plane-plane.
+                //assert(false, "Invalid collision test");
             }
             a.collision |= collision;
             b.collision |= collision;
