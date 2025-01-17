@@ -3,6 +3,7 @@
 #include "Render.h"
 #include "ImageLoader.h"
 #include <vector>
+#include <cassert>
 
 static Texture2D fTextureWhite;
 static Texture2D fTextureAlbedo;
@@ -16,39 +17,43 @@ struct HexagonGrid
 {
 	int rows = 0;
 	int cols = 0;
-	std::vector<int> values;
+	std::vector<std::vector<int>> values;
 };
 
+// TODO -- Copy manually defined grid to HexagonGrid structure.
+//static int grid[3][5]
+//{
+//	{ 1, 1, 1, 1, 1 },
+//	{   1, 0, 0, 0, 1 },
+//	{ 1, 1, 1, 1, 1 }
+//};
 static HexagonGrid fGrid;
 
 void GenGrid(HexagonGrid* grid, int rows, int cols)
 {
+	assert(rows > 0 && cols > 0);
 	grid->rows = rows;
 	grid->cols = cols;
-	grid->values.resize(rows * cols);
+	grid->values.resize(rows);
+	for (int i = 0; i < rows; i++)
+		grid->values[i].resize(cols);
 
-	// Vertical borders
-	for (int i = 0; i < rows; i += 2)
+	for (int row = 0; row < rows; row++)
 	{
-		int left = i * cols;
-		int right = i * cols + (cols - 1);
-		grid->values[left] = 1;
-		grid->values[right] = 1;
+		grid->values[row][0] = 1;
+		grid->values[row][cols - 1] = 1;
 	}
 
-	// Horizontal borders
-	for (int i = 0; i < cols; i++)
+	for (int col = 0; col < cols; col++)
 	{
-		grid->values[i] = 1;
-		grid->values[(rows - 1) * cols + i] = 1;
+		grid->values[0][col] = 1;
+		grid->values[rows - 1][col] = 1;
 	}
-
-	// TODO - flip array, visuals are deceiving us
 }
 
 void NeonDriveScene::OnLoad()
 {
-	GenGrid(&fGrid, 32, 16);
+	GenGrid(&fGrid, 16, 32);
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 
 	// World's most elaborate texture xD xD xD
@@ -105,13 +110,6 @@ void NeonDriveScene::OnDraw()
 	//DrawMeshTexture(gMeshGround, Scale(100.0f, 100.0f, 1.0f), fTextureGround, 0);
 	//DrawMeshNormals(gMeshTd, MatrixIdentity(), MatrixIdentity());
 
-	//static int grid[3][5]
-	//{
-	//	{ 1, 1, 1, 1, 1 },
-	//	{   1, 0, 0, 0, 1 },
-	//	{ 1, 1, 1, 1, 1 }
-	//};
-
 	// TODO - Make a pipeline state save and load feature?
 	// Pipeline pipeline = SavePipeline();
 	// *Insert state changes & draw calls here*
@@ -122,20 +120,23 @@ void NeonDriveScene::OnDraw()
 		SetWireframes(true);
 		SetDepthTest(false);
 		SetDepthWrite(false);
-
-		for (int i = 0; i < fGrid.rows; i++)
+		for (int i = 0; i < 16; i++)
 		{
-			float y = (sqrtf(3.0f) * 0.5f) * (float)i;
-			float xStart = i % 2 == 0 ? 0.0f : 1.5f;
-			for (int j = 0; j < fGrid.cols; j++)
+			for (int j = 0; j < 32; j++)
 			{
-				//Vector3 color = grid[i][j] == 0 ? V3_RIGHT : V3_UP;
-				int index = i * fGrid.cols + j;
-				Vector3 color = fGrid.values[index] == 0 ? V3_RIGHT : V3_UP;
-				float x = xStart + 3.0f * (float)j;
-				DrawMeshFlat(gMeshParticle, Translate(x, y, 0.0f), color);
+				Vector3 color = fGrid.values[i][j] == 0 ? V3_RIGHT : V3_UP;
+				float sc = 1.5f;		// Space between columns
+				float sr = sqrtf(3.0f); // Space between rows
+				float offset = j % 2 == 0 ? 0.0f : sr * 0.5f;
+				DrawMeshFlat(gMeshParticle, Translate(j * sc, i * sr + offset, 0.0f), color);
 			}
 		}
+
+		// Coordinates example:
+		//DrawMeshFlat(gMeshParticle, Translate(0.0f, 0.0f, 0.0f), V3_ONE);
+		//DrawMeshFlat(gMeshParticle, Translate(0.0f, sqrtf(3.0f), 0.0f), V3_ONE);
+		//DrawMeshFlat(gMeshParticle, Translate(1.5f, sqrtf(3.0f) * 0.5f, 0.0f), V3_ONE);
+		//DrawMeshFlat(gMeshParticle, Translate(3.0f, 0.0f, 0.0f), V3_ONE);
 
 		SetDepthWrite(depthWrite);
 		SetDepthTest(depthTest);
