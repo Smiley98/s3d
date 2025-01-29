@@ -4,6 +4,7 @@
 #include <fast_obj.h>
 
 #include "Mesh.h"
+#include "File.h"
 #include <cstdio>
 #include <cassert>
 
@@ -20,7 +21,7 @@ Mesh gMeshCylinder;
 
 Mesh gMeshHead;
 Mesh gMeshGround;
-Mesh gMeshParticle;
+Mesh gMeshHexagon;
 Mesh gMeshTd;
 
 // Copies a par_shapes_mesh to a Mesh
@@ -36,17 +37,17 @@ void CreateMeshes()
 	GenMeshObj(&gMeshTd, "assets/meshes/bld_td.obj");
 	GenMeshObj(&gMeshHead, "assets/meshes/head.obj");
 	GenMeshPlane(&gMeshGround);
-	GenMeshCircle(&gMeshParticle, 1.0f, 6);
+	GenMeshCircle(&gMeshHexagon, 1.0f, 6);
 
 	CreateMesh(&gMeshTd);
 	CreateMesh(&gMeshHead);
 	CreateMesh(&gMeshGround);
-	CreateMesh(&gMeshParticle);
+	CreateMesh(&gMeshHexagon);
 }
 
 void DestroyMeshes()
 {
-	DestroyMesh(&gMeshParticle);
+	DestroyMesh(&gMeshHexagon);
 	DestroyMesh(&gMeshHead);
 	DestroyMesh(&gMeshGround);
 	DestroyMesh(&gMeshTd);
@@ -211,7 +212,8 @@ void GenMeshCircle(Mesh* mesh, float radius, int divisions)
 {
 	Vector3 position = V3_ZERO;
 	Vector3 normal = V3_FORWARD;
-	par_shapes_mesh* par = par_shapes_create_disk(radius, divisions, &position.x, &normal.x);
+	par_shapes_mesh* par = par_shapes_create_parametric_disk(divisions, 1);
+	//par_shapes_mesh* par = par_shapes_create_disk(radius, divisions, &position.x, &normal.x);
 	CopyMesh(mesh, par);
 	par_shapes_free_mesh(par);
 }
@@ -432,6 +434,74 @@ void DestroyShapes()
 	DestroyMesh(&gMeshSemicircle);
 	DestroyMesh(&gMeshCircle);
 	DestroyMesh(&gMeshPlane);
+}
+
+void ExportMesh(Mesh mesh, const char* fileName)
+{
+	assert(IsFileExtension(fileName, ".obj"));
+
+	if (IsFileExtension(fileName, ".obj"))
+	{
+		// Estimated data size, it should be enough...
+		int dataSize =
+			mesh.count * (int)strlen("v 0000.00f 0000.00f 0000.00f") +
+			mesh.count * (int)strlen("vt 0.000f 0.00f") +
+			mesh.count * (int)strlen("vn 0.000f 0.00f 0.00f") +
+			(mesh.count / 3) * (int)strlen("f 00000/00000/00000 00000/00000/00000 00000/00000/00000");
+
+		// NOTE: Text data buffer size is estimated considering mesh data size
+		char* txtData = (char*)calloc(dataSize * 2 + 2000, sizeof(char));
+
+		int byteCount = 0;
+		
+		byteCount += sprintf(txtData + byteCount, "# Vertex Count:     %i\n", mesh.count);
+		byteCount += sprintf(txtData + byteCount, "# Triangle Count:   %i\n\n", mesh.count / 3);
+		byteCount += sprintf(txtData + byteCount, "g mesh\n");
+
+		for (int i = 0; i < mesh.count; i++)
+		{
+			Vector3 p = mesh.positions[i];
+			byteCount += sprintf(txtData + byteCount, "v %.2f %.2f %.2f\n", p.x, p.y, p.z);
+		}
+
+		for (int i = 0; i < mesh.count; i++)
+		{
+			Vector2 t = mesh.tcoords[i];
+			byteCount += sprintf(txtData + byteCount, "vt %.3f %.3f\n", t.x, t.y);
+		}
+
+		for (int i = 0; i < mesh.count; i++)
+		{
+			Vector3 n = mesh.normals[i];
+			byteCount += sprintf(txtData + byteCount, "vn %.3f %.3f %.3f\n", n.x, n.y, n.z);
+		}
+
+		// TODO -- Make & test this.
+		// Lowkey easier to make binary import/export at this point.
+		// I wanted this because... I actually have no idea :'D
+		// I think I wanted to export uv coordinates programatically, but I'm now using parametric circles for hexagons.
+		//if (!mesh.indices.empty())
+		//{
+		//	for (int i = 0; i < (mesh.count / 3); i++)
+		//	{
+		//		byteCount += sprintf(txtData + byteCount, "f %i/%i/%i %i/%i/%i %i/%i/%i\n",
+		//			mesh.indices[v] + 1, mesh.indices[v] + 1, mesh.indices[v] + 1,
+		//			mesh.indices[v + 1] + 1, mesh.indices[v + 1] + 1, mesh.indices[v + 1] + 1,
+		//			mesh.indices[v + 2] + 1, mesh.indices[v + 2] + 1, mesh.indices[v + 2] + 1);
+		//	}
+		//}
+		//else
+		//{
+		//	for (int i = 0, v = 1; i < (mesh.count / 3); i++, v += 3)
+		//	{
+		//		byteCount += sprintf(txtData + byteCount, "f %i/%i/%i %i/%i/%i %i/%i/%i\n", v, v, v, v + 1, v + 1, v + 1, v + 2, v + 2, v + 2);
+		//	}
+		//}
+
+		byteCount += sprintf(txtData + byteCount, "\n");
+		SaveFileText(fileName, txtData);
+		free(txtData);
+	}
 }
 
 // Leaving this in case I want a par_shapes platonics solid in the future (remember to unweld normals with indices = true)

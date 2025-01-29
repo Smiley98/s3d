@@ -96,6 +96,7 @@
     <ClCompile Include="src\CollisionScene.cpp" />
     <ClCompile Include="src\DDAScene.cpp" />
     <ClCompile Include="src\DeferredScene.cpp" />
+    <ClCompile Include="src\File.cpp" />
     <ClCompile Include="src\Framebuffer.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Image.cpp" />
@@ -137,6 +138,7 @@
     <ClInclude Include="src\Config.h" />
     <ClInclude Include="src\DDAScene.h" />
     <ClInclude Include="src\DeferredScene.h" />
+    <ClInclude Include="src\File.h" />
     <ClInclude Include="src\Framebuffer.h" />
     <ClInclude Include="src\Geometry.h" />
     <ClInclude Include="src\Image.h" />

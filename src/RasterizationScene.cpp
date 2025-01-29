@@ -81,13 +81,15 @@ void RasterizationScene::OnDrawImGui()
 		"Triangle",
 		"Square",
 		"Circle",
+		"Semicircle",
 
 		"Cube",
 		"Sphere",
 		"Hemisphere",
 		"Cylinder",
 
-		"Head"
+		"Head",
+		"Hexagon"
 	};
 
 	static const char* shaderNames[] =
@@ -143,23 +145,31 @@ void DrawDebugShapes()
 		break;
 
 	case 3:
-		DrawCube(position, size.x, size.y, size.z, fColor, rotation);
+		DrawSemicircleY(position, size.x, fColor, angle);
 		break;
 
 	case 4:
-		DrawSphere(position, size.x, fColor, rotation);
+		DrawCube(position, size.x, size.y, size.z, fColor, rotation);
 		break;
 
 	case 5:
-		DrawHemisphere(position, size.x, fColor, rotation);
+		DrawSphere(position, size.x, fColor, rotation);
 		break;
 
 	case 6:
-		DrawCylinder(position, size.x, size.y, fColor, rotation);
+		DrawHemisphere(position, size.x, fColor, rotation);
 		break;
 
 	case 7:
+		DrawCylinder(position, size.x, size.y, fColor, rotation);
+		break;
+
+	case 8:
 		DrawMeshDebug(gMeshHead, world, fColor);
+		break;
+
+	case 9:
+		DrawMeshDebug(gMeshHexagon, world, fColor);
 		break;
 
 	default:

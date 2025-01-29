@@ -132,7 +132,7 @@ void NeonDriveScene::OnDraw()
 				float sc = 1.5f * r;		// Space between columns
 				float sr = sqrtf(3.0f) * r;	// Space between rows
 				float offset = j % 2 == 0 ? 0.0f : sr * 0.5f;
-				DrawMeshFlat(gMeshParticle, Scale(r, r, 1.0f) * Translate(j * sc, i * sr + offset, 0.0f), color);
+				DrawMeshFlat(gMeshHexagon, Scale(r, r, 1.0f) * Translate(j * sc, i * sr + offset, 0.0f), color);
 			}
 		}
 

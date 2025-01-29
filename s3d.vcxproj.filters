@@ -28,6 +28,9 @@
     <Filter Include="Math">
       <UniqueIdentifier>{b0e46dae-414f-45fd-84f8-404b36b9e57c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{fc55ab78-2fe8-44f1-a715-0a92e1da5fff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\imgui\imgui.cpp">
@@ -87,9 +90,6 @@
     <ClCompile Include="src\Materials.cpp">
       <Filter>Lighting</Filter>
     </ClCompile>
-    <ClCompile Include="src\Shader.cpp">
-      <Filter>Pipeline</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render.cpp">
       <Filter>Render</Filter>
     </ClCompile>
@@ -108,9 +108,6 @@
     <ClCompile Include="src\SolarSystemScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
-      <Filter>Pipeline</Filter>
-    </ClCompile>
     <ClCompile Include="src\stb.cpp">
       <Filter>Image</Filter>
     </ClCompile>
@@ -123,14 +120,23 @@
     <ClCompile Include="src\PhysicsScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
-      <Filter>Image</Filter>
-    </ClCompile>
     <ClCompile Include="src\ImageLoader.cpp">
       <Filter>Image</Filter>
     </ClCompile>
     <ClCompile Include="src\NeonDrive.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\File.cpp">
+      <Filter>Assets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,9 +209,6 @@
     <ClInclude Include="src\ImageUtils.h">
       <Filter>Image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Shader.h">
-      <Filter>Pipeline</Filter>
-    </ClInclude>
     <ClInclude Include="src\Color.h">
       <Filter>Image</Filter>
     </ClInclude>
@@ -242,9 +245,6 @@
     <ClInclude Include="src\SolarSystemScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Mesh.h">
-      <Filter>Pipeline</Filter>
-    </ClInclude>
     <ClInclude Include="src\stb.h">
       <Filter>Image</Filter>
     </ClInclude>
@@ -260,9 +260,6 @@
     <ClInclude Include="src\Physics.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\Texture.h">
-      <Filter>Image</Filter>
-    </ClInclude>
     <ClInclude Include="src\ImageLoader.h">
       <Filter>Image</Filter>
     </ClInclude>
@@ -271,6 +268,18 @@
     </ClInclude>
     <ClInclude Include="src\Framebuffer.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shader.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Texture.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\File.h">
+      <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

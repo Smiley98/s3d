@@ -32,7 +32,7 @@ extern Mesh gMeshCylinder;
 // Game meshes
 extern Mesh gMeshHead;
 extern Mesh gMeshGround;	// 1x1 PLANE_XZ (faces +Y)
-extern Mesh gMeshParticle;	// Unit hexagon r = 1, faces +Y
+extern Mesh gMeshHexagon;	// Unit hexagon r = 1, faces +Y
 extern Mesh gMeshTd;		// 10 x 10 x 50
 
 void CreateMeshes();	// Create game meshes
@@ -55,6 +55,8 @@ void GenMeshCube(Mesh* mesh, float width = 1.0f, float height = 1.0f, float dept
 void GenMeshSphere(Mesh* mesh, float radius = 1.0f, int divisions = 8);
 void GenMeshHemisphere(Mesh* mesh, float radius = 1.0f, int divisions = 4);
 void GenMeshCylinder(Mesh* mesh, float radius = 1.0f, float height = 1.0f, int divisions = 8);
+
+void ExportMesh(Mesh mesh, const char* fileName);
 
 // par meshes:
 // Optimized. Using par for parametric meshes, using custom algorithms for platonic solids.
