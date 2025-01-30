@@ -212,10 +212,12 @@ void GenMeshCircle(Mesh* mesh, float radius, int divisions)
 {
 	Vector3 position = V3_ZERO;
 	Vector3 normal = V3_FORWARD;
-	par_shapes_mesh* par = par_shapes_create_parametric_disk(divisions, 1);
-	//par_shapes_mesh* par = par_shapes_create_disk(radius, divisions, &position.x, &normal.x);
+	par_shapes_mesh* par = par_shapes_create_disk(radius, divisions, &position.x, &normal.x);
 	CopyMesh(mesh, par);
 	par_shapes_free_mesh(par);
+
+	// Edges are less harsh than create_disk. Best to base both circle & semi-circle on create_disk
+	//par_shapes_mesh* par = par_shapes_create_parametric_disk(divisions, 1);
 }
 
 void GenMeshSemicircle(Mesh* mesh, float radius, int divisions)

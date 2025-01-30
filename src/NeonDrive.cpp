@@ -13,49 +13,8 @@ static Framebuffer fGeometryBuffer;
 static Vector3 fLightPosition = V3_ZERO;
 static Vector3 fLightColor = V3_ONE;
 
-struct HexagonGrid
-{
-	int rows = 0;
-	int cols = 0;
-	float radius = 1.0f;
-	std::vector<std::vector<int>> values;
-};
-
-// TODO -- Copy manually defined grid to HexagonGrid structure.
-//static int grid[3][5]
-//{
-//	{ 1, 1, 1, 1, 1 },
-//	{   1, 0, 0, 0, 1 },
-//	{ 1, 1, 1, 1, 1 }
-//};
-static HexagonGrid fGrid;
-
-void GenGrid(HexagonGrid* grid, int rows, int cols, float r)
-{
-	assert(rows > 0 && cols > 0);
-	grid->rows = rows;
-	grid->cols = cols;
-	grid->radius = r;
-	grid->values.resize(rows);
-	for (int i = 0; i < rows; i++)
-		grid->values[i].resize(cols);
-
-	for (int row = 0; row < rows; row++)
-	{
-		grid->values[row][0] = 1;
-		grid->values[row][cols - 1] = 1;
-	}
-
-	for (int col = 0; col < cols; col++)
-	{
-		grid->values[0][col] = 1;
-		grid->values[rows - 1][col] = 1;
-	}
-}
-
 void NeonDriveScene::OnLoad()
 {
-	GenGrid(&fGrid, 16, 32, 5.0f);
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 
 	// World's most elaborate texture xD xD xD
@@ -109,44 +68,10 @@ void NeonDriveScene::OnUpdate(float dt)
 
 void NeonDriveScene::OnDraw()
 {
-	//DrawMeshTexture(gMeshGround, Scale(100.0f, 100.0f, 1.0f), fTextureGround, 0);
-	//DrawMeshNormals(gMeshTd, MatrixIdentity(), MatrixIdentity());
-
 	// TODO - Make a pipeline state save and load feature?
 	// Pipeline pipeline = SavePipeline();
 	// *Insert state changes & draw calls here*
 	// LoadPipeline(&pipeline);
-	{
-		bool depthTest = DepthTest();
-		bool depthWrite = DepthWrite();
-		SetWireframes(true);
-		SetDepthTest(false);
-		SetDepthWrite(false);
-
-		for (int i = 0; i < fGrid.rows; i++)
-		{
-			for (int j = 0; j < fGrid.cols; j++)
-			{
-				Vector3 color = fGrid.values[i][j] == 0 ? V3_RIGHT : V3_UP;
-				float r = fGrid.radius;
-				float sc = 1.5f * r;		// Space between columns
-				float sr = sqrtf(3.0f) * r;	// Space between rows
-				float offset = j % 2 == 0 ? 0.0f : sr * 0.5f;
-				DrawMeshFlat(gMeshHexagon, Scale(r, r, 1.0f) * Translate(j * sc, i * sr + offset, 0.0f), color);
-			}
-		}
-
-		// Coordinates example:
-		//DrawMeshFlat(gMeshParticle, Translate(0.0f, 0.0f, 0.0f), V3_ONE);
-		//DrawMeshFlat(gMeshParticle, Translate(0.0f, sqrtf(3.0f), 0.0f), V3_ONE);
-		//DrawMeshFlat(gMeshParticle, Translate(1.5f, sqrtf(3.0f) * 0.5f, 0.0f), V3_ONE);
-		//DrawMeshFlat(gMeshParticle, Translate(3.0f, 0.0f, 0.0f), V3_ONE);
-
-		SetDepthWrite(depthWrite);
-		SetDepthTest(depthTest);
-		SetWireframes(false);
-	}
-	return;
 
 	Matrix world = MatrixIdentity();//Scale(V3_ONE * 10.0f);
 	Matrix mvp = world * gView * gProj;
