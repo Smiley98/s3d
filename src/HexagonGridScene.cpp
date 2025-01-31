@@ -54,8 +54,13 @@ void HexagonGridScene::OnDraw()
 	}
 	else
 	{
-		// TODO -- Add hexagon grid shader
-		// Modify shader to translate relative to camera
+		// TODO -- render to texture, then sample from texture in rasterized plane
+		BindShader(&gShaderHexagonGridRaymarch);
+		SendVec2("u_resolution", { SCREEN_WIDTH, SCREEN_HEIGHT });
+		SendVec3("fg_col", { 0.8f, 0.85f, 1.0f });
+		SendVec3("bg_col", V3_ONE);
+		DrawFsq();
+		UnbindShader();
 	}
 
 	DrawMeshNormals(gMeshTd, MatrixIdentity(), MatrixIdentity());

@@ -18,11 +18,6 @@ Shader gShaderSkybox;
 Shader gShaderEnvironmentReflect;
 Shader gShaderEnvironmentRefract;
 
-Shader gShaderRaymarchBase;
-Shader gShaderFractal2D;
-Shader gShaderFractal3D;
-Shader gShaderFractalOrb;
-
 Shader gShaderColor;
 Shader gShaderDepth;
 Shader gShaderNormals;
@@ -38,6 +33,14 @@ Shader gShaderDeferredLighting;
 Shader gShaderPlanetsRaster;
 Shader gShaderPlanetsRaymarch;
 Shader gShaderAsteroids;
+
+Shader gShaderHexagonGridRaymarch;
+//Shader gShaderHexagonGridRaster;
+
+Shader gShaderRaymarchBase;
+Shader gShaderFractal2D;
+Shader gShaderFractal3D;
+Shader gShaderFractalOrb;
 
 GLuint CreateShader(GLint type, const char* path);
 void CreateProgram(Shader* shader, GLuint vs, GLuint fs);
@@ -60,12 +63,6 @@ void CreateShaders()
     GLuint fsEnvironmentRefract = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/environment_refract.frag");
     GLuint fsTextureDepth = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/texture_depth.frag");
 
-    // Raymarching fragment shaders
-    GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
-    GLuint fsFractal2D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_2D.frag");
-    GLuint fsFractal3D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_3D.frag");
-    GLuint fsFractalOrb = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_orb.frag");
-
     // Visualization fragment shaders
     GLuint fsColor = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/color.frag");
     GLuint fsDepth = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/depth.frag");
@@ -84,6 +81,17 @@ void CreateShaders()
     GLuint fsPlanetsRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raster.frag"); 
     GLuint fsPlanetsRaymarch = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/planets_raymarch.frag");
     GLuint fsAsteroids = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/asteroids.frag");
+
+    // Hexagon grid shaders
+    GLuint fsHexagonGridRaymarch = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/hexagon_grid_raymarch.frag");
+    //GLuint fsHexagonGridRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/hexagon_grid_raster.frag");
+    // Would also most likely need a vertex shader for instanced rendering
+
+    // Raymarching & fractal shaders
+    GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
+    GLuint fsFractal2D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_2D.frag");
+    GLuint fsFractal3D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_3D.frag");
+    GLuint fsFractalOrb = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_orb.frag");
     
     // Shader programs
     CreateProgram(&gShaderFsq, vsFsq, fsTexture);
@@ -97,6 +105,9 @@ void CreateShaders()
     CreateProgram(&gShaderFractal2D, vsFsq, fsFractal2D);
     CreateProgram(&gShaderFractal3D, vsFsq, fsFractal3D);
     CreateProgram(&gShaderFractalOrb, vsFsq, fsFractalOrb);
+
+    CreateProgram(&gShaderHexagonGridRaymarch, vsFsq, fsHexagonGridRaymarch);
+    //CreateProgram(&gShaderHexagonGridRaster, vsHexagonGrid, fsHexagonGridRaster);
 
     CreateProgram(&gShaderColor, vsMvp, fsColor);
     CreateProgram(&gShaderDepth, vsMvp, fsDepth);

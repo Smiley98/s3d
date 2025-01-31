@@ -138,6 +138,9 @@
     <ClCompile Include="src\File.cpp">
       <Filter>Assets</Filter>
     </ClCompile>
+    <ClCompile Include="src\HexagonGridScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h">
@@ -280,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="src\File.h">
       <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HexagonGridScene.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

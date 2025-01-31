@@ -16,11 +16,6 @@ extern Shader gShaderSkybox;
 extern Shader gShaderEnvironmentReflect;
 extern Shader gShaderEnvironmentRefract;
 
-extern Shader gShaderRaymarchBase;
-extern Shader gShaderFractal2D;
-extern Shader gShaderFractal3D;
-extern Shader gShaderFractalOrb;
-
 extern Shader gShaderColor;
 extern Shader gShaderDepth;
 extern Shader gShaderNormals;
@@ -36,6 +31,14 @@ extern Shader gShaderDeferredLighting;
 extern Shader gShaderPlanetsRaster;
 extern Shader gShaderPlanetsRaymarch;
 extern Shader gShaderAsteroids;
+
+extern Shader gShaderHexagonGridRaymarch;
+//extern Shader gShaderHexagonGridRaster;
+
+extern Shader gShaderRaymarchBase;
+extern Shader gShaderFractal2D;
+extern Shader gShaderFractal3D;
+extern Shader gShaderFractalOrb;
 
 void CreateShaders();
 void DestroyShaders();
