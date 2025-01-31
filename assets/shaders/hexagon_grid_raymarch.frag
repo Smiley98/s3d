@@ -9,6 +9,7 @@ uniform vec3 u_fg_col;
 uniform vec3 u_bg_col;
 
 uniform float u_hex_res;
+uniform float u_hex_thickness;
 
 void main()
 {
@@ -34,8 +35,7 @@ void main()
     );
     
     // Create sharp hexagon pattern with thin lines
-    float spacing = 0.1;
-    float hexPattern = smoothstep(1.0 - spacing, 1.0, hexDist);
+    float hexPattern = smoothstep(1.0 - u_hex_thickness, 1.0, hexDist);
     vec3 col = mix(u_fg_col, u_bg_col, hexPattern);
     
     FragColor = vec4(col, 1.0);

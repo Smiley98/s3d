@@ -13,9 +13,11 @@ struct HexagonGrid
 	std::vector<std::vector<int>> values;
 };
 
-static float fHexRes = 10.0f;
 static HexagonGrid fGrid;
 static bool fRasterize = true;
+
+static float fHexRes = 10.0f;
+static float fHexThickness = 0.1f;
 
 static Framebuffer fFbo;
 
@@ -49,16 +51,14 @@ void HexagonGridScene::OnUpdate(float dt)
 
 void HexagonGridScene::OnDraw()
 {
+	bool depthTest = DepthTest();
+	bool depthWrite = DepthWrite();
+	SetDepthTest(false);
+	SetDepthWrite(false);
 	if (fRasterize)
 	{
-		bool depthTest = DepthTest();
-		bool depthWrite = DepthWrite();
 		SetWireframes(true);
-		SetDepthTest(false);
-		SetDepthWrite(false);
 		DrawGrid(fGrid);
-		SetDepthWrite(depthWrite);
-		SetDepthTest(depthTest);
 		SetWireframes(false);
 	}
 	else
@@ -69,20 +69,26 @@ void HexagonGridScene::OnDraw()
 		SendVec3("u_fg_col", { 0.8f, 0.85f, 1.0f });
 		SendVec3("u_bg_col", V3_ONE);
 		SendFloat("u_hex_res", fHexRes);
+		SendFloat("u_hex_thickness", fHexThickness);
 		DrawFsq();
 		UnbindShader();
 		UnbindFramebuffer(fFbo);
 
 		DrawMeshTexture(gMeshPlane, Scale(100.0f * SCREEN_ASPECT, 100.0f, 1.0f), fFbo.colors[0], 0);
 	}
-
+	SetDepthWrite(depthWrite);
+	SetDepthTest(depthTest);
+	
 	DrawMeshNormals(gMeshTd, Translate(V3_RIGHT * -40.0f * SCREEN_ASPECT + V3_UP * -40.0f), MatrixIdentity());
 }
 
 void HexagonGridScene::OnDrawImGui()
 {
 	if (!fRasterize)
+	{
 		ImGui::SliderFloat("Hexagon Resolution", &fHexRes, 1.0f, 100.0f);
+		ImGui::SliderFloat("Hexagon Thickness", &fHexThickness, 0.1f, 0.9f);
+	}
 }
 
 void GenGrid(HexagonGrid* grid, int rows, int cols, float r)
