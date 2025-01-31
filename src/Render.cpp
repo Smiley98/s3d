@@ -375,7 +375,7 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 
 	bool depthTest = DepthTest();
 	bool depthWrite = DepthWrite();
-	GLenum faceCulling = FaceCulling();
+	GLenum cullFace = FaceCulling();
 	SetDepthTest(true);
 	SetDepthWrite(false);
 	SetFaceCulling(GL_FRONT);
@@ -387,7 +387,7 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 	UnbindShader();
 	UnbindCubemap(cubemap, unit);
 
-	SetFaceCulling(faceCulling);
+	SetFaceCulling(cullFace);
 	SetDepthWrite(depthWrite);
 	SetDepthTest(depthTest);
 }

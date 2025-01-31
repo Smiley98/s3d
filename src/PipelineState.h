@@ -1,21 +1,27 @@
 #pragma once
 #include <glad/glad.h>
 
+struct PipelineState
+{
+	bool depthTest;
+	bool depthWrite;
+	bool faceCulling;
+	bool wireframes;
+
+	GLenum depthFunc;
+	GLenum cullFace;
+	GLenum windingOrder;
+};
+
+extern PipelineState gPipelineDefault;
+extern PipelineState gPipelineWireframes;
+extern PipelineState gPipelineFsq;
+
 void InitPipelineState(); // Modifications from default gl state (ie enable depth test)
-void QuitPipelineState(); // Destroys empty vao 
+void QuitPipelineState(); // Destroys empty vao
 
-void SetDepthTest(bool depthTest);
-void SetDepthWrite(bool depthWrite);
-void SetWireframes(bool wireframes);
-void SetFaceCulling(GLenum faceCulling);
-
-bool DepthTest();
-bool DepthWrite();
-bool Wireframes();
-
-GLenum FaceCulling();
-GLint DepthFunc();
-GLint WindingOrder();
+PipelineState GetPipelineState();
+void SetPipelineState(PipelineState state);
 
 void BindEmptyVao();// vao with no buffers 
 void BindNullVao(); // GL_NONE

@@ -109,13 +109,9 @@ void DeferredScene::OnDraw()
 	SendVec2("u_viewportSize", { hw, hh });
 	SendVec2("u_viewportOffset", { hw, hh });
 
-	bool depthTest = DepthTest();
-	bool depthWrite = DepthWrite();
-	SetDepthTest(false);
-	SetDepthWrite(false);
+	SetPipelineState(gPipelineFsq);
 	DrawMesh(gMeshCircle);
-	SetDepthWrite(depthWrite);
-	SetDepthTest(depthTest);
+	SetPipelineState(gPipelineDefault);
 
 	UnbindShader();
 	UnbindTexture2D(fGeometryBuffer.colors[2], 2);

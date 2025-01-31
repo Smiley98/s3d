@@ -33,22 +33,19 @@ void HexagonGridScene::OnUpdate(float dt)
 
 void HexagonGridScene::OnDraw()
 {
-	bool depthTest = DepthTest();
-	bool depthWrite = DepthWrite();
-	SetDepthTest(false);
-	SetDepthWrite(false);
 	if (fRasterize)
 	{
-		SetWireframes(true);
+		SetPipelineState(gPipelineWireframes);
 		DrawHexagonGridRaster(fGrid);
-		SetWireframes(false);
+		SetPipelineState(gPipelineDefault);
 	}
 	else
 	{
+
+		SetPipelineState(gPipelineFsq);
 		DrawHexagonGridDistance({ 0.8f, 0.85f, 1.0f }, V3_ONE, fHexagonAmount, fHexagonThickness);
+		SetPipelineState(gPipelineDefault);
 	}
-	SetDepthWrite(depthWrite);
-	SetDepthTest(depthTest);
 	
 	DrawMeshNormals(gMeshTd, Translate(V3_RIGHT * -40.0f * SCREEN_ASPECT + V3_UP * -40.0f), MatrixIdentity());
 }

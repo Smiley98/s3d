@@ -114,13 +114,9 @@ void NeonDriveScene::OnDraw()
 	SendVec2("u_viewportSize", { SCREEN_WIDTH, SCREEN_HEIGHT });
 	SendVec2("u_viewportOffset", V2_ZERO);
 
-	bool depthTest = DepthTest();
-	bool depthWrite = DepthWrite();
-	SetDepthTest(false);
-	SetDepthWrite(false);
+	SetPipelineState(gPipelineFsq);
 	DrawMesh(gMeshCircle);
-	SetDepthWrite(depthWrite);
-	SetDepthTest(depthTest);
+	SetPipelineState(gPipelineDefault);
 
 	UnbindShader();
 	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
