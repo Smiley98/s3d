@@ -5,6 +5,8 @@ DebugShaderType gDebugShader = FLAT;
 Matrix gView = MatrixIdentity();
 Matrix gProj = MatrixIdentity();
 
+Framebuffer gFboColor;
+
 void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color)
 {
 	Matrix mvp = world * gView * gProj;
@@ -405,6 +407,18 @@ void Present(Image* image)
 	UnbindTexture2D(fSoftwareRenderTexture, 0);
 
 	DrawFsqTexture(fSoftwareRenderTexture, 0);
+}
+
+void InitRenderer()
+{
+	CreateFramebuffer(&gFboColor, SCREEN_WIDTH, SCREEN_HEIGHT);
+	AddColor(&gFboColor, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	CompleteFramebuffer(&gFboColor);
+}
+
+void QuitRenderer()
+{
+	DestroyFramebuffer(&gFboColor);
 }
 
 void InitSoftwareRenderer()

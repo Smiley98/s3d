@@ -31,6 +31,9 @@
     <Filter Include="Assets">
       <UniqueIdentifier>{fc55ab78-2fe8-44f1-a715-0a92e1da5fff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Grid">
+      <UniqueIdentifier>{6714d9ae-1a79-4288-931c-25e0daa3cb75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\imgui\imgui.cpp">
@@ -140,6 +143,9 @@
     </ClCompile>
     <ClCompile Include="src\HexagonGridScene.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HexagonGrid.cpp">
+      <Filter>Grid</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -269,9 +275,6 @@
     <ClInclude Include="src\NeonDrive.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Framebuffer.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\Shader.h">
       <Filter>Assets</Filter>
     </ClInclude>
@@ -286,6 +289,12 @@
     </ClInclude>
     <ClInclude Include="src\HexagonGridScene.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framebuffer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HexagonGrid.h">
+      <Filter>Grid</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

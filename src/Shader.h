@@ -32,7 +32,7 @@ extern Shader gShaderPlanetsRaster;
 extern Shader gShaderPlanetsRaymarch;
 extern Shader gShaderAsteroids;
 
-extern Shader gShaderHexagonGridRaymarch;
+extern Shader gShaderHexagonGridDistance;
 //extern Shader gShaderHexagonGridRaster;
 
 extern Shader gShaderRaymarchBase;

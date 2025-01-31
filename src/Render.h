@@ -10,6 +10,9 @@
 extern Matrix gView;
 extern Matrix gProj;
 
+// RGBA8 uint8 nearest-sampling colour attachment
+extern Framebuffer gFboColor;
+
 enum DebugShaderType : int
 {
 	FLAT,
@@ -22,10 +25,10 @@ enum DebugShaderType : int
 	TCOORDS
 };
 
-// Shader testing
 extern DebugShaderType gDebugShader;
 void DrawMeshDebug(const Mesh& mesh, Matrix world, Vector3 color);
 
+// Debug effects
 void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color);
 void DrawMeshWireframes(const Mesh& mesh, Matrix world, Vector3 color);
 void DrawMeshDepth(const Mesh& mesh, Matrix world);/*Assumes perspective projection*/
@@ -34,12 +37,12 @@ void DrawMeshPositionsScreen(const Mesh& mesh, Matrix world, Vector2 resolution 
 void DrawMeshNormals(const Mesh& mesh, Matrix world, Matrix normal/*identity for object-space*/);
 void DrawMeshTcoords(const Mesh& mesh, Matrix world/*object-space*/);
 
-// Object effects
+// Textured effects
 void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture2D texture, GLuint unit);
 void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit);
 void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit, float ratio);
 
-// 2d:
+// 2D primitives
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle = 0.0f);
 void DrawRectangle(Vector2 center, float width, float height, Vector3 color, float angle = 0.0f);
 void DrawCircle(Vector2 center, float radius, Vector3 color, float angle = 0.0f);
@@ -48,7 +51,7 @@ void DrawSemicircleY(Vector2 center, float radius, Vector3 color, float angle = 
 void DrawCapsuleX(Vector2 center, float radius, float halfHeight, Vector3 color, float angle = 0.0f);
 void DrawCapsuleY(Vector2 center, float radius, float halfHeight, Vector3 color, float angle = 0.0f);
 
-// 3d:
+// 3D primitives
 void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness = 1.0f);
 void DrawCube(Vector3 center, float width, float height, float depth, Vector3 color, Matrix rotation = MatrixIdentity());
 void DrawSphere(Vector3 center, float radius, Vector3 color, Matrix rotation = MatrixIdentity());
@@ -71,12 +74,12 @@ void DrawSkybox(Cubemap cubemap, GLuint unit);
 void DrawMesh(const Mesh& mesh);
 void DrawMeshInstanced(const Mesh& mesh, int instanceCount);
 
-// CPU Rendering
+// CPU rendering
 struct Image;
 void Present(Image* image);
 
-void InitDebugRenderer();	// Create debug meshes
-void QuitDebugRenderer();	// Destroy debug meshes
+void InitRenderer();
+void QuitRenderer();
 
 void InitSoftwareRenderer();
 void QuitSoftwareRenderer();
