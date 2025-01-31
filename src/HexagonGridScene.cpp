@@ -3,6 +3,7 @@
 #include "Render.h"
 #include <vector>
 #include <cassert>
+#include <imgui/imgui.h>
 
 struct HexagonGrid
 {
@@ -12,8 +13,11 @@ struct HexagonGrid
 	std::vector<std::vector<int>> values;
 };
 
+static float fHexRes = 10.0f;
 static HexagonGrid fGrid;
 static bool fRasterize = true;
+
+static Framebuffer fFbo;
 
 void GenGrid(HexagonGrid* grid, int rows, int cols, float r);
 void DrawGrid(const HexagonGrid& grid);
@@ -21,11 +25,16 @@ void DrawGrid(const HexagonGrid& grid);
 void HexagonGridScene::OnLoad()
 {
 	GenGrid(&fGrid, 16, 32, 1.0f);
-	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
+	gCamera = FromView(LookAt({ 0.0f, 0.0f, 50.0f }, V3_ZERO, V3_UP));
+
+	CreateFramebuffer(&fFbo, SCREEN_WIDTH, SCREEN_HEIGHT);
+	AddColor(&fFbo, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	CompleteFramebuffer(&fFbo);
 }
 
 void HexagonGridScene::OnUnload()
 {
+	DestroyFramebuffer(&fFbo);
 }
 
 void HexagonGridScene::OnUpdate(float dt)
@@ -54,16 +63,26 @@ void HexagonGridScene::OnDraw()
 	}
 	else
 	{
-		// TODO -- render to texture, then sample from texture in rasterized plane
+		BindFramebuffer(fFbo);
 		BindShader(&gShaderHexagonGridRaymarch);
 		SendVec2("u_resolution", { SCREEN_WIDTH, SCREEN_HEIGHT });
-		SendVec3("fg_col", { 0.8f, 0.85f, 1.0f });
-		SendVec3("bg_col", V3_ONE);
+		SendVec3("u_fg_col", { 0.8f, 0.85f, 1.0f });
+		SendVec3("u_bg_col", V3_ONE);
+		SendFloat("u_hex_res", fHexRes);
 		DrawFsq();
 		UnbindShader();
+		UnbindFramebuffer(fFbo);
+
+		DrawMeshTexture(gMeshPlane, Scale(100.0f * SCREEN_ASPECT, 100.0f, 1.0f), fFbo.colors[0], 0);
 	}
 
-	DrawMeshNormals(gMeshTd, MatrixIdentity(), MatrixIdentity());
+	DrawMeshNormals(gMeshTd, Translate(V3_RIGHT * -40.0f * SCREEN_ASPECT + V3_UP * -40.0f), MatrixIdentity());
+}
+
+void HexagonGridScene::OnDrawImGui()
+{
+	if (!fRasterize)
+		ImGui::SliderFloat("Hexagon Resolution", &fHexRes, 1.0f, 100.0f);
 }
 
 void GenGrid(HexagonGrid* grid, int rows, int cols, float r)

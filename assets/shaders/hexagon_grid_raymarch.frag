@@ -5,13 +5,15 @@ out vec4 FragColor;
 uniform float u_time;
 uniform vec2 u_resolution;
 
-uniform vec3 fg_col;
-uniform vec3 bg_col;
+uniform vec3 u_fg_col;
+uniform vec3 u_bg_col;
+
+uniform float u_hex_res;
 
 void main()
 {
     vec2 uv = gl_FragCoord.xy / u_resolution;
-    uv *= 10.0;
+    uv *= u_hex_res;
     uv.x *= u_resolution.x / u_resolution.y;
     
     // Constants for hexagon grid
@@ -34,10 +36,7 @@ void main()
     // Create sharp hexagon pattern with thin lines
     float spacing = 0.1;
     float hexPattern = smoothstep(1.0 - spacing, 1.0, hexDist);
-    
-    vec3 lineColor = vec3(0.8, 0.85, 1.0);
-    vec3 backgroundColor = vec3(1.0);
-    vec3 col = mix(lineColor, backgroundColor, hexPattern);
+    vec3 col = mix(u_fg_col, u_bg_col, hexPattern);
     
     FragColor = vec4(col, 1.0);
 }
