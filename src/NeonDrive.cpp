@@ -114,7 +114,7 @@ void NeonDriveScene::OnDraw()
 	SendVec2("u_viewportSize", { SCREEN_WIDTH, SCREEN_HEIGHT });
 	SendVec2("u_viewportOffset", V2_ZERO);
 
-	SetPipelineState(gPipelineFsq);
+	SetPipelineState(gPipelineNoDepth);
 	DrawMesh(gMeshCircle);
 	SetPipelineState(gPipelineDefault);
 

@@ -19,15 +19,9 @@ void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color)
 
 void DrawMeshWireframes(const Mesh& mesh, Matrix world, Vector3 color)
 {
-	bool depthTest = DepthTest();
-	bool depthWrite = DepthWrite();
-	SetDepthTest(false);
-	SetDepthWrite(false);
-	SetWireframes(true);
+	SetPipelineState(gPipelineWireframes);
 	DrawMeshFlat(mesh, world, color);
-	SetWireframes(false);
-	SetDepthWrite(depthTest);
-	SetDepthTest(depthWrite);
+	SetPipelineState(gPipelineDefault);
 }
 
 // Assumes perspective projection.
@@ -299,11 +293,7 @@ void DrawMeshInstanced(const Mesh& mesh, int instanceCount)
 
 void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness)
 {
-	bool depthTest = DepthTest();
-	bool depthWrite = DepthWrite();
-	SetDepthTest(false);
-	SetDepthWrite(false);
-
+	SetPipelineState(gPipelineNoDepth);
 	Matrix mvp = gView * gProj;
 	BindShader(&gShaderLine);
 	SendMat4("u_mvp", mvp);
@@ -316,24 +306,16 @@ void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness)
 	glLineWidth(1.0f);
 	BindNullVao();
 	UnbindShader();
-
-	SetDepthWrite(depthWrite);
-	SetDepthTest(depthTest);
+	SetPipelineState(gPipelineDefault);
 }
 
 void DrawFsq()
 {
-	bool depthTest = DepthTest();
-	bool depthWrite = DepthWrite();
-	SetDepthTest(false);
-	SetDepthWrite(false);
-
+	SetPipelineState(gPipelineNoDepth);
 	BindEmptyVao();
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	BindNullVao();
-
-	SetDepthWrite(depthWrite);
-	SetDepthTest(depthTest);
+	SetPipelineState(gPipelineDefault);
 }
 
 void DrawFsqTexture(Texture2D texture, GLuint unit)
@@ -373,12 +355,12 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 	Matrix viewSky = gView;
 	viewSky.m12 = viewSky.m13 = viewSky.m14 = 0.0f;
 
-	bool depthTest = DepthTest();
-	bool depthWrite = DepthWrite();
-	GLenum cullFace = FaceCulling();
-	SetDepthTest(true);
-	SetDepthWrite(false);
-	SetFaceCulling(GL_FRONT);
+	PipelineState save = GetPipelineState();
+	PipelineState sky = gPipelineDefault;
+	sky.depthTest = true;
+	sky.depthWrite = false;
+	sky.cullFace = GL_FRONT;
+	SetPipelineState(sky);
 
 	BindCubemap(cubemap, unit);
 	BindShader(&gShaderSkybox);
@@ -387,9 +369,7 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 	UnbindShader();
 	UnbindCubemap(cubemap, unit);
 
-	SetFaceCulling(cullFace);
-	SetDepthWrite(depthWrite);
-	SetDepthTest(depthTest);
+	SetPipelineState(save);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

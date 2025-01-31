@@ -109,7 +109,7 @@ void DeferredScene::OnDraw()
 	SendVec2("u_viewportSize", { hw, hh });
 	SendVec2("u_viewportOffset", { hw, hh });
 
-	SetPipelineState(gPipelineFsq);
+	SetPipelineState(gPipelineNoDepth);
 	DrawMesh(gMeshCircle);
 	SetPipelineState(gPipelineDefault);
 

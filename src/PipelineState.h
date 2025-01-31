@@ -15,7 +15,7 @@ struct PipelineState
 
 extern PipelineState gPipelineDefault;
 extern PipelineState gPipelineWireframes;
-extern PipelineState gPipelineFsq;
+extern PipelineState gPipelineNoDepth;
 
 void InitPipelineState(); // Modifications from default gl state (ie enable depth test)
 void QuitPipelineState(); // Destroys empty vao

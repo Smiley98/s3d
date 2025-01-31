@@ -42,7 +42,7 @@ void HexagonGridScene::OnDraw()
 	else
 	{
 
-		SetPipelineState(gPipelineFsq);
+		SetPipelineState(gPipelineNoDepth);
 		DrawHexagonGridDistance({ 0.8f, 0.85f, 1.0f }, V3_ONE, fHexagonAmount, fHexagonThickness);
 		SetPipelineState(gPipelineDefault);
 	}

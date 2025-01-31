@@ -2,8 +2,8 @@
 #include <cassert>
 
 PipelineState gPipelineDefault;
+PipelineState gPipelineNoDepth;
 PipelineState gPipelineWireframes;
-PipelineState gPipelineFsq;
 
 static PipelineState fState{};
 static GLuint fVaoEmpty;
@@ -12,30 +12,32 @@ void SetDepthTest(bool depthTest);
 void SetDepthWrite(bool depthWrite);
 void SetFaceCulling(bool faceCulling);
 void SetWireframes(bool wireframes);
+
 void SetCullFace(GLenum cullFace);
+void SetDepthFunc(GLenum depthFunc);
+void SetWindingOrder(GLenum windingOrder);
 
 void ValidatePipeline();
 
-// *** Even if its a gl default, remember to set explicity so this tracks it ***
 void InitPipelineState()
 {
-	SetDepthTest(true);
-	SetDepthWrite(true);
-	SetFaceCulling(true);
-	SetWireframes(false);
+	gPipelineDefault.depthTest = true;
+	gPipelineDefault.depthWrite = true;
+	gPipelineDefault.faceCulling = true;
+	gPipelineDefault.wireframes = false;
+	gPipelineDefault.depthFunc = GL_LEQUAL;
+	gPipelineDefault.cullFace = GL_BACK;
+	gPipelineDefault.windingOrder = GL_CCW;
+	SetPipelineState(gPipelineDefault);
 
-	SetDepthFunc(GL_LEQUAL);
-	SetWindingOrder(GL_CCW);
+	gPipelineNoDepth = gPipelineDefault;
+	gPipelineNoDepth.depthTest = false;
+	gPipelineNoDepth.depthWrite = false;
 
-	ValidatePipeline();
-	gPipelineDefault = gPipelineWireframes = gPipelineFsq = fState;
-
+	gPipelineWireframes = gPipelineDefault;
 	gPipelineWireframes.wireframes = true;
 	gPipelineWireframes.depthTest = false;
 	gPipelineWireframes.depthWrite = false;
-
-	gPipelineFsq.depthTest = false;
-	gPipelineFsq.depthWrite = false;
 
 	glGenVertexArrays(1, &fVaoEmpty);
 }
@@ -48,9 +50,6 @@ void QuitPipelineState()
 
 PipelineState GetPipelineState()
 {
-#if NDEBUG
-	ValidatePipeline();
-#endif
 	return fState;
 }
 
@@ -73,6 +72,10 @@ void SetPipelineState(PipelineState state)
 
 	if (state.windingOrder != fState.windingOrder)
 		SetWindingOrder(state.windingOrder);
+
+#if NDEBUG
+	ValidatePipeline();
+#endif
 }
 
 void SetDepthTest(bool depthTest)
@@ -114,12 +117,13 @@ void SetWireframes(bool wireframes)
 void SetCullFace(GLenum cullFace)
 {
 	assert(cullFace == GL_FRONT || cullFace == GL_BACK || cullFace == GL_FRONT_AND_BACK);
-	glCullFace(cullFace);
 	fState.cullFace = cullFace;
+	glCullFace(cullFace);
 }
 
 void SetWindingOrder(GLenum windingOrder)
 {
+	assert(windingOrder == GL_CW || windingOrder == GL_CCW);
 	fState.windingOrder = windingOrder;
 	glFrontFace(windingOrder);
 }
@@ -164,71 +168,6 @@ void ValidatePipeline()
 	glGetIntegerv(GL_FRONT_FACE, &windingOrder);
 	assert(windingOrder == fState.windingOrder);
 }
-
-/*
-bool DepthTest()
-{
-#if NDEBUG
-#else
-	GLboolean depthTest = false;
-	glGetBooleanv(GL_DEPTH_TEST, &depthTest);
-	assert(depthTest == fState.depthTest);
-#endif
-	return fState.depthTest;
-}
-
-bool DepthWrite()
-{
-#if NDEBUG
-#else
-	GLboolean depthWrite = false;
-	glGetBooleanv(GL_DEPTH_WRITEMASK, &depthWrite);
-	assert(depthWrite == fState.depthWrite);
-#endif
-	return fState.depthWrite;
-}
-
-bool Wireframes()
-{
-#if NDEBUG
-#else
-	// Apparently a core context returns 1 value but compatability returns 2.
-	// Not sure why my contexts seemingly differ between machines, but may as well just examine mode[0]
-	int mode[2]{};
-	int target = fState.wireframes ? GL_LINE : GL_FILL;
-	glGetIntegerv(GL_POLYGON_MODE, mode);
-	assert(mode[0] == target);
-#endif
-	return fState.wireframes;
-}
-
-GLenum FaceCulling()
-{
-	return fState.cullFace;
-}
-
-GLenum DepthFunc()
-{
-#if NDEBUG
-#else
-	GLint depthFunc = 0;
-	glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
-	assert(depthFunc == fState.depthFunc);
-#endif
-	return fState.depthFunc;
-}
-
-GLenum WindingOrder()
-{
-#if NDEBUG
-#else
-	GLint windingOrder = 0;
-	glGetIntegerv(GL_FRONT_FACE, &windingOrder);
-	assert(windingOrder == fState.windingOrder);
-#endif
-	return fState.windingOrder;
-}
-*/
 
 void BindEmptyVao()
 {
