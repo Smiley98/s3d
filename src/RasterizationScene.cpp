@@ -60,11 +60,12 @@ void RasterizationScene::OnUpdate(float dt)
 
 void RasterizationScene::OnDraw()
 {
-	DrawDebugShapes();
 	DrawMeshTexture(gMeshHead, Translate(0.0f, 0.0f, -5.0f), fTexHead, 0);
 	DrawMeshReflect(gMeshCube, Translate(-2.0f, 0.0f, 0.0f), fSkyboxArctic, 0);
 	DrawMeshRefract(gMeshCube, Translate(2.0f, 0.0f, 0.0f), fSkyboxArctic, 0, 1.00f / 1.52f); // glass
 	DrawSkybox(fSkyboxArctic, 0);
+	DrawDebugShapes();
+	// Must draw shapes last otherwise skybox overwrites wireframe color (since wireframes don't write depth)!
 }
 
 void RasterizationScene::OnDrawImGui()
@@ -89,7 +90,6 @@ void RasterizationScene::OnDrawImGui()
 		"Cylinder",
 
 		"Head",
-		"Hexagon"
 	};
 
 	static const char* shaderNames[] =
@@ -166,10 +166,6 @@ void DrawDebugShapes()
 
 	case 8:
 		DrawMeshDebug(gMeshHead, world, fColor);
-		break;
-
-	case 9:
-		DrawMeshDebug(gMeshHexagon, world, fColor);
 		break;
 
 	default:

@@ -54,6 +54,7 @@ void DrawHexagonGridDistance(Vector3 fg, Vector3 bg, float amount, float thickne
 	UnbindShader();
 	UnbindFramebuffer(gFboColor);
 
+	SetPipelineState(gPipelineNoDepth);
 	DrawMeshTexture(gMeshPlane, Scale(100.0f * SCREEN_ASPECT, 100.0f, 1.0f), gFboColor.colors[0], 0);
 }
 

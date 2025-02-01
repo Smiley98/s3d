@@ -23,11 +23,8 @@ void QuitPipelineState(); // Destroys empty vao
 PipelineState GetPipelineState();
 void SetPipelineState(PipelineState state);
 
-void BindEmptyVao();// vao with no buffers 
-void BindNullVao(); // GL_NONE
-
-// Faster to type if left as state machine,
-// but more robust if we set all gl state before each draw call.
-
-// Shader and Texture currently manage their own state. Might be better to move them here.
-// At the same time, Shader & Texture have file-scope, so perhaps best left as is.
+// TODO -- Make my own enums so I can't confuse it with OpenGL?
+// (I already confused faceCulling with cullFace and that screwed my skyboxes without triggering assertions)...
+// However, doing so is so verbose it almost defeats the purpose of my save/load architecture.
+// Best solution is to be careful when implementing new draw calls & new pipeline states.
+// As long as I test each implementation, silly errors like above won't happen (unless I do more large refactors).

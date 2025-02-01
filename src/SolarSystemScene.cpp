@@ -299,8 +299,8 @@ void SolarSystemScene::OnDraw()
 	else
 		DrawPlanetsRaymarch();
 	DrawSkybox(fSkyboxSpace, 0);
-	UnbindFramebuffer(fFbo);
 
+	UnbindFramebuffer(fFbo);
 	if (fDepth)
 		DrawDepth(fFbo);
 	else
@@ -309,6 +309,7 @@ void SolarSystemScene::OnDraw()
 
 void DrawAsteroids()
 {
+	SetPipelineState(gPipelineDefault);
 	BindShader(&gShaderAsteroids);
 	SendMat4("u_mvp", fAsteroids.viewProj);
 	SendMat4("u_orbit", fAsteroids.orbit);
@@ -323,6 +324,7 @@ void DrawAsteroids()
 
 void DrawPlanetsRaster()
 {
+	SetPipelineState(gPipelineDefault);
 	BindShader(&gShaderPlanetsRaster);
 	SendMat4Array("u_mvp", planetMvp, PLANET_COUNT);
 	SendMat4Array("u_world", planetWorld, PLANET_COUNT);
@@ -353,8 +355,6 @@ void DrawPlanetsRaymarch()
 	SendFloatArray("u_planetRadii", planetRadii, PLANET_COUNT);
 	SendVec3("u_sunPos", planets[0].position);
 
-	BindEmptyVao();
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	BindNullVao();
+	DrawFsq(&gPipelineDefault);
 	UnbindShader();
 }

@@ -1,12 +1,11 @@
 #include "PipelineState.h"
 #include <cassert>
 
+static PipelineState fState{};
+
 PipelineState gPipelineDefault;
 PipelineState gPipelineNoDepth;
 PipelineState gPipelineWireframes;
-
-static PipelineState fState{};
-static GLuint fVaoEmpty;
 
 void SetDepthTest(bool depthTest);
 void SetDepthWrite(bool depthWrite);
@@ -38,14 +37,12 @@ void InitPipelineState()
 	gPipelineWireframes.wireframes = true;
 	gPipelineWireframes.depthTest = false;
 	gPipelineWireframes.depthWrite = false;
-
-	glGenVertexArrays(1, &fVaoEmpty);
 }
 
 void QuitPipelineState()
 {
-	glDeleteVertexArrays(1, &fVaoEmpty);
-	fVaoEmpty = GL_NONE;
+	ValidatePipeline();
+	SetPipelineState(gPipelineDefault);
 }
 
 PipelineState GetPipelineState()
@@ -68,12 +65,12 @@ void SetPipelineState(PipelineState state)
 		SetDepthFunc(state.depthFunc);
 
 	if (state.cullFace != fState.cullFace)
-		SetFaceCulling(state.cullFace);
+		SetCullFace(state.cullFace);
 
 	if (state.windingOrder != fState.windingOrder)
 		SetWindingOrder(state.windingOrder);
 
-#if NDEBUG
+#if !NDEBUG
 	ValidatePipeline();
 #endif
 }
@@ -167,14 +164,4 @@ void ValidatePipeline()
 	GLint windingOrder = 0;
 	glGetIntegerv(GL_FRONT_FACE, &windingOrder);
 	assert(windingOrder == fState.windingOrder);
-}
-
-void BindEmptyVao()
-{
-	glBindVertexArray(fVaoEmpty);
-}
-
-void BindNullVao()
-{
-	glBindVertexArray(GL_NONE);
 }

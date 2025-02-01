@@ -1,8 +1,8 @@
 #include "NeonDrive.h"
-#include "Time.h"
-#include "Render.h"
 #include "ImageLoader.h"
-#include <vector>
+#include "HexagonGrid.h"
+#include "Render.h"
+#include "Time.h"
 #include <cassert>
 
 static Texture2D fTextureWhite;
@@ -15,7 +15,7 @@ static Vector3 fLightColor = V3_ONE;
 
 void NeonDriveScene::OnLoad()
 {
-	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
+	gCamera = FromView(LookAt({ 0.0f, 0.0f, 50.0f }, V3_ZERO, V3_UP));
 
 	// World's most elaborate texture xD xD xD
 	{
@@ -68,17 +68,17 @@ void NeonDriveScene::OnUpdate(float dt)
 
 void NeonDriveScene::OnDraw()
 {
-	// TODO - Make a pipeline state save and load feature?
-	// Pipeline pipeline = SavePipeline();
-	// *Insert state changes & draw calls here*
-	// LoadPipeline(&pipeline);
-
+	// TODO -- Add buildings!
 	Matrix world = MatrixIdentity();//Scale(V3_ONE * 10.0f);
 	Matrix mvp = world * gView * gProj;
 
 	BindFramebuffer(fGeometryBuffer);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// TODO -- Save hex grid to textore on-start, then sample from it (since g-buffer must remain bound)!
+	//DrawHexagonGridDistance(V3_ONE, V3_ZERO, 10.0f, 0.1f);
+	//SetPipelineState(gPipelineDefault);
 
 	BindTexture2D(fTextureWhite, 0);
 	BindShader(&gShaderDeferred);

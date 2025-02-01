@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "Framebuffer.h"
 #include "PipelineState.h"
+// ***Draw calls from Render.h always revert back to default pipeline state***
 
 extern Matrix gView;
 extern Matrix gProj;
@@ -60,8 +61,8 @@ void DrawCylinder(Vector3 center, float radius, float halfHeight, Vector3 color,
 void DrawSpherocylinder(Vector3 center, float radius, float halfHeight, Vector3 color, Matrix rotation = MatrixIdentity());
 
 // Fullscreen quad
-void DrawFsq();
-void DrawFsqTexture(Texture2D texture, GLuint unit);
+void DrawFsq(PipelineState* state = nullptr/*Hybrid rendering needs depth*/);
+void DrawFsqTexture(Texture2D texture, GLuint unit, PipelineState* state = nullptr);
 
 // Framebuffer
 void DrawColor(Framebuffer framebuffer, GLuint attachment);

@@ -1,6 +1,8 @@
 #include "Render.h"
 #include <cassert>
 
+static GLuint fVaoEmpty;
+
 DebugShaderType gDebugShader = FLAT;
 Matrix gView = MatrixIdentity();
 Matrix gProj = MatrixIdentity();
@@ -300,38 +302,38 @@ void DrawLine(Vector3 p0, Vector3 p1, Vector3 color, float thickness)
 	SendVec3("u_pos0", p0);
 	SendVec3("u_pos1", p1);
 	SendVec3("u_color", color);
-	BindEmptyVao();
+
+	glBindVertexArray(fVaoEmpty);
 	glLineWidth(thickness);
 	glDrawArrays(GL_LINES, 0, 2);
 	glLineWidth(1.0f);
-	BindNullVao();
+	glBindVertexArray(GL_NONE);
+
 	UnbindShader();
 	SetPipelineState(gPipelineDefault);
 }
 
-void DrawFsq()
+void DrawFsq(PipelineState* state)
 {
-	SetPipelineState(gPipelineNoDepth);
-	BindEmptyVao();
+	SetPipelineState(state != nullptr ? *state : gPipelineNoDepth);
+	glBindVertexArray(fVaoEmpty);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
-	BindNullVao();
+	glBindVertexArray(GL_NONE);
 	SetPipelineState(gPipelineDefault);
 }
 
-void DrawFsqTexture(Texture2D texture, GLuint unit)
+void DrawFsqTexture(Texture2D texture, GLuint unit, PipelineState* state)
 {
 	BindTexture2D(texture, unit);
 	BindShader(&gShaderFsq);
 	SendInt("u_tex", unit);
-	BindEmptyVao();
-	DrawFsq();
+	DrawFsq(state);
 	UnbindShader();
 	UnbindTexture2D(texture, unit);
 }
 
 void DrawColor(Framebuffer framebuffer, GLuint attachment)
 {
-	// Defaulting to texture unit 0 is now error-proof
 	DrawFsqTexture(framebuffer.colors[attachment], 0);
 }
 
@@ -344,7 +346,6 @@ void DrawDepth(Framebuffer framebuffer)
 	SendFloat("u_near", near);
 	SendFloat("u_far", far);
 	SendInt("u_tex", 0);
-	BindEmptyVao();
 	DrawFsq();
 	UnbindShader();
 	UnbindTexture2D(framebuffer.depth, 0);
@@ -355,7 +356,6 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 	Matrix viewSky = gView;
 	viewSky.m12 = viewSky.m13 = viewSky.m14 = 0.0f;
 
-	PipelineState save = GetPipelineState();
 	PipelineState sky = gPipelineDefault;
 	sky.depthTest = true;
 	sky.depthWrite = false;
@@ -368,12 +368,13 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 	DrawMesh(gMeshCube);
 	UnbindShader();
 	UnbindCubemap(cubemap, unit);
-
-	SetPipelineState(save);
+	SetPipelineState(gPipelineDefault);
 }
 
 void InitRenderer()
 {
+	glGenVertexArrays(1, &fVaoEmpty);
+
 	CreateFramebuffer(&gFboColor, SCREEN_WIDTH, SCREEN_HEIGHT);
 	AddColor(&gFboColor, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
 	CompleteFramebuffer(&gFboColor);
@@ -382,6 +383,9 @@ void InitRenderer()
 void QuitRenderer()
 {
 	DestroyFramebuffer(&gFboColor);
+
+	glDeleteVertexArrays(1, &fVaoEmpty);
+	fVaoEmpty = GL_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
