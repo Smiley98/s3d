@@ -13,7 +13,6 @@ struct Image
     int height = -1;
 };
 
-void CreateImageDefault(Image* image);
 void CreateImageFromFile(Image* image, const char* path, bool flip = false);
 void CreateImageFromMemory(Image* image, int width, int height, Color* pixels = nullptr);
 void DestroyImage(Image* image);

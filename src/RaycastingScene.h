@@ -1,16 +1,15 @@
 #pragma once
-#include "Scene.h"
+#include "SoftwareRenderingScene.h"
 #include <array>
 #include <vector>
 
-class RaycastingScene : public Scene
+class RaycastingScene : public SoftwareRenderingScene
 {
 public:
 	void OnLoad() final;
 	void OnUnload() final;
 
 	void OnUpdate(float dt) final;
-	void OnDraw() final;
 
 private:
 	struct RayHit

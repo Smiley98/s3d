@@ -74,12 +74,11 @@ void DrawSkybox(Cubemap cubemap, GLuint unit);
 void DrawMesh(const Mesh& mesh);
 void DrawMeshInstanced(const Mesh& mesh, int instanceCount);
 
-// CPU rendering
-struct Image;
-void Present(Image* image);
-
 void InitRenderer();
 void QuitRenderer();
 
+// CPU rendering
 void InitSoftwareRenderer();
 void QuitSoftwareRenderer();
+
+void PresentSoftwareImage();

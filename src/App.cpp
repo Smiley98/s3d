@@ -32,15 +32,15 @@ void Init()
 	CreateShaders();
 	CreateMeshes();
 	InitRenderer();
-	//InitSoftwareRenderer();
+	InitSoftwareRenderer();
 	Scene::Create(Scene::HEXAGON_GRID);
 }
 
 void Quit()
 {
 	Scene::Destroy();
+	QuitSoftwareRenderer();
 	QuitRenderer();
-	//QuitSoftwareRenderer();
 	DestroyMeshes();
 	DestroyShaders();
 	DestroyWindow();

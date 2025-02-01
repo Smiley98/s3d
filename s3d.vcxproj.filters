@@ -34,6 +34,12 @@
     <Filter Include="Grid">
       <UniqueIdentifier>{6714d9ae-1a79-4288-931c-25e0daa3cb75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene\Software Rendering Scenes">
+      <UniqueIdentifier>{3c93e6b1-5a67-4397-b124-d6b492656910}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Software Rendering Scenes\Base">
+      <UniqueIdentifier>{58e37ce9-a105-426a-8bd8-e4723264445a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\imgui\imgui.cpp">
@@ -57,13 +63,7 @@
     <ClCompile Include="inc\imgui\imgui_widgets.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\MainScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TestScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\App.cpp">
@@ -77,12 +77,6 @@
     </ClCompile>
     <ClCompile Include="src\Image.cpp">
       <Filter>Image</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RaycastingScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DDAScene.cpp">
-      <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\glad.c">
       <Filter>Entry Point</Filter>
@@ -147,6 +141,21 @@
     <ClCompile Include="src\HexagonGrid.cpp">
       <Filter>Grid</Filter>
     </ClCompile>
+    <ClCompile Include="src\DDAScene.cpp">
+      <Filter>Scene\Software Rendering Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TestScene.cpp">
+      <Filter>Scene\Software Rendering Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainScene.cpp">
+      <Filter>Scene\Software Rendering Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RaycastingScene.cpp">
+      <Filter>Scene\Software Rendering Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SoftwareRenderingScene.cpp">
+      <Filter>Scene\Software Rendering Scenes\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h">
@@ -176,13 +185,7 @@
     <ClInclude Include="inc\imgui\imgui_impl_opengl3_loader.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="src\MainScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TestScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\App.h">
@@ -199,12 +202,6 @@
     </ClInclude>
     <ClInclude Include="src\Image.h">
       <Filter>Image</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RaycastingScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\DDAScene.h">
-      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Lights.h">
       <Filter>Lighting</Filter>
@@ -295,6 +292,21 @@
     </ClInclude>
     <ClInclude Include="src\HexagonGrid.h">
       <Filter>Grid</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DDAScene.h">
+      <Filter>Scene\Software Rendering Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TestScene.h">
+      <Filter>Scene\Software Rendering Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainScene.h">
+      <Filter>Scene\Software Rendering Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RaycastingScene.h">
+      <Filter>Scene\Software Rendering Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SoftwareRenderingScene.h">
+      <Filter>Scene\Software Rendering Scenes\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

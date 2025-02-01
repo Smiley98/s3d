@@ -1,32 +1,28 @@
 #include "MainScene.h"
-#include "Time.h"
-#include "Render.h"
 #include "Rasterization.h"
 #include "ImageUtils.h"
+#include "Camera.h"
+#include "Time.h"
 
 static Mesh fMesh;
-static Image fImage;
 static Image fDiffuseMap;
 
 void MainScene::OnLoad()
 {
 	fMesh = gMeshHead;
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
-
-	CreateImageDefault(&fImage);
 	CreateImageFromFile(&fDiffuseMap, "assets/textures/african_head_diffuse.png", true);
 }
 
 void MainScene::OnUnload()
 {
 	DestroyImage(&fDiffuseMap);
-	DestroyImage(&fImage);
 }
 
 void MainScene::OnUpdate(float dt)
 {
-	ClearColor(&fImage, BLACK);
-	ClearDepth(&fImage, 1.0f);
+	ClearColor(&gImageCPU, BLACK);
+	ClearDepth(&gImageCPU, 1.0f);
 
 	float tt = TotalTime();
 	float nsin = sinf(tt) * 0.5f + 0.5f;
@@ -62,10 +58,5 @@ void MainScene::OnUpdate(float dt)
 	data.diffuse = 0.75f;
 	data.specular = 32.0f;
 
-	DrawMesh(&fImage, fMesh, data, &fDiffuseMap);
-}
-
-void MainScene::OnDraw() 
-{
-	Present(&fImage);
+	DrawMesh(&gImageCPU, fMesh, data, &fDiffuseMap);
 }

@@ -1,12 +1,8 @@
 #pragma once
-#include "Scene.h"
+#include "SoftwareRenderingScene.h"
 
-class TestScene : public Scene
+class TestScene : public SoftwareRenderingScene
 {
 public:
-	void OnLoad() final;
-	void OnUnload() final;
-
 	void OnUpdate(float dt) final;
-	void OnDraw() final;
 };

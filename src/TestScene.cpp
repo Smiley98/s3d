@@ -1,23 +1,10 @@
 #include "TestScene.h"
-#include "Time.h"
-#include "Render.h"
 #include "ImageUtils.h"
-
-static Image fImage;
+#include "Time.h"
 
 inline float Fract(float f)
 {
 	return f - floorf(f);
-}
-
-void TestScene::OnLoad()
-{
-	CreateImageDefault(&fImage);
-}
-
-void TestScene::OnUnload()
-{
-	DestroyImage(&fImage);
 }
 
 void TestScene::OnUpdate(float dt)
@@ -29,12 +16,12 @@ void TestScene::OnUpdate(float dt)
 	Vector3 d{ 0.263f, 0.416f, 0.557f };
 	
 	float tt = TotalTime();
-	for (int y = 0; y < fImage.height; y++)
+	for (int y = 0; y < CPU_IMAGE_SIZE; y++)
 	{
-		for (int x = 0; x < fImage.width; x++)
+		for (int x = 0; x < CPU_IMAGE_SIZE; x++)
 		{
 			Vector2 fragCoord{ x, y };
-			Vector2 resolution{ fImage.width, fImage.height };
+			Vector2 resolution{ CPU_IMAGE_SIZE, CPU_IMAGE_SIZE };
 			Vector2 uv = fragCoord / resolution;
 			uv = uv * 2.0f - 1.0f;
 			uv.x *= SCREEN_ASPECT;
@@ -58,12 +45,7 @@ void TestScene::OnUpdate(float dt)
 			}
 
 			Color color = Float3ToColor(&finalColor.x);
-			SetPixel(&fImage, x, y, color);
+			SetPixel(&gImageCPU, x, y, color);
 		}
 	}
-}
-
-void TestScene::OnDraw()
-{
-	Present(&fImage);
 }

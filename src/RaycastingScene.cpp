@@ -1,9 +1,7 @@
 #include "RaycastingScene.h"
-#include "Window.h"
-#include "Render.h"
 #include "Rasterization.h"
+#include "Window.h"
 
-static Image fImage;
 constexpr size_t MAP_SIZE = 16;
 constexpr size_t TILE_SIZE = CPU_IMAGE_SIZE / MAP_SIZE;
 constexpr Vector2 CENTER{ CPU_IMAGE_SIZE * 0.5f, CPU_IMAGE_SIZE * 0.5f };
@@ -91,14 +89,12 @@ RaycastingScene::RayHit RaycastingScene::Raycast(Vector2 position, Vector2 direc
 
 void RaycastingScene::OnLoad()
 {
-	CreateImageDefault(&fImage);
-	mHits.resize(fImage.width);
+	mHits.resize(CPU_IMAGE_SIZE);
 	mPosition = CENTER;
 }
 
 void RaycastingScene::OnUnload()
 {
-	DestroyImage(&fImage);
 }
 
 void RaycastingScene::OnUpdate(float dt)
@@ -109,15 +105,15 @@ void RaycastingScene::OnUpdate(float dt)
 	{
 		for (size_t col = 0; col < MAP_SIZE; col++)
 		{
-			DrawTile(&fImage, col, row, colors[mMap[row][col]]);
+			DrawTile(&gImageCPU, col, row, colors[mMap[row][col]]);
 		}
 	}
 
 	for (size_t row = 0; row < CPU_IMAGE_SIZE; row += TILE_SIZE)
-		SetRow(&fImage, row, GRAY);
+		SetRow(&gImageCPU, row, GRAY);
 
 	for (size_t col = 0; col < CPU_IMAGE_SIZE; col += TILE_SIZE)
-		SetCol(&fImage, col, GRAY);
+		SetCol(&gImageCPU, col, GRAY);
 
 	// TODO -- Add circle-plane for sides & circle-rectangle for tiles,
 	// but not now so I don't accidentally leak assignment & lab solutions to students!
@@ -141,22 +137,17 @@ void RaycastingScene::OnUpdate(float dt)
 		mHits[i].t *= fisheye;
 	}
 
-	for (int i = 0; i < fImage.width; i++)
+	for (int i = 0; i < CPU_IMAGE_SIZE; i++)
 	{
-		float height = fminf(100.0f / mHits[i].t, fImage.height - 1);
-		DrawLineY(&fImage, i, 256 - height * 0.5f, 256 + height * 0.5f, colors[mHits[i].i]);
+		float height = fminf(100.0f / mHits[i].t, CPU_IMAGE_SIZE - 1);
+		DrawLineY(&gImageCPU, i, 256 - height * 0.5f, 256 + height * 0.5f, colors[mHits[i].i]);
 	}
 
 	RayHit hit = Raycast(mPosition, mDirection);
 	Vector2 poi = mPosition + mDirection * hit.t * TILE_SIZE;
-	DrawLine(&fImage, mPosition.x, mPosition.y, poi.x, poi.y, RED);
-	DrawCircle(&fImage, poi.x, poi.y, 5, RED);
+	DrawLine(&gImageCPU, mPosition.x, mPosition.y, poi.x, poi.y, RED);
+	DrawCircle(&gImageCPU, poi.x, poi.y, 5, RED);
 
 	// Flip since array [0, 0] = top-left but uv [0, 0] = bottom-left
-	Flip(&fImage);
-}
-
-void RaycastingScene::OnDraw()
-{
-	Present(&fImage);
+	Flip(&gImageCPU);
 }
