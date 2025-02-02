@@ -2,7 +2,13 @@
 #include "Render.h"
 #include <cassert>
 
-void GenHexagonGrid(HexagonGrid* grid, int rows, int cols, float r)
+// Hexagon Grid Coordinates Example:
+//DrawMeshFlat(gMeshHexagon, Translate(0.0f, 0.0f, 0.0f), V3_ONE);
+//DrawMeshFlat(gMeshHexagon, Translate(0.0f, sqrtf(3.0f), 0.0f), V3_ONE);
+//DrawMeshFlat(gMeshHexagon, Translate(1.5f, sqrtf(3.0f) * 0.5f, 0.0f), V3_ONE);
+//DrawMeshFlat(gMeshHexagon, Translate(3.0f, 0.0f, 0.0f), V3_ONE);
+
+void GenHexagonGridRaster(HexagonGrid* grid, int rows, int cols, float r)
 {
 	assert(rows > 0 && cols > 0);
 	grid->rows = rows;
@@ -40,26 +46,3 @@ void DrawHexagonGridRaster(const HexagonGrid& grid)
 		}
 	}
 }
-
-void DrawHexagonGridDistance(Vector3 fg, Vector3 bg, float amount, float thickness)
-{
-	BindFramebuffer(gFboColor);
-	BindShader(&gShaderHexagonGridDistance);
-	SendVec2("u_resolution", { SCREEN_WIDTH, SCREEN_HEIGHT });
-	SendVec3("u_fg_col", fg);
-	SendVec3("u_bg_col", bg);
-	SendFloat("u_hex_res", amount);
-	SendFloat("u_hex_thickness", thickness);
-	DrawFsq();
-	UnbindShader();
-	UnbindFramebuffer(gFboColor);
-
-	SetPipelineState(gPipelineNoDepth);
-	DrawMeshTexture(gMeshPlane, Scale(100.0f * SCREEN_ASPECT, 100.0f, 1.0f), gFboColor.colors[0], 0);
-}
-
-// Hexagon Grid Coordinates Example:
-//DrawMeshFlat(gMeshHexagon, Translate(0.0f, 0.0f, 0.0f), V3_ONE);
-//DrawMeshFlat(gMeshHexagon, Translate(0.0f, sqrtf(3.0f), 0.0f), V3_ONE);
-//DrawMeshFlat(gMeshHexagon, Translate(1.5f, sqrtf(3.0f) * 0.5f, 0.0f), V3_ONE);
-//DrawMeshFlat(gMeshHexagon, Translate(3.0f, 0.0f, 0.0f), V3_ONE);

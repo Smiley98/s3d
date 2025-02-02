@@ -1,8 +1,7 @@
 #include "HexagonGridScene.h"
+#include "HexagonGrid.h"
 #include "Window.h"
 #include "Render.h"
-#include "HexagonGrid.h"
-
 #include <cassert>
 #include <imgui/imgui.h>
 
@@ -13,7 +12,7 @@ static HexagonGrid fGrid;
 
 void HexagonGridScene::OnLoad()
 {
-	GenHexagonGrid(&fGrid, 16, 32, 1.0f);
+	GenHexagonGridRaster(&fGrid, 16, 32, 1.0f);
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 50.0f }, V3_ZERO, V3_UP));
 }
 
@@ -41,20 +40,10 @@ void HexagonGridScene::OnDraw()
 	}
 	else
 	{
-
 		SetPipelineState(gPipelineNoDepth);
-		DrawHexagonGridDistance({ 0.8f, 0.85f, 1.0f }, V3_ONE, fHexagonAmount, fHexagonThickness);
+		DrawMeshTexture(gMeshPlane, Scale(100.0f * SCREEN_ASPECT, 100.0f, 1.0f), GetHexagonGrid(), 0);
 		SetPipelineState(gPipelineDefault);
 	}
 	
 	DrawMeshNormals(gMeshTd, Translate(V3_RIGHT * -40.0f * SCREEN_ASPECT + V3_UP * -40.0f), MatrixIdentity());
-}
-
-void HexagonGridScene::OnDrawImGui()
-{
-	if (!fRasterize)
-	{
-		ImGui::SliderFloat("Hexagon Amount", &fHexagonAmount, 1.0f, 100.0f);
-		ImGui::SliderFloat("Hexagon Thickness", &fHexagonThickness, 0.1f, 0.9f);
-	}
 }

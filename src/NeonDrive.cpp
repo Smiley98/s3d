@@ -32,12 +32,12 @@ void NeonDriveScene::OnLoad()
 	}
 
 	// Original format = RGB
-	{
-		int w, h, c;
-		uint8_t* pixels = LoadImage2D("./assets/textures/ground.png", &w, &h, &c);
-		CreateTexture2D(&fTextureGround, w, h, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
-		UnloadImage(pixels);
-	}
+	//{
+	//	int w, h, c;
+	//	uint8_t* pixels = LoadImage2D("./assets/textures/ground.png", &w, &h, &c);
+	//	CreateTexture2D(&fTextureGround, w, h, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
+	//	UnloadImage(pixels);
+	//}
 
 	// Positions, normals, and albedo are all 3-component. Can convert to RGBA for albedo-specular.
 	CreateFramebuffer(&fGeometryBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -68,6 +68,11 @@ void NeonDriveScene::OnUpdate(float dt)
 
 void NeonDriveScene::OnDraw()
 {
+	SetPipelineState(gPipelineNoDepth);
+	DrawMeshTexture(gMeshPlane, Scale(100.0f * SCREEN_ASPECT, 100.0f, 1.0f), GetHexagonGrid(), 0);
+	SetPipelineState(gPipelineDefault);
+	return;
+
 	// TODO -- Add buildings!
 	Matrix world = MatrixIdentity();//Scale(V3_ONE * 10.0f);
 	Matrix mvp = world * gView * gProj;
