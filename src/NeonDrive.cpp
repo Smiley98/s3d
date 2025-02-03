@@ -72,12 +72,15 @@ void NeonDriveScene::OnDraw()
 	SendMat4("u_world", world);
 	SendMat3("u_normal", NormalMatrix(world));
 	SendInt("u_tex", 0);
-	SetPipelineState(gPipelineNoDepth);
 	BindTexture2D(GetHexagonGrid(), 0);
-	DrawMesh(gMeshPlane);
-	UnbindTexture2D(GetHexagonGrid(), 0);
-	SetPipelineState(gPipelineDefault);
 
+	// See how depth vs no depth affects corrected lighting volumes
+	// Prediction: with depth, -z pixels of volume won't render since front-faces will be culled
+	// Don't think there's any issue with not writing ground-plane depth!
+	SetPipelineState(gPipelineNoDepth);
+	DrawMesh(gMeshPlane);
+	SetPipelineState(gPipelineDefault);
+	UnbindTexture2D(GetHexagonGrid(), 0);
 
 	world = MatrixIdentity();
 	mvp = world * gView * gProj;
@@ -96,7 +99,7 @@ void NeonDriveScene::OnDraw()
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
 	BindShader(&gShaderDeferredLighting);
 
-	Matrix S = Scale(V3_ONE * 50.0f);
+	Matrix S = Scale(V3_ONE * 10.0f);
 	Matrix R = MatrixIdentity();
 	Matrix T = Translate(fLightPosition);
 	world = S * R * T;
@@ -112,13 +115,27 @@ void NeonDriveScene::OnDraw()
 	SendVec2("u_viewportSize", { SCREEN_WIDTH, SCREEN_HEIGHT });
 	SendVec2("u_viewportOffset", V2_ZERO);
 
+	//PipelineState ps = gPipelineDefault;
+	//ps.depthTest = true;
+	//ps.depthWrite = false;
+	//ps.cullFace = GL_FRONT;
+	//ps.depthFunc = GL_GEQUAL;
+
+	PipelineState ps = gPipelineNoDepth;
+	ps.depthTest = true;
+	ps.cullFace = GL_FRONT;
+	//ps.depthFunc = GL_GEQUAL;
+	// Not sure why this is causing things to fail... Job for another day!
+
 	// TODO -- change to depth GL_GEQUAL & sphere rendering to solve volume issue
-	SetPipelineState(gPipelineNoDepth);
-	DrawMesh(gMeshCircle);
+	SetPipelineState(ps);
+	DrawMesh(gMeshSphere);
 	SetPipelineState(gPipelineDefault);
 
 	UnbindShader();
 	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
 	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
 	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
+
+	//DrawMeshWireframes(gMeshCircle, world, fLightColor);
 }

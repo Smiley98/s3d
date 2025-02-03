@@ -16,10 +16,12 @@ void SetCullFace(GLenum cullFace);
 void SetDepthFunc(GLenum depthFunc);
 void SetWindingOrder(GLenum windingOrder);
 
+// TODO -- change this to use GL_GET to deduce current pipeline (GPU-state) then assert against CPU-state!
 void ValidatePipeline();
 
 void InitPipelineState()
 {
+	// In fear that 0-initialization prevents setters from running, do afforementioned ValidatePipeline changes.
 	gPipelineDefault.depthTest = true;
 	gPipelineDefault.depthWrite = true;
 	gPipelineDefault.faceCulling = true;
@@ -57,6 +59,9 @@ void SetPipelineState(PipelineState state)
 
 	if (state.depthWrite != fState.depthWrite)
 		SetDepthWrite(state.depthWrite);
+
+	if (state.faceCulling != fState.faceCulling)
+		SetFaceCulling(state.faceCulling);
 
 	if (state.wireframes != fState.wireframes)
 		SetWireframes(state.wireframes);
