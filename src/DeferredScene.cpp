@@ -56,7 +56,7 @@ void DeferredScene::OnDraw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	BindTexture2D(fTextureAlbedo, 0);
-	BindShader(&gShaderDeferred);
+	BindShader(&gShaderDeferredGeometryBuffer);
 
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_world", world);
@@ -89,7 +89,7 @@ void DeferredScene::OnDraw()
 	BindTexture2D(fGeometryBuffer.colors[0], 0);
 	BindTexture2D(fGeometryBuffer.colors[1], 1);
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
-	BindShader(&gShaderDeferredLighting);
+	BindShader(&gShaderDeferredLightVolumes);
 
 	// A circle is just the 2d projection of a sphere, so why not just render circles!?
 	// Would still need cones for spot-lights, but all I care about are point-lights.

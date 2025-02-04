@@ -24,9 +24,9 @@ extern Shader gShaderTexture;
 extern Shader gShaderPositionsWorld;
 extern Shader gShaderPositionsScreen;
 
-extern Shader gShaderDeferred;
-extern Shader gShaderDeferredTest;
-extern Shader gShaderDeferredLighting;
+extern Shader gShaderDeferredGeometryBuffer;
+extern Shader gShaderDeferredDirectionLight;
+extern Shader gShaderDeferredLightVolumes;
 
 extern Shader gShaderPlanetsRaster;
 extern Shader gShaderPlanetsRaymarch;
