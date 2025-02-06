@@ -64,6 +64,8 @@ void NeonDriveScene::OnUpdate(float dt)
 
 void NeonDriveScene::OnDraw()
 {
+	// TODO -- Fix lights still applying when lights are behind objects (supposed to be occluded)
+	// TODO -- Add shader reflection / UBOs because sending uniforms 1 by 1 is silly (makes it hard to read)
 	DrawGeometry();
 	//DrawDepth(fGeometryBuffer);
 
