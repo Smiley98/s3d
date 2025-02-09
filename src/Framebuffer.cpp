@@ -3,6 +3,7 @@
 #include <cassert>
 
 static GLuint fBuffer = GL_NONE;
+static void AttachTexture2D(GLuint framebuffer, GLuint texture, GLenum attachment);
 
 void CreateFramebuffer(Framebuffer* framebuffer, int width, int height)
 {
@@ -34,26 +35,14 @@ void AddColor(Framebuffer* framebuffer, int internalFormat, int format, int type
 {
 	Texture2D& texture = framebuffer->colors[framebuffer->colorCount];
 	CreateTexture2D(&texture, framebuffer->width, framebuffer->height, internalFormat, format, type, filter);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + framebuffer->colorCount, GL_TEXTURE_2D, texture.id, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
-
+	AttachTexture2D(framebuffer->id, texture.id, GL_COLOR_ATTACHMENT0 + framebuffer->colorCount);
 	framebuffer->colorCount++;
 }
 
 void AddDepth(Framebuffer* framebuffer)
 {
-	Texture2D& texture = framebuffer->depth;
-	CreateTexture2D(&texture, framebuffer->width, framebuffer->height, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture.id, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
-
-	// TODO -- Test AddDepthStencil and AddStencil functions 
-	//CreateTexture2D(&texture, framebuffer->width, framebuffer->height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST);
-	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture.id, 0);
+	CreateTexture2D(&framebuffer->depth, framebuffer->width, framebuffer->height, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
+	AttachTexture2D(framebuffer->id, framebuffer->depth.id, GL_DEPTH_ATTACHMENT);
 }
 
 void CompleteFramebuffer(Framebuffer* framebuffer)
@@ -87,3 +76,25 @@ void UnbindFramebuffer(Framebuffer framebuffer)
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 	fBuffer = GL_NONE;
 }
+
+void AttachTexture2D(GLuint framebuffer, GLuint texture, GLenum attachment)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+}
+
+// Framebuffers are collections of pointers to textures on the GPU.
+// An s3d Framebuffer *owns* multiple textures, so framebuffer create/destroy handles the lifetimes of associated textures.
+// The advantage is that its simple.
+// The disadvantage is its not as flexible as the raw GL implemetation; its no longer possible for a g-buffer & light-buffer to share the same depth-texture.
+// For my simple rendering needs, I think its best to keep Framebuffer responsible for ownership and blit if I need information from another texture.
+// 
+// However, separating texture creation from framebuffer attachments would allow for:
+//	-Custom depth textures
+//  -No duplication between CreateTexture() and AddColor()
+// I tried this just to see what it looks like. Could almost replace AddColor & AddDepth with a single AddTexture function.
+// Both point to a texture2d. AddColor increments the colour-count, AddDepth uses DEPTH_ATTACHMENT instead of COLOR_ATTACHMENT.
+// Would be kind of awkward to pass a GLenum and handle attachment-specific cases. Probably better to separate into color/depth/stencil functions.
+// Only makes sense to do this if I *actually* need *that* much customization over framebuffers, and have a genuinely good reason to point to external textures.
+// The above AttachTexture2D function is a proof of concept. Using it internally as a reminder that framebuffers DO NOT OWN texture memory on the GPU.

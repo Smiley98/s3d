@@ -23,8 +23,5 @@ void AddColor(Framebuffer* framebuffer, int internalFormat, int format, int type
 void AddDepth(Framebuffer* framebuffer);
 void CompleteFramebuffer(Framebuffer* framebuffer);
 
-//void AddDepth(Framebuffer* framebuffer, int internalFormat, int format, int type, int filter);
-//void AddStencil(Framebuffer* framebuffer, int internalFormat, int format, int type, int filter);
-
 void BindFramebuffer(Framebuffer framebuffer);
 void UnbindFramebuffer(Framebuffer framebuffer);
