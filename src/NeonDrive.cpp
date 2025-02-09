@@ -44,6 +44,9 @@ void NeonDriveScene::OnLoad()
 	AddColor(&fGeometryBuffer, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);		// Positions
 	AddColor(&fGeometryBuffer, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);		// Normals
 	AddColor(&fGeometryBuffer, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);	// Albedo
+	AddColor(&fGeometryBuffer, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);	// Light Accumulation
+	// Need to enable additive blending since this will be populated from multiple renders (1 direction + n point-light draw calls)!
+
 	AddDepth(&fGeometryBuffer);
 	CompleteFramebuffer(&fGeometryBuffer);
 }
@@ -68,8 +71,15 @@ void NeonDriveScene::OnDraw()
 	// TODO -- Add shader reflection / UBOs because sending uniforms 1 by 1 is silly (makes it hard to read)
 	DrawGeometry();
 
+	glEnable(GL_BLEND); 
+	glBlendFunc(GL_ONE, GL_ONE);
+	glBlendEquation(GL_FUNC_ADD);
 	DrawDirectionLight();
-	DrawLightVolumes();
+	DrawDirectionLight();
+	DrawDirectionLight();
+	DrawDirectionLight();
+	glDisable(GL_BLEND);
+	//DrawLightVolumes();
 }
 
 void NeonDriveScene::OnDrawImGui()

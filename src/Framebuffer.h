@@ -23,5 +23,9 @@ void AddColor(Framebuffer* framebuffer, int internalFormat, int format, int type
 void AddDepth(Framebuffer* framebuffer);
 void CompleteFramebuffer(Framebuffer* framebuffer);
 
+// No uses currently!
+//void CopyColor(Framebuffer src, Framebuffer dst, int srcIndex, int dstIndex, GLenum filter);
+//void CopyDepth(Framebuffer src, Framebuffer dst);
+
 void BindFramebuffer(Framebuffer framebuffer);
 void UnbindFramebuffer(Framebuffer framebuffer);

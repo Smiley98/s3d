@@ -1,5 +1,7 @@
 #version 460 core
 
+layout (location = 3) out vec3 gLighting;
+
 uniform sampler2D u_positions;
 uniform sampler2D u_normals;
 uniform sampler2D u_albedo;
@@ -25,8 +27,8 @@ void main()
     vec3 L = normalize(u_lightPosition - position);
     float dotNL = max(dot(N, L), 0.0);
     
-    vec3 color = vec3(0.0);
-    color += u_lightColor * albedo * u_ambient;
-    color += u_lightColor * albedo * u_diffuse * dotNL;
-    FragColor = vec4(color, 1.0);
+    vec3 lighting = vec3(0.0);
+    lighting += u_lightColor * albedo * u_ambient;
+    lighting += u_lightColor * albedo * u_diffuse * dotNL;
+    gLighting = lighting;
 }

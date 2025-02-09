@@ -59,6 +59,26 @@ void CompleteFramebuffer(Framebuffer* framebuffer)
 	framebuffer->complete = true;
 }
 
+//void CopyColor(Framebuffer src, Framebuffer dst, int srcIndex, int dstIndex, GLenum filter)
+//{
+//	glBindFramebuffer(GL_READ_FRAMEBUFFER, src.id);
+//	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst.id);
+//	glReadBuffer(GL_COLOR_ATTACHMENT0 + srcIndex);
+//	glDrawBuffer(GL_COLOR_ATTACHMENT0 + dstIndex);
+//	glBlitFramebuffer(0, 0, src.width, src.height, 0, 0, dst.width, dst.height, GL_COLOR_BUFFER_BIT, filter);
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	fBuffer = GL_NONE;
+//}
+//
+//void CopyDepth(Framebuffer src, Framebuffer dst)
+//{
+//	glBindFramebuffer(GL_READ_FRAMEBUFFER, src.id);
+//	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst.id);
+//	glBlitFramebuffer(0, 0, src.width, src.height, 0, 0, dst.width, dst.height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	fBuffer = GL_NONE;
+//}
+
 void BindFramebuffer(Framebuffer framebuffer)
 {
 	assert(framebuffer.complete, "Forgot to call CompleteFramebufer");
