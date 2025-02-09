@@ -13,9 +13,9 @@ static Framebuffer fGeometryBuffer;
 static Vector3 fDirectionLightDirection = V3_RIGHT * -1.0f + V3_UP + V3_FORWARD * -1.0f;
 static Vector3 fDirectionLightColor = V3_ONE;
 
-static Vector3 fPointLightPosition = V3_FORWARD * 35.0f - V3_UP * 10.0f;
+static Vector3 fPointLightPosition = V3_FORWARD * 15.0f + V3_UP * 10.0f;
 static Vector3 fPointLightColor = V3_RIGHT;
-static float fPointLightRadius = 10.0f;
+static float fPointLightRadius = 5.0f;
 
 void DrawGeometry();
 void DrawDirectionLight();
@@ -23,7 +23,7 @@ void DrawLightVolumes();
 
 void NeonDriveScene::OnLoad()
 {
-	gCamera = FromView(LookAt({ 0.0f, -20.0f, 65.0f }, V3_ZERO, V3_UP));
+	gCamera = FromView(LookAt({ 0.0f, -25.0f, 20.0f }, V3_ZERO, V3_UP));
 
 	// World's most elaborate texture xD xD xD
 	{
@@ -59,7 +59,7 @@ void NeonDriveScene::OnUpdate(float dt)
 {
 	UpdateFpsCameraDefault(gCamera, dt);
 	gView = ToView(gCamera);
-	gProj = Perspective(PI * 0.5f, SCREEN_ASPECT, 0.1f, 1000.0f);
+	gProj = Perspective(PI * 0.5f, SCREEN_ASPECT, 0.1f, 100.0f);
 }
 
 void NeonDriveScene::OnDraw()
@@ -67,7 +67,6 @@ void NeonDriveScene::OnDraw()
 	// TODO -- Fix lights still applying when lights are behind objects (supposed to be occluded)
 	// TODO -- Add shader reflection / UBOs because sending uniforms 1 by 1 is silly (makes it hard to read)
 	DrawGeometry();
-	//DrawDepth(fGeometryBuffer);
 
 	DrawDirectionLight();
 	DrawLightVolumes();
@@ -75,6 +74,7 @@ void NeonDriveScene::OnDraw()
 
 void NeonDriveScene::OnDrawImGui()
 {
+	ImGui::SliderFloat3("Camera Position", &gCamera.position.x, -50.0f, 50.0f);
 	ImGui::SliderFloat3("Light Position", &fPointLightPosition.x, -50.0f, 50.0f);
 	ImGui::SliderFloat("Light Radius", &fPointLightRadius, 0.0f, 25.0f);
 
@@ -139,7 +139,7 @@ void DrawDirectionLight()
 	SendInt("u_positions", 0);
 	SendInt("u_normals", 1);
 	SendInt("u_albedo", 2);
-	DrawFsq();
+	DrawFsq(); // <-- Draws with depth test & depth write disabled by default
 	UnbindShader();
 
 	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
@@ -149,6 +149,7 @@ void DrawDirectionLight()
 
 void DrawLightVolumes()
 {
+	// NEED TO BLIT G-BUFFER DEPTH TO DEFAULT-FBO DEPTH!!!!!!!
 	BindTexture2D(fGeometryBuffer.colors[0], 0);
 	BindTexture2D(fGeometryBuffer.colors[1], 1);
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
@@ -173,17 +174,10 @@ void DrawLightVolumes()
 	SendVec2("u_viewportSize", { SCREEN_WIDTH, SCREEN_HEIGHT });
 	SendVec2("u_viewportOffset", V2_ZERO);
 
-	//PipelineState ps = gPipelineDefault;
-	//ps.depthTest = true;
-	//ps.depthWrite = false;
-	//ps.cullFace = GL_FRONT;
-	//ps.depthFunc = GL_GEQUAL;
-
-	// Light is applied even when behind the TD building. See if GEQUAL can fix this!
 	PipelineState ps = gPipelineNoDepth;
 	ps.depthTest = true;
 	ps.cullFace = GL_FRONT;
-	//ps.depthFunc = GL_GEQUAL;
+	ps.depthFunc = GL_LESS;
 
 	SetPipelineState(ps);
 	DrawMesh(gMeshSphere);

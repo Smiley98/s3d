@@ -335,23 +335,23 @@ void DrawFsqTexture(Texture2D texture, GLuint unit, PipelineState* state)
 	UnbindTexture2D(texture, unit);
 }
 
-void DrawColor(Framebuffer framebuffer, GLuint attachment)
+void DrawColor(Framebuffer framebuffer, GLuint attachment, GLuint unit)
 {
-	DrawFsqTexture(framebuffer.colors[attachment], 0);
+	DrawFsqTexture(framebuffer.colors[attachment], unit);
 }
 
-void DrawDepth(Framebuffer framebuffer)
+void DrawDepth(Framebuffer framebuffer, GLuint unit)
 {
 	float near = gProj.m14 / (gProj.m10 - 1.0f);
 	float far = gProj.m14 / (gProj.m10 + 1.0f);
-	BindTexture2D(framebuffer.depth, 0);
+	BindTexture2D(framebuffer.depth, unit);
 	BindShader(&gShaderFsqDepth);
 	SendFloat("u_near", near);
 	SendFloat("u_far", far);
-	SendInt("u_tex", 0);
+	SendInt("u_tex", unit);
 	DrawFsq();
 	UnbindShader();
-	UnbindTexture2D(framebuffer.depth, 0);
+	UnbindTexture2D(framebuffer.depth, unit);
 }
 
 void DrawSkybox(Cubemap cubemap, GLuint unit)

@@ -1,8 +1,7 @@
 #include "PipelineState.h"
 #include <cassert>
 
-static PipelineState fPipelineStateCPU{};
-PipelineState PipelineStateGPU();
+static PipelineState fPipelineInternal{};
 
 PipelineState gPipelineDefault;
 PipelineState gPipelineNoDepth;
@@ -19,16 +18,19 @@ void SetWindingOrder(GLenum windingOrder);
 
 void InitPipelineState()
 {
-	SetDepthTest(true);
-	SetDepthWrite(true);
-	SetWireframes(false);
-	SetFaceCulling(true);
-	SetCullFace(GL_BACK);
-	SetDepthFunc(GL_LEQUAL);
-	SetWindingOrder(GL_CCW);
+	// Put gpu here to proove my gpu-get works since default depth is LESS but I set it to LEQUAl,etc.
+	//PipelineState gpu = GetPipelineState();
 
-	PipelineState cpu = fPipelineStateCPU;
-	PipelineState gpu = PipelineStateGPU();
+	SetDepthTest(true);		// Default = false
+	SetDepthWrite(true);	// Default = true
+	SetWireframes(false);	// Default = false
+	SetFaceCulling(true);	// Default = false
+	SetCullFace(GL_BACK);	// Default = BACK
+	SetDepthFunc(GL_LEQUAL);// Default = LESS
+	SetWindingOrder(GL_CCW);// Default = CCW
+
+	PipelineState cpu = fPipelineInternal;
+	PipelineState gpu = GetPipelineState();
 
 	assert(cpu.depthTest == gpu.depthTest);
 	assert(cpu.depthWrite == gpu.depthWrite);
@@ -41,11 +43,11 @@ void InitPipelineState()
 
 	gPipelineDefault = cpu;
 
-	gPipelineNoDepth = gPipelineDefault;
+	gPipelineNoDepth = cpu;
 	gPipelineNoDepth.depthTest = false;
 	gPipelineNoDepth.depthWrite = false;
 
-	gPipelineWireframes = gPipelineDefault;
+	gPipelineWireframes = cpu;
 	gPipelineWireframes.wireframes = true;
 	gPipelineWireframes.depthTest = false;
 	gPipelineWireframes.depthWrite = false;
@@ -53,34 +55,9 @@ void InitPipelineState()
 
 void QuitPipelineState()
 {
-	SetPipelineState(gPipelineDefault);
 }
 
-void SetPipelineState(PipelineState state)
-{
-	if (state.depthTest != fPipelineStateCPU.depthTest)
-		SetDepthTest(state.depthTest);
-
-	if (state.depthWrite != fPipelineStateCPU.depthWrite)
-		SetDepthWrite(state.depthWrite);
-
-	if (state.wireframes != fPipelineStateCPU.wireframes)
-		SetWireframes(state.wireframes);
-
-	if (state.faceCulling != fPipelineStateCPU.faceCulling)
-		SetFaceCulling(state.faceCulling);
-
-	if (state.cullFace != fPipelineStateCPU.cullFace)
-		SetCullFace(state.cullFace);
-
-	if (state.depthFunc != fPipelineStateCPU.depthFunc)
-		SetDepthFunc(state.depthFunc);
-
-	if (state.windingOrder != fPipelineStateCPU.windingOrder)
-		SetWindingOrder(state.windingOrder);
-}
-
-PipelineState PipelineStateGPU()
+PipelineState GetPipelineState()
 {
 	// Depth test enabled
 	GLboolean depthTest = false;
@@ -125,9 +102,33 @@ PipelineState PipelineStateGPU()
 	return gpu;
 }
 
+void SetPipelineState(PipelineState state)
+{
+	if (state.depthTest != fPipelineInternal.depthTest)
+		SetDepthTest(state.depthTest);
+
+	if (state.depthWrite != fPipelineInternal.depthWrite)
+		SetDepthWrite(state.depthWrite);
+
+	if (state.wireframes != fPipelineInternal.wireframes)
+		SetWireframes(state.wireframes);
+
+	if (state.faceCulling != fPipelineInternal.faceCulling)
+		SetFaceCulling(state.faceCulling);
+
+	if (state.cullFace != fPipelineInternal.cullFace)
+		SetCullFace(state.cullFace);
+
+	if (state.depthFunc != fPipelineInternal.depthFunc)
+		SetDepthFunc(state.depthFunc);
+
+	if (state.windingOrder != fPipelineInternal.windingOrder)
+		SetWindingOrder(state.windingOrder);
+}
+
 void SetDepthTest(bool depthTest)
 {
-	fPipelineStateCPU.depthTest = depthTest;
+	fPipelineInternal.depthTest = depthTest;
 	if (depthTest)
 		glEnable(GL_DEPTH_TEST);
 	else
@@ -136,19 +137,19 @@ void SetDepthTest(bool depthTest)
 
 void SetDepthWrite(bool depthWrite)
 {
-	fPipelineStateCPU.depthWrite = depthWrite;
+	fPipelineInternal.depthWrite = depthWrite;
 	glDepthMask(depthWrite);
 }
 
 void SetWireframes(bool wireframes)
 {
-	fPipelineStateCPU.wireframes = wireframes;
+	fPipelineInternal.wireframes = wireframes;
 	glPolygonMode(GL_FRONT_AND_BACK, wireframes ? GL_LINE : GL_FILL);
 }
 
 void SetFaceCulling(bool faceCulling)
 {
-	fPipelineStateCPU.faceCulling = faceCulling;
+	fPipelineInternal.faceCulling = faceCulling;
 	if (faceCulling)
 		glEnable(GL_CULL_FACE);
 	else
@@ -157,22 +158,20 @@ void SetFaceCulling(bool faceCulling)
 
 void SetDepthFunc(GLenum depthFunc)
 {
-	fPipelineStateCPU.depthFunc = depthFunc;
+	fPipelineInternal.depthFunc = depthFunc;
 	glDepthFunc(depthFunc);
 }
 
 void SetCullFace(GLenum cullFace)
 {
 	assert(cullFace == GL_FRONT || cullFace == GL_BACK || cullFace == GL_FRONT_AND_BACK);
-	fPipelineStateCPU.cullFace = cullFace;
+	fPipelineInternal.cullFace = cullFace;
 	glCullFace(cullFace);
 }
 
 void SetWindingOrder(GLenum windingOrder)
 {
 	assert(windingOrder == GL_CW || windingOrder == GL_CCW);
-	fPipelineStateCPU.windingOrder = windingOrder;
+	fPipelineInternal.windingOrder = windingOrder;
 	glFrontFace(windingOrder);
 }
-
-

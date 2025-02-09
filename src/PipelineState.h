@@ -20,4 +20,5 @@ extern PipelineState gPipelineNoDepth;
 void InitPipelineState();
 void QuitPipelineState();
 
+PipelineState GetPipelineState();
 void SetPipelineState(PipelineState state);

@@ -65,8 +65,8 @@ void DrawFsq(PipelineState* state = nullptr/*Hybrid rendering needs depth*/);
 void DrawFsqTexture(Texture2D texture, GLuint unit, PipelineState* state = nullptr);
 
 // Framebuffer
-void DrawColor(Framebuffer framebuffer, GLuint attachment);
-void DrawDepth(Framebuffer framebuffer);
+void DrawColor(Framebuffer framebuffer, GLuint attachment, GLuint unit = 0);
+void DrawDepth(Framebuffer framebuffer, GLuint unit = 0);
 
 // Cubemap
 void DrawSkybox(Cubemap cubemap, GLuint unit);
