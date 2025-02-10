@@ -1,5 +1,6 @@
 #pragma once
 #include "Texture.h"
+#include <vector>
 
 constexpr size_t MAX_ATTACHMENTS = 8;
 
@@ -27,5 +28,5 @@ void CompleteFramebuffer(Framebuffer* framebuffer);
 //void CopyColor(Framebuffer src, Framebuffer dst, int srcIndex, int dstIndex, GLenum filter);
 //void CopyDepth(Framebuffer src, Framebuffer dst);
 
-void BindFramebuffer(Framebuffer framebuffer);
+void BindFramebuffer(Framebuffer framebuffer, std::vector<GLenum> drawBuffers = {});
 void UnbindFramebuffer(Framebuffer framebuffer);

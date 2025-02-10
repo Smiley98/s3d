@@ -48,12 +48,6 @@ void AddDepth(Framebuffer* framebuffer)
 void CompleteFramebuffer(Framebuffer* framebuffer)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
-
-	GLenum drawBuffers[MAX_ATTACHMENTS];
-	for (size_t i = 0; i < framebuffer->colorCount; i++)
-		drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
-	glDrawBuffers(framebuffer->colorCount, drawBuffers);
-
 	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 	framebuffer->complete = true;
@@ -79,12 +73,26 @@ void CompleteFramebuffer(Framebuffer* framebuffer)
 //	fBuffer = GL_NONE;
 //}
 
-void BindFramebuffer(Framebuffer framebuffer)
+void BindFramebuffer(Framebuffer framebuffer, std::vector<GLenum> drawBuffers)
 {
 	assert(framebuffer.complete, "Forgot to call CompleteFramebufer");
 	assert(fBuffer != framebuffer.id, "Framebuffer already bound");
 	glViewport(0, 0, framebuffer.width, framebuffer.height);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.id);
+
+	GLenum db[MAX_ATTACHMENTS];
+	if (drawBuffers.empty())
+	{
+		for (int i = 0; i < framebuffer.colorCount; i++)
+			db[i] = GL_COLOR_ATTACHMENT0 + i;
+	}
+	else
+	{
+		assert(drawBuffers.size() == framebuffer.colorCount);
+		for (int i = 0; i < framebuffer.colorCount; i++)
+			db[i] = drawBuffers[i];
+	}
+	glDrawBuffers(framebuffer.colorCount, db);
 	fBuffer = framebuffer.id;
 }
 

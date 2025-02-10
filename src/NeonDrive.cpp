@@ -45,7 +45,6 @@ void NeonDriveScene::OnLoad()
 	AddColor(&fGeometryBuffer, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);		// Normals
 	AddColor(&fGeometryBuffer, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);	// Albedo
 	AddColor(&fGeometryBuffer, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);	// Light Accumulation
-	// Need to enable additive blending since this will be populated from multiple renders (1 direction + n point-light draw calls)!
 
 	AddDepth(&fGeometryBuffer);
 	CompleteFramebuffer(&fGeometryBuffer);
@@ -80,6 +79,9 @@ void NeonDriveScene::OnDraw()
 	DrawDirectionLight();
 	glDisable(GL_BLEND);
 	//DrawLightVolumes();
+
+	// Successful light-buffer rendering test!
+	DrawFsqTexture(fGeometryBuffer.colors[3], 0);
 }
 
 void NeonDriveScene::OnDrawImGui()
@@ -139,6 +141,7 @@ void DrawDirectionLight()
 	BindTexture2D(fGeometryBuffer.colors[0], 0);
 	BindTexture2D(fGeometryBuffer.colors[1], 1);
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
+	BindFramebuffer(fGeometryBuffer, { GL_NONE, GL_NONE, GL_NONE, GL_COLOR_ATTACHMENT3 });
 
 	BindShader(&gShaderDeferredDirectionLight);
 	SendVec3("u_lightDirection", Normalize(fDirectionLightDirection));
@@ -152,6 +155,7 @@ void DrawDirectionLight()
 	DrawFsq(); // <-- Draws with depth test & depth write disabled by default
 	UnbindShader();
 
+	UnbindFramebuffer(fGeometryBuffer);
 	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
 	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
 	UnbindTexture2D(fGeometryBuffer.colors[0], 0);

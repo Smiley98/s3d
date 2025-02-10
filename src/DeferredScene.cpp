@@ -46,12 +46,14 @@ void DeferredScene::OnUpdate(float dt)
 	fLightPosition = { cosf(tt) * 10.0f, 0.0f, 0.0f };
 }
 
+// This scene is broken because shader changed from writing to FragColor to render target 4 (light accumulation).
+// No point in having this scene once Neon Drive works. Turn this into a g-buffer visualization function!
 void DeferredScene::OnDraw()
 {
 	Matrix world = Scale(V3_ONE * 10.0f);
 	Matrix mvp = world * gView * gProj;
 
-	BindFramebuffer(fGeometryBuffer);
+	BindFramebuffer(fGeometryBuffer, { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 });
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -120,8 +122,4 @@ void DeferredScene::OnDraw()
 
 	DrawMeshWireframes(gMeshCircle, world, fLightColor);
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	// Lighting doesn't need to be pixel-perfect, so no need for stencil buffer just yet.
-	// If I *were* to implement a stencil pass (+1 back-faces, -1 front-faces),
-	// I can still do the lighting pass by sampling within billboarded circles.
-	// (Stencil needs light volumes cause it depends on the depth-test, but g-buffer sampling is screen-space).
 }
