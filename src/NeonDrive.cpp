@@ -65,6 +65,7 @@ void NeonDriveScene::OnUpdate(float dt)
 }
 
 // TODO -- Add shader reflection / UBOs because sending uniforms 1 by 1 is silly (makes it hard to read)
+// TODO -- Add lights array, make this scene EPIC!
 void NeonDriveScene::OnDraw()
 {
 	// 1. Render geometry (g-buffer write)
@@ -80,6 +81,10 @@ void NeonDriveScene::OnDraw()
 
 	// 3. Output to screen (light-buffer read)
 	DrawFsqTexture(fGeometryBuffer.colors[3], 0);
+
+	// 4. Visualize light volumes
+	Matrix world = Scale(V3_ONE * fPointLightRadius) * Translate(fPointLightPosition);
+	DrawMeshWireframes(gMeshSphere, world, fPointLightColor);
 }
 
 void NeonDriveScene::OnDrawImGui()
@@ -167,10 +172,7 @@ void DrawLightVolumes()
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
 	BindShader(&gShaderDeferredLightVolumes);
 
-	Matrix S = Scale(V3_ONE * fPointLightRadius);
-	Matrix R = MatrixIdentity();
-	Matrix T = Translate(fPointLightPosition);
-	Matrix world = S * R * T;
+	Matrix world = Scale(V3_ONE * fPointLightRadius) * Translate(fPointLightPosition);
 	Matrix mvp = world * gView * gProj;
 
 	SendMat4("u_mvp", mvp);
@@ -180,18 +182,18 @@ void DrawLightVolumes()
 
 	SendVec3("u_lightPosition", fPointLightPosition);
 	SendVec3("u_lightColor", fPointLightColor);
+	SendFloat("u_lightRadius", fPointLightRadius);
 	SendFloat("u_ambient", 0.25f);
 	SendFloat("u_diffuse", 1.0f);
 
 	SendVec2("u_viewportSize", { SCREEN_WIDTH, SCREEN_HEIGHT });
 	SendVec2("u_viewportOffset", V2_ZERO);
 
-	// Issue: Any fragments in front of geometry will apply lighting due to screen-space projection.
-	PipelineState ps = gPipelineDefault;
-	ps.depthWrite = false;
+	// Attenuation solves depth issues. Depth-testing is problematic whether is GREATER or LESS, so just disablessss & attenuate.
+	PipelineState ps = gPipelineNoDepth;
+	ps.cullFace = GL_FRONT;
 	SetPipelineState(ps);
 	DrawMesh(gMeshSphere);
-	SetPipelineState(gPipelineDefault);
 
 	UnbindShader();
 	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
