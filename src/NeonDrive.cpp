@@ -64,23 +64,21 @@ void NeonDriveScene::OnUpdate(float dt)
 	gProj = Perspective(PI * 0.5f, SCREEN_ASPECT, 0.1f, 100.0f);
 }
 
+// TODO -- Add shader reflection / UBOs because sending uniforms 1 by 1 is silly (makes it hard to read)
 void NeonDriveScene::OnDraw()
 {
-	// TODO -- Fix lights still applying when lights are behind objects (supposed to be occluded)
-	// TODO -- Add shader reflection / UBOs because sending uniforms 1 by 1 is silly (makes it hard to read)
+	// 1. Render geometry (g-buffer write)
 	DrawGeometry();
 
+	// 2. Render lights (light-buffer write)
 	glEnable(GL_BLEND); 
 	glBlendFunc(GL_ONE, GL_ONE);
 	glBlendEquation(GL_FUNC_ADD);
 	DrawDirectionLight();
-	DrawDirectionLight();
-	DrawDirectionLight();
-	DrawDirectionLight();
+	DrawLightVolumes();
 	glDisable(GL_BLEND);
-	//DrawLightVolumes();
 
-	// Successful light-buffer rendering test!
+	// 3. Output to screen (light-buffer read)
 	DrawFsqTexture(fGeometryBuffer.colors[3], 0);
 }
 
@@ -138,12 +136,12 @@ void DrawGeometry()
 
 void DrawDirectionLight()
 {
+	BindFramebuffer(fGeometryBuffer, { GL_NONE, GL_NONE, GL_NONE, GL_COLOR_ATTACHMENT3 });
 	BindTexture2D(fGeometryBuffer.colors[0], 0);
 	BindTexture2D(fGeometryBuffer.colors[1], 1);
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
-	BindFramebuffer(fGeometryBuffer, { GL_NONE, GL_NONE, GL_NONE, GL_COLOR_ATTACHMENT3 });
-
 	BindShader(&gShaderDeferredDirectionLight);
+
 	SendVec3("u_lightDirection", Normalize(fDirectionLightDirection));
 	SendVec3("u_lightColor", fDirectionLightColor);
 	SendFloat("u_ambient", 0.05f);
@@ -153,17 +151,17 @@ void DrawDirectionLight()
 	SendInt("u_normals", 1);
 	SendInt("u_albedo", 2);
 	DrawFsq(); // <-- Draws with depth test & depth write disabled by default
-	UnbindShader();
 
-	UnbindFramebuffer(fGeometryBuffer);
+	UnbindShader();
 	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
 	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
 	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
+	UnbindFramebuffer(fGeometryBuffer);
 }
 
 void DrawLightVolumes()
 {
-	// NEED TO BLIT G-BUFFER DEPTH TO DEFAULT-FBO DEPTH!!!!!!!
+	BindFramebuffer(fGeometryBuffer, { GL_NONE, GL_NONE, GL_NONE, GL_COLOR_ATTACHMENT3 });
 	BindTexture2D(fGeometryBuffer.colors[0], 0);
 	BindTexture2D(fGeometryBuffer.colors[1], 1);
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
@@ -188,11 +186,9 @@ void DrawLightVolumes()
 	SendVec2("u_viewportSize", { SCREEN_WIDTH, SCREEN_HEIGHT });
 	SendVec2("u_viewportOffset", V2_ZERO);
 
-	PipelineState ps = gPipelineNoDepth;
-	ps.depthTest = true;
-	ps.cullFace = GL_FRONT;
-	ps.depthFunc = GL_LESS;
-
+	// Issue: Any fragments in front of geometry will apply lighting due to screen-space projection.
+	PipelineState ps = gPipelineDefault;
+	ps.depthWrite = false;
 	SetPipelineState(ps);
 	DrawMesh(gMeshSphere);
 	SetPipelineState(gPipelineDefault);
@@ -201,4 +197,5 @@ void DrawLightVolumes()
 	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
 	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
 	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
+	UnbindFramebuffer(fGeometryBuffer);
 }
