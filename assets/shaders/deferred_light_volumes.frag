@@ -13,14 +13,13 @@ uniform float u_lightRadius;
 uniform float u_ambient;
 uniform float u_diffuse;
 
-uniform vec2 u_viewportSize;
-uniform vec2 u_viewportOffset;
+uniform vec2 u_screen;
 
 out vec4 FragColor;
 
 void main()
 {
-    vec2 uv = (gl_FragCoord.xy - u_viewportOffset) / u_viewportSize;
+    vec2 uv = (gl_FragCoord.xy) / u_screen;
 
     vec3 position = texture(u_positions, uv).xyz;
     vec3 albedo = texture(u_albedo, uv).rgb;

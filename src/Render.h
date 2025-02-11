@@ -67,6 +67,7 @@ void DrawFsqTexture(Texture2D texture, GLuint unit, PipelineState* state = nullp
 // Framebuffer
 void DrawColor(Framebuffer framebuffer, GLuint attachment, GLuint unit = 0);
 void DrawDepth(Framebuffer framebuffer, GLuint unit = 0);
+void DrawGeometryBuffer(Framebuffer framebuffer);
 
 // Cubemap
 void DrawSkybox(Cubemap cubemap, GLuint unit);

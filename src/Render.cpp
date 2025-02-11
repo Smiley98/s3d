@@ -354,6 +354,30 @@ void DrawDepth(Framebuffer framebuffer, GLuint unit)
 	UnbindTexture2D(framebuffer.depth, unit);
 }
 
+void DrawGeometryBuffer(Framebuffer framebuffer)
+{
+	float hw = SCREEN_WIDTH * 0.5f;
+	float hh = SCREEN_HEIGHT * 0.5f;
+
+	// Positions (0, bottom-left)
+	glViewport(0, 0, hw, hh);
+	DrawColor(framebuffer, 0);
+
+	// Normals (1, bottom-right)
+	glViewport(hw, 0, hw, hh);
+	DrawColor(framebuffer, 1);
+
+	// Albedo (2, top-left)
+	glViewport(0, hh, hw, hh);
+	DrawColor(framebuffer, 2);
+
+	// Light (3, top-right)
+	glViewport(hw, hh, hw, hh);
+	DrawColor(framebuffer, 3);
+
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+}
+
 void DrawSkybox(Cubemap cubemap, GLuint unit)
 {
 	Matrix viewSky = gView;
