@@ -12,7 +12,9 @@ uniform float u_lightRadius;
 
 uniform float u_ambient;
 uniform float u_diffuse;
+uniform float u_specular;
 
+uniform vec3 u_cameraPosition;
 uniform vec2 u_screen;
 
 out vec4 FragColor;
@@ -26,12 +28,17 @@ void main()
     
     vec3 N = texture(u_normals, uv).xyz;
     vec3 L = normalize(u_lightPosition - position);
+    vec3 V = normalize(u_cameraPosition - position);
+    vec3 R = reflect(-L, N);
+
     float dotNL = max(dot(N, L), 0.0);
+    float dotVR = max(dot(V, R), 0.0);
     float attenuation = smoothstep(u_lightRadius, 0.0, length(u_lightPosition - position));
     
     vec3 lighting = vec3(0.0);
     lighting += u_lightColor * albedo * u_ambient;
     lighting += u_lightColor * albedo * u_diffuse * dotNL;
+    lighting += u_lightColor * albedo * u_specular * pow(dotVR, 32);
     lighting *= attenuation;
     gLighting = lighting;
 }

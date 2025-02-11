@@ -15,12 +15,16 @@ static Texture2D fTextureWhite;
 static Texture2D fTextureAlbedo;
 static Framebuffer fGeometryBuffer;
 
-static Vector3 fDirectionLightDirection = V3_RIGHT * -1.0f + V3_UP + V3_FORWARD * -1.0f;
+static Vector3 fDirectionLightDirection = V3_FORWARD * -1.0f;
 static Vector3 fDirectionLightColor = V3_ONE;
 
 static Vector3 fPointLightPosition = V3_FORWARD * 15.0f + V3_UP * 10.0f;
 static Vector3 fPointLightColor = V3_RIGHT;
 static float fPointLightRadius = 5.0f;
+
+static bool fDrawLightWireframes = false;
+static bool fDrawGeometryBuffer = false;
+static bool fDrawDirectionLight = false;
 
 struct PointLight
 {
@@ -106,31 +110,48 @@ void NeonDriveScene::OnDraw()
 	glEnable(GL_BLEND); 
 	glBlendFunc(GL_ONE, GL_ONE);
 	glBlendEquation(GL_FUNC_ADD);
-	DrawDirectionLight();
+	if (fDrawDirectionLight)
+		DrawDirectionLight();
 	DrawLightVolumes();
 	glDisable(GL_BLEND);
 
-	//DrawGeometryBuffer(fGeometryBuffer);
-
-	// 3. Output to screen (light-buffer read)
-	DrawFsqTexture(fGeometryBuffer.colors[3], 0);
+	if (fDrawGeometryBuffer)
+		DrawGeometryBuffer(fGeometryBuffer);
+	else
+		DrawFsqTexture(fGeometryBuffer.colors[3], 0);
 	
-	// 4. Visualize light volumes
-	//for (int i = 0; i < LIGHT_COUNT; i++)
-	//	DrawLightWireframes(fLights[i]);
+	if (fDrawLightWireframes)
+	{
+		if (fDrawGeometryBuffer)
+		{
+			float hw = SCREEN_WIDTH * 0.5f;
+			float hh = SCREEN_HEIGHT * 0.5f;
+			glViewport(hw, hh, hw, hh);
+		}
+
+		for (int i = 0; i < LIGHT_COUNT; i++)
+			DrawLightWireframes(fLights[i]);
+
+		if (fDrawGeometryBuffer)
+			glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	}
 }
 
 void NeonDriveScene::OnDrawImGui()
 {
-	ImGui::SliderFloat3("Camera Position", &gCamera.position.x, -50.0f, 50.0f);
-	ImGui::SliderFloat3("Light Position", &fPointLightPosition.x, -50.0f, 50.0f);
-	ImGui::SliderFloat("Light Radius", &fPointLightRadius, 0.0f, 25.0f);
-
-	ImGui::Separator();
-	ImGui::SliderFloat3("Light Direction", &fDirectionLightDirection.x, -1.0f, 1.0f);
+	ImGui::Checkbox("Draw Light Wireframes", &fDrawLightWireframes);
+	ImGui::Checkbox("Draw G-Buffer", &fDrawGeometryBuffer);
+	ImGui::Checkbox("Direction Light", &fDrawDirectionLight);
+	if (fDrawDirectionLight)
+	{
+		ImGui::SliderFloat3("Light Direction", &fDirectionLightDirection.x, -1.0f, 1.0f);
+		ImGui::ColorPicker3("Direction Light Color", &fDirectionLightColor.x);
+	}
 	
+	// TODO -- Add manual light control?
+	//ImGui::SliderFloat3("Light Position", &fPointLightPosition.x, -50.0f, 50.0f);
+	//ImGui::SliderFloat("Light Radius", &fPointLightRadius, 0.0f, 25.0f);
 	//ImGui::ColorPicker3("Point Light Color", &fPointLightColor.x);
-	//ImGui::ColorPicker3("Direction Light Color", &fDirectionLightColor.x);
 }
 
 void DrawGeometry()
@@ -191,12 +212,6 @@ void DrawLightVolumes()
 	BindTexture2D(fGeometryBuffer.colors[2], 2);
 	BindShader(&gShaderDeferredLightVolumes);
 
-	//PointLight light;
-	//light.position = fPointLightPosition;
-	//light.color = fPointLightColor;
-	//light.radius = fPointLightRadius;
-	//DrawLight(light);
-
 	for (int i = 0; i < LIGHT_COUNT; i++)
 		DrawLight(fLights[i]);
 
@@ -232,9 +247,12 @@ void DrawLight(const PointLight& light)
 	SendVec3("u_lightPosition", light.position);
 	SendVec3("u_lightColor", light.color);
 	SendFloat("u_lightRadius", light.radius);
+
 	SendFloat("u_ambient", 0.25f);
 	SendFloat("u_diffuse", 1.0f);
+	SendFloat("u_specular", 1.0f);
 
+	SendVec3("u_cameraPosition", gCamera.position);
 	SendVec2("u_screen", { SCREEN_WIDTH, SCREEN_HEIGHT });
 
 	PipelineState ps = gPipelineNoDepth;
