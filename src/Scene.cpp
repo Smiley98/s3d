@@ -8,7 +8,6 @@
 #include "PhysicsScene.h"
 #include "PostprocessingScene.h"
 #include "SolarSystemScene.h"
-#include "DeferredScene.h"
 #include "NeonDrive.h"
 #include "HexagonGridScene.h"
 
@@ -27,7 +26,6 @@ void Scene::Create(Scene::Type scene)
 	sScenes[PHYSICS] = new PhysicsScene;
 	sScenes[POST_PROCESSING] = new PostprocessingScene;
 	sScenes[SOLAR_SYSTEM] = new SolarSystemScene;
-	sScenes[DEFERRED_RENDERING] = new DeferredScene;
 	sScenes[NEON_DRIVE] = new NeonDriveScene;
 	sScenes[HEXAGON_GRID] = new HexagonGridScene;
 

@@ -111,9 +111,6 @@
     <ClCompile Include="src\Framebuffer.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="src\DeferredScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\PhysicsScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
@@ -256,9 +253,6 @@
     </ClInclude>
     <ClInclude Include="src\Geometry.h">
       <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\DeferredScene.h">
-      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\PhysicsScene.h">
       <Filter>Scene</Filter>

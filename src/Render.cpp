@@ -7,10 +7,8 @@ DebugShaderType gDebugShader = FLAT;
 Matrix gView = MatrixIdentity();
 Matrix gProj = MatrixIdentity();
 
-Framebuffer gFboColor;
-static Framebuffer fFboHexagonGrid;
-
-void GenHexagonGridDistance(Framebuffer* framebuffer, int width, int height, Vector3 fg, Vector3 bg, float amount, float thickness);
+static Texture2D fHexagonGrid;
+void GenHexagonGridDistance(Vector3 fg, Vector3 bg, float amount, float thickness);
 
 void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color)
 {
@@ -337,45 +335,21 @@ void DrawFsqTexture(Texture2D texture, GLuint unit, PipelineState* state)
 
 void DrawColor(Framebuffer framebuffer, GLuint attachment, GLuint unit)
 {
-	DrawFsqTexture(framebuffer.colors[attachment], unit);
+	DrawFsqTexture(*framebuffer.colors[attachment], unit);
 }
 
 void DrawDepth(Framebuffer framebuffer, GLuint unit)
 {
 	float near = gProj.m14 / (gProj.m10 - 1.0f);
 	float far = gProj.m14 / (gProj.m10 + 1.0f);
-	BindTexture2D(framebuffer.depth, unit);
+	BindTexture2D(*framebuffer.depth, unit);
 	BindShader(&gShaderFsqDepth);
 	SendFloat("u_near", near);
 	SendFloat("u_far", far);
 	SendInt("u_tex", unit);
 	DrawFsq();
 	UnbindShader();
-	UnbindTexture2D(framebuffer.depth, unit);
-}
-
-void DrawGeometryBuffer(Framebuffer framebuffer)
-{
-	float hw = SCREEN_WIDTH * 0.5f;
-	float hh = SCREEN_HEIGHT * 0.5f;
-
-	// Positions (0, bottom-left)
-	glViewport(0, 0, hw, hh);
-	DrawColor(framebuffer, 0);
-
-	// Normals (1, bottom-right)
-	glViewport(hw, 0, hw, hh);
-	DrawColor(framebuffer, 1);
-
-	// Albedo (2, top-left)
-	glViewport(0, hh, hw, hh);
-	DrawColor(framebuffer, 2);
-
-	// Light (3, top-right)
-	glViewport(hw, hh, hw, hh);
-	DrawColor(framebuffer, 3);
-
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	UnbindTexture2D(*framebuffer.depth, unit);
 }
 
 void DrawSkybox(Cubemap cubemap, GLuint unit)
@@ -402,43 +376,42 @@ void InitRenderer()
 {
 	glGenVertexArrays(1, &fVaoEmpty);
 
-	CreateFramebuffer(&gFboColor, SCREEN_WIDTH, SCREEN_HEIGHT);
-	AddColor(&gFboColor, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-	CompleteFramebuffer(&gFboColor);
-
-	GenHexagonGridDistance(&fFboHexagonGrid, SCREEN_WIDTH, SCREEN_HEIGHT, { 0.8f, 0.85f, 1.0f }, V3_ONE, 10.0f, 0.1f);
+	CreateTexture2D(&fHexagonGrid, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	GenHexagonGridDistance({ 0.8f, 0.85f, 1.0f }, V3_ONE, 10.0f, 0.1f);
 }
 
 void QuitRenderer()
 {
-	DestroyFramebuffer(&fFboHexagonGrid);
-	DestroyFramebuffer(&gFboColor);
+	DestroyTexture2D(&fHexagonGrid);
 
 	glDeleteVertexArrays(1, &fVaoEmpty);
 	fVaoEmpty = GL_NONE;
 }
 
-void GenHexagonGridDistance(Framebuffer* framebuffer, int width, int height, Vector3 fg, Vector3 bg, float amount, float thickness)
+void GenHexagonGridDistance(Vector3 fg, Vector3 bg, float amount, float thickness)
 {
-	CreateFramebuffer(framebuffer, width, height);
-	AddColor(framebuffer, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-	CompleteFramebuffer(framebuffer);
+	Framebuffer fb;
+	CreateFramebuffer(&fb, SCREEN_WIDTH, SCREEN_HEIGHT);
+	fb.colors[0] = &fHexagonGrid;
+	CompleteFramebuffer(&fb);
 
-	BindFramebuffer(*framebuffer);
+	BindFramebuffer(fb);
 	BindShader(&gShaderHexagonGridDistance);
-	SendVec2("u_resolution", { (float)width, (float)height });
+	SendVec2("u_resolution", { SCREEN_WIDTH, SCREEN_HEIGHT });
 	SendVec3("u_fg_col", fg);
 	SendVec3("u_bg_col", bg);
 	SendFloat("u_hex_res", amount);
 	SendFloat("u_hex_thickness", thickness);
 	DrawFsq();
 	UnbindShader();
-	UnbindFramebuffer(*framebuffer);
+	UnbindFramebuffer(fb);
+
+	DestroyFramebuffer(&fb);
 }
 
 Texture2D GetHexagonGrid()
 {
-	return fFboHexagonGrid.colors[0];
+	return fHexagonGrid;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

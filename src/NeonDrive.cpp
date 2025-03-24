@@ -11,9 +11,21 @@
 // Not even worth sending via uniforms since its bandwidth-bound... Just full-send via instancing!
 constexpr int LIGHT_COUNT = 64;
 
-static Texture2D fTextureWhite;
-static Texture2D fTextureAlbedo;
+enum RenderTargets
+{
+	POSITIONS,
+	NORMALS,
+	ALBEDO,
+	ACCUMULATION,
+	COUNT
+};
+
 static Framebuffer fGeometryBuffer;
+static Texture2D fColorsRT[RenderTargets::COUNT];
+static Texture2D fDepthRT;
+
+// Just a 1x1 white texture
+static Texture2D fTexBuilding;
 
 static Vector3 fDirectionLightDirection = V3_FORWARD * -1.0f;
 static Vector3 fDirectionLightColor = V3_ONE;
@@ -23,7 +35,7 @@ static Vector3 fPointLightColor = V3_RIGHT;
 static float fPointLightRadius = 5.0f;
 
 static bool fDrawLightWireframes = false;
-static bool fDrawGeometryBuffer = false;
+static bool fDrawRenderTargets = false;
 static bool fDrawDirectionLight = false;
 
 struct PointLight
@@ -38,6 +50,7 @@ static PointLight fLights[LIGHT_COUNT];
 void DrawGeometry();
 void DrawDirectionLight();
 void DrawLightVolumes();
+void DrawRenderTargets();
 
 void DrawObject(const Mesh& mesh, Matrix world, Texture2D texture);
 void DrawLight(const PointLight& light);
@@ -50,28 +63,21 @@ void NeonDriveScene::OnLoad()
 	// World's most elaborate texture xD xD xD
 	{
 		uint32_t pixel = 0xFFFFFFFF;
-		CreateTexture2D(&fTextureWhite, 1, 1, GL_RGB8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, &pixel);
+		CreateTexture2D(&fTexBuilding, 1, 1, GL_RGB8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, &pixel);
 	}
 
-	// Original format = RGBA
-	{
-		int w, h, c;
-		uint8_t* pixels = LoadImage2D("./assets/textures/african_head_diffuse.png", &w, &h, &c);
-		CreateTexture2D(&fTextureAlbedo, w, h, GL_RGB8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
-		UnloadImage(pixels);
-	}
+	CreateTexture2D(&fColorsRT[RenderTargets::POSITIONS], SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);
+	CreateTexture2D(&fColorsRT[RenderTargets::NORMALS], SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);
+	CreateTexture2D(&fColorsRT[RenderTargets::ALBEDO], SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);
+	CreateTexture2D(&fColorsRT[RenderTargets::ACCUMULATION], SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);
+	CreateTexture2D(&fDepthRT, SCREEN_WIDTH, SCREEN_HEIGHT, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
 
-	// Positions, normals, and albedo are all 3-component. Can convert to RGBA for albedo-specular.
 	CreateFramebuffer(&fGeometryBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
-	AddColor(&fGeometryBuffer, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);		// Positions
-	AddColor(&fGeometryBuffer, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);		// Normals
-	AddColor(&fGeometryBuffer, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);	// Albedo
-	AddColor(&fGeometryBuffer, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);	// Light Accumulation
-
-	AddDepth(&fGeometryBuffer);
+	for (int i = 0; i < RenderTargets::COUNT; i++)
+		fGeometryBuffer.colors[i] = &fColorsRT[i];
+	fGeometryBuffer.depth = &fDepthRT;
 	CompleteFramebuffer(&fGeometryBuffer);
 
-	// Create lights!
 	for (int i = 0; i < LIGHT_COUNT; i++)
 	{
 		PointLight& l = fLights[i];
@@ -87,9 +93,12 @@ void NeonDriveScene::OnLoad()
 
 void NeonDriveScene::OnUnload()
 {
+	for (int i = 0; i < RenderTargets::COUNT; i++)
+		DestroyTexture2D(&fColorsRT[i]);
+	DestroyTexture2D(&fDepthRT);
+
+	DestroyTexture2D(&fTexBuilding);
 	DestroyFramebuffer(&fGeometryBuffer);
-	DestroyTexture2D(&fTextureAlbedo);
-	DestroyTexture2D(&fTextureWhite);
 }
 
 void NeonDriveScene::OnUpdate(float dt)
@@ -99,8 +108,6 @@ void NeonDriveScene::OnUpdate(float dt)
 	gProj = Perspective(PI * 0.5f, SCREEN_ASPECT, 0.1f, 1000.0f);
 }
 
-// TODO -- Add shader reflection / UBOs because sending uniforms 1 by 1 is silly (makes it hard to read)
-// TODO -- Add lights array, make this scene EPIC!
 void NeonDriveScene::OnDraw()
 {
 	// 1. Render geometry (g-buffer write)
@@ -115,14 +122,16 @@ void NeonDriveScene::OnDraw()
 	DrawLightVolumes();
 	glDisable(GL_BLEND);
 
-	if (fDrawGeometryBuffer)
-		DrawGeometryBuffer(fGeometryBuffer);
+	// 3. Visualize either the entire G-buffer or the final render
+	if (fDrawRenderTargets)
+		DrawRenderTargets();
 	else
-		DrawFsqTexture(fGeometryBuffer.colors[3], 0);
+		DrawFsqTexture(fColorsRT[RenderTargets::ACCUMULATION], 0);
 	
+	// 4. Optional light volumes visualization
 	if (fDrawLightWireframes)
 	{
-		if (fDrawGeometryBuffer)
+		if (fDrawRenderTargets)
 		{
 			float hw = SCREEN_WIDTH * 0.5f;
 			float hh = SCREEN_HEIGHT * 0.5f;
@@ -132,7 +141,7 @@ void NeonDriveScene::OnDraw()
 		for (int i = 0; i < LIGHT_COUNT; i++)
 			DrawLightWireframes(fLights[i]);
 
-		if (fDrawGeometryBuffer)
+		if (fDrawRenderTargets)
 			glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 }
@@ -140,7 +149,7 @@ void NeonDriveScene::OnDraw()
 void NeonDriveScene::OnDrawImGui()
 {
 	ImGui::Checkbox("Draw Light Wireframes", &fDrawLightWireframes);
-	ImGui::Checkbox("Draw G-Buffer", &fDrawGeometryBuffer);
+	ImGui::Checkbox("Draw G-Buffer", &fDrawRenderTargets);
 	ImGui::Checkbox("Direction Light", &fDrawDirectionLight);
 	if (fDrawDirectionLight)
 	{
@@ -171,7 +180,7 @@ void DrawGeometry()
 		for (int x = -70; x <= 70; x += 20)
 		{
 			Matrix world = Translate(x, y, 0.0f);
-			DrawObject(gMeshTd, world, fTextureWhite);
+			DrawObject(gMeshTd, world, fTexBuilding);
 		}
 	}
 
@@ -181,10 +190,13 @@ void DrawGeometry()
 
 void DrawDirectionLight()
 {
-	BindFramebuffer(fGeometryBuffer, { GL_NONE, GL_NONE, GL_NONE, GL_COLOR_ATTACHMENT3 });
-	BindTexture2D(fGeometryBuffer.colors[0], 0);
-	BindTexture2D(fGeometryBuffer.colors[1], 1);
-	BindTexture2D(fGeometryBuffer.colors[2], 2);
+	DrawBuffers drawBuffers{};
+	drawBuffers[3] = true;//{ GL_NONE, GL_NONE, GL_NONE, GL_COLOR_ATTACHMENT3 }
+	BindFramebuffer(fGeometryBuffer, &drawBuffers);
+
+	BindTexture2D(fColorsRT[RenderTargets::POSITIONS], 0);
+	BindTexture2D(fColorsRT[RenderTargets::NORMALS], 1);
+	BindTexture2D(fColorsRT[RenderTargets::ALBEDO], 2);
 	BindShader(&gShaderDeferredDirectionLight);
 
 	SendVec3("u_lightDirection", Normalize(fDirectionLightDirection));
@@ -198,28 +210,53 @@ void DrawDirectionLight()
 	DrawFsq(); // <-- Draws with depth test & depth write disabled by default
 
 	UnbindShader();
-	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
-	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
-	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
+	UnbindTexture2D(fColorsRT[RenderTargets::ALBEDO], 2);
+	UnbindTexture2D(fColorsRT[RenderTargets::NORMALS], 1);
+	UnbindTexture2D(fColorsRT[RenderTargets::POSITIONS], 0);
+
 	UnbindFramebuffer(fGeometryBuffer);
 }
 
 void DrawLightVolumes()
 {
-	BindFramebuffer(fGeometryBuffer, { GL_NONE, GL_NONE, GL_NONE, GL_COLOR_ATTACHMENT3 });
-	BindTexture2D(fGeometryBuffer.colors[0], 0);
-	BindTexture2D(fGeometryBuffer.colors[1], 1);
-	BindTexture2D(fGeometryBuffer.colors[2], 2);
+	DrawBuffers drawBuffers{};
+	drawBuffers[3] = true;//{ GL_NONE, GL_NONE, GL_NONE, GL_COLOR_ATTACHMENT3 }
+	BindFramebuffer(fGeometryBuffer, &drawBuffers);
+
+	BindTexture2D(fColorsRT[RenderTargets::POSITIONS], 0);
+	BindTexture2D(fColorsRT[RenderTargets::NORMALS], 1);
+	BindTexture2D(fColorsRT[RenderTargets::ALBEDO], 2);
 	BindShader(&gShaderDeferredLightVolumes);
 
 	for (int i = 0; i < LIGHT_COUNT; i++)
 		DrawLight(fLights[i]);
 
 	UnbindShader();
-	UnbindTexture2D(fGeometryBuffer.colors[2], 2);
-	UnbindTexture2D(fGeometryBuffer.colors[1], 1);
-	UnbindTexture2D(fGeometryBuffer.colors[0], 0);
+	UnbindTexture2D(fColorsRT[RenderTargets::ALBEDO], 2);
+	UnbindTexture2D(fColorsRT[RenderTargets::NORMALS], 1);
+	UnbindTexture2D(fColorsRT[RenderTargets::POSITIONS], 0);
+
 	UnbindFramebuffer(fGeometryBuffer);
+}
+
+void DrawRenderTargets()
+{
+	float hw = SCREEN_WIDTH * 0.5f;
+	float hh = SCREEN_HEIGHT * 0.5f;
+
+	glViewport(0, 0, hw, hh);	//Bottom-left
+	DrawFsqTexture(fColorsRT[RenderTargets::POSITIONS], 0);
+
+	glViewport(hw, 0, hw, hh);	// Bottom-right
+	DrawFsqTexture(fColorsRT[RenderTargets::NORMALS], 1);
+
+	glViewport(0, hh, hw, hh);	// Top-left
+	DrawFsqTexture(fColorsRT[RenderTargets::ALBEDO], 2);
+
+	glViewport(hw, hh, hw, hh);	// Top-right
+	DrawFsqTexture(fColorsRT[RenderTargets::ACCUMULATION], 3);
+
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 void DrawObject(const Mesh& mesh, Matrix world, Texture2D texture)
@@ -266,3 +303,7 @@ void DrawLightWireframes(const PointLight& light)
 	Matrix world = Scale(V3_ONE * light.radius) * Translate(light.position);
 	DrawMeshWireframes(gMeshSphere, world, light.color);
 }
+
+// Add shader reflection / UBOs because sending uniforms 1 by 1 is silly (makes it hard to read).
+// However, mat3 vs mat4 might cause problems because raymath only has mat4.
+// Have to look up std140 and std 430 rules. Not sure how annoying it would be to convert between float9 vs mat4 in struct UniformData.

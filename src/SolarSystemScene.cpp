@@ -34,6 +34,8 @@ static Matrix planetMvp[PLANET_COUNT];			// Raster only
 
 static Cubemap fSkyboxSpace;
 static Framebuffer fFbo;
+static Texture2D fColorRT;
+static Texture2D fDepthRT;
 
 struct Asteroids
 {
@@ -169,11 +171,13 @@ void SolarSystemScene::OnLoad()
 
 	CreateAsteroids();
 
-	// Note that depth must be attached in order for depth-test and depth-write to be performed
-	// If you don't need to sample the depth-buffer, a renderbuffer can be attached for better performance.
+	CreateTexture2D(&fColorRT, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	CreateTexture2D(&fDepthRT, SCREEN_WIDTH, SCREEN_HEIGHT, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
+
+	// A depth texture must be attached in order for depth-testing and depth-writing to be performed
 	CreateFramebuffer(&fFbo, SCREEN_WIDTH, SCREEN_HEIGHT);
-	AddColor(&fFbo, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-	AddDepth(&fFbo);
+	fFbo.colors[0] = &fColorRT;
+	fFbo.depth = &fDepthRT;
 	CompleteFramebuffer(&fFbo);
 
 	// Sun

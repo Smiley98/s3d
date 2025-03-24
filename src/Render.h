@@ -11,9 +11,6 @@
 extern Matrix gView;
 extern Matrix gProj;
 
-// RGBA8 uint8 nearest-sampling colour attachment
-extern Framebuffer gFboColor;
-
 enum DebugShaderType : int
 {
 	FLAT,
@@ -67,7 +64,6 @@ void DrawFsqTexture(Texture2D texture, GLuint unit, PipelineState* state = nullp
 // Framebuffer
 void DrawColor(Framebuffer framebuffer, GLuint attachment, GLuint unit = 0);
 void DrawDepth(Framebuffer framebuffer, GLuint unit = 0);
-void DrawGeometryBuffer(Framebuffer framebuffer);
 
 // Cubemap
 void DrawSkybox(Cubemap cubemap, GLuint unit);
