@@ -132,9 +132,6 @@
     <ClCompile Include="src\File.cpp">
       <Filter>Assets</Filter>
     </ClCompile>
-    <ClCompile Include="src\HexagonGridScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\HexagonGrid.cpp">
       <Filter>Grid</Filter>
     </ClCompile>
@@ -277,9 +274,6 @@
     </ClInclude>
     <ClInclude Include="src\File.h">
       <Filter>Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HexagonGridScene.h">
-      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Framebuffer.h">
       <Filter>Render</Filter>

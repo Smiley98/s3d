@@ -99,7 +99,6 @@
     <ClCompile Include="src\Framebuffer.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\HexagonGrid.cpp" />
-    <ClCompile Include="src\HexagonGridScene.cpp" />
     <ClCompile Include="src\Image.cpp" />
     <ClCompile Include="src\ImageLoader.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -143,7 +142,6 @@
     <ClInclude Include="src\Framebuffer.h" />
     <ClInclude Include="src\Geometry.h" />
     <ClInclude Include="src\HexagonGrid.h" />
-    <ClInclude Include="src\HexagonGridScene.h" />
     <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\ImageLoader.h" />
     <ClInclude Include="src\ImageUtils.h" />

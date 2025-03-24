@@ -13,6 +13,7 @@ struct Image
     int height = -1;
 };
 
+// TODO -- See if I can replace this with ImageLoader::LoadImage2D, or even an inline stbi_load call.
 void CreateImageFromFile(Image* image, const char* path, bool flip = false);
 void CreateImageFromMemory(Image* image, int width, int height, Color* pixels = nullptr);
 void DestroyImage(Image* image);

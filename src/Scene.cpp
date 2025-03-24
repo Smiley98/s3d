@@ -9,7 +9,6 @@
 #include "PostprocessingScene.h"
 #include "SolarSystemScene.h"
 #include "NeonDrive.h"
-#include "HexagonGridScene.h"
 
 Scene* Scene::sScenes[Scene::COUNT]{};
 Scene* Scene::sScene = nullptr;
@@ -27,7 +26,6 @@ void Scene::Create(Scene::Type scene)
 	sScenes[POST_PROCESSING] = new PostprocessingScene;
 	sScenes[SOLAR_SYSTEM] = new SolarSystemScene;
 	sScenes[NEON_DRIVE] = new NeonDriveScene;
-	sScenes[HEXAGON_GRID] = new HexagonGridScene;
 
 	for (size_t i = 0; i < COUNT; i++)
 		sScenes[i]->OnCreate();
