@@ -62,9 +62,10 @@ void DrawPlanetsRaymarch();
 
 void CreateAsteroids()
 {
+	// TODO - Make all shaders and framebuffers output vec4's because its simple and probably what the GPU does anyway.
 	{
 		int w, h, c;
-		uint8_t* pixels = LoadImage2D("./assets/textures/asteroid.png", &w, &h, &c);
+		uint8_t* pixels = LoadImage2D("./assets/textures/asteroid.png", &w, &h, &c, 3, FLIP_VERTICAL);
 		CreateTexture2D(&fAsteroids.texture, w, h, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
 		UnloadImage(pixels);
 	}
@@ -164,7 +165,7 @@ void SolarSystemScene::OnLoad()
 	{
 		int w, h, c;
 		uint8_t* pixels[6];
-		LoadCubemap("./assets/textures/space", "png", &w, &h, &c, pixels);
+		LoadCubemap("./assets/textures/space", "png", &w, &h, &c, 4, pixels);
 		CreateCubemap(&fSkyboxSpace, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
 		UnloadCubemap(pixels);
 	}

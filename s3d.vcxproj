@@ -116,7 +116,6 @@
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\SoftwareRenderingScene.cpp" />
     <ClCompile Include="src\SolarSystemScene.cpp" />
-    <ClCompile Include="src\stb.cpp" />
     <ClCompile Include="src\TestScene.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\Window.cpp" />
@@ -164,7 +163,6 @@
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\SoftwareRenderingScene.h" />
     <ClInclude Include="src\SolarSystemScene.h" />
-    <ClInclude Include="src\stb.h" />
     <ClInclude Include="src\TestScene.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\Time.h" />

@@ -4,7 +4,6 @@
 
 constexpr int CPU_IMAGE_SIZE = 512;
 
-// Fixed-format CPU-side pixel array. Used for software rendering only for educational purposes. Completely independent of Texture.
 struct Image
 {
 	std::vector<Color> pixels;
@@ -13,8 +12,7 @@ struct Image
     int height = -1;
 };
 
-// TODO -- See if I can replace this with ImageLoader::LoadImage2D, or even an inline stbi_load call.
-void CreateImageFromFile(Image* image, const char* path, bool flip = false);
+void CreateImageFromFile(Image* image, const char* path, bool flip = false/*defaulted to true so students can ignore it*/);
 void CreateImageFromMemory(Image* image, int width, int height, Color* pixels = nullptr);
 void DestroyImage(Image* image);
 void Flip(Image* image);

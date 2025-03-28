@@ -1,18 +1,14 @@
 #include "Image.h"
-#include "stb.h"
+#include "ImageLoader.h"
 #include <cassert>
 
 void CreateImageFromFile(Image* image, const char* path, bool flip)
 {
-    // Color is RGBA so channels must be 4
     int width, height, channels;
-    stbi_uc* pixels = stbi_load(path, &width, &height, &channels, 4);
-    assert(pixels != nullptr && channels == 4);
-    CreateImageFromMemory(image, width, height, (Color*)pixels);
-    stbi_image_free(pixels);
+    uint8_t* pixels = LoadImage2D(path, &width, &height, &channels, sizeof(Color), flip == true ? FLIP_VERTICAL : FLIP_NONE);
 
-    if (flip)
-        Flip(image);
+    CreateImageFromMemory(image, width, height, (Color*)pixels);
+    UnloadImage(pixels);
 }
 
 void CreateImageFromMemory(Image* image, int width, int height, Color* pixels)

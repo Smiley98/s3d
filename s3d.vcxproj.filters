@@ -105,9 +105,6 @@
     <ClCompile Include="src\SolarSystemScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\stb.cpp">
-      <Filter>Image</Filter>
-    </ClCompile>
     <ClCompile Include="src\Framebuffer.cpp">
       <Filter>Render</Filter>
     </ClCompile>
@@ -244,9 +241,6 @@
     </ClInclude>
     <ClInclude Include="src\SolarSystemScene.h">
       <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\stb.h">
-      <Filter>Image</Filter>
     </ClInclude>
     <ClInclude Include="src\Geometry.h">
       <Filter>Math</Filter>

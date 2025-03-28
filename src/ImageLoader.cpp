@@ -1,25 +1,37 @@
 #include "ImageLoader.h"
-#include "stb.h"
 #include <cassert>
-#include <string>
 
-uint8_t* LoadImage1D(const char* file, int* width, int* channels)
-{
-	int height; // 1
-	return stbi_load(file, width, &height, channels, 0);
-}
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
-uint8_t* LoadImage2D(const char* file, int* width, int* height, int* channels, bool flip)
+// Channels vs Requested Channels is like Format vs Internal Format.
+// Channels is how many channels the image has, ie 3-channel png image.
+// Requested Channels is how many channels the image is loaded with, ie convert 3-channel to 4-channel.
+
+uint8_t* LoadImage1D(const char* file, int* w, int* c, int rc)
 {
-	SetVerticalFlip(flip);
-	uint8_t* pixels = stbi_load(file, width, height, channels, 0);
-	assert(pixels != nullptr);
+	int h; // 1
+	uint8_t* pixels = stbi_load(file, w, &h, c, rc);
+	assert(pixels != nullptr && *c == rc);
+
 	printf("Loaded image %s\n", file);
-	SetVerticalFlip(false);
 	return pixels;
 }
 
-uint8_t* LoadImage3D(const char* file, int* width, int* height, int* depth, int* channels)
+uint8_t* LoadImage2D(const char* file, int* w, int* h, int* c, int rc, ImageFlip flip)
+{
+	uint8_t* pixels = stbi_load(file, w, h, c, rc);
+	assert(pixels != nullptr && *c == rc);
+
+	// Easier than toggling stb_vertical_flip_on_load on/off
+	if (flip == FLIP_VERTICAL)
+		FlipVertically(pixels, *w, *h, rc);
+
+	printf("Loaded image %s\n", file);
+	return pixels;
+}
+
+uint8_t* LoadImage3D(const char* file, int* w, int* h, int* depth, int* c, int rc)
 {
 	// Wait till I actually need to load a LUT to handle this.
 	return nullptr;
@@ -30,7 +42,7 @@ void UnloadImage(uint8_t* pixels)
 	stbi_image_free(pixels);
 }
 
-void LoadCubemap(const char* name, const char* extension, int* width, int* height, int* channels, uint8_t* pixels[6])
+void LoadCubemap(const char* name, const char* extension, int* w, int* h, int* c, int rc, uint8_t* pixels[6])
 {
 	assert(strlen(name) < 240);
 	//SetVerticalFlip(flip);
@@ -42,7 +54,7 @@ void LoadCubemap(const char* name, const char* extension, int* width, int* heigh
 		char axis = axes[i / 2]; // 0, 1, 2
 		char face = faces[i % 2];// 0, 1
 		sprintf(buffer, "%s_%c%c.%s", name, axis, face, extension);
-		pixels[i] = stbi_load(buffer, width, height, channels, 0);
+		pixels[i] = stbi_load(buffer, w, h, c, rc);
 		assert(pixels[i] != nullptr);
 	}
 	printf("Loaded cubemap %s.%s\n", name, extension);
@@ -53,4 +65,9 @@ void UnloadCubemap(uint8_t* pixels[6])
 {
 	for (int i = 0; i < 6; i++)
 		stbi_image_free(pixels[i]);
+}
+
+void FlipVertically(void* pixels, int width, int height, int bytesPerPixel)
+{
+	stbi__vertical_flip(pixels, width, height, bytesPerPixel);
 }
