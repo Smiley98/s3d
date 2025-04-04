@@ -40,7 +40,7 @@ void UnloadImage(uint8_t* pixels)
 	stbi_image_free(pixels);
 }
 
-void LoadCubemap(const char* name, const char* extension, int* w, int* h, int* c, int rc, uint8_t* pixels[6])
+void LoadImageCubemap(const char* name, const char* extension, int* w, int* h, int* c, int rc, uint8_t* pixels[6])
 {
 	assert(strlen(name) < 240);
 	char axes[3] = { 'x', 'y', 'z' };
@@ -57,7 +57,7 @@ void LoadCubemap(const char* name, const char* extension, int* w, int* h, int* c
 	}
 }
 
-void UnloadCubemap(uint8_t* pixels[6])
+void UnloadImageCubemap(uint8_t* pixels[6])
 {
 	for (int i = 0; i < 6; i++)
 		stbi_image_free(pixels[i]);

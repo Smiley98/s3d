@@ -156,9 +156,9 @@ void SolarSystemScene::OnLoad()
 	{
 		int w, h, c;
 		uint8_t* pixels[6];
-		LoadCubemap("./assets/textures/space", "png", &w, &h, &c, 4, pixels);
-		CreateCubemap(&fSkyboxSpace, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
-		UnloadCubemap(pixels);
+		LoadImageCubemap("./assets/textures/space", "png", &w, &h, &c, 4, pixels);
+		CreateTextureCubemap(&fSkyboxSpace, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
+		UnloadImageCubemap(pixels);
 	}
 
 	{
@@ -257,7 +257,7 @@ void SolarSystemScene::OnUnload()
 
 	DestroyAsteroidInstances();
 	DestroyTexture2D(&fAsteroids.texture);
-	DestroyCubemap(&fSkyboxSpace);
+	DestroyTextureCubemap(&fSkyboxSpace);
 }
 
 void SolarSystemScene::OnUpdate(float dt)

@@ -24,12 +24,12 @@ struct Cubemap
 void CreateTexture1D(Texture1D* texture, int width, int internalFormat, int format, int type, int filter, void* pixels = nullptr);
 void CreateTexture2D(Texture2D* texture, int width, int height, int internalFormat, int format, int type, int filter, void* pixels = nullptr);
 void CreateTexture3D(Texture3D* texture, int width, int height, int depth, int internalFormat, int format, int type, int filter, void* pixels = nullptr);
-void CreateCubemap(Cubemap* cubemap, int width, int height, int internalFormat, int format, int type, int filter, void* pixels[6] = nullptr);
+void CreateTextureCubemap(Cubemap* cubemap, int width, int height, int internalFormat, int format, int type, int filter, void* pixels[6] = nullptr);
 
 void DestroyTexture1D(Texture1D* texture);
 void DestroyTexture2D(Texture2D* texture);
 void DestroyTexture3D(Texture3D* texture);
-void DestroyCubemap(Cubemap* cubemap);
+void DestroyTextureCubemap(Cubemap* cubemap);
 
 void BindTexture1D(Texture1D texture, GLuint unit);
 void BindTexture2D(Texture2D texture, GLuint unit);
