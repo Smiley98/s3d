@@ -57,7 +57,7 @@ void CreateTexture3D(Texture3D* texture, int width, int height, int depth, int i
     texture->id = id;
 }
 
-void CreateCubemap(Cubemap* texture, int width, int height, int internalFormat, int format, int type, int filter, void* pixels[6])
+void CreateTextureCubemap(Cubemap* texture, int width, int height, int internalFormat, int format, int type, int filter, void* pixels[6])
 {
     GLuint id = GL_NONE;
     GLenum target = GL_TEXTURE_CUBE_MAP;
@@ -92,7 +92,7 @@ void DestroyTexture3D(Texture3D* texture)
     texture->id = GL_NONE;
 }
 
-void DestroyCubemap(Cubemap* texture)
+void DestroyTextureCubemap(Cubemap* texture)
 {
     glDeleteTextures(1, &texture->id);
     texture->id = GL_NONE;

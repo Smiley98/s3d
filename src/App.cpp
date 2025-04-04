@@ -33,7 +33,7 @@ void Init()
 	CreateMeshes();
 	InitRenderer();
 	InitSoftwareRenderer();
-	Scene::Create(Scene::NEON_DRIVE);
+	Scene::Create(Scene::RASTER);
 }
 
 void Quit()

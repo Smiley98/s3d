@@ -66,6 +66,8 @@ void NeonDriveScene::OnLoad()
 		CreateTexture2D(&fTexBuilding, 1, 1, GL_RGB8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, &pixel);
 	}
 
+	// Render target channels are not padded to be RGBA since float-channels are most likely NOT padded by GPU.
+	// Additionally, working with the exact channel count removes ambiguity of how the textures are being used.
 	CreateTexture2D(&fColorsRT[RenderTargets::POSITIONS], SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);
 	CreateTexture2D(&fColorsRT[RenderTargets::NORMALS], SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB16F, GL_RGB, GL_FLOAT, GL_NEAREST);
 	CreateTexture2D(&fColorsRT[RenderTargets::ALBEDO], SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_NEAREST);
