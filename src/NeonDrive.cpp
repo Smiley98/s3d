@@ -93,12 +93,12 @@ void NeonDriveScene::OnLoad()
 
 void NeonDriveScene::OnUnload()
 {
+	DestroyFramebuffer(&fGeometryBuffer);
+	DestroyTexture2D(&fDepthRT);
 	for (int i = 0; i < RenderTargets::COUNT; i++)
 		DestroyTexture2D(&fColorsRT[i]);
-	DestroyTexture2D(&fDepthRT);
 
 	DestroyTexture2D(&fTexBuilding);
-	DestroyFramebuffer(&fGeometryBuffer);
 }
 
 void NeonDriveScene::OnUpdate(float dt)

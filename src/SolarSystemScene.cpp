@@ -53,23 +53,15 @@ struct Asteroids
 	int instances = 0;
 } fAsteroids;
 
-void CreateAsteroids();
-void DestroyAsteroids();
+void CreateAsteroidInstances();
+void DestroyAsteroidInstances();
 
 void DrawAsteroids();
 void DrawPlanetsRaster();
 void DrawPlanetsRaymarch();
 
-void CreateAsteroids()
+void CreateAsteroidInstances()
 {
-	// TODO - Make all shaders and framebuffers output vec4's because its simple and probably what the GPU does anyway.
-	{
-		int w, h, c;
-		uint8_t* pixels = LoadImage2D("./assets/textures/asteroid.png", &w, &h, &c, 3, FLIP_VERTICAL);
-		CreateTexture2D(&fAsteroids.texture, w, h, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
-		UnloadImage(pixels);
-	}
-
 	Mesh asteroid;
 	GenMeshObj(&asteroid, "./assets/meshes/asteroid.obj");
 	CreateMesh(&asteroid);
@@ -143,9 +135,8 @@ void CreateAsteroids()
 	delete[] worlds;
 }
 
-void DestroyAsteroids()
+void DestroyAsteroidInstances()
 {
-	DestroyTexture2D(&fAsteroids.texture);
 	glDeleteBuffers(1, &fAsteroids.pbo);
 	glDeleteBuffers(1, &fAsteroids.tbo);
 	glDeleteBuffers(1, &fAsteroids.nbo);
@@ -170,7 +161,14 @@ void SolarSystemScene::OnLoad()
 		UnloadCubemap(pixels);
 	}
 
-	CreateAsteroids();
+	{
+		int w, h, c;
+		uint8_t* pixels = LoadImage2D("./assets/textures/asteroid.png", &w, &h, &c, 4, FLIP_VERTICAL);
+		CreateTexture2D(&fAsteroids.texture, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
+		UnloadImage(pixels);
+	}
+
+	CreateAsteroidInstances();
 
 	CreateTexture2D(&fColorRT, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
 	CreateTexture2D(&fDepthRT, SCREEN_WIDTH, SCREEN_HEIGHT, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST);
@@ -253,8 +251,12 @@ void SolarSystemScene::OnLoad()
 
 void SolarSystemScene::OnUnload()
 {
-	DestroyAsteroids();
 	DestroyFramebuffer(&fFbo);
+	DestroyTexture2D(&fDepthRT);
+	DestroyTexture2D(&fColorRT);
+
+	DestroyAsteroidInstances();
+	DestroyTexture2D(&fAsteroids.texture);
 	DestroyCubemap(&fSkyboxSpace);
 }
 

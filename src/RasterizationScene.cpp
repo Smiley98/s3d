@@ -32,8 +32,8 @@ void RasterizationScene::OnLoad()
 	{
 		int w, h, c;
 		uint8_t* pixels[6];
-		LoadCubemap("./assets/textures/arctic", "jpg", &w, &h, &c, 3, pixels);
-		CreateCubemap(&fSkyboxArctic, w, h, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
+		LoadCubemap("./assets/textures/arctic", "jpg", &w, &h, &c, 4, pixels);
+		CreateCubemap(&fSkyboxArctic, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
 		UnloadCubemap(pixels);
 	}
 
