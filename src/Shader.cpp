@@ -86,7 +86,7 @@ void CreateShaders()
     // Hexagon grid shaders
     GLuint fsHexagonGridRaymarch = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/hexagon_grid_raymarch.frag");
     //GLuint fsHexagonGridRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/hexagon_grid_raster.frag");
-    // Would also most likely need a vertex shader for instanced rendering
+    GLuint fsGradient = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/gradient.frag");
 
     // Raymarching & fractal shaders
     GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
@@ -109,7 +109,7 @@ void CreateShaders()
 
     CreateProgram(&gShaderHexagonGridDistance, vsFsq, fsHexagonGridRaymarch);
     //CreateProgram(&gShaderHexagonGridRaster, vsHexagonGrid, fsHexagonGridRaster);
-    CreateProgram(&gShaderChameleonMap, vsFsq, fsColor);
+    CreateProgram(&gShaderChameleonMap, vsFsq, fsGradient);
 
     CreateProgram(&gShaderColor, vsMvp, fsColor);
     CreateProgram(&gShaderDepth, vsMvp, fsDepth);

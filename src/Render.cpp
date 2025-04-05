@@ -422,27 +422,20 @@ void GenChameleonMap()
 	glBindFramebuffer(GL_FRAMEBUFFER, fb);
 	BindShader(&gShaderChameleonMap);
 
-	Vector3 colors[] = {
-		{ 1.0f, 0.0f, 0.0f },
-		{ 0.5f, 0.0f, 0.0f },
-		{ 0.0f, 1.0f, 0.0f },
-		{ 0.0f, 0.5f, 0.0f },
-		{ 0.0f, 0.0f, 1.0f },
-		{ 0.0f, 0.0f, 0.5f }
-	};
-
 	for (int i = 0; i < 6; i++)
 	{
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, fChameleonMap.id, 0);
 		assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-		glViewport(0, 0, 512, 512);
-		SendVec3("u_color", colors[i]);
+		glViewport(0, 0, 512.0f, 512.0f);
+		SendVec2("u_res", { 512.0f, 512.0f });
+		SendInt("u_face", i);
 		DrawFsq();
 	}
 
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	UnbindShader();
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+	glDeleteFramebuffers(1, &fb);
 }
 
 Texture2D GetHexagonGrid()

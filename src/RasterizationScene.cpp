@@ -60,12 +60,10 @@ void RasterizationScene::OnUpdate(float dt)
 
 void RasterizationScene::OnDraw()
 {
-	DrawMeshTexture(gMeshHead, Translate(0.0f, 0.0f, -5.0f), fTexHead, 0);
-	DrawMeshReflect(gMeshCube, Translate(-2.0f, 0.0f, 0.0f), fSkyboxArctic, 0);
-	DrawMeshRefract(gMeshCube, Translate(2.0f, 0.0f, 0.0f), fSkyboxArctic, 0, 1.00f / 1.52f); // glass
+	DrawMeshReflect(gMeshHead, Translate(-2.0f, 0.0f, 0.0f), GetChameleonMap(), 0);
+	DrawMeshRefract(gMeshCube, Translate(2.0f, 0.0f, 0.0f), fSkyboxArctic, 0, 1.00f / 1.52f);
 
 	DrawSkybox(GetChameleonMap(), 0);
-	//DrawSkybox(fSkyboxArctic, 0);
 	DrawDebugShapes();
 }
 
