@@ -34,6 +34,7 @@ extern Shader gShaderAsteroids;
 
 extern Shader gShaderHexagonGridDistance;
 //extern Shader gShaderHexagonGridRaster;
+extern Shader gShaderChameleonMap;
 
 extern Shader gShaderRaymarchBase;
 extern Shader gShaderFractal2D;

@@ -21,7 +21,7 @@ static Matrix fProjections[] =
 };
 
 static Texture2D fTexHead;
-static Cubemap fSkyboxArctic;
+static TextureCubemap fSkyboxArctic;
 
 void DrawDebugShapes();
 
@@ -63,9 +63,10 @@ void RasterizationScene::OnDraw()
 	DrawMeshTexture(gMeshHead, Translate(0.0f, 0.0f, -5.0f), fTexHead, 0);
 	DrawMeshReflect(gMeshCube, Translate(-2.0f, 0.0f, 0.0f), fSkyboxArctic, 0);
 	DrawMeshRefract(gMeshCube, Translate(2.0f, 0.0f, 0.0f), fSkyboxArctic, 0, 1.00f / 1.52f); // glass
-	DrawSkybox(fSkyboxArctic, 0);
+
+	DrawSkybox(GetChameleonMap(), 0);
+	//DrawSkybox(fSkyboxArctic, 0);
 	DrawDebugShapes();
-	// Must draw shapes last otherwise skybox overwrites wireframe color (since wireframes don't write depth)!
 }
 
 void RasterizationScene::OnDrawImGui()

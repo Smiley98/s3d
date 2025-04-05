@@ -57,7 +57,7 @@ void CreateTexture3D(Texture3D* texture, int width, int height, int depth, int i
     texture->id = id;
 }
 
-void CreateTextureCubemap(Cubemap* texture, int width, int height, int internalFormat, int format, int type, int filter, void* pixels[6])
+void CreateTextureCubemap(TextureCubemap* texture, int width, int height, int internalFormat, int format, int type, int filter, void* pixels[6])
 {
     GLuint id = GL_NONE;
     GLenum target = GL_TEXTURE_CUBE_MAP;
@@ -69,7 +69,7 @@ void CreateTextureCubemap(Cubemap* texture, int width, int height, int internalF
     glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     for (int i = 0; i < 6; i++)
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, type, pixels[i]);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, type, pixels != nullptr ? pixels[i] : NULL);
     glBindTexture(target, GL_NONE);
     texture->id = id;
 }
@@ -92,7 +92,7 @@ void DestroyTexture3D(Texture3D* texture)
     texture->id = GL_NONE;
 }
 
-void DestroyTextureCubemap(Cubemap* texture)
+void DestroyTextureCubemap(TextureCubemap* texture)
 {
     glDeleteTextures(1, &texture->id);
     texture->id = GL_NONE;
@@ -122,7 +122,7 @@ void BindTexture3D(Texture3D texture, GLuint unit)
     glBindTexture(GL_TEXTURE_3D, texture.id);
 }
 
-void BindCubemap(Cubemap texture, GLuint unit)
+void BindTextureCubemap(TextureCubemap texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     assert(GetCubemapId() == GL_NONE);
@@ -154,7 +154,7 @@ void UnbindTexture3D(Texture3D texture, GLuint unit)
     assert(fTex3Units.erase(texture.id) == 1);
 }
 
-void UnbindCubemap(Cubemap texture, GLuint unit)
+void UnbindTextureCubemap(TextureCubemap texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);

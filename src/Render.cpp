@@ -8,7 +8,10 @@ Matrix gView = MatrixIdentity();
 Matrix gProj = MatrixIdentity();
 
 static Texture2D fHexagonGrid;
+static TextureCubemap fChameleonMap;
+
 void GenHexagonGridDistance(Vector3 fg, Vector3 bg, float amount, float thickness);
+void GenChameleonMap();
 
 void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color)
 {
@@ -103,10 +106,10 @@ void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture2D texture, GLuint u
 	UnbindTexture2D(texture, unit);
 }
 
-void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit)
+void DrawMeshReflect(const Mesh& mesh, Matrix world, TextureCubemap cubemap, GLuint unit)
 {
 	Matrix mvp = world * gView * gProj;
-	BindCubemap(cubemap, unit);
+	BindTextureCubemap(cubemap, unit);
 	BindShader(&gShaderEnvironmentReflect);
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_world", world);
@@ -114,13 +117,13 @@ void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint uni
 	SendVec3("u_camPos", gCamera.position);
 	DrawMesh(mesh);
 	UnbindShader();
-	UnbindCubemap(cubemap, unit);
+	UnbindTextureCubemap(cubemap, unit);
 }
 
-void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit, float ratio)
+void DrawMeshRefract(const Mesh& mesh, Matrix world, TextureCubemap cubemap, GLuint unit, float ratio)
 {
 	Matrix mvp = world * gView * gProj;
-	BindCubemap(cubemap, unit);
+	BindTextureCubemap(cubemap, unit);
 	BindShader(&gShaderEnvironmentRefract);
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_world", world);
@@ -129,7 +132,7 @@ void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint uni
 	SendFloat("u_ratio", ratio);
 	DrawMesh(mesh);
 	UnbindShader();
-	UnbindCubemap(cubemap, unit);
+	UnbindTextureCubemap(cubemap, unit);
 }
 
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle)
@@ -352,7 +355,7 @@ void DrawDepth(Framebuffer framebuffer, GLuint unit)
 	UnbindTexture2D(*framebuffer.depth, unit);
 }
 
-void DrawSkybox(Cubemap cubemap, GLuint unit)
+void DrawSkybox(TextureCubemap cubemap, GLuint unit)
 {
 	Matrix viewSky = gView;
 	viewSky.m12 = viewSky.m13 = viewSky.m14 = 0.0f;
@@ -363,12 +366,12 @@ void DrawSkybox(Cubemap cubemap, GLuint unit)
 	sky.cullFace = GL_FRONT;
 	SetPipelineState(sky);
 
-	BindCubemap(cubemap, unit);
+	BindTextureCubemap(cubemap, unit);
 	BindShader(&gShaderSkybox);
 	SendMat4("u_mvp", viewSky * gProj);
 	DrawMesh(gMeshCube);
 	UnbindShader();
-	UnbindCubemap(cubemap, unit);
+	UnbindTextureCubemap(cubemap, unit);
 	SetPipelineState(gPipelineDefault);
 }
 
@@ -377,7 +380,10 @@ void InitRenderer()
 	glGenVertexArrays(1, &fVaoEmpty);
 
 	CreateTexture2D(&fHexagonGrid, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	CreateTextureCubemap(&fChameleonMap, 512, 512, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+
 	GenHexagonGridDistance({ 0.8f, 0.85f, 1.0f }, V3_ONE, 10.0f, 0.1f);
+	GenChameleonMap();
 }
 
 void QuitRenderer()
@@ -409,9 +415,44 @@ void GenHexagonGridDistance(Vector3 fg, Vector3 bg, float amount, float thicknes
 	DestroyFramebuffer(&fb);
 }
 
+void GenChameleonMap()
+{
+	GLuint fb = GL_NONE;
+	glGenFramebuffers(1, &fb);
+	glBindFramebuffer(GL_FRAMEBUFFER, fb);
+	BindShader(&gShaderChameleonMap);
+
+	Vector3 colors[] = {
+		{ 1.0f, 0.0f, 0.0f },
+		{ 0.5f, 0.0f, 0.0f },
+		{ 0.0f, 1.0f, 0.0f },
+		{ 0.0f, 0.5f, 0.0f },
+		{ 0.0f, 0.0f, 1.0f },
+		{ 0.0f, 0.0f, 0.5f }
+	};
+
+	for (int i = 0; i < 6; i++)
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, fChameleonMap.id, 0);
+		assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+		glViewport(0, 0, 512, 512);
+		SendVec3("u_color", colors[i]);
+		DrawFsq();
+	}
+
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	UnbindShader();
+	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+}
+
 Texture2D GetHexagonGrid()
 {
 	return fHexagonGrid;
+}
+
+TextureCubemap GetChameleonMap()
+{
+	return fChameleonMap;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

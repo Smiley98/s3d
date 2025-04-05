@@ -32,7 +32,7 @@ static Matrix planetWorldInv[PLANET_COUNT];	// Raymarching world matrix
 static Matrix planetNormal[PLANET_COUNT];		// Raster only
 static Matrix planetMvp[PLANET_COUNT];			// Raster only
 
-static Cubemap fSkyboxSpace;
+static TextureCubemap fSkyboxSpace;
 static Framebuffer fFbo;
 static Texture2D fColorRT;
 static Texture2D fDepthRT;

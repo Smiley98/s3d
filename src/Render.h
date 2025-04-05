@@ -37,8 +37,8 @@ void DrawMeshTcoords(const Mesh& mesh, Matrix world/*object-space*/);
 
 // Textured effects
 void DrawMeshTexture(const Mesh& mesh, Matrix world, Texture2D texture, GLuint unit);
-void DrawMeshReflect(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit);
-void DrawMeshRefract(const Mesh& mesh, Matrix world, Cubemap cubemap, GLuint unit, float ratio);
+void DrawMeshReflect(const Mesh& mesh, Matrix world, TextureCubemap cubemap, GLuint unit);
+void DrawMeshRefract(const Mesh& mesh, Matrix world, TextureCubemap cubemap, GLuint unit, float ratio);
 
 // 2D primitives
 void DrawTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Vector3 color, float angle = 0.0f);
@@ -66,7 +66,7 @@ void DrawColor(Framebuffer framebuffer, GLuint attachment, GLuint unit = 0);
 void DrawDepth(Framebuffer framebuffer, GLuint unit = 0);
 
 // Cubemap
-void DrawSkybox(Cubemap cubemap, GLuint unit);
+void DrawSkybox(TextureCubemap cubemap, GLuint unit);
 
 // Mesh
 void DrawMesh(const Mesh& mesh);
@@ -74,6 +74,9 @@ void DrawMeshInstanced(const Mesh& mesh, int instanceCount);
 
 // Hexagon grid
 Texture2D GetHexagonGrid();
+
+// Chameleon paint
+TextureCubemap GetChameleonMap();
 
 void InitRenderer();
 void QuitRenderer();

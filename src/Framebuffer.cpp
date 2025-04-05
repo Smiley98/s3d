@@ -15,14 +15,6 @@ void CreateFramebuffer(Framebuffer* framebuffer, int width, int height)
 void DestroyFramebuffer(Framebuffer* framebuffer)
 {
 	assert(framebuffer->id != GL_NONE);
-
-	//for (int i = 0; i < framebuffer->colorCount; i++)
-	//	DestroyTexture2D(&framebuffer->colors[i]);
-	//framebuffer->colorCount = 0;
-	//
-	//if (framebuffer->depth.id != GL_NONE)
-	//	DestroyTexture2D(&framebuffer->depth);
-
 	glDeleteFramebuffers(1, &framebuffer->id);
 	framebuffer->id = GL_NONE;
 	framebuffer->complete = false;

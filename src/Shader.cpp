@@ -36,6 +36,7 @@ Shader gShaderAsteroids;
 
 Shader gShaderHexagonGridDistance;
 //Shader gShaderHexagonGridRaster;
+Shader gShaderChameleonMap;
 
 Shader gShaderRaymarchBase;
 Shader gShaderFractal2D;
@@ -108,6 +109,7 @@ void CreateShaders()
 
     CreateProgram(&gShaderHexagonGridDistance, vsFsq, fsHexagonGridRaymarch);
     //CreateProgram(&gShaderHexagonGridRaster, vsHexagonGrid, fsHexagonGridRaster);
+    CreateProgram(&gShaderChameleonMap, vsFsq, fsColor);
 
     CreateProgram(&gShaderColor, vsMvp, fsColor);
     CreateProgram(&gShaderDepth, vsMvp, fsDepth);
