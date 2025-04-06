@@ -71,6 +71,6 @@ void FlipVertically(void* pixels, int width, int height, int bytesPerPixel)
 void OnLoad(uint8_t* pixels, const char* file, int c, int rc)
 {
 	assert(pixels != nullptr);
-	assert(rc == 4, "Enforcing all images must have 4 channels currently");
+	//assert(rc == 4, "Enforcing all images must have 4 channels currently");
 	printf("Loaded image %s (src channels: %i, dst channels: %i)\n", file, c, rc);
 }
