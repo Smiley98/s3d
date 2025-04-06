@@ -41,6 +41,8 @@ extern Shader gShaderFractal2D;
 extern Shader gShaderFractal3D;
 extern Shader gShaderFractalOrb;
 
+extern Shader gShaderPhongEnv;
+
 void CreateShaders();
 void DestroyShaders();
 

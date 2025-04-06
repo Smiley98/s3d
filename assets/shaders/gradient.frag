@@ -27,7 +27,7 @@ vec3 getGradientColor(vec3 dir)
     
     const vec3 TL = vec3(0.5, 0.0, 0.5);
     const vec3 TR = vec3(0.0, 0.0, 0.5);
-    const vec3 BL = vec3(0.0, 0.0, 0.0);
+    const vec3 BL = vec3(0.25, 0.0, 0.25);
     const vec3 BR = vec3(0.0, 0.5, 0.0);
 
     vec3 top = mix(TL, TR, dx);

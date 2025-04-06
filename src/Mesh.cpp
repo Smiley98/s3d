@@ -20,6 +20,7 @@ Mesh gMeshHemisphere;
 Mesh gMeshCylinder;
 
 Mesh gMeshHead;
+Mesh gMeshCt4;
 Mesh gMeshGround;
 Mesh gMeshHexagon;
 Mesh gMeshTd;
@@ -34,13 +35,17 @@ void CreateMeshes()
 {
 	CreateShapes();
 
-	GenMeshObj(&gMeshTd, "assets/meshes/bld_td.obj");
 	GenMeshObj(&gMeshHead, "assets/meshes/head.obj");
+	GenMeshObj(&gMeshCt4, "assets/meshes/ct4.obj");
+
+	GenMeshObj(&gMeshTd, "assets/meshes/bld_td.obj");
 	GenMeshPlane(&gMeshGround);
 	GenMeshCircle(&gMeshHexagon, 1.0f, 6);
 
-	CreateMesh(&gMeshTd);
 	CreateMesh(&gMeshHead);
+	CreateMesh(&gMeshCt4);
+
+	CreateMesh(&gMeshTd);
 	CreateMesh(&gMeshGround);
 	CreateMesh(&gMeshHexagon);
 }
@@ -48,9 +53,11 @@ void CreateMeshes()
 void DestroyMeshes()
 {
 	DestroyMesh(&gMeshHexagon);
-	DestroyMesh(&gMeshHead);
 	DestroyMesh(&gMeshGround);
 	DestroyMesh(&gMeshTd);
+
+	DestroyMesh(&gMeshCt4);
+	DestroyMesh(&gMeshHead);
 
 	DestroyShapes();
 }

@@ -2,54 +2,48 @@
 
 out vec4 FragColor;
 
-struct Material {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-    float shininess;
-};
+uniform samplerCube u_chameleon_map;
+uniform samplerCube u_environment_map;
+uniform vec3 u_camPos;
 
-struct Light {
-    vec3 position;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-    float radius;
-};
-
-uniform Material u_material;
-
-
-
-uniform Light u_light;
-uniform vec3 u_eye;
+uniform sampler2D u_diffuse;
+uniform sampler2D u_specular;
 
 in vec3 position;   // world-space
 in vec3 normal;     // world-space
 in vec2 uv;
 
+uniform vec3 u_lightPosition;
+uniform float u_lightRadius;
+
 void main()
 {
+    vec3 lightPosition = u_lightPosition;
+    float lightRadius = u_lightRadius;
+
     vec3 N = normalize(normal);
-    vec3 L = normalize(u_light.position - position);
-    vec3 V = normalize(u_eye - position);
+    vec3 L = normalize(lightPosition - position);
+    vec3 V = normalize(u_camPos - position);
     vec3 R = reflect(-L, N);
+    vec3 I = reflect(-V, N);
 
-    Material material;
-    material.ambient = u_material.ambient;
-    material.diffuse = u_material.diffuse;
-    material.specular = u_material.specular;
-    material.shininess = u_material.shininess;
-
+    float ambient = 0.25;
     float diffuse = max(0.0, dot(N, L));
-    float specular = pow(max(dot(V, R), 0.0), material.shininess);
-    float attenuation = smoothstep(u_light.radius, 0.0, length(u_light.position - position));
+    float specular = pow(max(dot(V, R), 0.0), 64.0);
+    float attenuation = smoothstep(lightRadius, 0.0, length(lightPosition - position));
     
-    vec3 lighting = vec3(0.0);
-    lighting += u_material.ambient * u_light.ambient;
-    lighting += u_material.diffuse * u_light.diffuse * diffuse;
-    lighting += u_material.specular * u_light.specular * specular;
-    lighting *= attenuation;
+    // Neither the diffuse nor specular maps apply a correct map for chameleon paint. Doing so would require an artist.
+    vec3 objDiff = texture(u_diffuse, uv).rgb;
+    vec3 objSpec = texture(u_specular, uv).rgb;
 
+    vec3 objColor = vec3(0.0);
+    objColor += texture(u_chameleon_map, I).rgb;
+    objColor += texture(u_environment_map, I).rgb;
+
+    vec3 lighting = vec3(0.0);
+    lighting += objColor * objDiff * ambient;
+    lighting += objColor * objDiff * diffuse;
+    lighting += objColor * objSpec * specular;
+    lighting *= attenuation;
     FragColor = vec4(lighting, 1.0);
 }
