@@ -18,6 +18,7 @@ public:
 		POST_PROCESSING,
 		SOLAR_SYSTEM,
 		NEON_DRIVE,
+		CAR,
 		COUNT
 	};
 

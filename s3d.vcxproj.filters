@@ -147,6 +147,9 @@
     <ClCompile Include="src\SoftwareRenderingScene.cpp">
       <Filter>Scene\Software Rendering Scenes\Base</Filter>
     </ClCompile>
+    <ClCompile Include="src\CarScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h">
@@ -289,6 +292,9 @@
     </ClInclude>
     <ClInclude Include="src\SoftwareRenderingScene.h">
       <Filter>Scene\Software Rendering Scenes\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CarScene.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

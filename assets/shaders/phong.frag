@@ -41,10 +41,11 @@ void main()
     vec3 paint = texture(u_paintColor, E).rgb * texture(u_paintMask, uv).rgb * u_paintIntensity;
     vec3 env = texture(u_environmentColor, E).rgb * texture(u_specularMask, uv).r * u_environmentIntensity;
     vec3 color = env + paint;
-
+    
     vec3 lighting = vec3(0.0);
     lighting += color * u_ambient;
     lighting += color * diffuse * u_diffuse;
     lighting += color * pow(specular, 128.0) * u_specular;
+    lighting *= attenuation;
     FragColor = vec4(lighting, 1.0);
 }

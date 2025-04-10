@@ -93,6 +93,7 @@
     <ClCompile Include="inc\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\CarScene.cpp" />
     <ClCompile Include="src\CollisionScene.cpp" />
     <ClCompile Include="src\DDAScene.cpp" />
     <ClCompile Include="src\File.cpp" />
@@ -132,6 +133,7 @@
     <ClInclude Include="inc\imgui\imstb_truetype.h" />
     <ClInclude Include="src\App.h" />
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\CarScene.h" />
     <ClInclude Include="src\Collision.h" />
     <ClInclude Include="src\CollisionScene.h" />
     <ClInclude Include="src\Color.h" />

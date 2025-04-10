@@ -33,7 +33,7 @@ void Init()
 	CreateMeshes();
 	InitRenderer();
 	InitSoftwareRenderer();
-	Scene::Create(Scene::RASTER);
+	Scene::Create(Scene::CAR);
 }
 
 void Quit()
