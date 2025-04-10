@@ -8,10 +8,8 @@ Matrix gView = MatrixIdentity();
 Matrix gProj = MatrixIdentity();
 
 static Texture2D fHexagonGrid;
-static TextureCubemap fChameleonMap;
 
 void GenHexagonGridDistance(Vector3 fg, Vector3 bg, float amount, float thickness);
-void GenChameleonMap();
 
 void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color)
 {
@@ -380,10 +378,7 @@ void InitRenderer()
 	glGenVertexArrays(1, &fVaoEmpty);
 
 	CreateTexture2D(&fHexagonGrid, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-	CreateTextureCubemap(&fChameleonMap, 512, 512, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-
 	GenHexagonGridDistance({ 0.8f, 0.85f, 1.0f }, V3_ONE, 10.0f, 0.1f);
-	GenChameleonMap();
 }
 
 void QuitRenderer()
@@ -415,37 +410,9 @@ void GenHexagonGridDistance(Vector3 fg, Vector3 bg, float amount, float thicknes
 	DestroyFramebuffer(&fb);
 }
 
-void GenChameleonMap()
-{
-	GLuint fb = GL_NONE;
-	glGenFramebuffers(1, &fb);
-	glBindFramebuffer(GL_FRAMEBUFFER, fb);
-	BindShader(&gShaderChameleonMap);
-
-	for (int i = 0; i < 6; i++)
-	{
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, fChameleonMap.id, 0);
-		assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-		glViewport(0, 0, 512.0f, 512.0f);
-		SendVec2("u_res", { 512.0f, 512.0f });
-		SendInt("u_face", i);
-		DrawFsq();
-	}
-
-	UnbindShader();
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
-	glDeleteFramebuffers(1, &fb);
-}
-
 Texture2D GetHexagonGrid()
 {
 	return fHexagonGrid;
-}
-
-TextureCubemap GetChameleonMap()
-{
-	return fChameleonMap;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

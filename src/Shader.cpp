@@ -36,7 +36,7 @@ Shader gShaderAsteroids;
 
 Shader gShaderHexagonGridDistance;
 //Shader gShaderHexagonGridRaster;
-Shader gShaderChameleonMap;
+Shader gShaderGradientCubemap;
 
 Shader gShaderRaymarchBase;
 Shader gShaderFractal2D;
@@ -88,7 +88,7 @@ void CreateShaders()
     // Hexagon grid shaders
     GLuint fsHexagonGridRaymarch = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/hexagon_grid_raymarch.frag");
     //GLuint fsHexagonGridRaster = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/hexagon_grid_raster.frag");
-    GLuint fsGradient = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/gradient.frag");
+    GLuint fsGradientCubemap = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/gradient_cubemap.frag");
 
     // Raymarching & fractal shaders
     GLuint fsRaymarchBase = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/raymarch_base.frag");
@@ -113,7 +113,7 @@ void CreateShaders()
 
     CreateProgram(&gShaderHexagonGridDistance, vsFsq, fsHexagonGridRaymarch);
     //CreateProgram(&gShaderHexagonGridRaster, vsHexagonGrid, fsHexagonGridRaster);
-    CreateProgram(&gShaderChameleonMap, vsFsq, fsGradient);
+    CreateProgram(&gShaderGradientCubemap, vsFsq, fsGradientCubemap);
 
     CreateProgram(&gShaderColor, vsMvp, fsColor);
     CreateProgram(&gShaderDepth, vsMvp, fsDepth);

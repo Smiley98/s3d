@@ -19,12 +19,56 @@ static float fSpecular = 1.0f;
 static TextureCubemap fSkyboxArctic;
 static TextureCubemap fSkyboxSpace;
 
-static Texture2D fTexPaint;
+static TextureCubemap fSkyboxHot;
+static TextureCubemap fSkyboxCold;
+
+static Texture2D fTexDiffuse;
 static Texture2D fTexSpecular;
+
+void GenGradientCubemap(TextureCubemap* map, Vector3 TL, Vector3 TR, Vector3 BL, Vector3 BR)
+{
+	GLuint fb = GL_NONE;
+	glGenFramebuffers(1, &fb);
+	glBindFramebuffer(GL_FRAMEBUFFER, fb);
+	BindShader(&gShaderGradientCubemap);
+
+	for (int i = 0; i < 6; i++)
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, map->id, 0);
+		assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+		glViewport(0, 0, 512.0f, 512.0f);
+		SendVec2("u_res", { 512.0f, 512.0f });
+		SendInt("u_face", i);
+		SendVec3("u_TL", TL);
+		SendVec3("u_TR", TR);
+		SendVec3("u_BL", BL);
+		SendVec3("u_BR", BR);
+		DrawFsq();
+	}
+
+	UnbindShader();
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+	glDeleteFramebuffers(1, &fb);
+}
 
 void CarScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
+
+	{
+		int w, h, c;
+		uint8_t* pixels = LoadImage2D("./assets/textures/ct4_grey.png", &w, &h, &c, 4, FLIP_VERTICAL);
+		CreateTexture2D(&fTexDiffuse, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
+		UnloadImage(pixels);
+	}
+
+	{
+		int w, h, c;
+		uint8_t* pixels = LoadImage2D("./assets/textures/ct4_specular.png", &w, &h, &c, 1, FLIP_VERTICAL);
+		CreateTexture2D(&fTexSpecular, w, h, GL_R8, GL_RED, GL_UNSIGNED_BYTE, GL_NEAREST, pixels);
+		UnloadImage(pixels);
+	}
 
 	{
 		int w, h, c;
@@ -42,27 +86,28 @@ void CarScene::OnLoad()
 		UnloadImageCubemap(pixels);
 	}
 
-	{
-		int w, h, c;
-		uint8_t* pixels = LoadImage2D("./assets/textures/ct4_grey.png", &w, &h, &c, 4, FLIP_VERTICAL);
-		CreateTexture2D(&fTexPaint, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
-		UnloadImage(pixels);
-	}
+	CreateTextureCubemap(&fSkyboxHot, 512, 512, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	CreateTextureCubemap(&fSkyboxCold, 512, 512, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
 
-	{
-		int w, h, c;
-		uint8_t* pixels = LoadImage2D("./assets/textures/ct4_specular.png", &w, &h, &c, 1, FLIP_VERTICAL);
-		CreateTexture2D(&fTexSpecular, w, h, GL_R8, GL_RED, GL_UNSIGNED_BYTE, GL_NEAREST, pixels);
-		UnloadImage(pixels);
-	}
+	// TODO - make warm gradient
+	// TODO - warm car on right, cold car on left, galaxy car following spline in figure-8
+	//const vec3 TL = vec3(0.5, 0.0, 0.5);
+	//const vec3 TR = vec3(0.0, 0.0, 0.5);
+	//const vec3 BL = vec3(0.25, 0.0, 0.25);
+	//const vec3 BR = vec3(0.0, 0.5, 0.0);
+	GenGradientCubemap(&fSkyboxCold, { 0.5f, 0.0f, 0.5f }, { 0.0f, 0.0f, 0.5f }, { 0.25f, 0.0f, 0.25f }, { 0.0f, 0.5f, 0.0f });
 }
 
 void CarScene::OnUnload()
 {
-	DestroyTexture2D(&fTexSpecular);
-	DestroyTexture2D(&fTexPaint);
+	DestroyTextureCubemap(&fSkyboxCold);
+	DestroyTextureCubemap(&fSkyboxHot);
+
 	DestroyTextureCubemap(&fSkyboxSpace);
 	DestroyTextureCubemap(&fSkyboxArctic);
+
+	DestroyTexture2D(&fTexSpecular);
+	DestroyTexture2D(&fTexDiffuse);
 }
 
 void CarScene::OnUpdate(float dt)
@@ -77,16 +122,16 @@ void CarScene::OnDraw()
 	float tt = TotalTime();
 	float lightRadius = 50.0f;
 
-	//TextureCubemap paint = fSkyboxSpace;
-	TextureCubemap paint = GetChameleonMap();
-	
+	TextureCubemap paint = fSkyboxCold;
+	TextureCubemap environment = fSkyboxArctic;
+
 	Matrix world = MatrixIdentity();//RotateY(angle);
 	Matrix mvp = world * gView * gProj;
 
-	BindTextureCubemap(fSkyboxSpace, 0);
-	BindTextureCubemap(fSkyboxArctic, 1);
+	BindTextureCubemap(paint, 0);
+	BindTextureCubemap(environment, 1);
 
-	BindTexture2D(fTexPaint, 0);
+	BindTexture2D(fTexDiffuse, 0);
 	BindTexture2D(fTexSpecular, 1);
 
 	BindShader(&gShaderPhongEnv);
@@ -115,11 +160,11 @@ void CarScene::OnDraw()
 	DrawMesh(gMeshCt4);
 	UnbindShader();
 	UnbindTexture2D(fTexSpecular, 1);
-	UnbindTexture2D(fTexPaint, 0);
-	UnbindTextureCubemap(fSkyboxArctic, 1);
-	UnbindTextureCubemap(fSkyboxSpace, 0);
+	UnbindTexture2D(fTexDiffuse, 0);
+	UnbindTextureCubemap(environment, 1);
+	UnbindTextureCubemap(paint, 0);
 
-	DrawSkybox(fSkyboxArctic, 0);
+	DrawSkybox(environment, 0);
 
 	DrawMeshWireframes(gMeshSphere, Scale(V3_ONE * lightRadius) * Translate(fLightPosition), V3_RIGHT);
 }

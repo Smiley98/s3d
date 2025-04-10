@@ -5,6 +5,11 @@ out vec4 FragColor;
 uniform int u_face;
 uniform vec2 u_res;
 
+uniform vec3 u_TL;
+uniform vec3 u_TR;
+uniform vec3 u_BL;
+uniform vec3 u_BR;
+
 vec3 faceToDir(int face, vec2 uv)
 {
     vec2 coords = 2.0 * uv - 1.0;
@@ -24,14 +29,9 @@ vec3 getGradientColor(vec3 dir)
     // Stronger influence towards corners
     float dy = smoothstep(0.0, 1.0, dirNorm.y);
     float dx = smoothstep(0.0, 1.0, dirNorm.x);
-    
-    const vec3 TL = vec3(0.5, 0.0, 0.5);
-    const vec3 TR = vec3(0.0, 0.0, 0.5);
-    const vec3 BL = vec3(0.25, 0.0, 0.25);
-    const vec3 BR = vec3(0.0, 0.5, 0.0);
 
-    vec3 top = mix(TL, TR, dx);
-    vec3 bot = mix(BL, BR, dx);
+    vec3 top = mix(u_TL, u_TR, dx);
+    vec3 bot = mix(u_BL, u_BR, dx);
     return mix(top, bot, dy);
 }
 
