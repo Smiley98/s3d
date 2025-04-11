@@ -89,13 +89,9 @@ void CarScene::OnLoad()
 	CreateTextureCubemap(&fSkyboxHot, 512, 512, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
 	CreateTextureCubemap(&fSkyboxCold, 512, 512, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
 
-	// TODO - make warm gradient
 	// TODO - warm car on right, cold car on left, galaxy car following spline in figure-8
-	//const vec3 TL = vec3(0.5, 0.0, 0.5);
-	//const vec3 TR = vec3(0.0, 0.0, 0.5);
-	//const vec3 BL = vec3(0.25, 0.0, 0.25);
-	//const vec3 BR = vec3(0.0, 0.5, 0.0);
 	GenGradientCubemap(&fSkyboxCold, { 0.5f, 0.0f, 0.5f }, { 0.0f, 0.0f, 0.5f }, { 0.25f, 0.0f, 0.25f }, { 0.0f, 0.5f, 0.0f });
+	GenGradientCubemap(&fSkyboxHot, { 1.0f, 1.0f, 0.0f }, { 0.5f, 1.0f, 0.0f }, { 1.0f, 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f });
 }
 
 void CarScene::OnUnload()
@@ -122,10 +118,10 @@ void CarScene::OnDraw()
 	float tt = TotalTime();
 	float lightRadius = 50.0f;
 
-	TextureCubemap paint = fSkyboxCold;
+	TextureCubemap paint = fSkyboxHot;
 	TextureCubemap environment = fSkyboxArctic;
 
-	Matrix world = MatrixIdentity();//RotateY(angle);
+	Matrix world = MatrixIdentity();
 	Matrix mvp = world * gView * gProj;
 
 	BindTextureCubemap(paint, 0);
