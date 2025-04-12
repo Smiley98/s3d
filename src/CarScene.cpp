@@ -23,8 +23,6 @@ static Texture2D fTextureSpecular;
 
 struct Car
 {
-	Vector3 position;
-	float yaw;
 	TextureCubemap paint;
 	float paintIntensity;
 	float environmentIntensity;
@@ -33,9 +31,10 @@ struct Car
 static Car fCars[3];
 static int fCar = 1;
 static int fSkybox = 0;
+static bool fDrive = false;
 
 void GenGradientCubemap(TextureCubemap* map, Vector3 TL, Vector3 TR, Vector3 BL, Vector3 BR);
-void DrawCar(const Car& car);
+void DrawCar(const Car& car, Matrix world);
 
 void CarScene::OnLoad()
 {
@@ -81,13 +80,12 @@ void CarScene::OnLoad()
 	fCars[2].paint = fGradientCold;
 	fCars[1].paint = fSkyboxSpace;
 
-	fCars[0].position = V3_RIGHT * -20.0f;	// Cold
-	fCars[2].position = V3_RIGHT * 20.0f;	// Warm
-	fCars[1].position = V3_ZERO;			// Galaxy
-
-	fCars[0].paintIntensity = fCars[2].paintIntensity = 1.75f;
-	fCars[0].environmentIntensity = fCars[2].environmentIntensity = 1.25f;
+	fCars[0].paintIntensity = 1.75f;
+	fCars[2].paintIntensity = 1.75f;
 	fCars[1].paintIntensity = 2.0f;
+
+	fCars[0].environmentIntensity = 1.25f;
+	fCars[2].environmentIntensity = 1.25f;
 	fCars[1].environmentIntensity = 0.25f;
 }
 
@@ -112,8 +110,23 @@ void CarScene::OnUpdate(float dt)
 
 void CarScene::OnDraw()
 {
-	for (const Car& car : fCars)
-		DrawCar(car);
+	
+	//Matrix w[3];
+	//w[0] = RotateY(-2.0f * PI * 0.333f);
+	//w[1] = RotateY(-2.0f * PI * 0.667f);
+	//w[2] = RotateY(-2.0f * PI * 1.000f);
+	//w[0] = w[0] * Translate(Right(w[0]) * 20.0f) * r;
+	//w[1] = w[1] * Translate(Right(w[1]) * 30.0f) * r;
+	//w[2] = w[2] * Translate(Right(w[2]) * 40.0f) * r;
+
+	Matrix r = RotateY(-50.0f * TotalTime() * DEG2RAD);
+	for (int i = 0; i < 3; i++)
+	{
+		Matrix world = RotateY(-2.0f * PI * 0.333f * i);
+		world = world * Translate(Right(world) * (20.0f + i * 10.0f)) * r;
+		world = fDrive ? world : Translate(V3_RIGHT * (-20.0f + i * 20.0f));
+		DrawCar(fCars[i], world);
+	}
 
 	static TextureCubemap skyboxes[]
 	{
@@ -141,6 +154,7 @@ void CarScene::OnDrawImGui()
 
 	static bool carSelect = false;
 	ImGui::Checkbox("Car Select", &carSelect); ImGui::SameLine();
+	ImGui::Checkbox("Drive", &fDrive); 
 
 	if (carSelect)
 	{
@@ -152,11 +166,11 @@ void CarScene::OnDrawImGui()
 		ImGui::SliderFloat("Paint Intensity", &car.paintIntensity, 0.0f, 2.0f);
 		ImGui::SliderFloat("Environment Intensity", &car.environmentIntensity, 0.0f, 2.0f);
 	}
+
 }
 
-void DrawCar(const Car& car)
+void DrawCar(const Car& car, Matrix world)
 {
-	Matrix world = RotateY(car.yaw) * Translate(car.position);
 	Matrix mvp = world * gView * gProj;
 
 	BindTextureCubemap(car.paint, 0);
