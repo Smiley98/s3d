@@ -110,15 +110,6 @@ void CarScene::OnUpdate(float dt)
 
 void CarScene::OnDraw()
 {
-	
-	//Matrix w[3];
-	//w[0] = RotateY(-2.0f * PI * 0.333f);
-	//w[1] = RotateY(-2.0f * PI * 0.667f);
-	//w[2] = RotateY(-2.0f * PI * 1.000f);
-	//w[0] = w[0] * Translate(Right(w[0]) * 20.0f) * r;
-	//w[1] = w[1] * Translate(Right(w[1]) * 30.0f) * r;
-	//w[2] = w[2] * Translate(Right(w[2]) * 40.0f) * r;
-
 	Matrix r = RotateY(-50.0f * TotalTime() * DEG2RAD);
 	for (int i = 0; i < 3; i++)
 	{

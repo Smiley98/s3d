@@ -58,7 +58,7 @@ void DrawLightWireframes(const PointLight& light);
 
 void NeonDriveScene::OnLoad()
 {
-	gCamera = FromView(LookAt({ 0.0f, -25.0f, 20.0f }, V3_ZERO, V3_UP));
+	gCamera = FromView(LookAt({ 0.0f, -45.0f, 65.0f }, V3_ZERO, V3_UP));
 
 	// World's most elaborate texture xD xD xD
 	{
