@@ -20,23 +20,18 @@ in vec3 normal;     // world-space
 in vec2 uv;
 
 uniform vec3 u_camPos;
-uniform vec3 u_lightPosition;
-uniform float u_lightRadius;
+uniform vec3 u_lightDirection;
 
 void main()
 {
-    vec3 lightPosition = u_lightPosition;
-    float lightRadius = u_lightRadius;
-
     vec3 N = normalize(normal);
-    vec3 L = normalize(lightPosition - position);
+    vec3 L = -u_lightDirection;
     vec3 V = normalize(u_camPos - position);
     vec3 R = reflect(-L, N);
     vec3 E = reflect(-V, N);
 
     float diffuse = max(0.0, dot(N, L));
     float specular = max(dot(V, R), 0.0);
-    float attenuation = smoothstep(lightRadius, 0.0, length(lightPosition - position));
 
     vec3 paint = texture(u_paintColor, E).rgb * texture(u_paintMask, uv).rgb * u_paintIntensity;
     vec3 env = texture(u_environmentColor, E).rgb * texture(u_specularMask, uv).r * u_environmentIntensity;
@@ -46,6 +41,13 @@ void main()
     lighting += color * u_ambient;
     lighting += color * diffuse * u_diffuse;
     lighting += color * pow(specular, 128.0) * u_specular;
-    lighting *= attenuation;
+    
     FragColor = vec4(lighting, 1.0);
 }
+
+// Switch from point light to direction light
+//uniform vec3 u_lightPosition;
+//uniform float u_lightRadius;
+//vec3 L = normalize(lightPosition - position);
+//float attenuation = smoothstep(u_lightRadius, 0.0, length(u_lightPosition - position));
+//lighting *= attenuation;

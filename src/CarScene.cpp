@@ -6,24 +6,193 @@
 #include "ImageLoader.h"
 #include <imgui/imgui.h>
 
-static Vector3 fLightPosition = { -15.0f, 15.0f, 0.0f };
-static Vector3 fColor = V3_ONE;
+static Vector3 fLightDirection = { 1.0f, -1.0f, -1.0f };
 
-static float fPaintIntensity = 1.5f;
-static float fEnvironmentIntensity = 1.25f;
-
-static float fAmbient = 1.0f;
-static float fDiffuse = 0.0f;
+static float fAmbient = 0.25f;
+static float fDiffuse = 0.75f;
 static float fSpecular = 1.0f;
 
 static TextureCubemap fSkyboxArctic;
 static TextureCubemap fSkyboxSpace;
 
-static TextureCubemap fSkyboxHot;
-static TextureCubemap fSkyboxCold;
+static TextureCubemap fGradientHot;
+static TextureCubemap fGradientCold;
 
-static Texture2D fTexDiffuse;
-static Texture2D fTexSpecular;
+static Texture2D fTextureDiffuse;
+static Texture2D fTextureSpecular;
+
+struct Car
+{
+	Vector3 position;
+	float yaw;
+	TextureCubemap paint;
+	float paintIntensity;
+	float environmentIntensity;
+};
+
+static Car fCars[3];
+static int fCar = 1;
+static int fSkybox = 0;
+
+void GenGradientCubemap(TextureCubemap* map, Vector3 TL, Vector3 TR, Vector3 BL, Vector3 BR);
+void DrawCar(const Car& car);
+
+void CarScene::OnLoad()
+{
+	gCamera = FromView(LookAt({ 0.0f, 15.0f, 30.0f }, V3_ZERO, V3_UP));
+
+	{
+		int w, h, c;
+		uint8_t* pixels = LoadImage2D("./assets/textures/ct4_grey.png", &w, &h, &c, 4, FLIP_VERTICAL);
+		CreateTexture2D(&fTextureDiffuse, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
+		UnloadImage(pixels);
+	}
+
+	{
+		int w, h, c;
+		uint8_t* pixels = LoadImage2D("./assets/textures/ct4_specular.png", &w, &h, &c, 1, FLIP_VERTICAL);
+		CreateTexture2D(&fTextureSpecular, w, h, GL_R8, GL_RED, GL_UNSIGNED_BYTE, GL_NEAREST, pixels);
+		UnloadImage(pixels);
+	}
+
+	{
+		int w, h, c;
+		uint8_t* pixels[6];
+		LoadImageCubemap("./assets/textures/arctic", "jpg", &w, &h, &c, 4, pixels);
+		CreateTextureCubemap(&fSkyboxArctic, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
+		UnloadImageCubemap(pixels);
+	}
+
+	{
+		int w, h, c;
+		uint8_t* pixels[6];
+		LoadImageCubemap("./assets/textures/space", "png", &w, &h, &c, 4, pixels);
+		CreateTextureCubemap(&fSkyboxSpace, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
+		UnloadImageCubemap(pixels);
+	}
+
+	CreateTextureCubemap(&fGradientHot, 512, 512, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	CreateTextureCubemap(&fGradientCold, 512, 512, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+
+	GenGradientCubemap(&fGradientHot, { 1.0f, 1.0f, 0.0f }, { 0.5f, 1.0f, 0.0f }, { 1.0f, 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f });
+	GenGradientCubemap(&fGradientCold, { 0.5f, 0.0f, 0.5f }, { 0.0f, 0.0f, 0.5f }, { 0.25f, 0.0f, 0.25f }, { 0.0f, 0.5f, 0.0f });
+
+	fCars[0].paint = fGradientHot;
+	fCars[2].paint = fGradientCold;
+	fCars[1].paint = fSkyboxSpace;
+
+	fCars[0].position = V3_RIGHT * -20.0f;	// Cold
+	fCars[2].position = V3_RIGHT * 20.0f;	// Warm
+	fCars[1].position = V3_ZERO;			// Galaxy
+
+	fCars[0].paintIntensity = fCars[2].paintIntensity = 1.75f;
+	fCars[0].environmentIntensity = fCars[2].environmentIntensity = 1.25f;
+	fCars[1].paintIntensity = 2.0f;
+	fCars[1].environmentIntensity = 0.25f;
+}
+
+void CarScene::OnUnload()
+{
+	DestroyTextureCubemap(&fGradientCold);
+	DestroyTextureCubemap(&fGradientHot);
+
+	DestroyTextureCubemap(&fSkyboxSpace);
+	DestroyTextureCubemap(&fSkyboxArctic);
+
+	DestroyTexture2D(&fTextureSpecular);
+	DestroyTexture2D(&fTextureDiffuse);
+}
+
+void CarScene::OnUpdate(float dt)
+{
+	UpdateFpsCameraDefault(gCamera, dt);
+	gView = ToView(gCamera);
+	gProj = Perspective(90.0f * DEG2RAD, SCREEN_ASPECT, 0.1f, 100.0f);
+}
+
+void CarScene::OnDraw()
+{
+	for (const Car& car : fCars)
+		DrawCar(car);
+
+	static TextureCubemap skyboxes[]
+	{
+		fSkyboxArctic,
+		fSkyboxSpace,
+		fGradientHot,
+		fGradientCold,
+	};
+
+	DrawSkybox(skyboxes[fSkybox], 0);
+}
+
+void CarScene::OnDrawImGui()
+{
+	ImGui::SliderFloat3("Light Direction", &fLightDirection.x, -1.0f, 1.0f);
+	ImGui::SliderFloat("Ambient", &fAmbient, 0.0f, 2.0f);
+	ImGui::SliderFloat("Diffuse", &fDiffuse, 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular", &fSpecular, 0.0f, 1.0f);
+
+	// Just for fun. Cars always reflect the arctic skybox since the other 3 cubemaps are used for car paint.
+	ImGui::RadioButton("Artic Skybox", &fSkybox, 0); ImGui::SameLine();
+	ImGui::RadioButton("Galaxy Skybox", &fSkybox, 1); ImGui::SameLine();
+	ImGui::RadioButton("Warm Skybox", &fSkybox, 2); ImGui::SameLine();
+	ImGui::RadioButton("Cold Skybox", &fSkybox, 3);
+
+	static bool carSelect = false;
+	ImGui::Checkbox("Car Select", &carSelect); ImGui::SameLine();
+
+	if (carSelect)
+	{
+		ImGui::RadioButton("Warm car", &fCar, 0); ImGui::SameLine();
+		ImGui::RadioButton("Galaxy car", &fCar, 1); ImGui::SameLine();
+		ImGui::RadioButton("Cold car", &fCar, 2);
+
+		Car& car = fCars[fCar];
+		ImGui::SliderFloat("Paint Intensity", &car.paintIntensity, 0.0f, 2.0f);
+		ImGui::SliderFloat("Environment Intensity", &car.environmentIntensity, 0.0f, 2.0f);
+	}
+}
+
+void DrawCar(const Car& car)
+{
+	Matrix world = RotateY(car.yaw) * Translate(car.position);
+	Matrix mvp = world * gView * gProj;
+
+	BindTextureCubemap(car.paint, 0);
+	BindTextureCubemap(fSkyboxArctic, 1);
+	BindTexture2D(fTextureDiffuse, 0);
+	BindTexture2D(fTextureSpecular, 1);
+	BindShader(&gShaderCars);
+
+	SendMat4("u_mvp", mvp);
+	SendMat4("u_world", world);
+	SendMat3("u_normal", NormalMatrix(world));
+	SendVec3("u_camPos", gCamera.position);
+
+	SendFloat("u_paintIntensity", car.paintIntensity);
+	SendFloat("u_environmentIntensity", car.environmentIntensity);
+
+	SendVec3("u_lightDirection", Normalize(fLightDirection));
+
+	SendFloat("u_ambient", fAmbient);
+	SendFloat("u_diffuse", fDiffuse);
+	SendFloat("u_specular", fSpecular);
+
+	SendInt("u_paintColor", 0);
+	SendInt("u_environmentColor", 1);
+
+	SendInt("u_paintMask", 0);
+	SendInt("u_specularMask", 1);
+
+	DrawMesh(gMeshCt4);
+
+	UnbindShader();
+	UnbindTexture2D(fTextureSpecular, 1);
+	UnbindTexture2D(fTextureDiffuse, 0);
+	UnbindTextureCubemap(fSkyboxArctic, 1);
+	UnbindTextureCubemap(car.paint, 0);
+}
 
 void GenGradientCubemap(TextureCubemap* map, Vector3 TL, Vector3 TR, Vector3 BL, Vector3 BR)
 {
@@ -52,129 +221,6 @@ void GenGradientCubemap(TextureCubemap* map, Vector3 TL, Vector3 TR, Vector3 BL,
 	glDeleteFramebuffers(1, &fb);
 }
 
-void CarScene::OnLoad()
-{
-	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
-
-	{
-		int w, h, c;
-		uint8_t* pixels = LoadImage2D("./assets/textures/ct4_grey.png", &w, &h, &c, 4, FLIP_VERTICAL);
-		CreateTexture2D(&fTexDiffuse, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, pixels);
-		UnloadImage(pixels);
-	}
-
-	{
-		int w, h, c;
-		uint8_t* pixels = LoadImage2D("./assets/textures/ct4_specular.png", &w, &h, &c, 1, FLIP_VERTICAL);
-		CreateTexture2D(&fTexSpecular, w, h, GL_R8, GL_RED, GL_UNSIGNED_BYTE, GL_NEAREST, pixels);
-		UnloadImage(pixels);
-	}
-
-	{
-		int w, h, c;
-		uint8_t* pixels[6];
-		LoadImageCubemap("./assets/textures/arctic", "jpg", &w, &h, &c, 4, pixels);
-		CreateTextureCubemap(&fSkyboxArctic, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
-		UnloadImageCubemap(pixels);
-	}
-
-	{
-		int w, h, c;
-		uint8_t* pixels[6];
-		LoadImageCubemap("./assets/textures/space", "png", &w, &h, &c, 4, pixels);
-		CreateTextureCubemap(&fSkyboxSpace, w, h, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, (void**)pixels);
-		UnloadImageCubemap(pixels);
-	}
-
-	CreateTextureCubemap(&fSkyboxHot, 512, 512, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-	CreateTextureCubemap(&fSkyboxCold, 512, 512, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-
-	// TODO - warm car on right, cold car on left, galaxy car following spline in figure-8
-	GenGradientCubemap(&fSkyboxCold, { 0.5f, 0.0f, 0.5f }, { 0.0f, 0.0f, 0.5f }, { 0.25f, 0.0f, 0.25f }, { 0.0f, 0.5f, 0.0f });
-	GenGradientCubemap(&fSkyboxHot, { 1.0f, 1.0f, 0.0f }, { 0.5f, 1.0f, 0.0f }, { 1.0f, 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f });
-}
-
-void CarScene::OnUnload()
-{
-	DestroyTextureCubemap(&fSkyboxCold);
-	DestroyTextureCubemap(&fSkyboxHot);
-
-	DestroyTextureCubemap(&fSkyboxSpace);
-	DestroyTextureCubemap(&fSkyboxArctic);
-
-	DestroyTexture2D(&fTexSpecular);
-	DestroyTexture2D(&fTexDiffuse);
-}
-
-void CarScene::OnUpdate(float dt)
-{
-	UpdateFpsCameraDefault(gCamera, dt);
-	gView = ToView(gCamera);
-	gProj = Perspective(90.0f * DEG2RAD, SCREEN_ASPECT, 0.1f, 100.0f);
-}
-
-void CarScene::OnDraw()
-{
-	float tt = TotalTime();
-	float lightRadius = 50.0f;
-
-	TextureCubemap paint = fSkyboxHot;
-	TextureCubemap environment = fSkyboxArctic;
-
-	Matrix world = MatrixIdentity();
-	Matrix mvp = world * gView * gProj;
-
-	BindTextureCubemap(paint, 0);
-	BindTextureCubemap(environment, 1);
-
-	BindTexture2D(fTexDiffuse, 0);
-	BindTexture2D(fTexSpecular, 1);
-
-	BindShader(&gShaderPhongEnv);
-
-	SendMat4("u_mvp", mvp);
-	SendMat4("u_world", world);
-	SendMat3("u_normal", NormalMatrix(world));
-	SendVec3("u_camPos", gCamera.position);
-
-	SendFloat("u_paintIntensity", fPaintIntensity);
-	SendFloat("u_environmentIntensity", fEnvironmentIntensity);
-
-	SendVec3("u_lightPosition", fLightPosition);
-	SendFloat("u_lightRadius", lightRadius);
-
-	SendFloat("u_ambient", fAmbient);
-	SendFloat("u_diffuse", fDiffuse);
-	SendFloat("u_specular", fSpecular);
-
-	SendInt("u_paintColor", 0);
-	SendInt("u_environmentColor", 1);
-
-	SendInt("u_paintMask", 0);
-	SendInt("u_specularMask", 1);
-
-	DrawMesh(gMeshCt4);
-	UnbindShader();
-	UnbindTexture2D(fTexSpecular, 1);
-	UnbindTexture2D(fTexDiffuse, 0);
-	UnbindTextureCubemap(environment, 1);
-	UnbindTextureCubemap(paint, 0);
-
-	DrawSkybox(environment, 0);
-
-	DrawMeshWireframes(gMeshSphere, Scale(V3_ONE * lightRadius) * Translate(fLightPosition), V3_RIGHT);
-}
-
-void CarScene::OnDrawImGui()
-{
-	ImGui::SliderFloat3("Light Position", &fLightPosition.x, -50.0f, 50.0f);
-
-	ImGui::SliderFloat("Paint Intensity", &fPaintIntensity, 0.0f, 2.0f);
-	ImGui::SliderFloat("Environment Intensity", &fEnvironmentIntensity, 0.0f, 2.0f);
-
-	ImGui::SliderFloat("Ambient", &fAmbient, 0.0f, 2.0f);
-	ImGui::SliderFloat("Diffuse", &fDiffuse, 0.0f, 1.0f);
-	ImGui::SliderFloat("Specular", &fSpecular, 0.0f, 1.0f);
-
-	//ImGui::ShowDemoWindow();
-}
+// Giving each car a spotlight would be cool, but in order to look nice the scene would need an interior.
+// I'd also need to support transparency to support the cone-shaped beam.
+// Ultimately, p2 doesn't need this. Add spline-following and move on!

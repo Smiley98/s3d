@@ -43,7 +43,7 @@ Shader gShaderFractal2D;
 Shader gShaderFractal3D;
 Shader gShaderFractalOrb;
 
-Shader gShaderPhongEnv;
+Shader gShaderCars;
 
 GLuint CreateShader(GLint type, const char* path);
 void CreateProgram(Shader* shader, GLuint vs, GLuint fs);
@@ -96,7 +96,7 @@ void CreateShaders()
     GLuint fsFractal3D = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_3D.frag");
     GLuint fsFractalOrb = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/fractal_orb.frag");
 
-    GLuint fsPhongEnv = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.frag");
+    GLuint fsCars = CreateShader(GL_FRAGMENT_SHADER, "assets/shaders/cars.frag");
     
     // Shader programs
     CreateProgram(&gShaderFsq, vsFsq, fsTexture);
@@ -131,7 +131,7 @@ void CreateShaders()
     CreateProgram(&gShaderPlanetsRaymarch, vsFsq, fsPlanetsRaymarch);
     CreateProgram(&gShaderAsteroids, vsAsteroids, fsAsteroids);
 
-    CreateProgram(&gShaderPhongEnv, vsMvp, fsPhongEnv);
+    CreateProgram(&gShaderCars, vsMvp, fsCars);
 }
 
 void DestroyShaders()
