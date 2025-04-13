@@ -6,9 +6,6 @@
 #include <cassert>
 #include <imgui/imgui.h>
 
-// TODO -- Go crazy and instance 512 lights & see if it runs.
-// 16k kb / 64 bytes per matrix = 256 --> maximum amount of matrices we can fit in a UBO (assuming it contains ONLY these matrices).
-// Not even worth sending via uniforms since its bandwidth-bound... Just full-send via instancing!
 constexpr int LIGHT_COUNT = 64;
 
 enum RenderTargets
@@ -37,6 +34,8 @@ static float fPointLightRadius = 5.0f;
 static bool fDrawLightWireframes = false;
 static bool fDrawRenderTargets = false;
 static bool fDrawDirectionLight = false;
+
+static bool fViewSpace = true;
 
 struct PointLight
 {
@@ -152,17 +151,13 @@ void NeonDriveScene::OnDrawImGui()
 {
 	ImGui::Checkbox("Draw Light Wireframes", &fDrawLightWireframes);
 	ImGui::Checkbox("Draw G-Buffer", &fDrawRenderTargets);
+	ImGui::Checkbox("View Space", &fViewSpace);
 	ImGui::Checkbox("Direction Light", &fDrawDirectionLight);
 	if (fDrawDirectionLight)
 	{
 		ImGui::SliderFloat3("Light Direction", &fDirectionLightDirection.x, -1.0f, 1.0f);
 		ImGui::ColorPicker3("Direction Light Color", &fDirectionLightColor.x);
 	}
-	
-	// TODO -- Add manual light control?
-	//ImGui::SliderFloat3("Light Position", &fPointLightPosition.x, -50.0f, 50.0f);
-	//ImGui::SliderFloat("Light Radius", &fPointLightRadius, 0.0f, 25.0f);
-	//ImGui::ColorPicker3("Point Light Color", &fPointLightColor.x);
 }
 
 void DrawGeometry()
@@ -201,7 +196,9 @@ void DrawDirectionLight()
 	BindTexture2D(fColorsRT[RenderTargets::ALBEDO], 2);
 	BindShader(&gShaderDeferredDirectionLight);
 
-	SendVec3("u_lightDirection", Normalize(fDirectionLightDirection));
+	Vector3 lightDirection = fDirectionLightDirection;
+	lightDirection = fViewSpace ? NormalMatrix(gView) * lightDirection : lightDirection;
+	SendVec3("u_lightDirection", lightDirection);
 	SendVec3("u_lightColor", fDirectionLightColor);
 	SendFloat("u_ambient", 0.05f);
 	SendFloat("u_diffuse", 0.25f);
@@ -264,6 +261,7 @@ void DrawRenderTargets()
 void DrawObject(const Mesh& mesh, Matrix world, Texture2D texture)
 {
 	Matrix mvp = world * gView * gProj;
+	world = fViewSpace ? world * gView : world;
 	SendMat4("u_mvp", mvp);
 	SendMat4("u_world", world);
 	SendMat3("u_normal", NormalMatrix(world));
@@ -277,13 +275,16 @@ void DrawLight(const PointLight& light)
 {
 	Matrix world = Scale(V3_ONE * light.radius) * Translate(light.position);
 	Matrix mvp = world * gView * gProj;
+	world = fViewSpace ? world * gView : world;
 
 	SendMat4("u_mvp", mvp);
 	SendInt("u_positions", 0);
 	SendInt("u_normals", 1);
 	SendInt("u_albedo", 2);
 
-	SendVec3("u_lightPosition", light.position);
+	Vector4 lightPosition = light.position;
+	lightPosition = fViewSpace ? gView * lightPosition : lightPosition;
+	SendVec3("u_lightPosition", lightPosition);
 	SendVec3("u_lightColor", light.color);
 	SendFloat("u_lightRadius", light.radius);
 
@@ -292,6 +293,7 @@ void DrawLight(const PointLight& light)
 	SendFloat("u_specular", 1.0f);
 
 	SendVec3("u_cameraPosition", gCamera.position);
+	SendFloat("u_isViewSpace", fViewSpace ? 1.0f : 0.0f);
 	SendVec2("u_screen", { SCREEN_WIDTH, SCREEN_HEIGHT });
 
 	PipelineState ps = gPipelineNoDepth;
@@ -304,8 +306,18 @@ void DrawLightWireframes(const PointLight& light)
 {
 	Matrix world = Scale(V3_ONE * light.radius) * Translate(light.position);
 	DrawMeshWireframes(gMeshSphere, world, light.color);
+	// Don't convert these to view-space because we want to visualize our lights in world-space xD
 }
 
-// Add shader reflection / UBOs because sending uniforms 1 by 1 is silly (makes it hard to read).
+// TODO 1 -- Render light volumes with instancing.
+// 16k kb / 64 bytes per matrix = 256 --> maximum amount of matrices we can fit in a UBO (assuming it contains ONLY these matrices).
+// Not even worth sending via uniforms since its bandwidth-bound... Just full-send via instancing!
+
+// TODO 2 -- Add shader reflection / UBOs because sending uniforms 1 by 1 is silly (makes it hard to read).
 // However, mat3 vs mat4 might cause problems because raymath only has mat4.
 // Have to look up std140 and std 430 rules. Not sure how annoying it would be to convert between float9 vs mat4 in struct UniformData.
+
+// TODO 3 -- Add manual light control and/or animated lights?
+//ImGui::SliderFloat3("Light Position", &fPointLightPosition.x, -50.0f, 50.0f);
+//ImGui::SliderFloat("Light Radius", &fPointLightRadius, 0.0f, 25.0f);
+//ImGui::ColorPicker3("Point Light Color", &fPointLightColor.x);
