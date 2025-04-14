@@ -33,7 +33,7 @@ void Init()
 	CreateMeshes();
 	InitRenderer();
 	InitSoftwareRenderer();
-	Scene::Create(Scene::NEON_LIGHTS);
+	Scene::Create(Scene::SOLAR_SYSTEM);
 }
 
 void Quit()

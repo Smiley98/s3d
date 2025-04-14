@@ -37,8 +37,11 @@
     <Filter Include="Scene\Software Rendering Scenes">
       <UniqueIdentifier>{3c93e6b1-5a67-4397-b124-d6b492656910}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scene\Software Rendering Scenes\Base">
-      <UniqueIdentifier>{58e37ce9-a105-426a-8bd8-e4723264445a}</UniqueIdentifier>
+    <Filter Include="Scene\Test Scenes">
+      <UniqueIdentifier>{dad09388-803d-45cc-a8bd-75806982417f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Demo Scenes">
+      <UniqueIdentifier>{12600fb5-656c-4d6e-82ad-124a41988f39}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -72,9 +75,6 @@
     <ClCompile Include="src\Window.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="src\RasterizationScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\Image.cpp">
       <Filter>Image</Filter>
     </ClCompile>
@@ -90,32 +90,17 @@
     <ClCompile Include="src\Render.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="src\CollisionScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\PipelineState.cpp">
       <Filter>Pipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PostprocessingScene.cpp">
-      <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Camera.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\SolarSystemScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\Framebuffer.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="src\PhysicsScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\ImageLoader.cpp">
       <Filter>Image</Filter>
-    </ClCompile>
-    <ClCompile Include="src\NeonDrive.cpp">
-      <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Shader.cpp">
       <Filter>Assets</Filter>
@@ -132,23 +117,38 @@
     <ClCompile Include="src\HexagonGrid.cpp">
       <Filter>Grid</Filter>
     </ClCompile>
-    <ClCompile Include="src\DDAScene.cpp">
+    <ClCompile Include="src\EffectScene.cpp">
       <Filter>Scene\Software Rendering Scenes</Filter>
     </ClCompile>
-    <ClCompile Include="src\TestScene.cpp">
-      <Filter>Scene\Software Rendering Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MainScene.cpp">
+    <ClCompile Include="src\RasterizationScene.cpp">
       <Filter>Scene\Software Rendering Scenes</Filter>
     </ClCompile>
     <ClCompile Include="src\RaycastingScene.cpp">
       <Filter>Scene\Software Rendering Scenes</Filter>
     </ClCompile>
     <ClCompile Include="src\SoftwareRenderingScene.cpp">
-      <Filter>Scene\Software Rendering Scenes\Base</Filter>
+      <Filter>Scene\Software Rendering Scenes</Filter>
     </ClCompile>
-    <ClCompile Include="src\CarScene.cpp">
-      <Filter>Scene</Filter>
+    <ClCompile Include="src\GraphicsTestScene.cpp">
+      <Filter>Scene\Test Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NeonLightScene.cpp">
+      <Filter>Scene\Demo Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SolarSystemScene.cpp">
+      <Filter>Scene\Demo Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ReflectivePaintScene.cpp">
+      <Filter>Scene\Demo Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FractalScene.cpp">
+      <Filter>Scene\Demo Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CollisionTestScene.cpp">
+      <Filter>Scene\Test Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysicsTestScene.cpp">
+      <Filter>Scene\Test Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -191,9 +191,6 @@
     <ClInclude Include="src\Window.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="src\RasterizationScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\Image.h">
       <Filter>Image</Filter>
     </ClInclude>
@@ -227,38 +224,23 @@
     <ClInclude Include="src\Collision.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\CollisionScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\Timer.h">
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="src\PipelineState.h">
       <Filter>Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="src\PostprocessingScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\Camera.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\SolarSystemScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\Geometry.h">
       <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\PhysicsScene.h">
-      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Physics.h">
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="src\ImageLoader.h">
       <Filter>Image</Filter>
-    </ClInclude>
-    <ClInclude Include="src\NeonDrive.h">
-      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Shader.h">
       <Filter>Assets</Filter>
@@ -278,23 +260,38 @@
     <ClInclude Include="src\HexagonGrid.h">
       <Filter>Grid</Filter>
     </ClInclude>
-    <ClInclude Include="src\DDAScene.h">
+    <ClInclude Include="src\EffectScene.h">
       <Filter>Scene\Software Rendering Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="src\TestScene.h">
-      <Filter>Scene\Software Rendering Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MainScene.h">
+    <ClInclude Include="src\RasterizationScene.h">
       <Filter>Scene\Software Rendering Scenes</Filter>
     </ClInclude>
     <ClInclude Include="src\RaycastingScene.h">
       <Filter>Scene\Software Rendering Scenes</Filter>
     </ClInclude>
     <ClInclude Include="src\SoftwareRenderingScene.h">
-      <Filter>Scene\Software Rendering Scenes\Base</Filter>
+      <Filter>Scene\Software Rendering Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="src\CarScene.h">
-      <Filter>Scene</Filter>
+    <ClInclude Include="src\GraphicsTestScene.h">
+      <Filter>Scene\Test Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\NeonLightScene.h">
+      <Filter>Scene\Demo Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SolarSystemScene.h">
+      <Filter>Scene\Demo Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ReflectivePaintScene.h">
+      <Filter>Scene\Demo Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FractalScene.h">
+      <Filter>Scene\Demo Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhysicsTestScene.h">
+      <Filter>Scene\Test Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CollisionTestScene.h">
+      <Filter>Scene\Test Scenes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -115,8 +115,7 @@ void RaycastingScene::OnUpdate(float dt)
 	for (size_t col = 0; col < CPU_IMAGE_SIZE; col += TILE_SIZE)
 		SetCol(&gImageCPU, col, GRAY);
 
-	// TODO -- Add circle-plane for sides & circle-rectangle for tiles,
-	// but not now so I don't accidentally leak assignment & lab solutions to students!
+	// TODO -- Add circle-plane for sides & circle-rectangle for tiles
 	float translationDelta = dt * mMoveSpeed;
 	float rotationDelta = dt * mTurnSpeed * DEG2RAD;
 	if (IsKeyDown(KEY_W))

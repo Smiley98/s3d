@@ -2,17 +2,18 @@
 #include "Window.h"
 #include <imgui/imgui.h>
 
-#include "MainScene.h"
-#include "TestScene.h"
-#include "DDAScene.h"
+#include "SolarSystemScene.h"
+#include "NeonLightScene.h"
+#include "ReflectivePaintScene.h"
+#include "FractalScene.h"
+
+#include "GraphicsTestScene.h"
+#include "CollisionTestScene.h"
+#include "PhysicsTestScene.h"
+
 #include "RasterizationScene.h"
 #include "RaycastingScene.h"
-#include "CollisionScene.h"
-#include "PhysicsScene.h"
-#include "PostprocessingScene.h"
-#include "SolarSystemScene.h"
-#include "NeonDrive.h"
-#include "CarScene.h"
+#include "EffectScene.h"
 
 Scene* Scene::sScenes[Scene::COUNT]{};
 Scene::Type Scene::sCurrent = Scene::COUNT;
@@ -21,17 +22,17 @@ bool Scene::sSelect = false;
 void Scene::Create(Scene::Type scene)
 {
 	sScenes[SOLAR_SYSTEM] = new SolarSystemScene;
-	sScenes[NEON_LIGHTS] = new NeonDriveScene;
-	sScenes[REFLECTIVE_PAINT] = new CarScene;
-	sScenes[FRACTALS] = new PostprocessingScene;
+	sScenes[NEON_LIGHTS] = new NeonLightScene;
+	sScenes[REFLECTIVE_PAINT] = new ReflectivePaintScene;
+	sScenes[FRACTAL] = new FractalScene;
 
-	sScenes[GRAPHICS_TEST] = new RasterizationScene;
-	sScenes[PHYSICS_TEST] = new PhysicsScene;
-	sScenes[COLLISION_TEST] = new CollisionScene;
+	sScenes[GRAPHICS_TEST] = new GraphicsTestScene;
+	sScenes[PHYSICS_TEST] = new PhysicsTestScene;
+	sScenes[COLLISION_TEST] = new CollisionTestScene;
 
-	sScenes[CPU_RASTERIZATION] = new MainScene;
+	sScenes[CPU_RASTERIZATION] = new RasterizationScene;
 	sScenes[CPU_RAYCASTING] = new RaycastingScene;
-	sScenes[CPU_EFFECT] = new TestScene;
+	sScenes[CPU_EFFECT] = new EffectScene;
 
 	for (size_t i = 0; i < COUNT; i++)
 		sScenes[i]->OnCreate();

@@ -1,6 +1,6 @@
 #pragma once
 #include "Scene.h"
-class PhysicsScene : public Scene
+class FractalScene : public Scene
 {
 public:
 	void OnLoad() final;

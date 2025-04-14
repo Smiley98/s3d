@@ -1,4 +1,4 @@
-#include "CarScene.h"
+#include "ReflectivePaintScene.h"
 #include "Window.h"
 #include "Time.h"
 #include "Render.h"
@@ -36,7 +36,7 @@ static bool fDrive = false;
 void GenGradientCubemap(TextureCubemap* map, Vector3 TL, Vector3 TR, Vector3 BL, Vector3 BR);
 void DrawCar(const Car& car, Matrix world);
 
-void CarScene::OnLoad()
+void ReflectivePaintScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, 15.0f, 30.0f }, V3_ZERO, V3_UP));
 
@@ -89,7 +89,7 @@ void CarScene::OnLoad()
 	fCars[1].environmentIntensity = 0.25f;
 }
 
-void CarScene::OnUnload()
+void ReflectivePaintScene::OnUnload()
 {
 	DestroyTextureCubemap(&fGradientCold);
 	DestroyTextureCubemap(&fGradientHot);
@@ -101,14 +101,14 @@ void CarScene::OnUnload()
 	DestroyTexture2D(&fTextureDiffuse);
 }
 
-void CarScene::OnUpdate(float dt)
+void ReflectivePaintScene::OnUpdate(float dt)
 {
 	UpdateFpsCameraDefault(gCamera, dt);
 	gView = ToView(gCamera);
 	gProj = Perspective(90.0f * DEG2RAD, SCREEN_ASPECT, 0.1f, 100.0f);
 }
 
-void CarScene::OnDraw()
+void ReflectivePaintScene::OnDraw()
 {
 	Matrix r = RotateY(-50.0f * TotalTime() * DEG2RAD);
 	for (int i = 0; i < 3; i++)
@@ -130,7 +130,7 @@ void CarScene::OnDraw()
 	DrawSkybox(skyboxes[fSkybox], 0);
 }
 
-void CarScene::OnDrawImGui()
+void ReflectivePaintScene::OnDrawImGui()
 {
 	ImGui::SliderFloat3("Light Direction", &fLightDirection.x, -1.0f, 1.0f);
 	ImGui::SliderFloat("Ambient", &fAmbient, 0.0f, 2.0f);

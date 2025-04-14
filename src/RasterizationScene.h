@@ -1,13 +1,11 @@
 #pragma once
-#include "Scene.h"
-class RasterizationScene : public Scene
+#include "SoftwareRenderingScene.h"
+
+class RasterizationScene : public SoftwareRenderingScene
 {
 public:
 	void OnLoad() final;
 	void OnUnload() final;
 
 	void OnUpdate(float dt) final;
-
-	void OnDraw() final;
-	void OnDrawImGui() final;
 };

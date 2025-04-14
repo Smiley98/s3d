@@ -1,6 +1,6 @@
 #pragma once
 #include "Scene.h"
-class PostprocessingScene : public Scene
+class ReflectivePaintScene : public Scene
 {
 public:
 	void OnLoad() final;

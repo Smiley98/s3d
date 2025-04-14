@@ -1,4 +1,4 @@
-#include "PhysicsScene.h"
+#include "PhysicsTestScene.h"
 #include "Render.h"
 #include "Camera.h"
 #include "Physics.h"
@@ -15,7 +15,7 @@ void ResolveCollisions(PhysicsWorld& world, Collisions& collisions);
 static PhysicsWorld fWorld{};
 static Timer fTimer;
 
-void PhysicsScene::OnLoad()
+void PhysicsTestScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
     gView = ToView(gCamera);
@@ -54,12 +54,12 @@ void PhysicsScene::OnLoad()
     fTimer.total = 0.25f;
 }
 
-void PhysicsScene::OnUnload()
+void PhysicsTestScene::OnUnload()
 {
     fWorld.clear();
 }
 
-void PhysicsScene::OnUpdate(float dt)
+void PhysicsTestScene::OnUpdate(float dt)
 {	
     fTimer.Tick(dt);
     if (fTimer.Expired())
@@ -76,7 +76,7 @@ void PhysicsScene::OnUpdate(float dt)
 	PhysicsStep(fWorld, dt);
 }
 
-void PhysicsScene::OnDraw()
+void PhysicsTestScene::OnDraw()
 {
 	for (const PhysicsBody& body : fWorld)
 	{

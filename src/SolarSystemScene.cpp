@@ -25,10 +25,10 @@ static float fFov = PI * 0.5f;
 static float fNear = 0.1f;
 static float fFar = 1000.0f;
 
-static float planetRadii[PLANET_COUNT];		// Raymarch only
+static float planetRadii[PLANET_COUNT];			// Raymarch only
 static Vector3 planetColors[PLANET_COUNT];		// Both
 static Matrix planetWorld[PLANET_COUNT];		// Rasterization world matrix
-static Matrix planetWorldInv[PLANET_COUNT];	// Raymarching world matrix
+static Matrix planetWorldInv[PLANET_COUNT];		// Raymarching world matrix
 static Matrix planetNormal[PLANET_COUNT];		// Raster only
 static Matrix planetMvp[PLANET_COUNT];			// Raster only
 

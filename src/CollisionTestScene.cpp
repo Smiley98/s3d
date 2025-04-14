@@ -1,4 +1,4 @@
-#include "CollisionScene.h"
+#include "CollisionTestScene.h"
 #include "Collision.h"
 #include "Window.h"
 #include "Time.h"
@@ -30,7 +30,7 @@ constexpr float h = 50;
 
 void DrawShape(ShapeType type, Vector2 pos, float rot, Vector3 color);
 
-void CollisionScene::OnLoad()
+void CollisionTestScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 	gView = ToView(gCamera);
@@ -38,15 +38,15 @@ void CollisionScene::OnLoad()
 	gDebugShader = FLAT;
 }
 
-void CollisionScene::OnUnload()
+void CollisionTestScene::OnUnload()
 {
 }
 
-void CollisionScene::OnUpdate(float dt)
+void CollisionTestScene::OnUpdate(float dt)
 {
 }
 
-void CollisionScene::OnDraw()
+void CollisionTestScene::OnDraw()
 {
 	static float angle1 = 0.0f;
 	static float angle2 = 0.0f;
@@ -145,7 +145,7 @@ void CollisionScene::OnDraw()
 	DrawShape(fShape2, fPosition2, angle2, fColor2);
 }
 
-void CollisionScene::OnDrawImGui()
+void CollisionTestScene::OnDrawImGui()
 {
 	ImGui::RadioButton("Circle 1", (int*)&fShape1, CIRCLE); ImGui::SameLine();
 	ImGui::RadioButton("Capsule 1", (int*)&fShape1, CAPSULE); ImGui::SameLine();

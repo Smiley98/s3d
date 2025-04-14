@@ -1,6 +1,6 @@
 #pragma once
 #include "Scene.h"
-class NeonDriveScene : public Scene
+class PhysicsTestScene : public Scene
 {
 public:
 	void OnLoad() final;
@@ -8,5 +8,4 @@ public:
 
 	void OnUpdate(float dt) final;
 	void OnDraw() final;
-	void OnDrawImGui();
 };

@@ -1,4 +1,4 @@
-#include "NeonDrive.h"
+#include "NeonLightScene.h"
 #include "ImageLoader.h"
 #include "HexagonGrid.h"
 #include "Render.h"
@@ -55,7 +55,7 @@ void DrawObject(const Mesh& mesh, Matrix world, Texture2D texture);
 void DrawLight(const PointLight& light);
 void DrawLightWireframes(const PointLight& light);
 
-void NeonDriveScene::OnLoad()
+void NeonLightScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, -45.0f, 65.0f }, V3_ZERO, V3_UP));
 
@@ -92,7 +92,7 @@ void NeonDriveScene::OnLoad()
 	}
 }
 
-void NeonDriveScene::OnUnload()
+void NeonLightScene::OnUnload()
 {
 	DestroyFramebuffer(&fGeometryBuffer);
 	DestroyTexture2D(&fDepthRT);
@@ -102,14 +102,14 @@ void NeonDriveScene::OnUnload()
 	DestroyTexture2D(&fTexBuilding);
 }
 
-void NeonDriveScene::OnUpdate(float dt)
+void NeonLightScene::OnUpdate(float dt)
 {
 	UpdateFpsCameraDefault(gCamera, dt);
 	gView = ToView(gCamera);
 	gProj = Perspective(PI * 0.5f, SCREEN_ASPECT, 0.1f, 1000.0f);
 }
 
-void NeonDriveScene::OnDraw()
+void NeonLightScene::OnDraw()
 {
 	// 1. Render geometry (g-buffer write)
 	DrawGeometry();
@@ -147,7 +147,7 @@ void NeonDriveScene::OnDraw()
 	}
 }
 
-void NeonDriveScene::OnDrawImGui()
+void NeonLightScene::OnDrawImGui()
 {
 	ImGui::Checkbox("Draw Light Wireframes", &fDrawLightWireframes);
 	ImGui::Checkbox("Draw G-Buffer", &fDrawRenderTargets);

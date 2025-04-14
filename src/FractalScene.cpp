@@ -1,4 +1,4 @@
-#include "PostprocessingScene.h"
+#include "FractalScene.h"
 #include "Window.h"
 #include "Time.h"
 #include "Render.h"
@@ -8,16 +8,16 @@ static Matrix fTransform1 = MatrixIdentity();
 static Matrix fTransform2 = MatrixIdentity();
 static Matrix fTransform3 = MatrixIdentity();
 
-void PostprocessingScene::OnLoad()
+void FractalScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, 0.0f, 5.0f }, V3_ZERO, V3_UP));
 }
 
-void PostprocessingScene::OnUnload()
+void FractalScene::OnUnload()
 {
 }
 
-void PostprocessingScene::OnUpdate(float dt)
+void FractalScene::OnUpdate(float dt)
 {
 	float tt = TotalTime();
 	float timeScale = 0.25f;
@@ -42,7 +42,7 @@ void PostprocessingScene::OnUpdate(float dt)
 	//gView = ToView(gCamera);
 }
 
-void PostprocessingScene::OnDraw()
+void FractalScene::OnDraw()
 {
 	float time = TotalTime();
 	Vector2 resolution{ SCREEN_WIDTH, SCREEN_HEIGHT };
@@ -70,8 +70,4 @@ void PostprocessingScene::OnDraw()
 	SendFloat("u_time", time);
 	DrawFsq();
 	UnbindShader();
-}
-
-void PostprocessingScene::OnDrawImGui()
-{
 }

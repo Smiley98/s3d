@@ -1,4 +1,4 @@
-#include "TestScene.h"
+#include "EffectScene.h"
 #include "ImageUtils.h"
 #include "Time.h"
 
@@ -7,7 +7,7 @@ inline float Fract(float f)
 	return f - floorf(f);
 }
 
-void TestScene::OnUpdate(float dt)
+void EffectScene::OnUpdate(float dt)
 {
 	// Palette parameters
 	Vector3 a{ 0.5f, 0.5f, 0.5f };
