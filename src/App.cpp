@@ -33,7 +33,7 @@ void Init()
 	CreateMeshes();
 	InitRenderer();
 	InitSoftwareRenderer();
-	Scene::Create(Scene::NEON_DRIVE);
+	Scene::Create(Scene::NEON_LIGHTS);
 }
 
 void Quit()
@@ -78,17 +78,9 @@ void Loop()
 #endif
 		Draw();
 		DrawGui();
-
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
 		DrawImGui();
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		// Swap back-buffer
 		Swap();
-
 		frameEnd = glfwGetTime();
 		fFrameDelta = frameEnd - frameStart;
 
@@ -129,14 +121,6 @@ void Loop()
 
 		// Poll events
 		Poll();
-		
-		// Switch scene ("unit testing" xD)
-		if (IsKeyPressed(KEY_GRAVE_ACCENT))
-		{
-			int scene = Scene::Current();
-			++scene %= Scene::Type::COUNT;
-			Scene::Change((Scene::Type)scene);
-		}
 
 		// Terminate program
 		if (IsKeyDown(KEY_ESCAPE))
@@ -163,7 +147,12 @@ void DrawGui()
 
 void DrawImGui()
 {
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 	Scene::DrawImGui();
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 double FrameTime()

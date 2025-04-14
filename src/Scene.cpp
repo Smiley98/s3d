@@ -1,4 +1,7 @@
 #include "Scene.h"
+#include "Window.h"
+#include <imgui/imgui.h>
+
 #include "MainScene.h"
 #include "TestScene.h"
 #include "DDAScene.h"
@@ -12,50 +15,48 @@
 #include "CarScene.h"
 
 Scene* Scene::sScenes[Scene::COUNT]{};
-Scene* Scene::sScene = nullptr;
 Scene::Type Scene::sCurrent = Scene::COUNT;
+bool Scene::sSelect = false;
 
 void Scene::Create(Scene::Type scene)
 {
-	sScenes[MAIN] = new MainScene;
-	sScenes[TEST] = new TestScene;
-	sScenes[DDA_TEST] = new DDAScene;
-	sScenes[RASTER] = new RasterizationScene;
-	sScenes[RAYCAST] = new RaycastingScene;
-	sScenes[COLLISION] = new CollisionScene;
-	sScenes[PHYSICS] = new PhysicsScene;
-	sScenes[POST_PROCESSING] = new PostprocessingScene;
 	sScenes[SOLAR_SYSTEM] = new SolarSystemScene;
-	sScenes[NEON_DRIVE] = new NeonDriveScene;
-	sScenes[CAR] = new CarScene;
+	sScenes[NEON_LIGHTS] = new NeonDriveScene;
+	sScenes[REFLECTIVE_PAINT] = new CarScene;
+	sScenes[FRACTALS] = new PostprocessingScene;
+
+	sScenes[GRAPHICS_TEST] = new RasterizationScene;
+	sScenes[PHYSICS_TEST] = new PhysicsScene;
+	sScenes[COLLISION_TEST] = new CollisionScene;
+
+	sScenes[CPU_RASTERIZATION] = new MainScene;
+	sScenes[CPU_RAYCASTING] = new RaycastingScene;
+	sScenes[CPU_EFFECT] = new TestScene;
 
 	for (size_t i = 0; i < COUNT; i++)
 		sScenes[i]->OnCreate();
 
-	sScene = sScenes[scene];
 	sCurrent = scene;
-	sScene->OnLoad();
+	sScenes[sCurrent]->OnLoad();
 }
 
 void Scene::Destroy()
 {
-	sScene->OnUnload();
+	sScenes[sCurrent]->OnUnload();
 	for (size_t i = 0; i < COUNT; i++)
 	{
 		sScenes[i]->OnDestroy();
 		delete sScenes[i];
 		sScenes[i] = nullptr;
 	}
-	sScene = nullptr;
 	sCurrent = COUNT;
 }
 
 void Scene::Change(Scene::Type scene)
 {
-	sScene->OnUnload();
-	sScene = sScenes[scene];
+	sScenes[sCurrent]->OnUnload();
 	sCurrent = scene;
-	sScene->OnLoad();
+	sScenes[sCurrent]->OnLoad();
 }
 
 Scene::Type Scene::Current()
@@ -65,20 +66,52 @@ Scene::Type Scene::Current()
 
 void Scene::Update(float dt)
 {
-	sScene->OnUpdate(dt);
+	sScenes[sCurrent]->OnUpdate(dt);
+	if (IsKeyPressed(KEY_GRAVE_ACCENT))
+		sSelect = !sSelect;
 }
 
 void Scene::Draw()
 {
-	sScene->OnDraw();
+	sScenes[sCurrent]->OnDraw();
 }
 
 void Scene::DrawGui()
 {
-	sScene->OnDrawGui();
+	sScenes[sCurrent]->OnDrawGui();
 }
 
 void Scene::DrawImGui()
 {
-	sScene->OnDrawImGui();
+	if (sSelect)
+	{
+		static const char* sceneNames[] =
+		{
+			"Solar System",
+			"Neon Lights",
+			"Reflective Paint",
+			"Fractals",
+
+			"Graphics Test",
+			"Physics Test",
+			"Collision Test",
+
+			"CPU Rasterization",
+			"CPU Raycasting",
+			"CPU Effect"
+		};
+
+		static int scene = 0;
+		if (ImGui::Combo("Scenes", &scene, sceneNames, IM_ARRAYSIZE(sceneNames)))
+			Change((Type)scene);
+	}
+	sScenes[sCurrent]->OnDrawImGui();
 }
+
+// Old approach to scene-selection xD
+//if (IsKeyPressed(KEY_GRAVE_ACCENT))
+//{
+//	int scene = Scene::Current();
+//	++scene %= Scene::Type::COUNT;
+//	Scene::Change((Scene::Type)scene);
+//}

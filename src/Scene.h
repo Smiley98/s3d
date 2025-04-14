@@ -8,17 +8,19 @@ public:
 
 	enum Type : size_t
 	{
-		MAIN,
-		TEST,
-		DDA_TEST,
-		RASTER,
-		RAYCAST,
-		COLLISION,
-		PHYSICS,
-		POST_PROCESSING,
 		SOLAR_SYSTEM,
-		NEON_DRIVE,
-		CAR,
+		NEON_LIGHTS,
+		REFLECTIVE_PAINT,
+		FRACTALS,
+
+		GRAPHICS_TEST,
+		PHYSICS_TEST,
+		COLLISION_TEST,
+
+		CPU_RASTERIZATION,
+		CPU_RAYCASTING,
+		CPU_EFFECT,
+
 		COUNT
 	};
 
@@ -47,7 +49,7 @@ public:
 
 private:
 	static Scene* sScenes[COUNT];
-	static Scene* sScene;
 	static Type sCurrent;
+	static bool sSelect;
 	// Could use current in place of scene, but that would reduce legibility.
 };
