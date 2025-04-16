@@ -7,10 +7,6 @@ DebugShaderType gDebugShader = FLAT;
 Matrix gView = MatrixIdentity();
 Matrix gProj = MatrixIdentity();
 
-static Texture2D fHexagonGrid;
-
-void GenHexagonGridDistance(Vector3 fg, Vector3 bg, float amount, float thickness);
-
 void DrawMeshFlat(const Mesh& mesh, Matrix world, Vector3 color)
 {
 	Matrix mvp = world * gView * gProj;
@@ -376,43 +372,12 @@ void DrawSkybox(TextureCubemap cubemap, GLuint unit)
 void InitRenderer()
 {
 	glGenVertexArrays(1, &fVaoEmpty);
-
-	CreateTexture2D(&fHexagonGrid, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
-	GenHexagonGridDistance({ 0.8f, 0.85f, 1.0f }, V3_ONE, 10.0f, 0.1f);
 }
 
 void QuitRenderer()
 {
-	DestroyTexture2D(&fHexagonGrid);
-
 	glDeleteVertexArrays(1, &fVaoEmpty);
 	fVaoEmpty = GL_NONE;
-}
-
-void GenHexagonGridDistance(Vector3 fg, Vector3 bg, float amount, float thickness)
-{
-	Framebuffer fb;
-	CreateFramebuffer(&fb, SCREEN_WIDTH, SCREEN_HEIGHT);
-	fb.colors[0] = &fHexagonGrid;
-	CompleteFramebuffer(&fb);
-
-	BindFramebuffer(fb);
-	BindShader(&gShaderHexagonGridDistance);
-	SendVec2("u_resolution", { SCREEN_WIDTH, SCREEN_HEIGHT });
-	SendVec3("u_fg_col", fg);
-	SendVec3("u_bg_col", bg);
-	SendFloat("u_hex_res", amount);
-	SendFloat("u_hex_thickness", thickness);
-	DrawFsq();
-	UnbindShader();
-	UnbindFramebuffer(fb);
-
-	DestroyFramebuffer(&fb);
-}
-
-Texture2D GetHexagonGrid()
-{
-	return fHexagonGrid;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

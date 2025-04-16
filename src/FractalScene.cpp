@@ -50,24 +50,33 @@ void FractalScene::OnDraw()
 	mouse.y = 1.0f - mouse.y;
 	mouse = mouse * 2.0f - 1.0f;
 
-	Shader* shaders[]{ &gShaderRaymarchBase, &gShaderFractal2D, &gShaderFractal3D, &gShaderFractalOrb };
+	Shader* shaders[]{ &gShaderRaymarchBase, &gShaderFractal3D, &gShaderFractal2D, &gShaderFractalOrb };
 	static int shader = 0;
 	if (IsKeyPressed(KEY_TAB))
 		++shader %= 4;
 
 	Matrix rot = FpsRotation(gCamera);
 	BindShader(shaders[shader]);
-	SendMat4("u_transform1", fTransform1);
-	SendMat4("u_transform2", fTransform2);
-	SendMat4("u_transform3", fTransform3);
-	SendMat3("u_camRot", rot);
-	SendVec3("u_camPos", gCamera.position);
-	SendFloat("u_fov", tanf(90.0f * 0.5f * DEG2RAD));
-	// Ensure the ray FoV of 90 degrees matches the perspective projection's FoV!
-	
+
 	SendVec2("u_resolution", resolution);
-	SendVec2("u_mouse", mouse);
 	SendFloat("u_time", time);
+
+	// All shader uniforms must be used, otherwise location is -1 and program crashes
+	// (I'd rather have a crash than mis-spell a uniform without realizing)
+	if (shader < 2)
+	{
+		SendMat3("u_camRot", rot);
+		SendVec3("u_camPos", gCamera.position);
+		SendFloat("u_fov", tanf(90.0f * 0.5f * DEG2RAD));
+
+		if (shader == 0)
+		{
+			SendMat4("u_transform1", fTransform1);
+			SendMat4("u_transform2", fTransform2);
+			SendMat4("u_transform3", fTransform3);
+		}
+	}
+
 	DrawFsq();
 	UnbindShader();
 }

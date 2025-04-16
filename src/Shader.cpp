@@ -148,12 +148,14 @@ void DestroyShaders()
 
 void BindShader(Shader* shader)
 {
-    fShader = shader;
+    assert(fShader == nullptr);
     glUseProgram(shader->id);
+    fShader = shader;
 }
 
 void UnbindShader()
 {
+    assert(fShader != nullptr);
     glUseProgram(GL_NONE);
     fShader = nullptr;
 }
@@ -318,13 +320,54 @@ void CreateProgram(Shader* shader, GLuint vs, GLuint fs)
 
 GLint GetUniform(const char* name)
 {
-    // TODO -- consider shader reflection.
-    // Instead of guess-and-check, compile shaders and map their uniforms once on-compile rather than on-draw.
     if (fShader->locs.find(name) != fShader->locs.end())
         return fShader->locs[name];
 
-    // I don't think this has consequences, but kind of jank because if the attribute is not found then locs[name] = -1
     GLint loc = glGetUniformLocation(fShader->id, name);
+    assert(loc != -1);
     fShader->locs[name] = loc;
     return loc;
 }
+
+// Something like the following would be more efficient than above, but it would be a lot more work for minial gain:
+//struct Shader2
+//{
+//    GLuint id;
+//    GLint locs[16];
+//};
+//
+//GLint GetLocation(Shader2* shader, const char* name)
+//{
+//    GLint loc = glGetUniformLocation(fShader->id, name);
+//    return loc;
+//}
+//
+//void CreateShaders()
+//{
+//    const char* LOC_NAME_MVP = "u_mvp";
+//    const char* LOG_NAME_WORLD = "u_world";
+//    const char* LOC_NAME_NORMAL = "u_normal";
+//    const char* LOC_NAME_COLOR = "u_color";
+//
+//    int LOC_MVP = 0;
+//    int LOC_WORLD = 1;
+//    int LOC_NORMAL = 2;
+//    int LOC_COLOR = 3;
+//
+//    Shader2 test;
+//    test.locs[LOC_MVP] = GetLocation(&test, LOC_NAME_MVP);
+//    test.locs[LOC_WORLD] = GetLocation(&test, LOG_NAME_WORLD);
+//    test.locs[LOC_NORMAL] = GetLocation(&test, LOC_NAME_NORMAL);
+//    test.locs[LOC_COLOR] = GetLocation(&test, LOC_NAME_COLOR);
+//
+//    float16 m;
+//    glUniformMatrix4fv(test.locs[LOC_MVP], 1, GL_FALSE, m.v);
+//}
+//
+// The above is only practical if shaders have standardized attribute locations and uniform locations.
+// I'd need a system that uploads all uniforms with non-negative locations every draw call.
+// It would only be advantageous if I have a genuine need to automate my draw-calls, which I do not.
+// At the same time, there's nothing particularly different between my draw calls.
+// Still, I don't think such a system would provide any notable benefits to s3d in its current state.
+// Most functions are low-level wrappers around OpenGL. The programmer maintains OpenGL state manually.
+// I plan on keeping things this way since p2 will not need many unique draw calls.

@@ -59,8 +59,7 @@ mat2 rotate(float angle)
 
 float map(vec3 p)
 {
-  // Uncomment to translate rays forward
-  //p.z += u_time * 0.4;
+  p.z += u_time * 0.4;
   p.xy = fract(p.xy) - 0.5;     // Repeat along X & Y every unit (subtract half of 1 to re-centre)
   p.z = mod(p.z, 0.25) - 0.125; // Repeat along Z every 0.25 units (subtract half of 0.25 to re-centre)
   
@@ -99,8 +98,7 @@ void main()
       if (t > 100.0) break; // Far plane
   }
   
-  // Uncomment time to continuously change colour
-  vec3 color = palette(t * 0.04 /*+ u_time * 0.25*/);
+  vec3 color = palette(t * 0.04);
   
   // Color based on raymarching result
   FragColor = vec4(color, 1.0);

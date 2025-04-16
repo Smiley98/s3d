@@ -21,8 +21,8 @@ static Framebuffer fGeometryBuffer;
 static Texture2D fColorsRT[RenderTargets::COUNT];
 static Texture2D fDepthRT;
 
-// Just a 1x1 white texture
-static Texture2D fTexBuilding;
+static Texture2D fTexBuilding;		// 1x1 white
+static Texture2D fTexHexagonGrid;	// Generated via shader
 
 static Vector3 fDirectionLightDirection = V3_FORWARD * -1.0f;
 static Vector3 fDirectionLightColor = V3_ONE;
@@ -35,7 +35,12 @@ static bool fDrawLightWireframes = false;
 static bool fDrawRenderTargets = false;
 static bool fDrawDirectionLight = false;
 
+static bool fDrawBuildings = true;
+static bool fDrawGround = true;
+
+// Test world-space vs view-space conversion (g-buffer positions & normals change, lighting stays the same)
 static bool fViewSpace = true;
+static float fHexagonCount = 10.0f;
 
 struct PointLight
 {
@@ -45,6 +50,8 @@ struct PointLight
 };
 
 static PointLight fLights[LIGHT_COUNT];
+
+void GenHexagonGrid();
 
 void DrawGeometry();
 void DrawDirectionLight();
@@ -59,11 +66,15 @@ void NeonLightScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, -45.0f, 65.0f }, V3_ZERO, V3_UP));
 
-	// World's most elaborate texture xD xD xD
+	// Building texture
 	{
 		uint32_t pixel = 0xFFFFFFFF;
 		CreateTexture2D(&fTexBuilding, 1, 1, GL_RGB8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, &pixel);
 	}
+
+	// Ground texture
+	CreateTexture2D(&fTexHexagonGrid, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST);
+	GenHexagonGrid();
 
 	// Render target channels are not padded to be RGBA since float-channels are most likely NOT padded by GPU.
 	// Additionally, working with the exact channel count removes ambiguity of how the textures are being used.
@@ -99,6 +110,7 @@ void NeonLightScene::OnUnload()
 	for (int i = 0; i < RenderTargets::COUNT; i++)
 		DestroyTexture2D(&fColorsRT[i]);
 
+	DestroyTexture2D(&fTexHexagonGrid);
 	DestroyTexture2D(&fTexBuilding);
 }
 
@@ -149,15 +161,26 @@ void NeonLightScene::OnDraw()
 
 void NeonLightScene::OnDrawImGui()
 {
-	ImGui::Checkbox("Draw Light Wireframes", &fDrawLightWireframes);
+	static int space = 0;
+	ImGui::RadioButton("World-Space", &space, 0); ImGui::SameLine();
+	ImGui::RadioButton("View-Space", &space, 1);
+	fViewSpace = space == 1;
+
 	ImGui::Checkbox("Draw G-Buffer", &fDrawRenderTargets);
-	ImGui::Checkbox("View Space", &fViewSpace);
+	ImGui::Checkbox("Draw Light Wireframes", &fDrawLightWireframes);
 	ImGui::Checkbox("Direction Light", &fDrawDirectionLight);
+
+	ImGui::Checkbox("Draw Ground", &fDrawGround);
+	ImGui::Checkbox("Draw Buildings", &fDrawBuildings);
+
 	if (fDrawDirectionLight)
 	{
 		ImGui::SliderFloat3("Light Direction", &fDirectionLightDirection.x, -1.0f, 1.0f);
 		ImGui::ColorPicker3("Direction Light Color", &fDirectionLightColor.x);
 	}
+
+	if (fDrawGround && ImGui::SliderFloat("Grid Resolution", &fHexagonCount, 1.0f, 25.0f))
+		GenHexagonGrid();
 }
 
 void DrawGeometry()
@@ -169,15 +192,19 @@ void DrawGeometry()
 	SetPipelineState(gPipelineDefault);
 
 	// Ground begin (y min/max = +-50, y min/max = +-90)
-	DrawObject(gMeshPlane, Scale(100.0f * SCREEN_ASPECT, 100.0f, 1.0f), GetHexagonGrid());
+	if (fDrawGround)
+		DrawObject(gMeshPlane, Scale(100.0f * SCREEN_ASPECT, 100.0f, 1.0f), fTexHexagonGrid);
 
 	// TD building is 10x10x50
-	for (int y = -40; y <= 40; y += 20)
+	if (fDrawBuildings)
 	{
-		for (int x = -70; x <= 70; x += 20)
+		for (int y = -40; y <= 40; y += 20)
 		{
-			Matrix world = Translate(x, y, 0.0f);
-			DrawObject(gMeshTd, world, fTexBuilding);
+			for (int x = -70; x <= 70; x += 20)
+			{
+				Matrix world = Translate(x, y, 0.0f);
+				DrawObject(gMeshTd, world, fTexBuilding);
+			}
 		}
 	}
 
@@ -307,6 +334,31 @@ void DrawLightWireframes(const PointLight& light)
 	Matrix world = Scale(V3_ONE * light.radius) * Translate(light.position);
 	DrawMeshWireframes(gMeshSphere, world, light.color);
 	// Don't convert these to view-space because we want to visualize our lights in world-space xD
+}
+
+void GenHexagonGrid()
+{
+	// FBO only needed when rendering grid so might as well delete it after draw call
+	Framebuffer fb;
+	CreateFramebuffer(&fb, SCREEN_WIDTH, SCREEN_HEIGHT);
+	fb.colors[0] = &fTexHexagonGrid;
+	CompleteFramebuffer(&fb);
+
+	Vector3 fg{ 0.8f, 0.85f, 1.0f };
+	Vector3 bg = V3_ONE;
+
+	BindFramebuffer(fb);
+	BindShader(&gShaderHexagonGridDistance);
+	SendVec2("u_resolution", { SCREEN_WIDTH, SCREEN_HEIGHT });
+	SendVec3("u_fg_col", fg);
+	SendVec3("u_bg_col", bg);
+	SendFloat("u_hex_res", fHexagonCount);
+	SendFloat("u_hex_thickness", 0.1f);
+	DrawFsq();
+	UnbindShader();
+	UnbindFramebuffer(fb);
+
+	DestroyFramebuffer(&fb);
 }
 
 // TODO 1 -- Render light volumes with instancing.

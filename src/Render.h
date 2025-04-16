@@ -72,9 +72,6 @@ void DrawSkybox(TextureCubemap cubemap, GLuint unit);
 void DrawMesh(const Mesh& mesh);
 void DrawMeshInstanced(const Mesh& mesh, int instanceCount);
 
-// Hexagon grid (consider moving this elsewhere, might want to make a higher-level file called Renders)
-Texture2D GetHexagonGrid();
-
 void InitRenderer();
 void QuitRenderer();
 
