@@ -7,10 +7,7 @@ GLint GetTexture2DId();
 GLint GetTexture3DId();
 GLint GetCubemapId();
 
-static std::unordered_map<GLuint, GLuint> fTex1Units;
-static std::unordered_map<GLuint, GLuint> fTex2Units;
-static std::unordered_map<GLuint, GLuint> fTex3Units;
-static std::unordered_map<GLuint, GLuint> fTexCubemapUnits;
+static std::unordered_map<GLuint, GLuint> fTextureUnits;
 
 void CreateTexture1D(Texture1D* texture, int width, int internalFormat, int format, int type, int filter, void* pixels)
 {
@@ -102,15 +99,15 @@ void BindTexture1D(Texture1D texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     assert(GetTexture1DId() == GL_NONE);
-    assert(fTex1Units.insert({ texture.id, unit }).second);
+    assert(fTextureUnits.insert({ texture.id, unit }).second);
     glBindTexture(GL_TEXTURE_1D, texture.id);
 }
 
 void BindTexture2D(Texture2D texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
-    //assert(GetTexture2DId() == GL_NONE);
-    //assert(fTex2Units.insert({ texture.id, unit }).second);
+    assert(GetTexture2DId() == GL_NONE);
+    assert(fTextureUnits.insert({ texture.id, unit }).second);
     glBindTexture(GL_TEXTURE_2D, texture.id);
 }
 
@@ -118,15 +115,15 @@ void BindTexture3D(Texture3D texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     assert(GetTexture3DId() == GL_NONE);
-    assert(fTex3Units.insert({ texture.id, unit }).second);
+    assert(fTextureUnits.insert({ texture.id, unit }).second);
     glBindTexture(GL_TEXTURE_3D, texture.id);
 }
 
 void BindTextureCubemap(TextureCubemap texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
-    //assert(GetCubemapId() == GL_NONE);
-    //assert(fTexCubemapUnits.insert({ texture.id, unit }).second);
+    assert(GetCubemapId() == GL_NONE);
+    assert(fTextureUnits.insert({ texture.id, unit }).second);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.id);
 }
 
@@ -134,32 +131,32 @@ void UnbindTexture1D(Texture1D texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_1D, GL_NONE);
-    assert(fTex1Units.at(texture.id) == unit);
-    assert(fTex1Units.erase(texture.id) == 1);
+    assert(fTextureUnits.at(texture.id) == unit);
+    assert(fTextureUnits.erase(texture.id) == 1);
 }
 
 void UnbindTexture2D(Texture2D texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
-    //assert(fTex2Units.at(texture.id) == unit);
-    //assert(fTex2Units.erase(texture.id) == 1);
+    assert(fTextureUnits.at(texture.id) == unit);
+    assert(fTextureUnits.erase(texture.id) == 1);
 }
 
 void UnbindTexture3D(Texture3D texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_3D, GL_NONE);
-    assert(fTex3Units.at(texture.id) == unit);
-    assert(fTex3Units.erase(texture.id) == 1);
+    assert(fTextureUnits.at(texture.id) == unit);
+    assert(fTextureUnits.erase(texture.id) == 1);
 }
 
 void UnbindTextureCubemap(TextureCubemap texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
-    //assert(fTexCubemapUnits.at(texture.id) == unit);
-    //assert(fTexCubemapUnits.erase(texture.id) == 1);
+    assert(fTextureUnits.at(texture.id) == unit);
+    assert(fTextureUnits.erase(texture.id) == 1);
 }
 
 GLint GetTexture1DId()

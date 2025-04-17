@@ -192,10 +192,10 @@ void DrawCar(const Car& car, Matrix world)
 	DrawMesh(gMeshCt4);
 
 	UnbindShader();
+	UnbindTextureCubemap(fSkyboxArctic, 3);
+	UnbindTextureCubemap(car.paint, 2);
 	UnbindTexture2D(fTextureSpecular, 1);
 	UnbindTexture2D(fTextureDiffuse, 0);
-	UnbindTextureCubemap(fSkyboxArctic, 1);
-	UnbindTextureCubemap(car.paint, 0);
 }
 
 void GenGradientCubemap(TextureCubemap* map, Vector3 TL, Vector3 TR, Vector3 BL, Vector3 BR)
