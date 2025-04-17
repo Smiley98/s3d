@@ -150,6 +150,9 @@
     <ClCompile Include="src\PhysicsTestScene.cpp">
       <Filter>Scene\Test Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="src\SkinningScene.cpp">
+      <Filter>Scene\Demo Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\imgui\imconfig.h">
@@ -292,6 +295,9 @@
     </ClInclude>
     <ClInclude Include="src\CollisionTestScene.h">
       <Filter>Scene\Test Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SkinningScene.h">
+      <Filter>Scene\Demo Scenes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

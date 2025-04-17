@@ -114,6 +114,7 @@
     <ClCompile Include="src\Render.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\SkinningScene.cpp" />
     <ClCompile Include="src\SoftwareRenderingScene.cpp" />
     <ClCompile Include="src\SolarSystemScene.cpp" />
     <ClCompile Include="src\EffectScene.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="src\Render.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\SkinningScene.h" />
     <ClInclude Include="src\SoftwareRenderingScene.h" />
     <ClInclude Include="src\SolarSystemScene.h" />
     <ClInclude Include="src\EffectScene.h" />
