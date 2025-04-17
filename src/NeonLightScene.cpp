@@ -230,10 +230,10 @@ void DrawDirectionLight()
 	SendFloat("u_ambient", 0.05f);
 	SendFloat("u_diffuse", 0.25f);
 
-	SendInt("u_positions", 0);
+	//SendInt("u_positions", 0); <-- Not used by direction light
 	SendInt("u_normals", 1);
 	SendInt("u_albedo", 2);
-	DrawFsq(); // <-- Draws with depth test & depth write disabled by default
+	DrawFsq();
 
 	UnbindShader();
 	UnbindTexture2D(fColorsRT[RenderTargets::ALBEDO], 2);
