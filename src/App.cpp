@@ -33,7 +33,7 @@ void Init()
 	CreateMeshes();
 	InitRenderer();
 	InitSoftwareRenderer();
-	Scene::Create(Scene::SOLAR_SYSTEM);
+	Scene::Create(Scene::REFLECTIVE_PAINT);
 }
 
 void Quit()

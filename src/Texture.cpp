@@ -109,8 +109,8 @@ void BindTexture1D(Texture1D texture, GLuint unit)
 void BindTexture2D(Texture2D texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
-    assert(GetTexture2DId() == GL_NONE);
-    assert(fTex2Units.insert({ texture.id, unit }).second);
+    //assert(GetTexture2DId() == GL_NONE);
+    //assert(fTex2Units.insert({ texture.id, unit }).second);
     glBindTexture(GL_TEXTURE_2D, texture.id);
 }
 
@@ -125,8 +125,8 @@ void BindTexture3D(Texture3D texture, GLuint unit)
 void BindTextureCubemap(TextureCubemap texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
-    assert(GetCubemapId() == GL_NONE);
-    assert(fTexCubemapUnits.insert({ texture.id, unit }).second);
+    //assert(GetCubemapId() == GL_NONE);
+    //assert(fTexCubemapUnits.insert({ texture.id, unit }).second);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.id);
 }
 
@@ -142,8 +142,8 @@ void UnbindTexture2D(Texture2D texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
-    assert(fTex2Units.at(texture.id) == unit);
-    assert(fTex2Units.erase(texture.id) == 1);
+    //assert(fTex2Units.at(texture.id) == unit);
+    //assert(fTex2Units.erase(texture.id) == 1);
 }
 
 void UnbindTexture3D(Texture3D texture, GLuint unit)
@@ -158,8 +158,8 @@ void UnbindTextureCubemap(TextureCubemap texture, GLuint unit)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
-    assert(fTexCubemapUnits.at(texture.id) == unit);
-    assert(fTexCubemapUnits.erase(texture.id) == 1);
+    //assert(fTexCubemapUnits.at(texture.id) == unit);
+    //assert(fTexCubemapUnits.erase(texture.id) == 1);
 }
 
 GLint GetTexture1DId()

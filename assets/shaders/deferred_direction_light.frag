@@ -2,7 +2,6 @@
 
 layout (location = 3) out vec3 gLighting;
 
-uniform sampler2D u_positions;
 uniform sampler2D u_normals;
 uniform sampler2D u_albedo;
 
@@ -17,7 +16,6 @@ out vec4 FragColor;
 
 void main()
 {
-    vec3 position = texture(u_positions, uv).xyz;
     vec3 normal = texture(u_normals, uv).xyz;
     vec3 albedo = texture(u_albedo, uv).rgb;
     

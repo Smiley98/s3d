@@ -164,10 +164,10 @@ void DrawCar(const Car& car, Matrix world)
 {
 	Matrix mvp = world * gView * gProj;
 
-	BindTextureCubemap(car.paint, 0);
-	BindTextureCubemap(fSkyboxArctic, 1);
 	BindTexture2D(fTextureDiffuse, 0);
 	BindTexture2D(fTextureSpecular, 1);
+	BindTextureCubemap(car.paint, 2);
+	BindTextureCubemap(fSkyboxArctic, 3);
 	BindShader(&gShaderCars);
 
 	SendMat4("u_mvp", mvp);
@@ -184,11 +184,10 @@ void DrawCar(const Car& car, Matrix world)
 	SendFloat("u_diffuse", fDiffuse);
 	SendFloat("u_specular", fSpecular);
 
-	SendInt("u_paintColor", 0);
-	SendInt("u_environmentColor", 1);
-
 	SendInt("u_paintMask", 0);
 	SendInt("u_specularMask", 1);
+	SendInt("u_paintColor", 2);
+	SendInt("u_environmentColor", 3);
 
 	DrawMesh(gMeshCt4);
 
