@@ -43,6 +43,9 @@
     <Filter Include="Scene\Demo Scenes">
       <UniqueIdentifier>{12600fb5-656c-4d6e-82ad-124a41988f39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene\Unfinished Scenes">
+      <UniqueIdentifier>{4c9e8e8c-a472-4f8a-bda1-2df592c5d8f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\imgui\imgui.cpp">
@@ -151,7 +154,7 @@
       <Filter>Scene\Test Scenes</Filter>
     </ClCompile>
     <ClCompile Include="src\SkinningScene.cpp">
-      <Filter>Scene\Demo Scenes</Filter>
+      <Filter>Scene\Unfinished Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -297,7 +300,7 @@
       <Filter>Scene\Test Scenes</Filter>
     </ClInclude>
     <ClInclude Include="src\SkinningScene.h">
-      <Filter>Scene\Demo Scenes</Filter>
+      <Filter>Scene\Unfinished Scenes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

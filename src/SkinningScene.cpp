@@ -6,6 +6,7 @@
 #include "ImageLoader.h"
 #include <imgui/imgui.h>
 
+// gltf loading is not for the weak...
 void SkinningScene::OnLoad()
 {
 	gCamera = FromView(LookAt({ 0.0f, 15.0f, 30.0f }, V3_ZERO, V3_UP));
