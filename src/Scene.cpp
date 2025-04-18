@@ -6,7 +6,7 @@
 #include "NeonLightScene.h"
 #include "ReflectivePaintScene.h"
 #include "FractalScene.h"
-//#include "SkinningScene.h"
+#include "SkinningScene.h"
 
 #include "GraphicsTestScene.h"
 #include "CollisionTestScene.h"
@@ -26,7 +26,7 @@ void Scene::Create(Scene::Type scene)
 	sScenes[NEON_LIGHTS] = new NeonLightScene;
 	sScenes[REFLECTIVE_PAINT] = new ReflectivePaintScene;
 	sScenes[FRACTAL] = new FractalScene;
-	//sScenes[SKINNING] = new SkinningScene;
+	sScenes[SKINNING] = new SkinningScene;
 
 	sScenes[GRAPHICS_TEST] = new GraphicsTestScene;
 	sScenes[PHYSICS_TEST] = new PhysicsTestScene;
@@ -94,7 +94,7 @@ void Scene::DrawImGui()
 			"Neon Lights",
 			"Reflective Paint",
 			"Fractals",
-			//"Skinning",
+			"Skinning",
 
 			"Graphics Test",
 			"Physics Test",
