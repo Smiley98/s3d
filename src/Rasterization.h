@@ -146,6 +146,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 {
 	// screen-space
 	Vector3* vertices = new Vector3[mesh.count];
+	Vector3* ndcs = new Vector3[mesh.count];
 
 	// world-space
 	Vector3* positions = new Vector3[mesh.count];
@@ -168,6 +169,8 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 		screen.z = ndc.z;
 
 		vertices[i] = screen;
+		ndcs[i] = ndc;
+
 		positions[i] = world * position;
 		normals[i] = normalMatrix * normal;
 	}
@@ -192,6 +195,27 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 			yMin = std::max(0, std::min(yMin, y));
 			xMax = std::min(image->width - 1, std::max(xMax, x));
 			yMax = std::min(image->height - 1, std::max(yMax, y));
+
+			// Face culling
+			Vector3 v0 = ndcs[vertex + 0];
+			Vector3 v1 = ndcs[vertex + 1];
+			Vector3 v2 = ndcs[vertex + 2];
+			Vector3 n = Cross(v1 - v0, v2 - v0);
+			bool front = Dot(n, V3_FORWARD) > 0.0f;
+			if (front)
+			{
+				rects[face].xMin = xMin;
+				rects[face].xMax = xMax;
+				rects[face].yMin = yMin;
+				rects[face].yMax = yMax;
+			}
+			else
+			{
+				rects[face].xMin = 0;
+				rects[face].xMax = -1;
+				rects[face].yMin = 0;
+				rects[face].yMax = -1;
+			}
 		}
 
 		rects[face].xMin = xMin;
@@ -253,6 +277,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 
 	delete[] rects;
 	delete[] vertices;
+	delete[] ndcs;
 	delete[] positions;
 	delete[] normals;
 }
