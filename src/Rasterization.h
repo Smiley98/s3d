@@ -144,18 +144,15 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 
 inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 {
-	// screen-space
+// Vertex input begin
 	Vector3* vertices = new Vector3[mesh.count];
 	Vector3* ndcs = new Vector3[mesh.count];
-
-	// world-space
 	Vector3* positions = new Vector3[mesh.count];
 	Vector3* normals = new Vector3[mesh.count];
+// Vertex input end
 
-	// Remove translation, then re-normalize
+// Vertex shader begin
 	Matrix normalMatrix = NormalMatrix(world);
-
-	// Convert mesh positions from NDC to screen-space
 	for (size_t i = 0; i < mesh.count; i++)
 	{
 		int index = mesh.indices.empty() ? i : mesh.indices[i];
@@ -174,8 +171,9 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 		positions[i] = world * position;
 		normals[i] = normalMatrix * normal;
 	}
+// Vertex shader end
 
-	// Triangle AABBs
+// Vertex clipping begin
 	Rect* rects = new Rect[mesh.count / 3];
 	for (size_t face = 0; face < mesh.count / 3; face++)
 	{
@@ -223,6 +221,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 		rects[face].yMin = yMin;
 		rects[face].yMax = yMax;
 	}
+// Vertex clipping end
 
 	for (size_t face = 0; face < mesh.count / 3; face++)
 	{
@@ -235,41 +234,36 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 				Vector3 v1 = vertices[vertex + 1];
 				Vector3 v2 = vertices[vertex + 2];
 
-				// Tri-linear interpolation, ensure 0.0 >= uvw <= 1.0
+// Rasterization begin
 				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
 				bool low = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
 				bool high = bc.x > 1.0f || bc.y > 1.0f || bc.z > 1.0f;
 
-				// Discard if pixel not in triangle
+				// Discard if pixel not in triangle (barycentric coordinates < 0.0 or > 1.0
 				if (low || high)
 					continue;
+// Rasterization end
 
-				// Tip: trilinear-interpolation formula is A * u + B * v + C * w
+// Depth test begin
 				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
 				if (depth > GetDepth(*image, x, y))
 					continue;
 				SetDepth(image, x, y, depth);
+// Depth test end
 				
-				// let p0 = face position 0
-				// let p1 = face position 1
-				// let p2 = face position 2
-				// let p = trilinear-interpolation(p0, p1, p2, bc)
+// Fragment shader begin
 				Vector3 p0 = positions[vertex + 0];
 				Vector3 p1 = positions[vertex + 1];
 				Vector3 p2 = positions[vertex + 2];
 				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
 
-				// let n0 = face normal 0
-				// let n1 = face normal 1
-				// let n2 = face normal 2
-				// let n = trilinear-interpolation(n0, n1, n2, bc)
 				Vector3 n0 = normals[vertex + 0];
 				Vector3 n1 = normals[vertex + 1];
 				Vector3 n2 = normals[vertex + 2];
 				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
+// Fragment shader end
 
-				// TODO -- test by passing p or n instead of bc
-				Color color = Float3ToColor(&p.x);
+				Color color = Float3ToColor(&n.x);
 				SetPixel(image, x, y, color);
 			}
 		}
