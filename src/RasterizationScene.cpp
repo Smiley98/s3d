@@ -16,5 +16,4 @@ void RasterizationScene::OnUpdate(float dt)
 {
 	ClearColor(&gImageCPU, BLACK);
 	DrawMesh(&gImageCPU, gMeshHead);
-	// works with obj meshes but not par_shapes meshes since par_shapes uses index buffer
 }

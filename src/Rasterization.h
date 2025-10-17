@@ -153,8 +153,9 @@ inline void DrawMesh(Image* image, Mesh mesh)
 	// Convert mesh positions from NDC to screen-space
 	for (size_t i = 0; i < mesh.count; i++)
 	{
-		Vector3 ndc = mesh.positions[i];
-		Vector3 normal = mesh.normals[i];
+		int index = mesh.indices.empty() ? i : mesh.indices[i];
+		Vector3 ndc = mesh.positions[index];
+		Vector3 normal = mesh.normals[index];
 		Vector3 screen;
 		screen.x = Remap(ndc.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
 		screen.y = Remap(ndc.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
