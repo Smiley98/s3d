@@ -275,9 +275,10 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData data)
 				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
 				bool low = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
 				bool high = bc.x > 1.0f || bc.y > 1.0f || bc.z > 1.0f;
+				bool nan = _isnanf(bc.x) || _isnanf(bc.y) || _isnanf(bc.z);
 
-				// Discard if pixel not in triangle (barycentric coordinates < 0.0 or > 1.0
-				if (low || high)
+				// Discard if pixel not in triangle (barycentric coordinates less than zero or greater than one)
+				if (low || high || nan)
 					continue;
 			// Rasterization end
 
@@ -304,11 +305,19 @@ inline void DrawMesh(Image* image, Mesh mesh, UniformData data)
 				Vector2 t2 = tcoords[vertex + 2];
 				Vector2 t = t0 * bc.x + t1 * bc.y + t2 * bc.z;
 
-				Color textureColor = GetPixel(*data.texture, t.x * data.texture->width, t.y * data.texture->height);
+				Vector3 lighting = Phong(p, n, data.cameraPosition, data.lightPosition, data.lightColor, data.ambient, data.diffuse, data.specular);
+				Color texelColor = GetPixel(*data.texture, t.x * data.texture->width, t.y * data.texture->height);
+
+				Vector3 textureColor;
+				textureColor.x = texelColor.r / 255.0f;
+				textureColor.y = texelColor.g / 255.0f;
+				textureColor.z = texelColor.b / 255.0f;
+
+				Vector3 finalColor = textureColor * lighting;
 			// Fragment shader end
 
-				Color color = Float2ToColor(&t.x);
-				SetPixel(image, x, y, textureColor);
+				Color color = Float3ToColor(&finalColor.x);
+				SetPixel(image, x, y, color);
 			}
 		}
 	}

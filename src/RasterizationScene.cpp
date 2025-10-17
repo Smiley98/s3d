@@ -22,8 +22,12 @@ void RasterizationScene::OnUpdate(float dt)
 	ClearDepth(&gImageCPU, 1.0f);
 	float tt = TotalTime();
 
+	Vector3 cameraPosition = { 0.0f, 0.0f, 10.0f };
+	Vector3 lightPosition = Translate(5.0f, sin(tt * 3.0f) * 5.0f, 0.0f) * RotateY(tt * 100.0f * DEG2RAD) * V3_ZERO;
+	Vector3 lightColor = V3_ONE;
+
 	Matrix world = Translate(0.0f, 0.0f, 5.0f + sinf(tt) * 3.0f);
-	Matrix view = LookAt({ 0.0f, 0.0f, 10.0f }, V3_ZERO, V3_UP);
+	Matrix view = LookAt(cameraPosition, V3_ZERO, V3_UP);
 	Matrix proj = Perspective(90.0f * DEG2RAD, 1.0f, 0.1f, 10.0f);
 	Matrix mvp = world * view * proj;
 
@@ -31,6 +35,14 @@ void RasterizationScene::OnUpdate(float dt)
 	data.world = world;
 	data.mvp = mvp;
 	data.texture = &texture;
+
+	data.cameraPosition = cameraPosition;
+	data.lightPosition = lightPosition;
+	data.lightColor = lightColor;
+
+	data.ambient = 0.1f;
+	data.diffuse = 1.0f;
+	data.specular = 32.0f;
 
 	DrawMesh(&gImageCPU, gMeshHead, data);
 }
