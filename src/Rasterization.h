@@ -142,7 +142,41 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 	}
 }
 
-inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
+struct UniformData
+{
+	Matrix mvp;
+	Matrix world;
+
+	Image* texture;
+
+	Vector3 cameraPosition;
+	Vector3 lightPosition;
+	Vector3 lightColor;
+
+	float ambient;
+	float diffuse;
+	float specular;
+};
+
+inline Vector3 Phong(Vector3 position, Vector3 normal, Vector3 camera, Vector3 light,
+	Vector3 color, float ambient, float diffuse, float specular)
+{
+	Vector3 N = normal;
+	Vector3 L = Normalize(light - position);
+	Vector3 V = Normalize(camera - position);
+	Vector3 R = Reflect(L * -1.0f, N);
+
+	float dotNL = fmaxf(Dot(N, L), 0.0f);
+	float dotVR = fmaxf(Dot(V, R), 0.0f);
+
+	Vector3 phong = V3_ZERO;
+	phong += color * ambient;
+	phong += color * diffuse * dotNL;
+	phong += color * powf(dotVR, specular);
+	return phong;
+}
+
+inline void DrawMesh(Image* image, Mesh mesh, UniformData data)
 {
 // Vertex input begin
 	Vector3* vertices = new Vector3[mesh.count];
@@ -153,7 +187,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 // Vertex input end
 
 // Vertex shader begin
-	Matrix normalMatrix = NormalMatrix(world);
+	Matrix normalMatrix = NormalMatrix(data.world);
 	for (size_t i = 0; i < mesh.count; i++)
 	{
 		int index = mesh.indices.empty() ? i : mesh.indices[i];
@@ -161,7 +195,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 		Vector3 normal = mesh.normals[index];
 		Vector2 tcoord = mesh.tcoords[index];
 
-		Vector3 ndc = Clip(mvp, position);
+		Vector3 ndc = Clip(data.mvp, position);
 		Vector3 screen;
 		screen.x = Remap(ndc.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
 		screen.y = Remap(ndc.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
@@ -170,7 +204,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 		vertices[i] = screen;
 		ndcs[i] = ndc;
 
-		positions[i] = world * position;
+		positions[i] = data.world * position;
 		normals[i] = normalMatrix * normal;
 		tcoords[i] = tcoord;
 	}
@@ -269,10 +303,12 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 				Vector2 t1 = tcoords[vertex + 1];
 				Vector2 t2 = tcoords[vertex + 2];
 				Vector2 t = t0 * bc.x + t1 * bc.y + t2 * bc.z;
+
+				Color textureColor = GetPixel(*data.texture, t.x * data.texture->width, t.y * data.texture->height);
 			// Fragment shader end
 
 				Color color = Float2ToColor(&t.x);
-				SetPixel(image, x, y, color);
+				SetPixel(image, x, y, textureColor);
 			}
 		}
 	}

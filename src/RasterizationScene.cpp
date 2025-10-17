@@ -4,12 +4,16 @@
 #include "Camera.h"
 #include "Time.h"
 
+static Image texture;
+
 void RasterizationScene::OnLoad()
 {
+	CreateImageFromFile(&texture, "./assets/textures/african_head_diffuse.png", true);
 }
 
 void RasterizationScene::OnUnload()
 {
+	DestroyImage(&texture);
 }
 
 void RasterizationScene::OnUpdate(float dt)
@@ -23,5 +27,10 @@ void RasterizationScene::OnUpdate(float dt)
 	Matrix proj = Perspective(90.0f * DEG2RAD, 1.0f, 0.1f, 10.0f);
 	Matrix mvp = world * view * proj;
 
-	DrawMesh(&gImageCPU, gMeshHead, world, mvp);
+	UniformData data;
+	data.world = world;
+	data.mvp = mvp;
+	data.texture = &texture;
+
+	DrawMesh(&gImageCPU, gMeshHead, data);
 }
