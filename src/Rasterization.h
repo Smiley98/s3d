@@ -142,27 +142,34 @@ inline void DrawFaceWireframes(Image* image, Vector3* positions, size_t face, Co
 	}
 }
 
-inline void DrawMesh(Image* image, Mesh mesh)
+inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 {
 	// screen-space
 	Vector3* vertices = new Vector3[mesh.count];
 
-	// TODO -- make an array of positions of size vertex count
-	// TODO -- make an array of normals of size vertex count
+	// world-space
+	Vector3* positions = new Vector3[mesh.count];
+	Vector3* normals = new Vector3[mesh.count];
+
+	// Remove translation, then re-normalize
+	Matrix normalMatrix = NormalMatrix(world);
 
 	// Convert mesh positions from NDC to screen-space
 	for (size_t i = 0; i < mesh.count; i++)
 	{
 		int index = mesh.indices.empty() ? i : mesh.indices[i];
-		Vector3 ndc = mesh.positions[index];
+		Vector3 position = mesh.positions[index];
 		Vector3 normal = mesh.normals[index];
+
+		Vector3 ndc = Clip(mvp, position);
 		Vector3 screen;
 		screen.x = Remap(ndc.x, -1.0f, 1.0f, 0.0f, image->width - 1.0f);
 		screen.y = Remap(ndc.y, -1.0f, 1.0f, 0.0f, image->height - 1.0f);
 		screen.z = ndc.z;
+
 		vertices[i] = screen;
-		// TODO -- write ndc to the current position element
-		// TODO -- write normal to the current normal element
+		positions[i] = world * position;
+		normals[i] = normalMatrix * normal;
 	}
 
 	// Triangle AABBs
@@ -213,20 +220,32 @@ inline void DrawMesh(Image* image, Mesh mesh)
 				if (low || high)
 					continue;
 
-				// Tip: trilinear-interpolation is A * u + B * v + C * w
-
+				// Tip: trilinear-interpolation formula is A * u + B * v + C * w
+				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
+				if (depth > GetDepth(*image, x, y))
+					continue;
+				SetDepth(image, x, y, depth);
+				
 				// let p0 = face position 0
 				// let p1 = face position 1
 				// let p2 = face position 2
 				// let p = trilinear-interpolation(p0, p1, p2, bc)
+				Vector3 p0 = positions[vertex + 0];
+				Vector3 p1 = positions[vertex + 1];
+				Vector3 p2 = positions[vertex + 2];
+				Vector3 p = p0 * bc.x + p1 * bc.y + p2 * bc.z;
 
 				// let n0 = face normal 0
 				// let n1 = face normal 1
 				// let n2 = face normal 2
 				// let n = trilinear-interpolation(n0, n1, n2, bc)
+				Vector3 n0 = normals[vertex + 0];
+				Vector3 n1 = normals[vertex + 1];
+				Vector3 n2 = normals[vertex + 2];
+				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
 
 				// TODO -- test by passing p or n instead of bc
-				Color color = Float3ToColor(&bc.x);
+				Color color = Float3ToColor(&p.x);
 				SetPixel(image, x, y, color);
 			}
 		}
@@ -234,6 +253,6 @@ inline void DrawMesh(Image* image, Mesh mesh)
 
 	delete[] rects;
 	delete[] vertices;
-	// TODO -- delete positions
-	// TODO -- delete normals
+	delete[] positions;
+	delete[] normals;
 }
