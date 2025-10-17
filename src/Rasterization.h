@@ -149,6 +149,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 	Vector3* ndcs = new Vector3[mesh.count];
 	Vector3* positions = new Vector3[mesh.count];
 	Vector3* normals = new Vector3[mesh.count];
+	Vector2* tcoords = new Vector2[mesh.count];
 // Vertex input end
 
 // Vertex shader begin
@@ -158,6 +159,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 		int index = mesh.indices.empty() ? i : mesh.indices[i];
 		Vector3 position = mesh.positions[index];
 		Vector3 normal = mesh.normals[index];
+		Vector2 tcoord = mesh.tcoords[index];
 
 		Vector3 ndc = Clip(mvp, position);
 		Vector3 screen;
@@ -170,6 +172,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 
 		positions[i] = world * position;
 		normals[i] = normalMatrix * normal;
+		tcoords[i] = tcoord;
 	}
 // Vertex shader end
 
@@ -234,7 +237,7 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 				Vector3 v1 = vertices[vertex + 1];
 				Vector3 v2 = vertices[vertex + 2];
 
-// Rasterization begin
+			// Rasterization begin
 				Vector3 bc = Barycenter({ (float)x, (float)y, 0.0f }, v0, v1, v2);
 				bool low = bc.x < 0.0f || bc.y < 0.0f || bc.z < 0.0f;
 				bool high = bc.x > 1.0f || bc.y > 1.0f || bc.z > 1.0f;
@@ -242,16 +245,16 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 				// Discard if pixel not in triangle (barycentric coordinates < 0.0 or > 1.0
 				if (low || high)
 					continue;
-// Rasterization end
+			// Rasterization end
 
-// Depth test begin
+			// Depth test begin
 				float depth = v0.z * bc.x + v1.z * bc.y + v2.z * bc.z;
 				if (depth > GetDepth(*image, x, y))
 					continue;
 				SetDepth(image, x, y, depth);
-// Depth test end
+			// Depth test end
 				
-// Fragment shader begin
+			// Fragment shader begin
 				Vector3 p0 = positions[vertex + 0];
 				Vector3 p1 = positions[vertex + 1];
 				Vector3 p2 = positions[vertex + 2];
@@ -261,9 +264,14 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 				Vector3 n1 = normals[vertex + 1];
 				Vector3 n2 = normals[vertex + 2];
 				Vector3 n = n0 * bc.x + n1 * bc.y + n2 * bc.z;
-// Fragment shader end
 
-				Color color = Float3ToColor(&n.x);
+				Vector2 t0 = tcoords[vertex + 0];
+				Vector2 t1 = tcoords[vertex + 1];
+				Vector2 t2 = tcoords[vertex + 2];
+				Vector2 t = t0 * bc.x + t1 * bc.y + t2 * bc.z;
+			// Fragment shader end
+
+				Color color = Float2ToColor(&t.x);
 				SetPixel(image, x, y, color);
 			}
 		}
@@ -274,4 +282,5 @@ inline void DrawMesh(Image* image, Mesh mesh, Matrix world, Matrix mvp)
 	delete[] ndcs;
 	delete[] positions;
 	delete[] normals;
+	delete[] tcoords;
 }
